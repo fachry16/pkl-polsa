@@ -13,10 +13,18 @@ class RoleMiddleware
             abort(403);
         }
 
-        if (!in_array(auth()->user()->role, $roles)) {
-            abort(403);
+        $user = auth()->user();
+
+        foreach ($roles as $role) {
+            if (strtolower($role) === 'kaprodi') {
+                if ($user->role === 'admin' || $user->isKaprodi()) {
+                    return $next($request);
+                }
+            } elseif ($user->role === $role) {
+                return $next($request);
+            }
         }
 
-        return $next($request);
+        abort(403);
     }
 }

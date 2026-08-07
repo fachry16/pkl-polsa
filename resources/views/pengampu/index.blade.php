@@ -6,14 +6,14 @@
     Dosen Pengampu
 </h1>
 
-@unless(auth()->user()->isDirektur())
+@if(auth()->user()->isAdmin())
 <a href="{{ route('pengampu.create') }}"
    class="btn btn-primary">
 
     Tambah Pengampu
 
 </a>
-@endunless
+@endif
 
 <x-alert type="success" :message="session('success')" />
 

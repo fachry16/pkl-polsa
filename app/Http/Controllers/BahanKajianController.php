@@ -1,18 +1,24 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Kurikulum;
+
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\BahanKajian;
+use App\Models\Kurikulum;
 use Illuminate\Http\Request;
 
 class BahanKajianController extends Controller
 {
+    use AuthorizesKurikulum;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $bahanKajians = $kurikulum->bahanKajians()->latest()->paginate(10);
+
         return view('bahan-kajian.index', compact('kurikulum', 'bahanKajians'));
     }
 
@@ -21,6 +27,8 @@ class BahanKajianController extends Controller
      */
     public function create(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
+
         return view('bahan-kajian.create', compact('kurikulum'));
     }
 
@@ -29,6 +37,7 @@ class BahanKajianController extends Controller
      */
     public function store(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'kode_bk' => 'required',
             'nama_bk' => 'required',
@@ -39,22 +48,22 @@ class BahanKajianController extends Controller
             'nama_bk' => $request->nama_bk,
             'referensi' => $request->referensi,
         ]);
+
         return redirect()->route('kurikulum.bahan-kajian.index', $kurikulum->id)->with('success', 'Bahan Kajian berhasil ditambahkan');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Kurikulum $kurikulum, BahanKajian $bahanKajian)
-    {
-        
-    }
+    public function show(Kurikulum $kurikulum, BahanKajian $bahanKajian) {}
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Kurikulum $kurikulum, BahanKajian $bahanKajian)
     {
+        $this->authorizeKurikulum($kurikulum);
+
         return view('bahan-kajian.edit', compact('kurikulum', 'bahanKajian'));
     }
 
@@ -63,6 +72,7 @@ class BahanKajianController extends Controller
      */
     public function update(Request $request, Kurikulum $kurikulum, BahanKajian $bahanKajian)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'kode_bk' => 'required',
             'nama_bk' => 'required',
@@ -72,6 +82,7 @@ class BahanKajianController extends Controller
             'nama_bk' => $request->nama_bk,
             'referensi' => $request->referensi,
         ]);
+
         return redirect()->route('kurikulum.bahan-kajian.index', $kurikulum->id)->with('success', 'Bahan Kajian berhasil diperbarui.');
     }
 
@@ -80,7 +91,9 @@ class BahanKajianController extends Controller
      */
     public function destroy(Kurikulum $kurikulum, BahanKajian $bahanKajian)
     {
+        $this->authorizeKurikulum($kurikulum);
         $bahanKajian->delete();
+
         return redirect()->route('kurikulum.bahan-kajian.index', $kurikulum->id)->with('success', 'Bahan Kajian berhasil dihapus');
     }
 }

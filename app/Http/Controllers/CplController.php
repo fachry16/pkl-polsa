@@ -1,18 +1,24 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Cpl;
 use App\Models\Kurikulum;
 use Illuminate\Http\Request;
 
 class CplController extends Controller
 {
+    use AuthorizesKurikulum;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $cpls = $kurikulum->cpls()->latest()->paginate(10);
+
         return view('cpl.index', compact('kurikulum', 'cpls'));
     }
 
@@ -21,6 +27,8 @@ class CplController extends Controller
      */
     public function create(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
+
         return view('cpl.create', compact('kurikulum'));
     }
 
@@ -29,6 +37,7 @@ class CplController extends Controller
      */
     public function store(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'kode_cpl' => 'required',
             'deskripsi' => 'required',
@@ -38,6 +47,7 @@ class CplController extends Controller
             'kode_cpl' => strtoupper($request->kode_cpl),
             'deskripsi' => $request->deskripsi,
         ]);
+
         return redirect()->route('kurikulum.cpl.index', $kurikulum->id)->with('success', 'CPL berhasil ditambahkan,');
     }
 
@@ -54,7 +64,9 @@ class CplController extends Controller
      */
     public function edit(Kurikulum $kurikulum, Cpl $cpl)
     {
-        return view('cpl.edit',compact('kurikulum', 'cpl'));
+        $this->authorizeKurikulum($kurikulum);
+
+        return view('cpl.edit', compact('kurikulum', 'cpl'));
     }
 
     /**
@@ -62,6 +74,7 @@ class CplController extends Controller
      */
     public function update(Request $request, Kurikulum $kurikulum, Cpl $cpl)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'kode_cpl' => 'required',
             'deskripsi' => 'required',
@@ -70,6 +83,7 @@ class CplController extends Controller
             'kode_cpl' => strtoupper($request->kode_cpl),
             'deskripsi' => $request->deskripsi,
         ]);
+
         return redirect()->route('kurikulum.cpl.index', $kurikulum->id)->with('success', 'CPL berhasil diupdate.');
     }
 
@@ -78,7 +92,9 @@ class CplController extends Controller
      */
     public function destroy(Kurikulum $kurikulum, Cpl $cpl)
     {
+        $this->authorizeKurikulum($kurikulum);
         $cpl->delete();
+
         return redirect()->route('kurikulum.cpl.index', $kurikulum->id)->with('success', 'CPL berhasil dihapus.');
     }
 }

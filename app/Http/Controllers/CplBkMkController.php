@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CplBkMkController extends Controller
 {
+    use AuthorizesKurikulum;
+
     public function index(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get();
         $mataKuliahId = $request->mata_kuliah_id;
         $bahanKajians = $kurikulum->bahanKajians()->orderBy('kode_bk')->get();
@@ -21,7 +25,7 @@ class CplBkMkController extends Controller
                 ->where('mata_kuliah_id', $mataKuliahId)
                 ->get()
                 ->mapWithKeys(function ($item) {
-                    return [$item->cpl_id . '-' . $item->bahan_kajian_id => true];
+                    return [$item->cpl_id.'-'.$item->bahan_kajian_id => true];
                 })
                 ->toArray();
         }
@@ -31,6 +35,7 @@ class CplBkMkController extends Controller
 
     public function store(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
         ]);

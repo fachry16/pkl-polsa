@@ -6,9 +6,11 @@
     Kartu Rencana Studi (KRS)
 </h1>
 
+@if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
 <a href="{{ route('krs.create') }}" class="btn btn-primary">
     Tambah KRS
 </a>
+@endif
 
 <x-alert type="success" :message="session('success')" />
 
@@ -70,6 +72,7 @@
                            class="btn btn-primary btn-sm">
                             Kelola Mahasiswa
                         </a>
+                        @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                         <form action="{{ route('krs.destroy', $krs->id) }}"
                               method="POST"
                               onsubmit="return confirm('Hapus data KRS ini? Data terkait di Pengampu juga akan dihapus.')">
@@ -77,6 +80,7 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                         </form>
+                        @endif
                     </td>
 
                 </tr>

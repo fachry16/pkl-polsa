@@ -1,17 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PemenuhanCplsController extends Controller
 {
+    use AuthorizesKurikulum;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $cpls = $kurikulum->cpls()
             ->orderBy('kode_cpl')
             ->get();
@@ -21,7 +26,7 @@ class PemenuhanCplsController extends Controller
             ->get()
             ->mapWithKeys(function ($item) {
                 return [
-                    $item->cpl_id . '-' . $item->semester => true
+                    $item->cpl_id.'-'.$item->semester => true,
                 ];
             })
             ->toArray();
@@ -49,6 +54,7 @@ class PemenuhanCplsController extends Controller
      */
     public function store(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         DB::table('pemenuhan_cpls')
             ->where('kurikulum_id', $kurikulum->id)
             ->delete();

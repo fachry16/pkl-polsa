@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Rps;
+use App\Http\Controllers\Concerns\AuthorizesRps;
 use App\Models\MataKuliah;
+use App\Models\Rps;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class RpsController extends Controller
 {
+    use AuthorizesRps;
+
     public function index(MataKuliah $mataKuliah)
     {
         $this->authorizeRps($mataKuliah);
         $rps = $mataKuliah->rps;
+
         return view('rps.index', compact('mataKuliah', 'rps'));
     }
 
@@ -60,12 +64,14 @@ class RpsController extends Controller
     public function show(MataKuliah $mataKuliah, Rps $rps)
     {
         $this->authorizeRps($mataKuliah);
+
         return view('rps.show', compact('mataKuliah', 'rps'));
     }
 
     public function edit(MataKuliah $mataKuliah, Rps $rps)
     {
         $this->authorizeRps($mataKuliah);
+
         return view('rps.edit', compact('mataKuliah', 'rps'));
     }
 
@@ -102,24 +108,11 @@ class RpsController extends Controller
             ->with('success', 'RPS berhasil dihapus.');
     }
 
-    private function authorizeRps(MataKuliah $mataKuliah)
-    {
-        $user = auth()->user();
-
-        if ($user->role === 'admin' || ($user->dosen && strtolower($user->dosen->jabatan) === 'kaprodi')) {
-            return;
-        }
-
-        $boleh = $mataKuliah->pengampus()
-            ->where('dosen_id', $user->dosen->id)
-            ->exists();
-
-        abort_unless($boleh, 403);
-    }
-
     public function ajukan(Rps $rps)
     {
-        if (!in_array($rps->status, ['Draft', 'Revisi'])) {
+        $this->authorizeRps($rps->mataKuliah);
+
+        if (! in_array($rps->status, ['Draft', 'Revisi'])) {
             return back()->with('error', 'RPS tidak dapat diajukan kembali.');
         }
 
@@ -127,7 +120,7 @@ class RpsController extends Controller
             return back()->with('error', 'Pertemuan belum diisi.');
         }
 
-        if (!$rps->penilaian) {
+        if (! $rps->penilaian) {
             return back()->with('error', 'Penilaian belum diisi.');
         }
 
@@ -185,6 +178,8 @@ class RpsController extends Controller
 
     public function ekstrakPdf(Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         if ($rps->status !== 'Disetujui') {
             return back()->with('error', 'Hanya RPS yang sudah disetujui yang dapat diekstrak.');
         }
@@ -199,7 +194,7 @@ class RpsController extends Controller
         if (request()->has('download')) {
             $pdf = Pdf::loadView('rps.pdf', compact('rps'));
 
-            $filename = 'RPS-' . $rps->mataKuliah->kode . '-' . $rps->mataKuliah->nama . '.pdf';
+            $filename = 'RPS-'.$rps->mataKuliah->kode.'-'.$rps->mataKuliah->nama.'.pdf';
 
             return $pdf->download($filename);
         }

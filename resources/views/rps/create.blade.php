@@ -41,7 +41,7 @@
         <input type="text"
                name="dosen_pengampu"
                class="form-input w-full"
-               value="{{ old('dosen_pengampu') }}">
+               value="{{ old('dosen_pengampu', auth()->user()->dosen?->user->name ?? '') }}">
 
     </div>
 

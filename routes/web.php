@@ -57,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 /* Shared read-only (Admin + Direktur) */
-Route::middleware(['auth', 'role:admin,direktur'])->group(function () {
+Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
 
     Route::get(
         'tahun-akademik',
@@ -93,16 +93,6 @@ Route::middleware(['auth', 'role:admin,direktur'])->group(function () {
         'pengampu',
         [PengampuController::class, 'index']
     )->name('pengampu.index');
-
-    Route::get(
-        'krs',
-        [KrsController::class, 'index']
-    )->name('krs.index');
-
-    Route::get(
-        'krs/{krs}',
-        [KrsController::class, 'show']
-    )->where('krs', '[0-9]+')->name('krs.show');
 });
 
 /* Admin only (mutations + user management) */
@@ -154,6 +144,24 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     )->name('pengampu.kelas.mahasiswa.destroy');
 
     Route::resource('users', UserController::class);
+});
+
+/* KRS — Admin, Direktur (read-only), Kaprodi */
+Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
+
+    Route::get(
+        'krs',
+        [KrsController::class, 'index']
+    )->name('krs.index');
+
+    Route::get(
+        'krs/{krs}',
+        [KrsController::class, 'show']
+    )->where('krs', '[0-9]+')->name('krs.show');
+});
+
+/* KRS — Admin + Kaprodi (mutations) */
+Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
 
     Route::get(
         'krs/create',
@@ -194,6 +202,19 @@ Route::middleware(['auth'])->group(function () {
         [KurikulumController::class, 'indexByProgramStudi']
     )->name('program-studi.kurikulum');
 
+    Route::get(
+        'kurikulum/{kurikulum}/detail',
+        [KurikulumController::class, 'detail']
+    )->name('kurikulum.detail');
+
+    Route::get(
+        'kurikulum/{kurikulum}/mata-kuliah/struktur',
+        [MataKuliahController::class, 'struktur']
+    )->name('kurikulum.struktur');
+
+    /* Kurikulum management — Admin + Kaprodi */
+    Route::middleware(['role:admin,kaprodi'])->group(function () {
+
     /* Kurikulum */
     Route::get(
         'kurikulum/create',
@@ -229,11 +250,6 @@ Route::middleware(['auth'])->group(function () {
         'kurikulum',
         [KurikulumController::class, 'index']
     )->name('kurikulum.index');
-
-    Route::get(
-        'kurikulum/{kurikulum}/detail',
-        [KurikulumController::class, 'detail']
-    )->name('kurikulum.detail');
 
     /* CPL */
     Route::get(
@@ -418,9 +434,31 @@ Route::middleware(['auth'])->group(function () {
     )->name('kurikulum.mata-kuliah.index');
 
     Route::get(
-        'kurikulum/{kurikulum}/mata-kuliah/struktur',
-        [MataKuliahController::class, 'struktur']
-    )->name('kurikulum.struktur');
+        'kurikulum/{kurikulum}/mata-kuliah/create',
+        [MataKuliahController::class, 'create']
+    )->name('kurikulum.mata-kuliah.create');
+
+    Route::post(
+        'kurikulum/{kurikulum}/mata-kuliah',
+        [MataKuliahController::class, 'store']
+    )->name('kurikulum.mata-kuliah.store');
+
+    Route::get(
+        'kurikulum/{kurikulum}/mata-kuliah/{mataKuliah}/edit',
+        [MataKuliahController::class, 'edit']
+    )->name('kurikulum.mata-kuliah.edit');
+
+    Route::put(
+        'kurikulum/{kurikulum}/mata-kuliah/{mataKuliah}',
+        [MataKuliahController::class, 'update']
+    )->name('kurikulum.mata-kuliah.update');
+
+    Route::delete(
+        'kurikulum/{kurikulum}/mata-kuliah/{mataKuliah}',
+        [MataKuliahController::class, 'destroy']
+    )->name('kurikulum.mata-kuliah.destroy');
+
+    });
 
     Route::resource(
         'mata-kuliah.rps',
@@ -510,36 +548,6 @@ Route::middleware(['auth', 'Kaprodi'])->group(function () {
         'rps/{rps}/revisi',
         [RpsController::class, 'revisi']
     )->name('rps.revisi');
-
-    Route::get(
-        'kurikulum/{kurikulum}/mata-kuliah/create',
-        [MataKuliahController::class, 'create']
-    )->name('kurikulum.mata-kuliah.create');
-
-    Route::post(
-        'kurikulum/{kurikulum}/mata-kuliah',
-        [MataKuliahController::class, 'store']
-    )->name('kurikulum.mata-kuliah.store');
-
-    Route::get(
-        'kurikulum/{kurikulum}/mata-kuliah/{mataKuliah}/edit',
-        [MataKuliahController::class, 'edit']
-    )->name('kurikulum.mata-kuliah.edit');
-
-    Route::put(
-        'kurikulum/{kurikulum}/mata-kuliah/{mataKuliah}',
-        [MataKuliahController::class, 'update']
-    )->name('kurikulum.mata-kuliah.update');
-
-    Route::delete(
-        'kurikulum/{kurikulum}/mata-kuliah/{mataKuliah}',
-        [MataKuliahController::class, 'destroy']
-    )->name('kurikulum.mata-kuliah.destroy');
-
-    Route::patch(
-        'mata-kuliah/{mataKuliah}/aktifkan',
-        [MataKuliahController::class, 'aktifkan']
-    )->name('mata-kuliah.aktifkan');
 });
 
 /* Direktur */

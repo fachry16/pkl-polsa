@@ -69,6 +69,7 @@
                         <td>{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</td>
                         <td>{{ $mahasiswa->angkatan }}</td>
                         <td>
+                            @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                             <form action="{{ route('krs.mahasiswa.destroy', [$krs->id, $mahasiswa->id]) }}"
                                   method="POST"
                                   onsubmit="return confirm('Keluarkan {{ $mahasiswa->nama }} dari kelas ini?')">
@@ -76,6 +77,7 @@
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                             </form>
+                            @endif
                         </td>
                     </tr>
 
@@ -95,6 +97,7 @@
 
     </div>
 
+    @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
     <div class="krs-sidebar">
 
         <h3 style="margin: 0 0 0.75rem; font-size: 1rem; font-weight: 600;">
@@ -140,6 +143,7 @@
         </div>
 
     </div>
+    @endif
 
 </div>
 

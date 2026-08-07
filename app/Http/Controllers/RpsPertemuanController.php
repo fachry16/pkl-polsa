@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesRps;
 use App\Models\Rps;
 use App\Models\RpsPertemuan;
 use Illuminate\Http\Request;
@@ -9,11 +10,15 @@ use Illuminate\Validation\Rule;
 
 class RpsPertemuanController extends Controller
 {
+    use AuthorizesRps;
+
     /**
      * Menampilkan daftar pertemuan.
      */
     public function index(Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         $pertemuans = $rps->pertemuans()
             ->orderBy('minggu')
             ->paginate(16);
@@ -29,6 +34,8 @@ class RpsPertemuanController extends Controller
      */
     public function create(Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         return view(
             'rps-pertemuan.create',
             compact('rps')
@@ -40,6 +47,8 @@ class RpsPertemuanController extends Controller
      */
     public function store(Request $request, Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         $request->validate([
             'minggu' => [
                 'required',
@@ -51,23 +60,23 @@ class RpsPertemuanController extends Controller
                     }),
             ],
 
-            'sub_cpmk'             => 'required',
-            'materi'               => 'required',
-            'metode'               => 'nullable|max:255',
-            'pengalaman_belajar'   => 'nullable',
-            'indikator'            => 'nullable',
-            'bobot'                => 'nullable|numeric|min:0|max:100',
+            'sub_cpmk' => 'required',
+            'materi' => 'required',
+            'metode' => 'nullable|max:255',
+            'pengalaman_belajar' => 'nullable',
+            'indikator' => 'nullable',
+            'bobot' => 'nullable|numeric|min:0|max:100',
         ]);
 
         RpsPertemuan::create([
-            'rps_id'               => $rps->id,
-            'minggu'               => $request->minggu,
-            'sub_cpmk'             => $request->sub_cpmk,
-            'materi'               => $request->materi,
-            'metode'               => $request->metode,
-            'pengalaman_belajar'   => $request->pengalaman_belajar,
-            'indikator'            => $request->indikator,
-            'bobot'                => $request->bobot,
+            'rps_id' => $rps->id,
+            'minggu' => $request->minggu,
+            'sub_cpmk' => $request->sub_cpmk,
+            'materi' => $request->materi,
+            'metode' => $request->metode,
+            'pengalaman_belajar' => $request->pengalaman_belajar,
+            'indikator' => $request->indikator,
+            'bobot' => $request->bobot,
         ]);
 
         return redirect()
@@ -83,6 +92,8 @@ class RpsPertemuanController extends Controller
      */
     public function edit(Rps $rps, RpsPertemuan $pertemuan)
     {
+        $this->authorizeRpsModel($rps);
+
         return view(
             'rps-pertemuan.edit',
             compact('rps', 'pertemuan')
@@ -97,6 +108,8 @@ class RpsPertemuanController extends Controller
         Rps $rps,
         RpsPertemuan $pertemuan
     ) {
+        $this->authorizeRpsModel($rps);
+
         $request->validate([
             'minggu' => [
                 'required',
@@ -109,22 +122,22 @@ class RpsPertemuanController extends Controller
                     }),
             ],
 
-            'sub_cpmk'             => 'required',
-            'materi'               => 'required',
-            'metode'               => 'nullable|max:255',
-            'pengalaman_belajar'   => 'nullable',
-            'indikator'            => 'nullable',
-            'bobot'                => 'nullable|numeric|min:0|max:100',
+            'sub_cpmk' => 'required',
+            'materi' => 'required',
+            'metode' => 'nullable|max:255',
+            'pengalaman_belajar' => 'nullable',
+            'indikator' => 'nullable',
+            'bobot' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $pertemuan->update([
-            'minggu'               => $request->minggu,
-            'sub_cpmk'             => $request->sub_cpmk,
-            'materi'               => $request->materi,
-            'metode'               => $request->metode,
-            'pengalaman_belajar'   => $request->pengalaman_belajar,
-            'indikator'            => $request->indikator,
-            'bobot'                => $request->bobot,
+            'minggu' => $request->minggu,
+            'sub_cpmk' => $request->sub_cpmk,
+            'materi' => $request->materi,
+            'metode' => $request->metode,
+            'pengalaman_belajar' => $request->pengalaman_belajar,
+            'indikator' => $request->indikator,
+            'bobot' => $request->bobot,
         ]);
 
         return redirect()
@@ -142,6 +155,8 @@ class RpsPertemuanController extends Controller
         Rps $rps,
         RpsPertemuan $pertemuan
     ) {
+        $this->authorizeRpsModel($rps);
+
         $pertemuan->delete();
 
         return redirect()

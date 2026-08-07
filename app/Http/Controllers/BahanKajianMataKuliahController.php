@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
 use Illuminate\Http\Request;
 
 class BahanKajianMataKuliahController extends Controller
 {
+    use AuthorizesKurikulum;
+
     public function index(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $mataKuliahs = $kurikulum->mataKuliahs()
             ->orderBy('kode')
             ->orderBy('nama')
@@ -23,8 +27,9 @@ class BahanKajianMataKuliahController extends Controller
 
     public function update(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         foreach ($kurikulum->mataKuliahs as $mataKuliah) {
-            $pilihan = $request->input('mataKuliah.' . $mataKuliah->id, []);
+            $pilihan = $request->input('mataKuliah.'.$mataKuliah->id, []);
             $mataKuliah->bahanKajians()->sync($pilihan);
         }
 

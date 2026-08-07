@@ -1,22 +1,28 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\ProfilLulusan;
+
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
+use App\Models\ProfilLulusan;
 use Illuminate\Http\Request;
 
 class ProfilLulusanController extends Controller
 {
+    use AuthorizesKurikulum;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $profilLulusans = $kurikulum->profilLulusans()->latest()->paginate(10);
+
         return view(
             'profil-lulusan.index',
             compact('kurikulum', 'profilLulusans')
-        );    
+        );
     }
 
     /**
@@ -24,6 +30,8 @@ class ProfilLulusanController extends Controller
      */
     public function create(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
+
         return view('profil-lulusan.create', compact('kurikulum'));
     }
 
@@ -32,6 +40,7 @@ class ProfilLulusanController extends Controller
      */
     public function store(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'kode_pl' => 'required',
             'nama_pl' => 'required',
@@ -42,6 +51,7 @@ class ProfilLulusanController extends Controller
             'nama_pl' => $request->nama_pl,
             'profesi' => $request->profesi,
         ]);
+
         return redirect()->route('kurikulum.profil-lulusan.index', $kurikulum->id)->with('success', 'Profil Lulusan berhasil ditambahkan.');
     }
 
@@ -58,6 +68,8 @@ class ProfilLulusanController extends Controller
      */
     public function edit(Kurikulum $kurikulum, ProfilLulusan $profilLulusan)
     {
+        $this->authorizeKurikulum($kurikulum);
+
         return view('profil-lulusan.edit', compact('kurikulum', 'profilLulusan'));
     }
 
@@ -66,6 +78,7 @@ class ProfilLulusanController extends Controller
      */
     public function update(Request $request, Kurikulum $kurikulum, ProfilLulusan $profilLulusan)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'kode_pl' => 'required',
             'nama_pl' => 'required',
@@ -75,6 +88,7 @@ class ProfilLulusanController extends Controller
             'nama_pl' => $request->nama_pl,
             'profesi' => $request->profesi,
         ]);
+
         return redirect()->route('kurikulum.profil-lulusan.index', $kurikulum->id)->with('success', 'Profil Lulusan berhasil diupdate.');
     }
 
@@ -83,7 +97,9 @@ class ProfilLulusanController extends Controller
      */
     public function destroy(Kurikulum $kurikulum, ProfilLulusan $profilLulusan)
     {
+        $this->authorizeKurikulum($kurikulum);
         $profilLulusan->delete();
+
         return redirect()->route('kurikulum.profil-lulusan.index', $kurikulum->id)->with('success', 'Profil Lulusan berhasil dihapus.');
     }
 }

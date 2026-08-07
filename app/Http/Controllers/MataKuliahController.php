@@ -2,40 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MataKuliah;
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
+use App\Models\MataKuliah;
 use Illuminate\Http\Request;
 
 class MataKuliahController extends Controller
 {
+    use AuthorizesKurikulum;
+
     public function index(Kurikulum $kurikulum)
     {
-        $user = auth()->user();
+        $this->authorizeKurikulum($kurikulum);
 
-        if ($user->role === 'admin' || ($user->dosen && strtolower($user->dosen->jabatan) === 'kaprodi')) {
-            $mataKuliahs = $kurikulum->mataKuliahs()
-                ->latest()
-                ->paginate(10);
-        } else {
-            $dosenId = $user->dosen->id;
-            $mataKuliahs = $kurikulum->mataKuliahs()
-                ->whereHas('pengampus', function ($q) use ($dosenId) {
-                    $q->where('dosen_id', $dosenId);
-                })
-                ->latest()
-                ->paginate(10);
-        }
+        $mataKuliahs = $kurikulum->mataKuliahs()
+            ->latest()
+            ->paginate(10);
 
         return view('mata-kuliah.index', compact('kurikulum', 'mataKuliahs'));
     }
 
     public function create(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
+
         return view('mata-kuliah.create', compact('kurikulum'));
     }
 
     public function store(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'kode' => 'required|max:20',
             'nama' => 'required',
@@ -77,11 +73,14 @@ class MataKuliahController extends Controller
 
     public function edit(Kurikulum $kurikulum, MataKuliah $mataKuliah)
     {
+        $this->authorizeKurikulum($kurikulum);
+
         return view('mata-kuliah.edit', compact('mataKuliah', 'kurikulum'));
     }
 
     public function update(Request $request, Kurikulum $kurikulum, MataKuliah $mataKuliah)
     {
+        $this->authorizeKurikulum($kurikulum);
         $request->validate([
             'nama' => 'required',
             'sks_teori' => 'required|integer|min:0|max:6',
@@ -105,6 +104,7 @@ class MataKuliahController extends Controller
 
     public function destroy(Kurikulum $kurikulum, MataKuliah $mataKuliah)
     {
+        $this->authorizeKurikulum($kurikulum);
         $mataKuliah->delete();
 
         return redirect()
@@ -114,6 +114,8 @@ class MataKuliahController extends Controller
 
     public function struktur(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulumRead($kurikulum);
+
         $mataKuliahs = $kurikulum->mataKuliahs()
             ->orderBy('semester')
             ->orderBy('kode')

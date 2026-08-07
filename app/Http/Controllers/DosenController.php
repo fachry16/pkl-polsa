@@ -133,7 +133,7 @@ class DosenController extends Controller
     public function riwayat(Dosen $dosen)
     {
         $riwayat = Pengampu::with([
-                'mataKuliah',
+                'mataKuliah.rps',
                 'tahunAkademik'
             ])
             ->where('dosen_id', $dosen->id)

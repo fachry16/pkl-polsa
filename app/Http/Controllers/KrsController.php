@@ -2,20 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dosen;
 use App\Models\Krs;
+use App\Models\Mahasiswa;
+use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
-use App\Models\MataKuliah;
-use App\Models\Dosen;
 use App\Models\TahunAkademik;
-use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 
 class KrsController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        $kaprodiProdiId = $user->isKaprodi()
+            ? (int) $user->dosen->program_studi_id
+            : null;
+
         $krsList = Krs::with(['programStudi', 'mataKuliah', 'dosen.user', 'tahunAkademik', 'mahasiswas'])
+            ->when($kaprodiProdiId, function ($q) use ($kaprodiProdiId) {
+                $q->where('program_studi_id', $kaprodiProdiId);
+            })
             ->latest()
             ->paginate(10);
 
@@ -24,9 +32,23 @@ class KrsController extends Controller
 
     public function create()
     {
-        $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
-        $mataKuliahs = MataKuliah::orderBy('kode')->get();
-        $dosens = Dosen::with('user')->orderBy('user_id')->get();
+        $user = auth()->user();
+        $kaprodiProdiId = $user->isKaprodi()
+            ? (int) $user->dosen->program_studi_id
+            : null;
+
+        $programStudis = $kaprodiProdiId
+            ? ProgramStudi::where('id', $kaprodiProdiId)->orderBy('nama_prodi')->get()
+            : ProgramStudi::orderBy('nama_prodi')->get();
+
+        $mataKuliahs = $kaprodiProdiId
+            ? MataKuliah::whereHas('kurikulum', fn ($q) => $q->where('program_studi_id', $kaprodiProdiId))->orderBy('kode')->get()
+            : MataKuliah::orderBy('kode')->get();
+
+        $dosens = $kaprodiProdiId
+            ? Dosen::where('program_studi_id', $kaprodiProdiId)->with('user')->orderBy('user_id')->get()
+            : Dosen::with('user')->orderBy('user_id')->get();
+
         $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
 
         return view('krs.create', compact('programStudis', 'mataKuliahs', 'dosens', 'tahunAkademiks'));
@@ -34,6 +56,11 @@ class KrsController extends Controller
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        $kaprodiProdiId = $user->isKaprodi()
+            ? (int) $user->dosen->program_studi_id
+            : null;
+
         $request->validate([
             'program_studi_id' => 'required|exists:program_studis,id',
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
@@ -42,7 +69,11 @@ class KrsController extends Controller
             'kelas' => 'required|max:10',
         ]);
 
-        $krs = Krs::create($request->all());
+        $programStudiId = $kaprodiProdiId ?: $request->program_studi_id;
+
+        $krs = Krs::create(
+            array_merge($request->all(), ['program_studi_id' => $programStudiId])
+        );
 
         $tahunAkademik = TahunAkademik::find($request->tahun_akademik_id);
 
@@ -62,6 +93,8 @@ class KrsController extends Controller
 
     public function show(Krs $krs)
     {
+        $this->authorizeKrsRead($krs);
+
         $krs->load(['programStudi', 'mataKuliah', 'dosen.user', 'tahunAkademik', 'mahasiswas' => function ($q) {
             $q->with('programStudi')->orderBy('nim');
         }]);
@@ -78,6 +111,8 @@ class KrsController extends Controller
 
     public function storeMahasiswa(Request $request, Krs $krs)
     {
+        $this->authorizeKrs($krs);
+
         $request->validate([
             'mahasiswa_id' => 'required|exists:mahasiswas,id',
         ]);
@@ -93,6 +128,8 @@ class KrsController extends Controller
 
     public function destroyMahasiswa(Krs $krs, Mahasiswa $mahasiswa)
     {
+        $this->authorizeKrs($krs);
+
         $krs->mahasiswas()->detach($mahasiswa->id);
 
         if ($pengampu = $krs->pengampu) {
@@ -104,10 +141,52 @@ class KrsController extends Controller
 
     public function destroy(Krs $krs)
     {
+        $this->authorizeKrs($krs);
+
         $krs->delete();
 
         return redirect()
             ->route('krs.index')
             ->with('success', 'Data KRS berhasil dihapus.');
+    }
+
+    private function authorizeKrsRead(Krs $krs)
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin() || $user->isDirektur()) {
+            return;
+        }
+
+        if ($user->isKaprodi()) {
+            abort_unless(
+                (int) $user->dosen->program_studi_id === (int) $krs->program_studi_id,
+                403
+            );
+
+            return;
+        }
+
+        abort(403);
+    }
+
+    private function authorizeKrs(Krs $krs)
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if ($user->isKaprodi()) {
+            abort_unless(
+                (int) $user->dosen->program_studi_id === (int) $krs->program_studi_id,
+                403
+            );
+
+            return;
+        }
+
+        abort(403);
     }
 }

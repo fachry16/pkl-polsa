@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Pengampu;
+
 use App\Models\Dosen;
-use App\Models\MataKuliah;
-use App\Models\TahunAkademik;
 use App\Models\Mahasiswa;
+use App\Models\MataKuliah;
+use App\Models\Pengampu;
+use App\Models\TahunAkademik;
 use Illuminate\Http\Request;
 
 class PengampuController extends Controller
@@ -15,7 +16,18 @@ class PengampuController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+        $kaprodiProdiId = $user->isKaprodi()
+            ? (int) $user->dosen->program_studi_id
+            : null;
+
         $query = Pengampu::with(['dosen', 'mataKuliah', 'tahunAkademik']);
+
+        if ($kaprodiProdiId) {
+            $query->whereHas('dosen', function ($q) use ($kaprodiProdiId) {
+                $q->where('program_studi_id', $kaprodiProdiId);
+            });
+        }
 
         if ($dosenId = request('dosen_id')) {
             $query->where('dosen_id', $dosenId);
@@ -35,8 +47,19 @@ class PengampuController extends Controller
 
         $pengampus = $query->latest()->paginate(10);
 
-        $dosens = Dosen::with('user')->orderBy('user_id')->get();
-        $mataKuliahs = MataKuliah::orderBy('kode')->get();
+        if ($kaprodiProdiId) {
+            $dosens = Dosen::where('program_studi_id', $kaprodiProdiId)
+                ->with('user')
+                ->orderBy('user_id')
+                ->get();
+            $mataKuliahs = MataKuliah::whereHas('kurikulum', function ($q) use ($kaprodiProdiId) {
+                $q->where('program_studi_id', $kaprodiProdiId);
+            })->orderBy('kode')->get();
+        } else {
+            $dosens = Dosen::with('user')->orderBy('user_id')->get();
+            $mataKuliahs = MataKuliah::orderBy('kode')->get();
+        }
+
         $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
 
         return view('pengampu.index', compact('pengampus', 'dosens', 'mataKuliahs', 'tahunAkademiks'));
@@ -50,6 +73,7 @@ class PengampuController extends Controller
         $dosens = Dosen::orderBy('user_id')->get();
         $mataKuliahs = MataKuliah::orderBy('kode')->get();
         $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
+
         return view('pengampu.create', compact('dosens', 'mataKuliahs', 'tahunAkademiks'));
     }
 
@@ -105,7 +129,7 @@ class PengampuController extends Controller
      */
     public function destroy(Pengampu $pengampu)
     {
-         $pengampu->delete();
+        $pengampu->delete();
 
         return back()->with(
             'success',
@@ -115,6 +139,8 @@ class PengampuController extends Controller
 
     public function lihatKelas(Pengampu $pengampu)
     {
+        $this->authorizeLihatKelas($pengampu);
+
         $pengampu->load(['dosen.user', 'mataKuliah', 'tahunAkademik', 'mahasiswas' => function ($q) {
             $q->with('programStudi')->orderBy('nim');
         }]);
@@ -145,5 +171,31 @@ class PengampuController extends Controller
         $pengampu->mahasiswas()->detach($mahasiswa->id);
 
         return back()->with('success', 'Mahasiswa berhasil dihapus dari kelas.');
+    }
+
+    private function authorizeLihatKelas(Pengampu $pengampu)
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if ($user->isKaprodi()) {
+            abort_unless(
+                (int) $user->dosen->program_studi_id === (int) $pengampu->dosen->program_studi_id,
+                403
+            );
+
+            return;
+        }
+
+        if ($user->isDosen()) {
+            abort_unless((int) $pengampu->dosen_id === (int) $user->dosen->id, 403);
+
+            return;
+        }
+
+        abort(403);
     }
 }

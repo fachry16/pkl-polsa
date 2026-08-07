@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesRps;
 use App\Models\Rps;
 use App\Models\RpsPenilaian;
 use Illuminate\Http\Request;
 
 class RpsPenilaianController extends Controller
 {
+    use AuthorizesRps;
+
     public function index(Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         $penilaian = $rps->penilaian;
 
         return view('rps-penilaian.index', compact('rps', 'penilaian'));
@@ -17,6 +22,8 @@ class RpsPenilaianController extends Controller
 
     public function create(Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         if ($rps->penilaian) {
             return redirect()
                 ->route('rps.penilaian.index', $rps)
@@ -28,6 +35,8 @@ class RpsPenilaianController extends Controller
 
     public function store(Request $request, Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         $request->validate([
             'tugas' => 'required|numeric|min:0|max:100',
             'quiz' => 'required|numeric|min:0|max:100',
@@ -62,9 +71,11 @@ class RpsPenilaianController extends Controller
 
     public function edit(Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         $penilaian = $rps->penilaian;
 
-        if (!$penilaian) {
+        if (! $penilaian) {
             return redirect()
                 ->route('rps.penilaian.create', $rps)
                 ->with('error', 'Belum ada penilaian. Silakan buat terlebih dahulu.');
@@ -75,6 +86,8 @@ class RpsPenilaianController extends Controller
 
     public function update(Request $request, Rps $rps)
     {
+        $this->authorizeRpsModel($rps);
+
         return $this->store($request, $rps);
     }
 }

@@ -1,24 +1,30 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CplCpmkMkController extends Controller
 {
+    use AuthorizesKurikulum;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
         $cpmks = $kurikulum->cpmks()->orderBy('kode_cpmk')->get();
         $checked = DB::table('cpl_cpmk_semesters')->where('kurikulum_id', $kurikulum->id)->get()->mapWithKeys(function ($item) {
             return [
-                $item->cpl_id.'-'.$item->cpmk_id.'-'.$item->semester => true
+                $item->cpl_id.'-'.$item->cpmk_id.'-'.$item->semester => true,
             ];
         })->toArray();
+
         return view('cpl-cpmk-mk.index', compact('kurikulum', 'cpls', 'cpmks', 'checked'));
     }
 
@@ -35,6 +41,7 @@ class CplCpmkMkController extends Controller
      */
     public function store(Request $request, Kurikulum $kurikulum)
     {
+        $this->authorizeKurikulum($kurikulum);
         DB::table('cpl_cpmk_semesters')->where('kurikulum_id', $kurikulum->id)->delete();
         foreach ($request->mapping ?? [] as $key => $value) {
             [$cplId, $cpmkId, $semester] = explode('-', $key);
@@ -45,6 +52,7 @@ class CplCpmkMkController extends Controller
                 'semester' => $semester,
             ]);
         }
+
         return back()->with('success', 'Pemetaan CPL-CPMK-MK berhasil disimpan');
     }
 

@@ -2,33 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
 use App\Models\ProgramStudi;
 use Illuminate\Http\Request;
 
 class KurikulumController extends Controller
 {
+    use AuthorizesKurikulum;
+
     public function index()
     {
-        return redirect()->route('program-studi.index');
+        $user = auth()->user();
+
+        if ($user->isAdmin() || $user->isDirektur()) {
+            return redirect()->route('program-studi.index');
+        }
+
+        if ($user->isKaprodi()) {
+            return redirect()->route('program-studi.kurikulum', $user->dosen->program_studi_id);
+        }
+
+        return redirect()->route('dosen.self');
     }
 
     public function indexByProgramStudi(ProgramStudi $programStudi)
     {
         $user = auth()->user();
 
-        if (
-            $user->role !== 'admin'
-            && !$this->isKaprodi()
-            && $user->dosen->program_studi_id != $programStudi->id
-        ) {
-            abort(403);
-        }
+        $boleh = $user->isAdmin()
+            || $user->isDirektur()
+            || (($user->isKaprodi() || $user->isDosen())
+                && (int) $user->dosen->program_studi_id === (int) $programStudi->id);
+
+        abort_unless($boleh, 403);
 
         $kurikulums = Kurikulum::where(
-                'program_studi_id',
-                $programStudi->id
-            )
+            'program_studi_id',
+            $programStudi->id
+        )
             ->latest()
             ->paginate(10);
 
@@ -40,17 +52,9 @@ class KurikulumController extends Controller
 
     public function create()
     {
-        if (auth()->user()->role === 'admin' || $this->isKaprodi()) {
+        $this->authorizeKurikulumManage();
 
-            $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
-
-        } else {
-
-            $programStudis = ProgramStudi::where(
-                'id',
-                auth()->user()->dosen->program_studi_id
-            )->get();
-        }
+        $programStudis = $this->programStudiOptions();
 
         return view(
             'kurikulum.create',
@@ -60,25 +64,25 @@ class KurikulumController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorizeKurikulumManage();
+
         $request->validate([
             'program_studi_id' => 'required|exists:program_studis,id',
-            'nama_kurikulum'   => 'required',
-            'tahun_berlaku'    => 'required|digits:4',
-            'beban_studi'      => 'required',
-            'deskripsi'        => 'required',
+            'nama_kurikulum' => 'required',
+            'tahun_berlaku' => 'required|digits:4',
+            'beban_studi' => 'required',
+            'deskripsi' => 'required',
         ]);
 
-        $programStudiId = (auth()->user()->role === 'admin' || $this->isKaprodi())
-            ? $request->program_studi_id
-            : auth()->user()->dosen->program_studi_id;
+        $programStudiId = $this->resolveProgramStudiId($request->program_studi_id);
 
         Kurikulum::create([
             'program_studi_id' => $programStudiId,
-            'nama_kurikulum'   => $request->nama_kurikulum,
-            'tahun_berlaku'    => $request->tahun_berlaku,
-            'beban_studi'      => $request->beban_studi,
-            'deskripsi'        => $request->deskripsi,
-            'status'           => 'Draft',
+            'nama_kurikulum' => $request->nama_kurikulum,
+            'tahun_berlaku' => $request->tahun_berlaku,
+            'beban_studi' => $request->beban_studi,
+            'deskripsi' => $request->deskripsi,
+            'status' => 'Draft',
         ]);
 
         return redirect()
@@ -98,17 +102,7 @@ class KurikulumController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
 
-        if (auth()->user()->role === 'admin' || $this->isKaprodi()) {
-
-            $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
-
-        } else {
-
-            $programStudis = ProgramStudi::where(
-                'id',
-                auth()->user()->dosen->program_studi_id
-            )->get();
-        }
+        $programStudis = $this->programStudiOptions();
 
         return view(
             'kurikulum.edit',
@@ -122,22 +116,18 @@ class KurikulumController extends Controller
 
         $request->validate([
             'program_studi_id' => 'required|exists:program_studis,id',
-            'nama_kurikulum'   => 'required',
-            'tahun_berlaku'    => 'required|digits:4',
-            'beban_studi'      => 'required',
-            'deskripsi'        => 'required',
+            'nama_kurikulum' => 'required',
+            'tahun_berlaku' => 'required|digits:4',
+            'beban_studi' => 'required',
+            'deskripsi' => 'required',
         ]);
 
-        $programStudiId = (auth()->user()->role === 'admin' || $this->isKaprodi())
-            ? $request->program_studi_id
-            : $kurikulum->program_studi_id;
-
         $kurikulum->update([
-            'program_studi_id' => $programStudiId,
-            'nama_kurikulum'   => $request->nama_kurikulum,
-            'tahun_berlaku'    => $request->tahun_berlaku,
-            'beban_studi'      => $request->beban_studi,
-            'deskripsi'        => $request->deskripsi,
+            'program_studi_id' => $this->resolveProgramStudiId($request->program_studi_id),
+            'nama_kurikulum' => $request->nama_kurikulum,
+            'tahun_berlaku' => $request->tahun_berlaku,
+            'beban_studi' => $request->beban_studi,
+            'deskripsi' => $request->deskripsi,
         ]);
 
         return redirect()
@@ -185,13 +175,13 @@ class KurikulumController extends Controller
             'program_studi_id',
             $kurikulum->program_studi_id
         )
-        ->where('status', 'Aktif')
-        ->update([
-            'status' => 'Arsip'
-        ]);
+            ->where('status', 'Aktif')
+            ->update([
+                'status' => 'Arsip',
+            ]);
 
         $kurikulum->update([
-            'status' => 'Aktif'
+            'status' => 'Aktif',
         ]);
 
         return back()->with(
@@ -202,7 +192,7 @@ class KurikulumController extends Controller
 
     public function detail(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
 
         if ($kurikulum->status === 'Arsip') {
             return back()->with(
@@ -217,25 +207,28 @@ class KurikulumController extends Controller
         );
     }
 
-    private function isKaprodi()
+    private function programStudiOptions()
     {
         $user = auth()->user();
 
-        return $user->dosen
-            && strtolower($user->dosen->jabatan) === 'kaprodi';
+        if ($user->isAdmin()) {
+            return ProgramStudi::orderBy('nama_prodi')->get();
+        }
+
+        return ProgramStudi::where(
+            'id',
+            $user->dosen->program_studi_id
+        )->get();
     }
 
-    private function authorizeKurikulum(Kurikulum $kurikulum)
+    private function resolveProgramStudiId($requestedId)
     {
-        if (auth()->user()->role === 'admin' || $this->isKaprodi()) {
-            return;
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            return $requestedId;
         }
 
-        if (
-            auth()->user()->dosen->program_studi_id
-            != $kurikulum->program_studi_id
-        ) {
-            abort(403);
-        }
+        return $user->dosen->program_studi_id;
     }
 }
