@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-
 class UserController extends Controller
 {
     public function index()
@@ -32,7 +30,7 @@ class UserController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'role' => $request->role,
         ]);
 
@@ -60,7 +58,7 @@ class UserController extends Controller
 
         if ($request->filled('password')) {
             $request->validate(['password' => 'min:8']);
-            $data['password'] = Hash::make($request->password);
+            $data['password'] = $request->password;
         }
 
         $user->update($data);

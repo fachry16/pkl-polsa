@@ -36,6 +36,37 @@
         </tr>
 
         <tr>
+            <td class="font-semibold">Rumpun MK</td>
+            <td>{{ $rps->rumpun_mk ?? '-' }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">MK Prasyarat</td>
+            <td>{{ $rps->mk_prasyarat ?? '-' }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">Prasyarat untuk MK</td>
+            <td>{{ $rps->prasyarat_untuk ?? '-' }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">Integrasi Antar MK</td>
+            <td>{{ $rps->integrasi_antar_mk ?? '-' }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">Tautan Kelas Daring</td>
+            <td>
+                @if($rps->tautan_daring)
+                    <a href="{{ $rps->tautan_daring }}" target="_blank" rel="noopener">{{ $rps->tautan_daring }}</a>
+                @else
+                    -
+                @endif
+            </td>
+        </tr>
+
+        <tr>
             <td class="font-semibold">Status</td>
             <td>
 
@@ -84,6 +115,11 @@
         <a href="{{ route('rps.pertemuan.index', $rps) }}"
            class="btn btn-primary">
             Pertemuan
+        </a>
+
+        <a href="{{ route('rps.tugas.index', $rps) }}"
+           class="btn btn-secondary">
+            Tugas &amp; Latihan
         </a>
 
         <a href="{{ route('rps.penilaian.index', $rps) }}"

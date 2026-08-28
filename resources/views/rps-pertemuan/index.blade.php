@@ -21,8 +21,10 @@
             <tr>
                 <th>Minggu</th>
                 <th>Sub CPMK</th>
+                <th>CPMK Induk</th>
                 <th>Materi Pembelajaran</th>
-                <th>Metode</th>
+                <th>Metode Daring</th>
+                <th>Metode Luring</th>
                 <th>Pengalaman Belajar</th>
                 <th>Indikator</th>
                 <th>Bobot</th>
@@ -46,11 +48,19 @@
                 </td>
 
                 <td class="text-sm">
+                    {{ $pertemuan->cpmk_induk ?? '-' }}
+                </td>
+
+                <td class="text-sm">
                     {{ $pertemuan->materi }}
                 </td>
 
                 <td class="text-sm">
-                    {{ $pertemuan->metode ?? '-' }}
+                    {{ $pertemuan->metode_daring ?? '-' }}
+                </td>
+
+                <td class="text-sm">
+                    {{ $pertemuan->metode_luring ?? $pertemuan->metode ?? '-' }}
                 </td>
 
                 <td class="text-sm">
@@ -95,7 +105,7 @@
 
             <tr>
 
-                <td colspan="11"
+                <td colspan="10"
                     class="text-center">
 
                     Belum ada data pertemuan.

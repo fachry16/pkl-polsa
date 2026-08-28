@@ -7,6 +7,14 @@ use App\Http\Controllers\CplController;
 use App\Http\Controllers\CplCpmkMkController;
 use App\Http\Controllers\CplPlController;
 use App\Http\Controllers\CpmkController;
+use App\Http\Controllers\PemenuhanCplsController;
+use App\Http\Controllers\PengampuController;
+use App\Http\Controllers\MahasiswaTahunAkademikController;
+use App\Http\Controllers\RpsController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RpsPertemuanController;
+use App\Http\Controllers\RpsPenilaianController;
+use App\Http\Controllers\RpsTugasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\KrsController;
@@ -20,26 +28,19 @@ use App\Http\Controllers\LmsMateriController;
 use App\Http\Controllers\LmsPengumumanController;
 use App\Http\Controllers\LmsTugasController;
 use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\MahasiswaTahunAkademikController;
 use App\Http\Controllers\MataKuliahController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\PemenuhanCplsController;
-use App\Http\Controllers\PengampuController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilLulusanController;
 use App\Http\Controllers\ProgramStudiController;
-use App\Http\Controllers\RpsController;
-use App\Http\Controllers\RpsPenilaianController;
-use App\Http\Controllers\RpsPertemuanController;
 use App\Http\Controllers\TahunAkademikController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -537,6 +538,36 @@ Route::middleware(['auth'])->group(function () {
         'rps/{rps}/penilaian',
         [RpsPenilaianController::class, 'update']
     )->name('rps.penilaian.update');
+
+    Route::get(
+        'rps/{rps}/tugas',
+        [RpsTugasController::class, 'index']
+    )->name('rps.tugas.index');
+
+    Route::get(
+        'rps/{rps}/tugas/create',
+        [RpsTugasController::class, 'create']
+    )->name('rps.tugas.create');
+
+    Route::post(
+        'rps/{rps}/tugas',
+        [RpsTugasController::class, 'store']
+    )->name('rps.tugas.store');
+
+    Route::get(
+        'rps/{rps}/tugas/{tugas}/edit',
+        [RpsTugasController::class, 'edit']
+    )->name('rps.tugas.edit');
+
+    Route::put(
+        'rps/{rps}/tugas/{tugas}',
+        [RpsTugasController::class, 'update']
+    )->name('rps.tugas.update');
+
+    Route::delete(
+        'rps/{rps}/tugas/{tugas}',
+        [RpsTugasController::class, 'destroy']
+    )->name('rps.tugas.destroy');
 });
 
 /* Kaprodi */

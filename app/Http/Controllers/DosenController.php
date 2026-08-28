@@ -7,8 +7,6 @@ use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-
 class DosenController extends Controller
 {
     /**
@@ -59,7 +57,7 @@ class DosenController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'role' => 'dosen',
-            'password' => Hash::make($request->nidn),
+            'password' => $request->nidn,
         ]);
         Dosen::create([
             'user_id' => $user->id,

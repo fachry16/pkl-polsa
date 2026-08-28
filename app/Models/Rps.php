@@ -16,6 +16,15 @@ class Rps extends Model
         'disetujui_oleh',
         'tanggal_disetujui',
         'catatan_revisi',
+        'rumpun_mk',
+        'mk_prasyarat',
+        'prasyarat_untuk',
+        'integrasi_antar_mk',
+        'tautan_daring',
+        'daftar_pustaka',
+        'dosen_pengembang_rps',
+        'koordinator_rmk',
+        'ketua_prodi',
     ];
 
     protected $casts = [
@@ -40,6 +49,11 @@ class Rps extends Model
     public function penilaian()
     {
         return $this->hasOne(RpsPenilaian::class);
+    }
+
+    public function tugas()
+    {
+        return $this->hasMany(RpsTugas::class);
     }
 
     public function disetujuiOleh()

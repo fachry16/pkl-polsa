@@ -9,6 +9,7 @@ use App\Models\Rps;
 use App\Notifications\RpsDiajukan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class RpsController extends Controller
 {
@@ -48,6 +49,15 @@ class RpsController extends Controller
             'semester' => 'required|integer',
             'dosen_pengampu' => 'required|string|max:255',
             'deskripsi_mata_kuliah' => 'nullable|string',
+            'rumpun_mk' => 'nullable|string|max:255',
+            'mk_prasyarat' => 'nullable|string',
+            'prasyarat_untuk' => 'nullable|string',
+            'integrasi_antar_mk' => 'nullable|string',
+            'tautan_daring' => 'nullable|string|max:255',
+            'daftar_pustaka' => 'nullable|string',
+            'dosen_pengembang_rps' => 'nullable|string|max:255',
+            'koordinator_rmk' => 'nullable|string|max:255',
+            'ketua_prodi' => 'nullable|string|max:255',
         ]);
 
         Rps::create([
@@ -56,6 +66,15 @@ class RpsController extends Controller
             'semester' => $request->semester,
             'dosen_pengampu' => $request->dosen_pengampu,
             'deskripsi_mata_kuliah' => $request->deskripsi_mata_kuliah,
+            'rumpun_mk' => $request->rumpun_mk,
+            'mk_prasyarat' => $request->mk_prasyarat,
+            'prasyarat_untuk' => $request->prasyarat_untuk,
+            'integrasi_antar_mk' => $request->integrasi_antar_mk,
+            'tautan_daring' => $request->tautan_daring,
+            'daftar_pustaka' => $request->daftar_pustaka,
+            'dosen_pengembang_rps' => $request->dosen_pengembang_rps,
+            'koordinator_rmk' => $request->koordinator_rmk,
+            'ketua_prodi' => $request->ketua_prodi,
         ]);
 
         return redirect()
@@ -86,6 +105,15 @@ class RpsController extends Controller
             'semester' => 'required|integer',
             'dosen_pengampu' => 'required|string|max:255',
             'deskripsi_mata_kuliah' => 'nullable|string',
+            'rumpun_mk' => 'nullable|string|max:255',
+            'mk_prasyarat' => 'nullable|string',
+            'prasyarat_untuk' => 'nullable|string',
+            'integrasi_antar_mk' => 'nullable|string',
+            'tautan_daring' => 'nullable|string|max:255',
+            'daftar_pustaka' => 'nullable|string',
+            'dosen_pengembang_rps' => 'nullable|string|max:255',
+            'koordinator_rmk' => 'nullable|string|max:255',
+            'ketua_prodi' => 'nullable|string|max:255',
         ]);
 
         $rps->update([
@@ -93,6 +121,15 @@ class RpsController extends Controller
             'semester' => $request->semester,
             'dosen_pengampu' => $request->dosen_pengampu,
             'deskripsi_mata_kuliah' => $request->deskripsi_mata_kuliah,
+            'rumpun_mk' => $request->rumpun_mk,
+            'mk_prasyarat' => $request->mk_prasyarat,
+            'prasyarat_untuk' => $request->prasyarat_untuk,
+            'integrasi_antar_mk' => $request->integrasi_antar_mk,
+            'tautan_daring' => $request->tautan_daring,
+            'daftar_pustaka' => $request->daftar_pustaka,
+            'dosen_pengembang_rps' => $request->dosen_pengembang_rps,
+            'koordinator_rmk' => $request->koordinator_rmk,
+            'ketua_prodi' => $request->ketua_prodi,
         ]);
 
         return redirect()
@@ -200,11 +237,18 @@ class RpsController extends Controller
         }
 
         $rps->load([
-            'mataKuliah',
+            'mataKuliah.kurikulum.programStudi',
+            'mataKuliah.cpls',
+            'mataKuliah.bahanKajians',
             'pertemuans' => fn ($q) => $q->orderBy('minggu'),
             'penilaians',
+            'tugas' => fn ($q) => $q->orderBy('minggu_topik'),
             'disetujuiOleh',
         ]);
+
+        if (Schema::hasTable('cpmk_mata_kuliah')) {
+            $rps->load('mataKuliah.cpmks');
+        }
 
         if (request()->has('download')) {
             $pdf = Pdf::loadView('rps.pdf', compact('rps'));

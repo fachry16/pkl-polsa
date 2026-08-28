@@ -1362,6 +1362,355 @@ table.data-table .empty-row td {
 .overflow-y-hidden { overflow-y: hidden; }
 .inline { display: inline; }
 
+/* ---------- RPS DOCUMENT ---------- */
+.rps-document {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    max-width: 960px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #1e293b;
+}
+
+/* Cover */
+.rps-cover {
+    text-align: center;
+    padding: 2.5rem 2rem 2rem;
+    border-bottom: 3px double #1e293b;
+}
+
+.rps-cover-institution {
+    margin-bottom: 1.5rem;
+}
+
+.rps-cover-institution-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.rps-cover-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 1.5rem;
+    color: #0f172a;
+}
+
+.rps-cover-subject {
+    margin-bottom: 2rem;
+}
+
+.rps-cover-subject-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.rps-cover-subject-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.15rem;
+}
+
+.rps-cover-subject-code {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.rps-cover-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.rps-cover-info-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.rps-cover-info-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.rps-cover-info-value {
+    font-size: 0.85rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* Section */
+.rps-section {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.rps-section:last-of-type {
+    border-bottom: none;
+}
+
+.rps-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #1e293b;
+}
+
+/* Info table (key-value pairs) */
+.rps-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rps-info-table td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    vertical-align: top;
+}
+
+.rps-info-label {
+    width: 220px;
+    font-weight: 600;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.rps-info-value {
+    color: #1e293b;
+    font-size: 0.85rem;
+}
+
+/* Data tables */
+.rps-table-wrap {
+    overflow-x: auto;
+}
+
+.rps-table-wide {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table.rps-data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.rps-data-table th,
+table.rps-data-table td {
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 0.75rem;
+    vertical-align: top;
+    font-size: 0.85rem;
+}
+
+table.rps-data-table th.rps-th {
+    background: #f1f5f9;
+    font-weight: 600;
+    color: #334155;
+    text-align: left;
+    white-space: nowrap;
+    font-size: 0.8rem;
+}
+
+table.rps-data-table td.rps-td {
+    color: #1e293b;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+table.rps-data-table tr:hover {
+    background: #f8fafc;
+}
+
+/* Schedule table (wider, with scroll) */
+table.rps-schedule-table {
+    min-width: 800px;
+}
+
+.rps-total-row {
+    background: #f1f5f9;
+    font-weight: 600;
+}
+
+.rps-total-row td {
+    border-top: 2px solid #94a3b8;
+}
+
+/* Empty state */
+.rps-empty {
+    color: #94a3b8;
+    font-style: italic;
+    padding: 1rem 0;
+    font-size: 0.85rem;
+}
+
+/* Approval */
+.rps-approval {
+    margin: 1.5rem 2rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid #a7f3d0;
+    background: #ecfdf5;
+    border-radius: 6px;
+}
+
+.rps-approval-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #065f46;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+}
+
+.rps-approval-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #065f46;
+}
+
+.rps-approval-date {
+    font-size: 0.8rem;
+    color: #047857;
+    margin-top: 0.15rem;
+}
+
+/* Cover "oleh PENYUSUN" block (mirror Word) */
+.rps-cover-by {
+    margin-bottom: 1.25rem;
+}
+
+.rps-cover-oleh {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.rps-cover-penyusun {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.rps-cover-penyusun-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.rps-cover-prodi {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+.rps-cover-location {
+    font-size: 0.8rem;
+    color: #475569;
+    margin-top: 1rem;
+}
+
+/* Section note (keterangan) */
+.rps-note {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+}
+
+/* Pengesahan / signature block */
+.rps-pengesahan {
+    margin-top: 1.25rem;
+}
+
+.rps-pengesahan-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.rps-pengesahan-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rps-pengesahan-table td {
+    width: 33.33%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.rps-pengesahan-role {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.rps-pengesahan-space {
+    height: 45px;
+}
+
+.rps-pengesahan-sign {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-bottom: 0.25rem;
+}
+
+.rps-pengesahan-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Korelasi CPMK-Sub-CPMK table */
+table.rps-korelasi-table {
+    min-width: 640px;
+}
+
+.rps-korelasi-table th,
+.rps-korelasi-table td {
+    text-align: center;
+}
+
+.rps-korelasi-table th:first-child,
+.rps-korelasi-table td:first-child {
+    text-align: left;
+}
+
+/* Daftar pustaka */
+.rps-olipustaka {
+    padding-left: 1.25rem;
+    margin: 0;
+}
+
+.rps-olipustaka li {
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 768px) {
     .sidebar {
@@ -1394,5 +1743,56 @@ table.data-table .empty-row td {
 
     .detail-table td:first-child {
         width: 120px;
+    }
+
+    .rps-document {
+        font-size: 0.85rem;
+        border: none;
+        border-radius: 0;
+    }
+
+    .rps-cover {
+        padding: 1.5rem 1rem;
+    }
+
+    .rps-cover-title {
+        font-size: 1rem;
+    }
+
+    .rps-cover-subject-name {
+        font-size: 1.1rem;
+    }
+
+    .rps-cover-info-grid {
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+    }
+
+    .rps-section {
+        padding: 1rem;
+    }
+
+    .rps-section-title {
+        font-size: 0.85rem;
+    }
+
+    .rps-info-label {
+        width: 140px;
+        font-size: 0.8rem;
+    }
+
+    .rps-info-value {
+        font-size: 0.8rem;
+    }
+
+    table.rps-data-table th,
+    table.rps-data-table td {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .rps-approval {
+        margin: 1rem;
+        padding: 0.75rem;
     }
 }

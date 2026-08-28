@@ -66,6 +66,10 @@ class RpsPertemuanController extends Controller
             'pengalaman_belajar' => 'nullable',
             'indikator' => 'nullable',
             'bobot' => 'nullable|numeric|min:0|max:100',
+            'cpmk_induk' => 'nullable|string|max:255',
+            'teknik_kriteria' => 'nullable|string',
+            'metode_daring' => 'nullable|string',
+            'metode_luring' => 'nullable|string',
         ]);
 
         RpsPertemuan::create([
@@ -77,6 +81,10 @@ class RpsPertemuanController extends Controller
             'pengalaman_belajar' => $request->pengalaman_belajar,
             'indikator' => $request->indikator,
             'bobot' => $request->bobot,
+            'cpmk_induk' => $request->cpmk_induk,
+            'teknik_kriteria' => $request->teknik_kriteria,
+            'metode_daring' => $request->metode_daring,
+            'metode_luring' => $request->metode_luring,
         ]);
 
         return redirect()
@@ -128,6 +136,10 @@ class RpsPertemuanController extends Controller
             'pengalaman_belajar' => 'nullable',
             'indikator' => 'nullable',
             'bobot' => 'nullable|numeric|min:0|max:100',
+            'cpmk_induk' => 'nullable|string|max:255',
+            'teknik_kriteria' => 'nullable|string',
+            'metode_daring' => 'nullable|string',
+            'metode_luring' => 'nullable|string',
         ]);
 
         $pertemuan->update([
@@ -138,6 +150,10 @@ class RpsPertemuanController extends Controller
             'pengalaman_belajar' => $request->pengalaman_belajar,
             'indikator' => $request->indikator,
             'bobot' => $request->bobot,
+            'cpmk_induk' => $request->cpmk_induk,
+            'teknik_kriteria' => $request->teknik_kriteria,
+            'metode_daring' => $request->metode_daring,
+            'metode_luring' => $request->metode_luring,
         ]);
 
         return redirect()

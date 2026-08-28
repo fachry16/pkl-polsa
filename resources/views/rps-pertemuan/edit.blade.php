@@ -77,6 +77,48 @@
 
     <div class="form-group">
 
+        <label class="form-label">CPMK Induk (Sub-CPMK)</label>
+
+        <input type="text"
+               name="cpmk_induk"
+               class="form-input w-full"
+               value="{{ old('cpmk_induk', $pertemuan->cpmk_induk) }}"
+               placeholder="Contoh: CPMK07.08">
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">Penilaian - Teknik &amp; Kriteria</label>
+
+        <textarea name="teknik_kriteria"
+                  class="form-textarea w-full"
+                  rows="3">{{ old('teknik_kriteria', $pertemuan->teknik_kriteria) }}</textarea>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">Metode Pembelajaran Daring (Online)</label>
+
+        <textarea name="metode_daring"
+                  class="form-textarea w-full"
+                  rows="3">{{ old('metode_daring', $pertemuan->metode_daring) }}</textarea>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">Metode Pembelajaran Luring (Offline)</label>
+
+        <textarea name="metode_luring"
+                  class="form-textarea w-full"
+                  rows="3">{{ old('metode_luring', $pertemuan->metode_luring) }}</textarea>
+
+    </div>
+
+    <div class="form-group">
+
         <label class="form-label">Bobot (%)</label>
 
         <input type="number"

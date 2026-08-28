@@ -8,8 +8,6 @@ use App\Models\SemesterMahasiswa;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-
 class MahasiswaController extends Controller
 {
     /**
@@ -78,7 +76,7 @@ class MahasiswaController extends Controller
         $user = User::create([
             'name' => $request->nama,
             'email' => $this->emailUntukNim($request->nim),
-            'password' => Hash::make($request->nim),
+            'password' => $request->nim,
             'role' => 'mahasiswa',
             'email_verified_at' => now(),
         ]);

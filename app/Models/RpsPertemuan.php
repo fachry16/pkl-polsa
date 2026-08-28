@@ -15,6 +15,10 @@ class RpsPertemuan extends Model
         'pengalaman_belajar',
         'indikator',
         'bobot',
+        'cpmk_induk',
+        'teknik_kriteria',
+        'metode_daring',
+        'metode_luring',
     ];
 
     public function rps()

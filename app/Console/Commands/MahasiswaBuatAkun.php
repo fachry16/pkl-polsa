@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Mahasiswa;
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
 
 class MahasiswaBuatAkun extends Command
 {
@@ -37,7 +36,7 @@ class MahasiswaBuatAkun extends Command
             $user = User::create([
                 'name' => $mahasiswa->nama,
                 'email' => $email,
-                'password' => Hash::make($mahasiswa->nim),
+                'password' => $mahasiswa->nim,
                 'role' => 'mahasiswa',
                 'email_verified_at' => now(),
             ]);
