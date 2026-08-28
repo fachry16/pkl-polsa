@@ -12,7 +12,6 @@ class LmsForumDiskusi extends Model
         'parent_id',
         'pesan',
         'file_path',
-        'link_external',
     ];
 
     public function pengampu()

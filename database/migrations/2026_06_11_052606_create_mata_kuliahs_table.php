@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('semester');
             $table->enum('jenis', [
                 'Wajib',
-                'Pilihan'
+                'Pilihan',
             ])->default('Wajib');
             $table->timestamps();
         });

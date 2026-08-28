@@ -10,7 +10,6 @@
     <a href="{{ route('lms.show', $pengampu->id) }}" class="btn btn-secondary btn-sm">Kembali ke Kelas</a>
 </div>
 
-<x-alert type="success" :message="session('success')" />
 
 <div style="display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; align-items: start;">
     <div>
@@ -26,19 +25,16 @@
                                 <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.4rem; font-size: 0.65rem; font-weight: 600;">Dosen</span>
                             @endif
                         </div>
-                        <div style="font-size: 0.85rem; color: #334155; margin-top: 0.35rem; line-height: 1.7; white-space: pre-wrap;">{{ $post->pesan }}</div>
+                        <div style="font-size: 0.85rem; color: #334155; margin-top: 0.35rem; line-height: 1.7; white-space: pre-wrap;">{!! linkify($post->pesan) !!}</div>
 
-                        @if($post->file_path || $post->link_external)
-                            @php($fileUrl = $post->file_path ? route('lms.forum.file', [$pengampu->id, $post->id]) : null)
+                        @if($post->file_path)
+                            @php($fileUrl = route('lms.file', ['forum', $post->id]))
                             <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
                                 @if($fileUrl)
                                     <a href="{{ $fileUrl }}" target="_blank" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: -2px; margin-right: 0.25rem;"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
                                         {{ basename($post->file_path) }}
                                     </a>
-                                @endif
-                                @if($post->link_external)
-                                    <a href="{{ $post->link_external }}" target="_blank" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Buka Link</a>
                                 @endif
                             </div>
                         @endif
@@ -64,7 +60,7 @@
                                                 {{ $reply->user->name ?? '-' }}
                                                 <span style="font-weight: 400; color: #94a3b8; font-size: 0.65rem;">{{ $reply->created_at->diffForHumans() }}</span>
                                             </div>
-                                            <div style="font-size: 0.8rem; color: #475569; margin-top: 0.15rem; white-space: pre-wrap;">{{ $reply->pesan }}</div>
+                                            <div style="font-size: 0.8rem; color: #475569; margin-top: 0.15rem; white-space: pre-wrap;">{!! linkify($reply->pesan) !!}</div>
                                             @if(Auth::id() === $reply->user_id)
                                                 <div style="display: flex; gap: 0.5rem; margin-top: 0.4rem;">
                                                     <a href="{{ route('lms.forum.edit', [$pengampu->id, $reply->id]) }}" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Edit</a>
@@ -100,6 +96,10 @@
                 <p style="color: #94a3b8; font-size: 0.9rem;">Belum ada diskusi. Mulai diskusi pertama!</p>
             </div>
         @endforelse
+
+        <div style="margin-top: 1rem;">
+            {{ $diskusi->links() }}
+        </div>
     </div>
 
     <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; position: sticky; top: 1rem;">
@@ -115,11 +115,6 @@
                 <label class="form-label">Lampiran File</label>
                 <input type="file" name="file" class="form-input">
                 @error('file') <div class="form-error">{{ $message }}</div> @enderror
-            </div>
-            <div class="form-group">
-                <label class="form-label">Atau Link Eksternal</label>
-                <input type="url" name="link_external" class="form-input" placeholder="https://drive.google.com/..." value="{{ old('link_external') }}">
-                @error('link_external') <div class="form-error">{{ $message }}</div> @enderror
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Kirim Diskusi</button>
         </form>

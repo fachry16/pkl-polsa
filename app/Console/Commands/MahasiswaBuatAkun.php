@@ -19,15 +19,13 @@ class MahasiswaBuatAkun extends Command
 
         if ($tanpaAkun->isEmpty()) {
             $this->info('Semua mahasiswa sudah memiliki akun login.');
-
-            return self::SUCCESS;
         }
 
         $dibuat = 0;
         $gagal = 0;
 
         foreach ($tanpaAkun as $mahasiswa) {
-            $email = $mahasiswa->nim . '@polsa.ac.id';
+            $email = $mahasiswa->nim.'@polsa.ac.id';
 
             if (User::where('email', $email)->exists()) {
                 $this->warn("{$mahasiswa->nim} dilewati: email {$email} sudah dipakai akun lain.");
@@ -41,6 +39,7 @@ class MahasiswaBuatAkun extends Command
                 'email' => $email,
                 'password' => Hash::make($mahasiswa->nim),
                 'role' => 'mahasiswa',
+                'email_verified_at' => now(),
             ]);
 
             $mahasiswa->update(['user_id' => $user->id]);
@@ -50,6 +49,11 @@ class MahasiswaBuatAkun extends Command
 
         $this->newLine();
         $this->info("Selesai. Akun dibuat: {$dibuat}, gagal/dilewati: {$gagal}.");
+
+        $diverifikasi = User::where('role', 'mahasiswa')
+            ->whereNull('email_verified_at')
+            ->update(['email_verified_at' => now()]);
+        $this->info("Email akun mahasiswa diverifikasi: {$diverifikasi}.");
 
         return self::SUCCESS;
     }

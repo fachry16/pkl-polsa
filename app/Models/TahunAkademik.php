@@ -11,13 +11,19 @@ class TahunAkademik extends Model
         'semester',
         'is_active',
     ];
-    public function semesterMahasiswas() {
+
+    public function semesterMahasiswas()
+    {
         return $this->hasMany(SemesterMahasiswa::class);
     }
-    public function pengampus() {
+
+    public function pengampus()
+    {
         return $this->hasMany(Pengampu::class);
     }
-    public function mahasiswaTahunAkademik() {
+
+    public function mahasiswaTahunAkademik()
+    {
         return $this->hasMany(MahasiswaTahunAkademik::class);
     }
 }

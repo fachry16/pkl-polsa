@@ -14,6 +14,7 @@ class LmsTugas extends Model
         'file_lampiran',
         'deadline',
         'bobot_nilai',
+        'batas_upload_mb',
     ];
 
     protected $casts = [

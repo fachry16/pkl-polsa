@@ -5,9 +5,9 @@
 <div class="flex-header">
     <h1 class="page-header" style="margin: 0;">Daftar Mahasiswa</h1>
     @if(auth()->user()->isDosen())
-        <a href="{{ route('dosen.self.riwayat') }}" class="btn btn-secondary">&larr; Kembali</a>
+        <a href="{{ route('lms.index') }}" class="btn btn-secondary btn-sm">Kembali</a>
     @else
-        <a href="{{ route('pengampu.index') }}" class="btn btn-secondary">&larr; Kembali</a>
+        <a href="{{ route('pengampu.index') }}" class="btn btn-secondary btn-sm">Kembali</a>
     @endif
 </div>
 

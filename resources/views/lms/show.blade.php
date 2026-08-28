@@ -5,7 +5,7 @@
 <div class="page-header">
     {{ $pengampu->mataKuliah->kode ?? '' }} - {{ $pengampu->mataKuliah->nama ?? 'Mata Kuliah' }}
     <span style="font-size: 0.85rem; font-weight: 400; color: #64748b; display: block; margin-top: 0.2rem;">
-        Kelas {{ $pengampu->kelas ?? '-' }} &middot; {{ $pengampu->dosen->user->name ?? '-' }} &middot; {{ $pengampu->semester_akademik ?? '-' }} {{ $pengampu->tahunAkademik->tahun ?? '' }}
+        Kelas {{ $pengampu->kelas ?? '-' }} &middot; {{ $pengampu->dosen?->user?->name ?? '-' }} &middot; {{ $pengampu->semester_akademik ?? '-' }} {{ $pengampu->tahunAkademik?->tahun ?? '' }}
     </span>
 </div>
 
@@ -14,6 +14,8 @@
     <a href="{{ route('lms.materi.index', $pengampu->id) }}" class="btn btn-secondary btn-sm">Materi ({{ $materiCount }})</a>
     <a href="{{ route('lms.tugas.index', $pengampu->id) }}" class="btn btn-secondary btn-sm">Tugas ({{ $tugasCount }})</a>
     <a href="{{ route('lms.forum.index', $pengampu->id) }}" class="btn btn-secondary btn-sm">Forum</a>
+    <a href="{{ route('lms.pengumuman.index', $pengampu->id) }}" class="btn btn-secondary btn-sm">Pengumuman</a>
+    <a href="{{ route('lms.absensi.index', $pengampu->id) }}" class="btn btn-secondary btn-sm">Presensi</a>
     <a href="{{ route('lms.tugas.rekap', $pengampu->id) }}" class="btn btn-secondary btn-sm">Rekap Nilai</a>
     <a href="{{ route('lms.index') }}" class="btn btn-secondary btn-sm" style="margin-left: auto;">Kembali</a>
 </div>
@@ -63,6 +65,19 @@
         </div>
     @empty
         <p style="color: #94a3b8; font-size: 0.85rem; text-align: center; padding: 1rem 0;">Belum ada diskusi.</p>
+    @endforelse
+</div>
+
+<div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; margin-top: 1rem;">
+    <h3 style="font-size: 0.9rem; font-weight: 600; margin: 0 0 0.75rem; color: #1e293b;">Pengumuman Terbaru</h3>
+    @forelse($pengampu->lmsPengumumans as $pengumuman)
+        <div style="padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: #1e293b;">{{ $pengumuman->judul }}</div>
+            <div style="font-size: 0.8rem; color: #475569; margin-top: 0.15rem; line-height: 1.5;">{{ Str::limit($pengumuman->isi, 160) }}</div>
+            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.25rem;">{{ $pengumuman->published_at?->format('d M Y H:i') }}</div>
+        </div>
+    @empty
+        <p style="color: #94a3b8; font-size: 0.85rem; text-align: center; padding: 1rem 0;">Belum ada pengumuman.</p>
     @endforelse
 </div>
 

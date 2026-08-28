@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('nidn')->unique();
             $table->enum('jabatan', [
                 'Dosen',
-                'Kaprodi'
+                'Kaprodi',
             ])->default('Dosen');
             $table->timestamps();
         });

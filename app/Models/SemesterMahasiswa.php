@@ -12,10 +12,14 @@ class SemesterMahasiswa extends Model
         'semester',
         'status',
     ];
-    public function mahasiswa() {
+
+    public function mahasiswa()
+    {
         return $this->belongsTo(Mahasiswa::class);
     }
-    public function tahunAkademik() {
+
+    public function tahunAkademik()
+    {
         return $this->belongsTo(TahunAkademik::class);
     }
 }

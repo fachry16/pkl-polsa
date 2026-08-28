@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'email_verified_at',
     ];
 
     /**
@@ -47,26 +48,40 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function dosen(){
+
+    public function dosen()
+    {
         return $this->hasOne(Dosen::class);
     }
-    public function mahasiswa(){
+
+    public function mahasiswa()
+    {
         return $this->hasOne(Mahasiswa::class);
     }
-    public function isAdmin() {
+
+    public function isAdmin()
+    {
         return $this->role === 'admin';
     }
-    public function isDirektur() {
+
+    public function isDirektur()
+    {
         return $this->role === 'direktur';
     }
-    public function isDosen() {
+
+    public function isDosen()
+    {
         return $this->role === 'dosen';
     }
-    public function isKaprodi() {
-        return $this->role === 'dosen' 
+
+    public function isKaprodi()
+    {
+        return $this->role === 'dosen'
             && strtolower($this->dosen?->jabatan ?? '') === 'kaprodi';
     }
-    public function isMahasiswa() {
+
+    public function isMahasiswa()
+    {
         return $this->role === 'mahasiswa';
     }
 }

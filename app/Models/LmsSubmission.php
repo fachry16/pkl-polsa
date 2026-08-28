@@ -16,6 +16,10 @@ class LmsSubmission extends Model
         'dikumpulkan_pada',
     ];
 
+    protected $casts = [
+        'dikumpulkan_pada' => 'datetime',
+    ];
+
     public function lmsTugas()
     {
         return $this->belongsTo(LmsTugas::class);

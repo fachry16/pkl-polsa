@@ -15,7 +15,9 @@ class RpsPenilaian extends Model
         'praktikum',
         'project',
     ];
-    public function rps() {
+
+    public function rps()
+    {
         return $this->belongsTo(Rps::class);
     }
 }

@@ -1,712 +1,455 @@
-# PIKOBE Polsa — Konteks Project untuk Brainstorming LMS
+# PIKOBE Polsa — Konteks Project (untuk Brainstorming & Pengembangan)
 
-## 📋 Informasi Project
-
-- **Nama**: PIKOBE (Politeknik Sawunggalih Aji Information System)
-- **Domain**: Manajemen Kurikulum & RPS (Rencana Pembelajaran Semester)
-- **Kampus**: Politeknik Sawunggalih Aji (Polsa)
-- **Framework**: Laravel 12, PHP 8.2+
-- **Frontend**: Blade + Alpine.js + Tailwind v3 + Vite
-- **Database**: SQLite (dev), MySQL via Laragon (production), SQLite `:memory:` (testing)
-- **PDF**: barryvdh/laravel-dompdf ^3.1
-- **Auth**: Laravel Breeze ^2.4
-- **Testing**: PHPUnit ^11.5.50
-- **Code Style**: Laravel Pint ^1.24
+Dokumen ini merangkum seluruh konteks project **PIKOBE** secara menyeluruh agar bisa digunakan sebagai prompt/knowledge-base untuk AI (mis. Gemini) saat brainstorming, perencanaan, dan pengembangan fitur.
 
 ---
 
-## 🗂️ Struktur Direktori
+## 1. Ringkasan Project
+
+| Item | Detail |
+|---|---|
+| **Nama Aplikasi** | PIKOBE (Politeknik Sawunggalih Aji Information System) |
+| **Lembaga** | Politeknik Sawunggalih Aji (Polsa) |
+| **Domain** | Manajemen akademik: Program Studi, Kurikulum (CPL/CPMK/BK), RPS, KRS, Pengampu, dan **LMS (Learning Management System)** |
+| **Fase saat ini** | Kurikulum + RPS selesai; **LMS sudah diimplementasikan tahap awal** (materi, tugas, pengumpulan, penilaian, forum diskusi) untuk Dosen & Mahasiswa |
+| **Target pengguna** | Admin, Direktur, Kaprodi, Dosen, Mahasiswa |
+| **Bahasa UI** | Indonesia |
+| **Status repo** | Git (GitHub: `fachry16/pkl-polsa`); branch aktif: `dashboardlms_mahasiswa` (tidak ada remote; remote hanya `main`) |
+
+---
+
+## 2. Tech Stack
+
+| Layer | Teknologi |
+|---|---|
+| **Backend** | PHP ^8.2, Laravel ^12.0 |
+| **Frontend** | Blade template + Alpine.js ^3.4 |
+| **CSS** | Tailwind CSS ^3.1 + custom CSS |
+| **Build tool** | Vite ^7.0.7 + laravel-vite-plugin ^2.0.0 |
+| **Database** | SQLite (dev/.env.example), MySQL via Laragon (.env produksi), SQLite `:memory:` (testing) |
+| **Session / Cache / Queue** | Semua memakai driver `database` |
+| **Auth** | Laravel Breeze ^2.4 (login, register, forgot password, email verification) |
+| **PDF** | barryvdh/laravel-dompdf ^3.1 (ekstrak RPS → PDF) |
+| **Testing** | PHPUnit ^11.5.50 (suite Unit + Feature) |
+| **Code style** | Laravel Pint ^1.24 |
+
+### composer.json (dependensi utama)
+```json
+{
+  "require": {
+    "php": "^8.2",
+    "barryvdh/laravel-dompdf": "^3.1",
+    "laravel/framework": "^12.0",
+    "laravel/tinker": "^2.10.1"
+  },
+  "require-dev": {
+    "fakerphp/faker": "^1.23",
+    "laravel/breeze": "^2.4",
+    "laravel/pail": "^1.2.2",
+    "laravel/pint": "^1.24",
+    "laravel/sail": "^1.41",
+    "mockery/mockery": "^1.6",
+    "nunomaduro/collision": "^8.6",
+    "phpunit/phpunit": "^11.5.50"
+  }
+}
+```
+
+### package.json (dependensi frontend)
+```json
+{
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.2",
+    "@tailwindcss/vite": "^4.0.0",
+    "alpinejs": "^3.4.2",
+    "autoprefixer": "^10.4.2",
+    "axios": "^1.11.0",
+    "concurrently": "^9.0.1",
+    "laravel-vite-plugin": "^2.0.0",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.1.0",
+    "vite": "^7.0.7"
+  }
+}
+```
+
+---
+
+## 3. Struktur Direktori
 
 ```
 app/
+  Console/Commands/MahasiswaBuatAkun.php     # artisan: buat akun login massal mahasiswa
   Http/
-    Controllers/
+    Controllers/                             # resource + action controller
+      Concerns/
+        AuthorizesKurikulum.php              # trait auth akses kurikulum
+        AuthorizesRps.php                    # trait auth akses RPS
+      Auth/                                  # Breeze
+      LmsController.php                      # LMS sisi dosen (kelas)
+      LmsMateriController.php
+      LmsTugasController.php                 # termasuk rekap nilai + sync ke RPS
+      LmsForumController.php
+      LmsMahasiswaController.php             # LMS sisi mahasiswa
+      ... (Kurikulum, Cpl, Cpmk, Rps, Krs, Pengampu, Mahasiswa, dll.)
     Middleware/
-  Models/
-  Providers/
-  View/Components/
-bootstrap/
-config/
+      RoleMiddleware.php                     # alias: 'role'
+      KaprodiMiddleware.php                  # alias: 'Kaprodi'
+  Models/                                    # 21 model (lihat §4)
+bootstrap/app.php                            # alias middleware 'role' & 'Kaprodi'
 database/
-  factories/
-  migrations/    (32 file)
-  seeders/
-public/
+  migrations/                                # ±37 file (users → LMS forum)
+  seeders/                                   # DatabaseSeeder, ProgramStudiSeeder
 resources/
   views/
-    auth/
-    layouts/
-    sidebar/
-    rps/, cpl/, cpmk/, kurikulum/, ...
-  css/
-  js/
+    layouts/                                 # app, guest, navigation
+    layouts/sidebar/                         # admin, direktur, dosen, kaprodi, mahasiswa, user-info
+    lms/                                     # dosen: index, show, materi, tugas, forum, rekap
+    lms/mahasiswa/                           # mahasiswa: index, show
+    dosen/, mahasiswa/, krs/, pengampu/,
+    kurikulum/, rps/, cpl/, cpmk/, bahan-kajian/, ...
 routes/
-  web.php        (557 baris)
-  auth.php
-  console.php
-storage/
-tests/
-  Unit/    (1 file)
-  Feature/ (8 file)
+  web.php     (601 baris, semua route web)
+  auth.php    (Breeze)
+  console.php (artisan commands)
+tests/        # Unit + Feature (saat ini masih template Breeze)
 ```
 
 ---
 
-## 🧩 Model & Database
+## 4. Model & Skema Database
 
-### 1. User
-| Field | Type |
-|-------|------|
-| name | string |
-| email | string (unique) |
-| password | hashed |
-| role | enum: admin, dosen, direktur |
+### 4.1 User (`users`)
+- `name`, `email` (unique), `password` (hashed), `role`, `email_verified_at`
+- `role` = **enum: `admin`, `direktur`, `dosen`, `mahasiswa`** (default `dosen`)
+- Relasi: `hasOne(Dosen)`, `hasOne(Mahasiswa)`
+- Helper: `isAdmin()`, `isDirektur()`, `isDosen()`, `isKaprodi()`, `isMahasiswa()`
+  - `isKaprodi()` = role `dosen` **dan** `dosen.jabatan` (lowercase) === `'kaprodi'`
 
-**Relasi**: `hasOne(Dosen)`
-**Helpers**: `isAdmin()`, `isDirektur()`, `isDosen()`, `isKaprodi()`
+### 4.2 ProgramStudi (`program_studis`)
+- `kode_prodi`, `nama_prodi`, `jenjang` (D3/D4), `akreditasi`
+- Seeder 5 prodi: TI(D3), AB(D3), BD(D4), TRPL(D4), AK(D3)
+- Relasi: `hasMany(Dosen)`, `hasMany(Mahasiswa)`, `hasMany(Kurikulum)`
 
-### 2. Dosen
-| Field | Type |
-|-------|------|
-| user_id | FK |
-| program_studi_id | FK |
-| nidn | string (unique) |
-| jabatan | string (dosen/kaprodi) |
+### 4.3 TahunAkademik (`tahun_akademiks`)
+- `tahun`, `semester` (Ganjil/Genap), `is_active` (hanya 1 aktif)
+- Relasi: `hasMany(SemesterMahasiswa)`, `hasMany(Pengampu)`, `hasMany(MahasiswaTahunAkademik)`
 
-**Relasi**: `belongsTo(User)`, `belongsTo(ProgramStudi)`, `hasMany(Pengampu)`
+### 4.4 Dosen (`dosens`)
+- `user_id` (FK), `program_studi_id` (FK), `nidn` (unique), `jabatan` (contoh: `kaprodi`, `dosen`)
+- Relasi: `belongsTo(User)`, `belongsTo(ProgramStudi)`, `hasMany(Pengampu)`
 
-### 3. Mahasiswa
-| Field | Type |
-|-------|------|
-| program_studi_id | FK |
-| nim | string |
-| nama | string |
-| angkatan | year |
-| status | string |
+### 4.5 Mahasiswa (`mahasiswas`)
+- `user_id` (FK, nullable — akun login dibuat otomatis), `program_studi_id` (FK), `nim` (unique), `nama`, `angkatan`, `status`
+- Relasi: `belongsTo(User)`, `belongsTo(ProgramStudi)`, `hasMany(SemesterMahasiswa)`, `belongsToMany(TahunAkademik)` via `semester_mahasiswas`, `belongsToMany(Pengampu)` via `pengampu_mahasiswa`, `hasMany(LmsSubmission)`
+- **Akun login mahasiswa**: email = `{nim}@polsa.ac.id`, password default = NIM. Dibuat otomatis saat input mahasiswa atau via artisan `php artisan mahasiswa:buat-akun`
 
-**Relasi**: `belongsTo(ProgramStudi)`, `hasMany(SemesterMahasiswa)`, `belongsToMany(TahunAkademik)`, `belongsToMany(Pengampu)`
+### 4.6 Kurikulum (`kurikulums`)
+- `program_studi_id` (FK), `nama_kurikulum`, `tahun_berlaku`, `beban_studi`, `deskripsi`, `status` (Draft/Aktif/Arsip)
+- Relasi: `hasMany(ProfilLulusan)`, `hasMany(Cpl)`, `hasMany(MataKuliah)`, `hasMany(BahanKajian)`, `hasMany(Cpmk)`
+- Accessor: `getTotalSksAttribute()` = sum sks_teori + sks_praktikum seluruh MK
 
-### 4. ProgramStudi
-| Field | Type |
-|-------|------|
-| kode_prodi | string |
-| nama_prodi | string |
-| jenjang | string (D3/D4) |
-| akreditasi | string |
+### 4.7 MataKuliah (`mata_kuliahs`)
+- `kurikulum_id` (FK), `kode`, `nama`, `sks_teori`, `sks_praktikum`, `semester`, `jenis`
+- Relasi: `belongsTo(Kurikulum)`, `belongsToMany(BahanKajian)` via `bahan_kajian_mata_kuliah`, `belongsToMany(Cpmk)` via `cpmk_mata_kuliah`, `belongsToMany(Cpl)` via `cpl_bahan_kajian_mata_kuliah`, `hasMany(Pengampu)`, `hasOne(Rps)`
+- Accessor: `getTotalSksAttribute()`
 
-**Seed**: TI(D3), AB(D3), BD(D4), TRPL(D4), AK(D3)
-**Relasi**: `hasMany(Dosen)`, `hasMany(Mahasiswa)`, `hasMany(Kurikulum)`
+### 4.8 ProfilLulusan (`profil_lulusans`) — PL
+- `kurikulum_id` (FK), `kode_pl`, `nama_pl`, `profesi`
+- Relasi: `belongsTo(Kurikulum)`, `belongsToMany(Cpl)` via `profil_lulusan_cpl`
 
-### 5. TahunAkademik
-| Field | Type |
-|-------|------|
-| tahun | year |
-| semester | enum: ganjil/genap |
-| is_active | boolean |
+### 4.9 Cpl (`cpls`) — Capaian Pembelajaran Lulusan
+- `kurikulum_id` (FK), `kode_cpl`, `deskripsi`
+- Relasi: `belongsToMany(ProfilLulusan)`, `belongsToMany(BahanKajian)`, `belongsToMany(Cpmk)` via `cpl_cpmk_semesters`, `belongsToMany(MataKuliah)`
 
-**Relasi**: `hasMany(SemesterMahasiswa)`, `hasMany(Pengampu)`, `hasMany(MahasiswaTahunAkademik)`
+### 4.10 Cpmk (`cpmks`) — Capaian Pembelajaran Mata Kuliah
+- `kurikulum_id` (FK), `kode_cpmk`, `deskripsi`
+- Relasi: `belongsToMany(Cpl)`, `belongsToMany(MataKuliah)`
 
-### 6. Kurikulum
-| Field | Type |
-|-------|------|
-| program_studi_id | FK |
-| nama_kurikulum | string |
-| tahun_berlaku | year |
-| beban_studi | string |
-| deskripsi | text |
-| status | string (Draft/Aktif/Arsip) |
+### 4.11 BahanKajian (`bahan_kajians`) — BK
+- `kurikulum_id` (FK), `kode_bk`, `nama_bk`, `referensi`
+- Relasi: `belongsToMany(Cpl)`, `belongsToMany(MataKuliah)`
 
-**Relasi**: `belongsTo(ProgramStudi)`, `hasMany(ProfilLulusan)`, `hasMany(Cpl)`, `hasMany(MataKuliah)`, `hasMany(BahanKajian)`, `hasMany(Cpmk)`
-**Accessor**: `getTotalSksAttribute()`
+### 4.12 Rps (`rps`) — Rencana Pembelajaran Semester
+- `mata_kuliah_id` (FK), `kode_rps` (nullable), `semester`, `dosen_pengampu`, `deskripsi_mata_kuliah`
+- Workflow: `status` = **Draft → Diajukan → Disetujui** atau **Revisi**; `disetujui_oleh` (FK users, nullable), `tanggal_disetujui` (datetime), `catatan_revisi` (text)
+- Relasi: `belongsTo(MataKuliah)`, `hasMany(RpsPertemuan)`, `hasMany(RpsPenilaian)` + `hasOne(RpsPenilaian)`, `belongsTo(User, disetujui_oleh)`
 
-### 7. MataKuliah
-| Field | Type |
-|-------|------|
-| kurikulum_id | FK |
-| kode | string |
-| nama | string |
-| sks_teori | integer |
-| sks_praktikum | integer |
-| semester | integer |
-| jenis | string |
+### 4.13 RpsPertemuan (`rps_pertemuans`)
+- `rps_id` (FK), `minggu`, `sub_cpmk`, `materi`, `metode`, `pengalaman_belajar`, `indikator`, `bobot`
+- Relasi: `hasMany(LmsMateri)`, `hasMany(LmsTugas)` — **jembatan antara RPS dan LMS**
 
-**Relasi**: `belongsTo(Kurikulum)`, `belongsToMany(BahanKajian)`, `belongsToMany(Cpmk)`, `belongsToMany(Cpl)`, `hasMany(Pengampu)`, `hasOne(Rps)`
-**Accessor**: `getTotalSksAttribute()`
+### 4.14 RpsPenilaian (`rps_penilaians`)
+- `rps_id` (FK), `tugas`, `quiz`, `uts`, `uas`, `praktikum`, `project` (decimal 5,2, default 0)
+- Satu RPS punya satu baris penilaian (default komponen)
 
-### 8. ProfilLulusan (PL)
-| Field | Type |
-|-------|------|
-| kurikulum_id | FK |
-| kode_pl | string |
-| nama_pl | string |
-| profesi | string |
+### 4.15 Pengampu (`pengampus`) — kelas LMS (dosen mengampu MK)
+- `krs_id` (FK, nullable), `dosen_id`, `mata_kuliah_id`, `tahun_akademik_id`, `semester_akademik` (Ganjil/Genap), `kelas`
+- **Satu Pengampu = satu kelas di LMS**. Dibuat otomatis saat KRS dibuat.
+- Relasi: `belongsTo(Krs)`, `belongsTo(Dosen)`, `belongsTo(MataKuliah)`, `belongsTo(TahunAkademik)`, `belongsToMany(Mahasiswa)` via `pengampu_mahasiswa`, `hasMany(LmsMateri)`, `hasMany(LmsTugas)`, `hasMany(LmsForumDiskusi)`
 
-**Relasi**: `belongsTo(Kurikulum)`, `belongsToMany(Cpl)` via `profil_lulusan_cpl`
+### 4.16 Krs (`krs`) — Kartu Rencana Studi (kelas)
+- `program_studi_id`, `mata_kuliah_id`, `dosen_id`, `tahun_akademik_id`, `kelas`
+- Relasi: `belongsToMany(Mahasiswa)` via `krs_mahasiswa`, `hasOne(Pengampu)` (lewat `krs_id`)
+- **Alur**: Admin/Kaprodi buat KRS → otomatis membuat Pengampu → tambah mahasiswa ke KRS → otomatis masuk ke kelas Pengampu (sync via `krs_mahasiswa` ↔ `pengampu_mahasiswa`)
 
-### 9. Cpl (Capaian Pembelajaran Lulusan)
-| Field | Type |
-|-------|------|
-| kurikulum_id | FK |
-| kode_cpl | string |
-| deskripsi | text |
+### 4.17 SemesterMahasiswa (`semester_mahasiswas`)
+- `mahasiswa_id`, `tahun_akademik_id`, `semester`, `status`
 
-**Relasi**: `belongsTo(Kurikulum)`, `belongsToMany(ProfilLulusan)`, `belongsToMany(BahanKajian)`, `belongsToMany(Cpmk)`, `belongsToMany(MataKuliah)`
+### 4.18 MahasiswaTahunAkademik (`mahasiswa_tahun_akademiks`)
+- `mahasiswa_id`, `tahun_akademik_id`, `semester`, `status`
+- Digunakan admin untuk mendaftarkan mahasiswa ke tahun akademik
 
-### 10. Cpmk (Capaian Pembelajaran Mata Kuliah)
-| Field | Type |
-|-------|------|
-| kurikulum_id | FK |
-| kode_cpmk | string |
-| deskripsi | text |
+### 4.19 LmsMateri (`lms_materis`) — **LMS**
+- `pengampu_id` (FK), `rps_pertemuan_id` (FK, nullable), `judul`, `deskripsi`, `file_path`, `link_external`
+- File disimpan di storage `public` (folder `lms/materi`), upload max 50 MB
 
-**Relasi**: `belongsTo(Kurikulum)`, `belongsToMany(Cpl)`, `belongsToMany(MataKuliah)`
+### 4.20 LmsTugas (`lms_tugas`) — **LMS**
+- `pengampu_id` (FK), `rps_pertemuan_id` (FK, nullable), `judul`, `instruksi`, `file_lampiran`, `deadline` (datetime), `bobot_nilai` (int, default 100)
+- Relasi: `belongsTo(Pengampu)`, `belongsTo(RpsPertemuan)`, `hasMany(LmsSubmission)`
+- File lampiran di folder `lms/tugas`
 
-### 11. BahanKajian (BK)
-| Field | Type |
-|-------|------|
-| kurikulum_id | FK |
-| kode_bk | string |
-| nama_bk | string |
-| referensi | text |
+### 4.21 LmsSubmission (`lms_submissions`) — **LMS**
+- `lms_tugas_id` (FK), `mahasiswa_id` (FK), `file_jawaban`, `catatan_mahasiswa`, `nilai` (decimal 5,2, nullable), `catatan_dosen`, `dikumpulkan_pada` (datetime)
+- **Unique**: `[lms_tugas_id, mahasiswa_id]` → satu mahasiswa satu pengumpulan per tugas (updateOrCreate)
+- Helper: `isTerlambat()` (bandingkan `dikumpulkan_pada` vs `deadline`)
+- File jawaban di folder `lms/submissions`
 
-**Relasi**: `belongsTo(Kurikulum)`, `belongsToMany(Cpl)`, `belongsToMany(MataKuliah)`
-
-### 12. Rps (Rencana Pembelajaran Semester)
-| Field | Type |
-|-------|------|
-| mata_kuliah_id | FK (unique) |
-| kode_rps | string nullable |
-| semester | integer |
-| dosen_pengampu | string |
-| deskripsi_mata_kuliah | text nullable |
-| status | string (Draft/Diajukan/Revisi/Disetujui) |
-| disetujui_oleh | FK ke users nullable |
-| tanggal_disetujui | datetime nullable |
-| catatan_revisi | text nullable |
-
-**Relasi**: `belongsTo(MataKuliah)`, `hasMany(RpsPertemuan)`, `hasMany(RpsPenilaian)`, `hasOne(RpsPenilaian)`, `belongsTo(User, disetujui_oleh)`
-
-### 13. RpsPertemuan
-| Field | Type |
-|-------|------|
-| rps_id | FK |
-| minggu | integer |
-| sub_cpmk | string |
-| materi | text |
-| metode | string |
-| pengalaman_belajar | text |
-| indikator | text |
-| bobot | string |
-
-### 14. RpsPenilaian
-| Field | Type |
-|-------|------|
-| rps_id | FK |
-| tugas, quiz, uts, uas, praktikum, project | string nullable |
-
-### 15. Pengampu
-| Field | Type |
-|-------|------|
-| krs_id | FK nullable |
-| dosen_id | FK |
-| mata_kuliah_id | FK |
-| tahun_akademik_id | FK |
-| semester_akademik | string |
-| kelas | string |
-
-**Relasi**: `belongsTo(Krs)`, `belongsTo(Dosen)`, `belongsTo(MataKuliah)`, `belongsTo(TahunAkademik)`, `belongsToMany(Mahasiswa)` via `pengampu_mahasiswa`
-
-### 16. Krs (Kartu Rencana Studi)
-| Field | Type |
-|-------|------|
-| program_studi_id | FK |
-| mata_kuliah_id | FK |
-| dosen_id | FK |
-| tahun_akademik_id | FK |
-| kelas | string(10) |
-
-**Relasi**: `belongsTo(ProgramStudi)`, `belongsTo(MataKuliah)`, `belongsTo(Dosen)`, `belongsTo(TahunAkademik)`, `belongsToMany(Mahasiswa)` via `krs_mahasiswa`, `hasOne(Pengampu)`
-**Unique**: (mata_kuliah_id, tahun_akademik_id, dosen_id, kelas)
-
-### 17. SemesterMahasiswa
-| Field | Type |
-|-------|------|
-| mahasiswa_id | FK |
-| tahun_akademik_id | FK |
-| semester | integer |
-| status | string |
-
-### 18. MahasiswaTahunAkademik
-| Field | Type |
-|-------|------|
-| mahasiswa_id | FK |
-| tahun_akademik_id | FK |
-| semester | integer |
-| status | string |
+### 4.22 LmsForumDiskusi (`lms_forum_diskusis`) — **LMS**
+- `pengampu_id` (FK), `user_id` (FK — dosen/mahasiswa), `parent_id` (FK self, nullable → balasan/reply), `pesan` (text), `file_path`, `link_external`
+- Thread = `parent_id` null; balasan = `parent_id` merujuk thread
+- Relasi: `belongsTo(Pengampu)`, `belongsTo(User)`, `belongsTo(self, parent_id)`, `hasMany(self, parent_id)` (replies, urut `oldest`)
 
 ---
 
-## 🔐 Auth & Role System
+## 5. Auth & Role System
 
-### Middleware (bootstrap/app.php)
+### 5.1 Alias middleware (`bootstrap/app.php`)
 ```php
 $middleware->alias([
-    'role' => \App\Http\Middleware\RoleMiddleware::class,
+    'role'    => \App\Http\Middleware\RoleMiddleware::class,
     'Kaprodi' => \App\Http\Middleware\KaprodiMiddleware::class,
 ]);
 ```
 
-### RoleMiddleware
-```php
-public function handle(Request $request, Closure $next, ...$roles)
-{
-    if (!auth()->check()) abort(403);
-    if (!in_array(auth()->user()->role, $roles)) abort(403);
-    return $next($request);
-}
+### 5.2 RoleMiddleware (`role:admin,direktur,kaprodi,dosen,...`)
+- Menerima daftar role; jika salah satu cocok → lanjut.
+- **Khusus** `kaprodi`: lolos jika `role === 'admin'` **atau** `isKaprodi()`.
+- Selain itu cocok dengan `$user->role === $role`. Jika tidak ada yang cocok → `abort(403)`.
+
+### 5.3 KaprodiMiddleware (`Kaprodi`)
+- Lolos jika `role === 'admin'` atau `isKaprodi()`; selain itu `abort(403)`.
+
+### 5.4 Akses per halaman (konsep)
+| Halaman | Akses |
+|---|---|
+| Dashboard | Semua yang login |
+| Tahun Akademik, Program Studi, Dosen, Mahasiswa, Pengampu (read) | Admin + Direktur + Kaprodi |
+| CRUD semua master + Manajemen User + pengaturan aktif | **Admin saja** |
+| KRS (index/show read) | Admin + Direktur + Kaprodi |
+| KRS (create/store/hapus/tambah mahasiswa) | Admin + Kaprodi |
+| Kurikulum & turunannya (CPL, CPMK, BK, PL, mapping, MK) | Admin + Kaprodi (mutasi); semua auth (read) |
+| RPS CRUD + pertemuan + penilaian | Admin, Kaprodi, Dosen (dengan cek hak via `AuthorizesRps`; dosen hanya untuk MK yang diampunya) |
+| Pengajuan/setujui/revisi RPS | Kaprodi (middleware `Kaprodi`) |
+| Dashboard Direktur | Direktur |
+| LMS Dosen (`/kelas/...`) | Dosen pengampu kelas tsb (cek `pengampu->dosen_id === user->dosen->id`) |
+| LMS Mahasiswa (`/mahasiswa/kelas/...`) | Mahasiswa yang terdaftar di `pengampu_mahasiswa` |
+
+### 5.5 Sidebar per role
+`layouts/app.blade.php` memilih sidebar: `admin`, `direktur`, `dosen` (default), `kaprodi` (jika dosen.jabatan kaprodi), `mahasiswa`.
+
+---
+
+## 6. Route Map (`routes/web.php`, 601 baris)
+
+### 6.1 Umum
+- `GET /` → welcome; `GET /dashboard` → `DashboardController@index` (auth, verified)
+- `profile.*` (auth)
+
+### 6.2 Read-only bersama (Admin + Direktur + Kaprodi)
+- `tahun-akademik.index`, `program-studi.index`, `dosen.index`, `dosen.riwayat`, `mahasiswa.index`, `pengampu.index`, `tahun-akademik.mahasiswa.index`
+
+### 6.3 Admin only
+- `tahun-akademik` (CRUD, except index + `aktifkan`), `program-studi`, `dosen`, `mahasiswa`, `pengampu` (store/destroy), `users` (full CRUD)
+- `pengampu.kelas.mahasiswa.store/destroy`
+
+### 6.4 KRS
+- Read (Admin/Direktur/Kaprodi): `krs.index`, `krs.show`
+- Mutasi (Admin/Kaprodi): `krs.create/store/destroy`, `krs.mahasiswa.store/destroy`
+
+### 6.5 Kurikulum (nested di bawah `kurikulum/{kurikulum}`)
+- Read semua auth: `kurikulum.detail`, `kurikulum.struktur` (struktur MK), `program-studi.kurikulum`
+- Mutasi (Admin/Kaprodi): CRUD `kurikulum`, `cpl`, `cpmk`, `bahan-kajian`, `profil-lulusan`, `mata-kuliah` + `kurikulum.aktifkan`
+- Matriks mapping (PUT/POST): `cpl-pl`, `bk-mk`, `cpl-bk-mk`, `cpl-cpmk-mk`, `pemenuhan-cpl`
+
+### 6.6 RPS
+- `mata-kuliah.rps.*` (nested resource), `rps.ajukan`, `rps.ekstrak-pdf`, `rps.pertemuan.*`, `rps.penilaian.*`
+- Kaprodi: `rps.pengajuan`, `rps.setujui`, `rps.revisi`
+
+### 6.7 Direktur
+- `GET /dashboard-direktur`
+
+### 6.8 LMS — Dosen (prefix `kelas`, name `lms.`)
+```
+GET  /kelas-saya                      lms.index
+GET  /{pengampu}                      lms.show
+GET  /{pengampu}/materi               lms.materi.index
+POST /{pengampu}/materi               lms.materi.store
+DELETE /{pengampu}/materi/{materi}    lms.materi.destroy
+GET  /{pengampu}/tugas                lms.tugas.index
+POST /{pengampu}/tugas                lms.tugas.store
+GET  /{pengampu}/tugas/{tugas}        lms.tugas.show
+PATCH /submission/{submission}/nilai  lms.submission.nilai
+GET  /{pengampu}/forum                lms.forum.index
+POST /{pengampu}/forum                lms.forum.store
+GET  /{pengampu}/forum/{diskusi}/edit lms.forum.edit
+PATCH /{pengampu}/forum/{diskusi}     lms.forum.update
+DELETE /{pengampu}/forum/{diskusi}    lms.forum.destroy
+GET  /{pengampu}/forum/{diskusi}/file lms.forum.file
+GET  /{pengampu}/rekap-nilai          lms.tugas.rekap
+POST /{pengampu}/sync-nilai           lms.tugas.sync
 ```
 
-### KaprodiMiddleware (custom logic)
-```php
-public function handle(Request $request, Closure $next): Response
-{
-    if (!auth()->check()) abort(403);
-    if (auth()->user()->role === 'admin' || auth()->user()->isKaprodi()) {
-        return $next($request);
-    }
-    abort(403);
-}
+### 6.9 LMS — Mahasiswa (prefix `mahasiswa`, name `mahasiswa.lms.`)
 ```
-
-### User Model — Role Helpers
-```php
-public function isAdmin()    { return $this->role === 'admin'; }
-public function isDirektur() { return $this->role === 'direktur'; }
-public function isDosen()    { return $this->role === 'dosen'; }
-public function isKaprodi()  {
-    return $this->role === 'dosen'
-        && strtolower($this->dosen?->jabatan ?? '') === 'kaprodi';
-}
-```
-
-### Role-based Sidebar (layouts/app.blade.php)
-```blade
-@auth
-    @if(auth()->user()->role == 'admin')
-        @include('layouts.sidebar.admin')
-    @elseif(auth()->user()->role == 'direktur')
-        @include('layouts.sidebar.direktur')
-    @elseif(auth()->user()->dosen &&
-             strtolower(auth()->user()->dosen->jabatan) == 'kaprodi')
-        @include('layouts.sidebar.kaprodi')
-    @else
-        @include('layouts.sidebar.dosen')
-    @endif
-@endauth
+GET  /kelas-saya                      mahasiswa.lms.index
+GET  /kelas/{pengampu}                mahasiswa.lms.show
+POST /kelas/{pengampu}/forum          mahasiswa.lms.forum.store
+POST /tugas/{tugas}/kumpul            mahasiswa.lms.tugas.kumpul
 ```
 
 ---
 
-## 🧭 Route Map
+## 7. Fitur LMS (implementasi saat ini)
 
-### Public
-| URI | Middleware |
-|-----|-----------|
-| `/` | web |
-| `/dashboard` | auth, verified |
+### 7.1 Sisi Dosen (LmsController, LmsMateriController, LmsTugasController, LmsForumController)
+- **Kelas LMS Saya** (`lms.index`): daftar pengampu pada tahun akademik aktif + count materi/tugas/diskusi.
+- **Detail kelas** (`lms.show`): info MK + kelas, materi & tugas & forum terbaru (limit 5).
+- **Materi**: tambah (judul, deskripsi, file/link) & hapus (file dihapus dari storage).
+- **Tugas**: tambah (judul, instruksi, deadline, bobot nilai, file lampiran/link). Lihat daftar pengumpulan per mahasiswa, beri **nilai & catatan dosen** (`lms.submission.nilai`).
+- **Rekap Nilai** (`lms.tugas.rekap`): tabel mahasiswa × tugas (nilai per tugas).
+- **Sync ke RPS** (`lms.tugas.sync`): hitung rata-rata nilai tugas per mahasiswa → rata-rata kelas → `updateOrCreate` ke `rps_penilaians.tugas` untuk RPS dengan `mata_kuliah_id` yang sama.
+- **Forum Diskusi**: buat thread/balasan dengan file/link, edit & hapus (hanya pemilik), download file inline.
+- Semua aksi dosen diawali cek `abort_if(!$dosen || $pengampu->dosen_id !== $dosen->id, 403)`.
 
-### Profile (auth)
-| Method | URI | Name |
-|--------|-----|------|
-| GET/PATCH/DELETE | `/profile` | profile.* |
+### 7.2 Sisi Mahasiswa (LmsMahasiswaController)
+- **Kelas LMS Saya** (`index`): daftar kelas yang diikuti (dari `pengampu_mahasiswa`) pada tahun akademik aktif.
+- **Detail kelas** (`show`): materi, tugas (dengan status sudah/belum kumpul via `LmsSubmission`), forum diskusi.
+- **Kumpul tugas** (`storeSubmission`): upload file jawaban / link external / catatan; `updateOrCreate` per (tugas, mahasiswa) sehingga bisa mengumpulkan ulang.
+- **Posting forum** (`storeForum`): thread & balasan (parent_id) dengan file/link.
 
-### Dosen Self (auth)
-| Method | URI | Name |
-|--------|-----|------|
-| GET | `/dosen/self` | dosen.self |
-| GET | `/dosen/self/riwayat` | dosen.self.riwayat |
+### 7.3 Dashboard (DashboardController)
+- **Statistik umum**: total dosen, total mahasiswa, tahun akademik aktif.
+- **Dosen/Kaprodi**: kartu "Ruang Kelas LMS" — tiap kelas menampilkan jumlah materi, tugas, dan `submissions_belum_dinilai` (submission yang `nilai` masih null).
+- **Mahasiswa**: 3 kartu stat (jumlah kelas, tugas aktif = deadline ≥ now, belum dikumpul), daftar **tugas mendekati deadline** (7 hari), **materi terbaru** (7 hari), dan **diskusi terbaru** (7 hari).
 
-### Shared Read-Only (Admin + Direktur) `role:admin,direktur`
-- `tahun-akademik.index`, `program-studi.index`, `dosen.index`, `mahasiswa.index`
-- `pengampu.index`, `krs.index`, `krs.show`
-- `tahun-akademik.mahasiswa.index`
-
-### Admin Only `role:admin`
-- Full CRUD: `tahun-akademik` (except index), `program-studi` (except index), `dosen` (except index), `mahasiswa` (except index), `pengampu` (except index/show/edit/update), `users`
-- Actions: TA toggle activate, Mahasiswa TA manage, KRS create/store/destroy, Pengampu manage students
-
-### All Authenticated (auth)
-- `kurikulum.*` (CRUD + index + detail + aktifkan + indexByProgramStudi)
-- `kurikulum.cpl.*`, `kurikulum.cpmk.*`, `kurikulum.bahan-kajian.*`, `kurikulum.profil-lulusan.*`
-- Mapping matrices: `cpl-pl`, `bk-mk`, `cpl-bk-mk`, `cpl-cpmk-mk`, `pemenuhan-cpl`
-- `kurikulum.mata-kuliah.*` (index, struktur)
-- `mata-kuliah.rps.*` (nested resource)
-- `rps.ajukan`, `rps.ekstrak-pdf`
-- `rps.pertemuan.*`, `rps.penilaian.*`
-- `pengampu.lihat-kelas`
-
-### Kaprodi (auth, Kaprodi)
-| Method | URI | Name |
-|--------|-----|------|
-| GET | `/rps/pengajuan` | rps.pengajuan |
-| PATCH | `/rps/{rps}/setujui` | rps.setujui |
-| PATCH | `/rps/{rps}/revisi` | rps.revisi |
-| GET/POST | `/kurikulum/{kurikulum}/mata-kuliah/create` | kurikulum.mata-kuliah.create/store |
-| GET/PUT/DELETE | `/kurikulum/{kurikulum}/mata-kuliah/{mk}` | kurikulum.mata-kuliah.edit/update/destroy |
-| PATCH | `/mata-kuliah/{mk}/aktifkan` | mata-kuliah.aktifkan |
-
-### Direktur `role:direktur`
-| GET | `/dashboard-direktur` | dashboard-direktur |
+### 7.4 Keterbatasan / catatan teknis yang diketahui
+- File disimpan di **disk `public`** (symlink `storage:link` harus aktif). Upload max **50 MB** (`max:51200`).
+- `LmsSubmission` belum punya kolom `link_external` di migration (controller menerima `link_external` di validasi tapi field tidak tersimpan di DB saat ini — potensi perbaikan).
+- `LmsTugas` / `LmsMateri` juga menerima `link_external` namun kolomnya tidak ada di migration (perlu dicek/ditambahkan jika ingin dipakai).
+- Belum ada fitur quiz/ujian online, absensi, notifikasi real-time, kalender akademik.
+- `rps_pertemuan_id` tersedia di LmsMateri/LmsTugas tapi belum diisi dari form (nullable).
+- Tidak ada route API (murni web/monolitik).
 
 ---
 
-## 📜 Source Code Penting
+## 8. Alur Kerja Utama (Business Flow)
 
-### App Layout
-```blade
-{{-- resources/views/layouts/app.blade.php --}}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body>
-<div class="app-layout">
-    @auth
-        @if(auth()->user()->role == 'admin')
-            @include('layouts.sidebar.admin')
-        @elseif(auth()->user()->role == 'direktur')
-            @include('layouts.sidebar.direktur')
-        @elseif(auth()->user()->dosen &&
-                 strtolower(auth()->user()->dosen->jabatan) == 'kaprodi')
-            @include('layouts.sidebar.kaprodi')
-        @else
-            @include('layouts.sidebar.dosen')
-        @endif
-    @endauth
-    <main class="main-content">
-        @yield('content')
-    </main>
-    <div class="toast-container">
-        @if(session('toast_success'))
-            <x-toast type="success" :message="session('toast_success')" />
-        @endif
-        {{-- toast_error, toast_warning, toast_info --}}
-    </div>
-    @stack('scripts')
-</div>
-</body>
-</html>
+### 8.1 RPS Workflow
+```
+Draft ──ajukan──▶ Diajukan ──setujui(kaprodi)──▶ Disetujui ──ekstrakPdf──▶ PDF
+                    ▲                               │
+                    └──────revisi + catatan_revisi───┘
+```
+- Syarat `ajukan`: status Draft/Revisi, punya ≥1 pertemuan, dan punya penilaian.
+- PDF hanya untuk status `Disetujui`.
+
+### 8.2 KRS → Pengampu → Kelas LMS
+```
+Admin/Kaprodi buat KRS (prodi, MK, dosen, TA, kelas)
+   └─▶ otomatis membuat Pengampu (satu kelas)
+Tambah mahasiswa ke KRS ──▶ sync otomatis ke pengampu_mahasiswa
+   └─▶ mahasiswa muncul di "Kelas LMS Saya"
 ```
 
-### Sidebar Admin
-```blade
-<aside class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-logo">
-            {{-- SVG Logo --}}
-            <span class="sidebar-brand">PIKOBE</span>
-        </div>
-    </div>
-    <nav class="sidebar-nav">
-        <a href="{{ route('dashboard') }}" class="...">Dashboard</a>
-        <a href="{{ route('tahun-akademik.index') }}">Tahun Akademik</a>
-        <a href="{{ route('program-studi.index') }}">Program Studi</a>
-        <a href="{{ route('dosen.index') }}">Dosen</a>
-        <a href="{{ route('mahasiswa.index') }}">Mahasiswa</a>
-        <a href="{{ route('pengampu.index') }}">Pengampu</a>
-        <a href="{{ route('krs.index') }}">KRS</a>
-        <a href="{{ route('users.index') }}">Manajemen User</a>
-    </nav>
-    @include('layouts.sidebar.user-info')
-</aside>
+### 8.3 Alur belajar mengajar di LMS
 ```
-
-### Sidebar Kaprodi
-```blade
-<nav class="sidebar-nav">
-    <a href="{{ route('dashboard') }}">Dashboard</a>
-    <a href="{{ route('dosen.self') }}">Data Diri</a>
-    <a href="{{ route('program-studi.kurikulum', auth()->user()->dosen->program_studi_id) }}">Kurikulum</a>
-    <a href="{{ route('rps.pengajuan') }}">Pengajuan RPS</a>
-</nav>
-```
-
-### Sidebar Dosen
-```blade
-<nav class="sidebar-nav">
-    <a href="{{ route('dashboard') }}">Dashboard</a>
-    <a href="{{ route('dosen.self') }}">Data Diri</a>
-    <a href="{{ route('dosen.self.riwayat') }}">Riwayat Mengajar</a>
-</nav>
-```
-
-### Sidebar Direktur
-```blade
-<nav class="sidebar-nav">
-    <a href="{{ route('dashboard') }}">Dashboard</a>
-    <a href="{{ route('tahun-akademik.index') }}">Tahun Akademik</a>
-    <a href="{{ route('program-studi.index') }}">Program Studi</a>
-    <a href="{{ route('dosen.index') }}">Dosen</a>
-    <a href="{{ route('mahasiswa.index') }}">Mahasiswa</a>
-    <a href="{{ route('pengampu.index') }}">Pengampu</a>
-    <a href="{{ route('krs.index') }}">KRS</a>
-</nav>
-```
-
-### RPS Controller — Fitur Utama
-```php
-class RpsController extends Controller
-{
-    // CRUD standar untuk RPS (nested resource: mata-kuliah/{mk}/rps/{rps})
-
-    public function ajukan(Rps $rps)
-    {
-        // Validasi: status Draft/Revisi, pertemuan harus ada, penilaian harus ada
-        $rps->update(['status' => 'Diajukan', 'catatan_revisi' => null]);
-    }
-
-    public function pengajuan()
-    {
-        // Kaprodi melihat semua RPS yang diajukan/direvisi/disetujui
-        // Filter by program_studi_id dari dosen yang login
-    }
-
-    public function revisi(Request $request, Rps $rps)
-    {
-        $rps->update(['status' => 'Revisi', 'catatan_revisi' => $request->catatan_revisi]);
-    }
-
-    public function setujui(Rps $rps)
-    {
-        $rps->update([
-            'status' => 'Disetujui',
-            'disetujui_oleh' => auth()->id(),
-            'tanggal_disetujui' => now(),
-        ]);
-    }
-
-    public function ekstrakPdf(Rps $rps)
-    {
-        // Hanya RPS Disetujui yang bisa di-PDF
-        // Menggunakan barryvdh/laravel-dompdf
-    }
-
-    private function authorizeRps(MataKuliah $mataKuliah)
-    {
-        // Admin & Kaprodi: allowed
-        // Dosen: hanya jika dia mengampu mata kuliah tsb
-    }
-}
-```
-
-### RPS Workflow Status
-```
-Draft → (ajukan) → Diajukan → (setujui) → Disetujui
-                        ↓
-                   (revisi)
-                        ↓
-                     Revisi → (ajukan) → Diajukan
+Dosen: buat kelas (dari KRS) → upload materi → buat tugas (deadline + bobot)
+Mahasiswa: buka kelas → baca materi → kumpul tugas (file) → post forum
+Dosen: buka daftar pengumpulan → beri nilai + catatan → rekap → sync rata-rata ke RPS
 ```
 
 ---
 
-## 🚀 Fitur Saat Ini (Ringkasan)
+## 9. Struktur View Penting
 
-1. **Manajemen Program Studi** — CRUD 5 prodi (TI, AB, BD, TRPL, AK)
-2. **Manajemen Tahun Akademik** — CRUD + toggle aktif
-3. **Manajemen Dosen** — CRUD + login sebagai dosen (password default = NIDN) + jabatan kaprodi
-4. **Manajemen Mahasiswa** — CRUD + pendaftaran per tahun akademik
-5. **Manajemen Kurikulum** — CRUD + aktivasi/arsip
-6. **Kurikulum Detail** — CPL, CPMK, Bahan Kajian, Profil Lulusan (nested CRUD)
-7. **Matriks Mapping** — CPL-PL, BK-MK, CPL-BK-MK, CPL-CPMK-MK, Pemenuhan CPL
-8. **Manajemen Mata Kuliah** — CRUD + aktivasi + struktur kurikulum
-9. **RPS** — Full lifecycle: buat → isi pertemuan → isi penilaian → ajukan → revisi → setujui → PDF
-10. **Pengampu & KRS** — Kelola kelas + daftar mahasiswa
-11. **Role System** — Admin, Kaprodi, Dosen, Direktur dengan sidebar berbeda
-12. **PDF Generation** — Ekstrak RPS ke PDF (hanya jika status Disetujui)
+- `layouts/app.blade.php`: sidebar role-based + main content (`@yield('content')`) + toast container (`x-toast`).
+- `layouts/sidebar/*`: `admin` (8 menu), `direktur`, `dosen` (Data Diri, Riwayat Mengajar, Kelas LMS), `kaprodi` (tambah Kurikulum/Pengajuan RPS/KRS), `mahasiswa` (Dashboard + Kelas LMS Saya).
+- `dashboard.blade.php`: visi-misi + statistik + daftar program studi; blok khusus mahasiswa (tugas deadline, materi, diskusi) dan dosen/kaprodi (ruang kelas LMS).
+- `lms/`: `index`, `show`, `materi/index`, `tugas/index`, `tugas/show` (daftar pengumpulan + form nilai), `tugas/rekap`, `forum/index`, `forum/edit`.
+- `lms/mahasiswa/`: `index`, `show` (tab materi/tugas/forum + status submission).
+- `components/file-link.blade.php`: komponen link unduhan file (baru, belum di-commit).
+- `rps/pdf.blade.php` & `rps/preview-pdf.blade.php`: template PDF RPS via dompdf.
 
 ---
 
-## ⚙️ Tech Stack Lengkap
+## 10. Database — Tabel Relasi (ER ringkas)
 
-| Layer | Teknologi |
-|-------|-----------|
-| **Backend** | PHP 8.2+, Laravel 12 |
-| **Frontend** | Blade templates + Alpine.js 3 |
-| **CSS** | Tailwind CSS 3 + custom CSS (1277 baris) |
-| **Build** | Vite 7 + laravel-vite-plugin |
-| **Database** | SQLite (dev), MySQL (via Laragon), SQLite :memory: (tests) |
-| **Session** | Database driver |
-| **Queue** | Database driver |
-| **Cache** | Database driver |
-| **PDF** | barryvdh/laravel-dompdf 3.1 |
-| **Auth** | Laravel Breeze 2.4 |
-| **Testing** | PHPUnit 11.5 |
-| **Code Style** | Laravel Pint 1.24 |
-
-### composer.json — Key Dependencies
-```json
-{
-    "require": {
-        "php": "^8.2",
-        "barryvdh/laravel-dompdf": "^3.1",
-        "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
-    },
-    "require-dev": {
-        "laravel/breeze": "^2.4",
-        "laravel/pint": "^1.24",
-        "laravel/sail": "^1.41",
-        "phpunit/phpunit": "^11.5.50"
-    }
-}
 ```
+users (role: admin/direktur/dosen/mahasiswa)
+  │ 1:1 dosens (program_studi_id → program_studis)
+  └ 1:1 mahasiswas (program_studi_id → program_studis, nim)
 
-### package.json — Key Dependencies
-```json
-{
-    "devDependencies": {
-        "@tailwindcss/forms": "^0.5.2",
-        "@tailwindcss/vite": "^4.0.0",
-        "alpinejs": "^3.4.2",
-        "autoprefixer": "^10.4.2",
-        "axios": "^1.11.0",
-        "concurrently": "^9.0.1",
-        "laravel-vite-plugin": "^2.0.0",
-        "postcss": "^8.4.31",
-        "tailwindcss": "^3.1.0",
-        "vite": "^7.0.7"
-    }
-}
-```
+program_studis ─1:N─ kurikulums
+   kurikulums ─1:N─ profil_lulusans / cpls / cpmks / bahan_kajians / mata_kuliahs
+   cpls N:M profil_lulusans (profil_lulusan_cpl)
+   cpls N:M cpmks (cpl_cpmk_semesters)
+   bahan_kajians N:M mata_kuliahs (bahan_kajian_mata_kuliah)
+   cpls N:M bahan_kajians N:M mata_kuliahs (cpl_bahan_kajian_mata_kuliah)
+   cpmks N:M mata_kuliahs (cpmk_mata_kuliah)
+   mata_kuliahs 1:1 rps ─1:N─ rps_pertemuans / rps_penilaians
 
-### .env.example — Konfigurasi
-```
-DB_CONNECTION=sqlite
-SESSION_DRIVER=database
-QUEUE_CONNECTION=database
-CACHE_STORE=database
+tahun_akademiks
+   │ 1:N semester_mahasiswas (mahasiswa)
+   │ 1:N mahasiswa_tahun_akademiks
+   └ 1:N krs ─1:1─ pengampus ─N:M─ mahasiswas (pengampu_mahasiswa)
+       │             │ N:M (lewat krs_mahasiswa)
+       └─────────────┴ N:M mahasiswas
+   pengampus 1:N lms_materis / lms_tugas / lms_forum_diskusis
+   lms_tugas 1:N lms_submissions (N:M mahasiswas)
+   lms_forum_diskusis 1:N (self, parent_id) balasan
 ```
 
 ---
 
-## 📱 Tampilan (Views)
-
-### Dashboard
-- Visi & Misi kampus
-- Statistik: Total Dosen, Total Mahasiswa, Tahun Akademik Aktif
-- Card grid Program Studi (klik → lihat kurikulum)
-- Role-based: Admin/Kaprodi/Dosen/Direktur punya dashboard masing-masing
-
-### Layout Structure
-- **Sidebar** (left, fixed) — role-based navigation
-- **Main content** — `@yield('content')`
-- **Toast container** — success/error/warning/info notifications
-- **Guest layout** — centered auth card
-
----
-
-## 🗺️ Relasi Database (ER Visual)
-
-```
-ProgramStudi
-  ├── Dosen (1:N)
-  ├── Mahasiswa (1:N)
-  └── Kurikulum (1:N)
-        ├── ProfilLulusan (1:N) ──┬── (N:M) ── Cpl
-        ├── Cpl (1:N) ──────────────┬── (N:M) ── Cpmk
-        ├── Cpmk (1:N) ─────────────┤
-        ├── BahanKajian (1:N) ──────┤
-        └── MataKuliah (1:N) ───────┘
-              └── Rps (1:1)
-                    ├── RpsPertemuan (1:N)
-                    └── RpsPenilaian (1:1)
-
-User (1:1) ── Dosen (1:N) ── Pengampu (N:M) ── Mahasiswa
-                                  └── Krs (1:1)
-
-TahunAkademik
-  ├── SemesterMahasiswa (1:N)
-  ├── Pengampu (1:N)
-  ├── Krs (1:N)
-  └── MahasiswaTahunAkademik (1:N)
-```
-
----
-
-## 💡 Ide untuk LMS (Learning Management System)
-
-Berdasarkan struktur di atas, berikut area yang bisa dikembangkan untuk LMS:
-
-### 1. Manajemen Materi Perkuliahan
-- Setiap RpsPertemuan bisa dikaitkan dengan file materi (PDF, video, dokumen)
-- Upload/download file per pertemuan
-- Modul/Topik untuk mengorganisir materi
-
-### 2. Tugas & Pengumpulan
-- Dosen membuat tugas (bisa per pertemuan atau per CPMK)
-- Mahasiswa mengumpulkan file jawaban
-- Deadline submission
-- Penilaian & feedback dari dosen
-- Nilai otomatis masuk ke RpsPenilaian
-
-### 3. Forum Diskusi
-- Forum per mata kuliah
-- Thread per pertemuan/topik
-- Dosen sebagai moderator
-
-### 4. Quiz & Ujian Online
-- Quiz online dengan soal pilihan ganda/esai
-- Timer otomatis
-- Penilaian otomatis untuk PG
-- Bank soal per CPMK
-
-### 5. Absensi/Presensi
-- Dosen membuka sesi presensi
-- Mahasiswa check-in (QR code / kode)
-- Rekap kehadiran per pertemuan
-
-### 6. Nilai Akhir & Transkrip
-- Bobot penilaian sesuai RpsPenilaian
-- Input nilai komponen (tugas, quiz, UTS, UAS, praktikum, project)
-- Kalkulasi nilai akhir otomatis
-- Transkrip nilai per semester
-
-### 7. Kalender Akademik
-- Jadwal perkuliahan
-- Jadwal ujian
-- Deadline tugas
-- Integrasi dengan TahunAkademik
-
-### 8. Notifikasi
-- Pengingat tugas mendekati deadline
-- Pengumuman dari dosen
-- Notifikasi pengumpulan tugas
-
-### 9. Integrasi dengan Data Existing
-- Mahasiswa & Dosen sudah ada (tinggal pakai)
-- Mata Kuliah, Pengampu, KRS sudah ada (untuk mapping kelas)
-- RPS dan CPMK sudah ada (pedoman pembelajaran)
-- Tahun Akademik sudah ada (untuk filter semester)
-
----
-
-## 🔧 Perintah Penting
+## 11. Perintah Penting
 
 | Perintah | Fungsi |
-|----------|--------|
-| `composer run dev` | Jalankan dev server + queue + logs + Vite |
-| `composer run test` | Clear config + jalankan semua test |
-| `composer run setup` | Setup pertama (install, key, migrate, npm) |
-| `npm run build` | Vite production build |
+|---|---|
+| `composer run dev` | Jalankan server + queue + log + Vite sekaligus |
+| `composer run test` | `config:clear` lalu PHPUnit (semua test) |
+| `composer run setup` | Setup penuh (composer install, .env, key, migrate, npm) |
 | `php artisan test` | Jalankan PHPUnit |
-| `php artisan test --filter=NamaTest` | Jalankan test spesifik |
+| `php artisan test --filter=NamaTest` | Jalankan satu test |
 | `php artisan migrate` | Jalankan migrasi |
+| `php artisan mahasiswa:buat-akun` | Buat akun login semua mahasiswa tanpa user_id (email `{nim}@polsa.ac.id`, pass = NIM) |
+| `npm run build` / `npm run dev` | Build / dev Vite |
 
 ---
 
-*Dokumen ini dibuat pada 28 Juli 2026 untuk keperluan brainstorming pengembangan sistem LMS dengan AI.*
+## 12. Roadmap / Area Pengembangan Potensial (untuk diskusi dengan AI)
+
+1. **Quiz & Ujian Online** — bank soal per CPMK, PG esai, timer, nilai otomatis (terkait `RpsPenilaian.quiz/uts/uas`).
+2. **Absensi/Presensi** — sesi presensi per pertemuan (RpsPertemuan), QR/kode, rekap.
+3. **Nilai Akhir & Transkrip** — kalkulasi nilai akhir sesuai bobot `RpsPenilaian`, transkrip per semester.
+4. **Notifikasi** — email/push pengingat deadline tugas, pengumpulan, revisi RPS.
+5. **Kalender Akademik & Jadwal** — integrasi TahunAkademik + Pengampu.
+6. **Perbaikan LMS** — tambah kolom `link_external` di tabel LMS, pemilihan `rps_pertemuan_id` saat buat materi/tugas, versi/edit materi, soft-delete.
+7. **Forum lebih kaya** — pin, mention, reaksi, lampiran gambar, unread.
+8. **Integrasi nilai LMS → penilaian RPS** — sinkronisasi penuh komponen (tugas/quiz/uts/uas/praktikum/project), bukan hanya rata-rata tugas.
+9. **Analitik/Dashboard lanjutan** — progres kelas, engagement mahasiswa, distribusi nilai.
+10. **API/mobile** — route API untuk aplikasi mobile mahasiswa.
+
+---
+
+*Diperbarui: 11 Agustus 2026. Bersumber dari kondisi terkini kode (`routes/web.php`, controllers, models, migrations).*

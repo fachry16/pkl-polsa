@@ -12,13 +12,19 @@ class ProgramStudi extends Model
         'jenjang',
         'akreditasi',
     ];
-    public function dosens(){
+
+    public function dosens()
+    {
         return $this->hasMany(Dosen::class);
     }
-    public function mahasiswas(){
+
+    public function mahasiswas()
+    {
         return $this->hasMany(Mahasiswa::class);
     }
-    public function kurikulums() {
+
+    public function kurikulums()
+    {
         return $this->hasMany(Kurikulum::class);
     }
 }

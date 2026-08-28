@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesRps;
+use App\Models\Dosen;
 use App\Models\MataKuliah;
 use App\Models\Rps;
+use App\Notifications\RpsDiajukan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -128,6 +130,19 @@ class RpsController extends Controller
             'status' => 'Diajukan',
             'catatan_revisi' => null,
         ]);
+
+        $pengaju = auth()->user()->name ?? 'Dosen';
+
+        $kaprodis = Dosen::where('jabatan', 'Kaprodi')
+            ->where('program_studi_id', $rps->mataKuliah->kurikulum->program_studi_id)
+            ->with('user')
+            ->get();
+
+        foreach ($kaprodis as $kaprodi) {
+            if ($kaprodi->user) {
+                $kaprodi->user->notify(new RpsDiajukan($rps, $pengaju));
+            }
+        }
 
         return back()->with('success', 'RPS berhasil diajukan ke Kaprodi.');
     }

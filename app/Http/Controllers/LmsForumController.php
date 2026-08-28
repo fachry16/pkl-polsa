@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pengampu;
 use App\Models\LmsForumDiskusi;
+use App\Models\Pengampu;
+use App\Rules\LmsFileMime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class LmsForumController extends Controller
 {
@@ -21,7 +21,7 @@ class LmsForumController extends Controller
             ->whereNull('parent_id')
             ->with(['user', 'replies.user'])
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('lms.forum.index', compact('pengampu', 'diskusi'));
     }
@@ -71,25 +71,6 @@ class LmsForumController extends Controller
         return redirect()->route('lms.forum.index', $pengampu->id)->with('toast_success', 'Pesan berhasil diperbarui.');
     }
 
-    public function file(Pengampu $pengampu, LmsForumDiskusi $diskusi)
-    {
-        $this->authorizePengampu($pengampu);
-
-        abort_if($diskusi->pengampu_id !== $pengampu->id || ! $diskusi->file_path, 404);
-
-        $path = Storage::disk('public')->path($diskusi->file_path);
-
-        abort_if(! is_file($path), 404);
-
-        return response()->file($path, [
-            'Content-Type' => Storage::disk('public')->mimeType($diskusi->file_path),
-            'Content-Disposition' => HeaderUtils::makeDisposition(
-                HeaderUtils::DISPOSITION_INLINE,
-                basename($diskusi->file_path)
-            ),
-        ]);
-    }
-
     public function destroy(Pengampu $pengampu, LmsForumDiskusi $diskusi)
     {
         $this->authorizePost($pengampu, $diskusi);
@@ -107,9 +88,22 @@ class LmsForumController extends Controller
     {
         $validated = $request->validate([
             'pesan' => 'required|string',
-            'parent_id' => 'nullable|exists:lms_forum_diskusis,id',
-            'file' => 'nullable|file|max:51200',
-            'link_external' => 'nullable|string|url|max:500',
+            'parent_id' => [
+                'nullable',
+                'exists:lms_forum_diskusis,id',
+                function ($attribute, $value, $fail) use ($pengampuId) {
+                    if ($value === null) {
+                        return;
+                    }
+
+                    $parent = LmsForumDiskusi::find($value);
+
+                    if (! $parent || $parent->pengampu_id !== $pengampuId || $parent->parent_id !== null) {
+                        $fail('Balasan hanya dapat dibuat pada diskusi utama di kelas ini.');
+                    }
+                },
+            ],
+            'file' => ['nullable', 'file', 'max:51200', new LmsFileMime],
         ]);
 
         return [
@@ -117,7 +111,6 @@ class LmsForumController extends Controller
             'user_id' => Auth::id(),
             'parent_id' => $validated['parent_id'] ?? null,
             'pesan' => $validated['pesan'],
-            'link_external' => $validated['link_external'] ?? null,
         ];
     }
 

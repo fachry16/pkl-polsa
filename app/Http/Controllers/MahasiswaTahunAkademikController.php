@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Mahasiswa;
 use App\Models\MahasiswaTahunAkademik;
-use App\Models\TahunAkademik;   
+use App\Models\TahunAkademik;
 use Illuminate\Http\Request;
 
 class MahasiswaTahunAkademikController extends Controller

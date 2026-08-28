@@ -14,27 +14,41 @@ class Kurikulum extends Model
         'deskripsi',
         'status',
     ];
-    public function programStudi() {
+
+    public function programStudi()
+    {
         return $this->belongsTo(ProgramStudi::class);
     }
-    public function profilLulusans() {
+
+    public function profilLulusans()
+    {
         return $this->hasMany(ProfilLulusan::class);
     }
-    public function cpls() {
+
+    public function cpls()
+    {
         return $this->hasMany(Cpl::class);
     }
-    public function mataKuliahs() {
+
+    public function mataKuliahs()
+    {
         return $this->hasMany(MataKuliah::class);
     }
-    public function getTotalSksAttribute() {
+
+    public function getTotalSksAttribute()
+    {
         return $this->mataKuliahs->sum(function ($mk) {
             return $mk->sks_teori + $mk->sks_praktikum;
         });
     }
-    public function bahanKajians() {
+
+    public function bahanKajians()
+    {
         return $this->hasMany(BahanKajian::class);
     }
-    public function cpmks() {
+
+    public function cpmks()
+    {
         return $this->hasMany(Cpmk::class);
     }
 }
