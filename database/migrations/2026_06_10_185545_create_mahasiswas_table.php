@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('nim')->unique();
             $table->string('nama');
             $table->year('angkatan');
-            $table->enum('status',[
+            $table->enum('status', [
                 'Aktif',
                 'Cuti',
                 'Lulus',
-                'DO'
+                'DO',
             ])->default('Aktif');
             $table->timestamps();
         });

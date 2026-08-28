@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('tahun');
             $table->enum('semester', [
                 'Ganjil',
-                'Genap'
+                'Genap',
             ]);
             $table->boolean('is_active')
                 ->default(false);

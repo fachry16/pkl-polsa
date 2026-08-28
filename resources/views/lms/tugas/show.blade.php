@@ -13,7 +13,6 @@
     <a href="{{ route('lms.tugas.index', $pengampu->id) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas</a>
 </div>
 
-<x-alert type="success" :message="session('success')" />
 
 <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; margin-bottom: 1.5rem;">
     <div style="display: flex; flex-wrap: wrap; gap: 1.5rem 2.5rem;">
@@ -24,6 +23,10 @@
         <div>
             <div style="font-size: 0.65rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em;">Bobot Nilai</div>
             <div style="font-size: 0.9rem; font-weight: 500; color: #1e293b;">{{ $tugas->bobot_nilai }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.65rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em;">Maks. Upload</div>
+            <div style="font-size: 0.9rem; font-weight: 500; color: #1e293b;">{{ $tugas->batas_upload_mb ?? 50 }} MB</div>
         </div>
         <div>
             <div style="font-size: 0.65rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em;">Status</div>
@@ -38,15 +41,12 @@
     </div>
     @if($tugas->instruksi)
         <div style="margin-top: 0.75rem; padding: 0.75rem; background: #f8fafc; border-radius: 8px; font-size: 0.85rem; color: #475569; line-height: 1.7;">
-            {{ $tugas->instruksi }}
+            {!! linkify($tugas->instruksi) !!}
         </div>
     @endif
     <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
         @if($tugas->file_lampiran)
-            <a href="{{ Storage::url($tugas->file_lampiran) }}" target="_blank" class="btn btn-secondary btn-sm">Download Lampiran</a>
-        @endif
-        @if($tugas->link_external)
-            <a href="{{ $tugas->link_external }}" target="_blank" class="btn btn-secondary btn-sm">Buka Link</a>
+            <x-file-link :file="$tugas->file_lampiran" :href="route('lms.file', ['tugas', $tugas->id])" />
         @endif
     </div>
 </div>
@@ -76,7 +76,7 @@
             @forelse($mahasiswas as $mahasiswa)
                 @php $submission = $submissions->get($mahasiswa->id); @endphp
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $mahasiswas->firstItem() + $loop->index }}</td>
                     <td>{{ $mahasiswa->nim }}</td>
                     <td>{{ $mahasiswa->nama }}</td>
                     <td>
@@ -97,7 +97,7 @@
                         @if($submission)
                             <div style="display: flex; gap: 0.3rem;">
                                 @if($submission->file_jawaban)
-                                    <a href="{{ Storage::url($submission->file_jawaban) }}" target="_blank" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">File</a>
+                                    <x-file-link :file="$submission->file_jawaban" compact :href="route('lms.file', ['submission', $submission->id])" />
                                 @endif
                                 @if($submission->catatan_mahasiswa)
                                     <span style="font-size: 0.7rem; color: #64748b; cursor: help;" title="{{ $submission->catatan_mahasiswa }}">Catatan</span>
@@ -152,6 +152,9 @@
             @endforelse
         </tbody>
     </table>
+    <div style="padding: 0.75rem 1rem; border-top: 1px solid #e2e8f0;">
+        {{ $mahasiswas->links() }}
+    </div>
 </div>
 
 <style>

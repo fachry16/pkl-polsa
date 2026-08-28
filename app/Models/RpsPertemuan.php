@@ -16,7 +16,9 @@ class RpsPertemuan extends Model
         'indikator',
         'bobot',
     ];
-    public function rps() {
+
+    public function rps()
+    {
         return $this->belongsTo(Rps::class);
     }
 

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cpl_cpmk_semesters', function (Blueprint $table) {
-           $table->id();
+            $table->id();
             $table->foreignId('kurikulum_id')
                 ->constrained()
                 ->cascadeOnDelete();
@@ -28,7 +28,7 @@ return new class extends Migration
                 'kurikulum_id',
                 'cpl_id',
                 'cpmk_id',
-                'semester'
+                'semester',
             ]);
         });
     }

@@ -9,7 +9,7 @@
 @endif
 
 @if($pengampus->count())
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
         @foreach($pengampus as $pengampu)
             <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; transition: all 0.2s;"
                  onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(79,70,229,0.08)';"
@@ -23,10 +23,10 @@
                             {{ $pengampu->mataKuliah->kode ?? '' }} - {{ $pengampu->mataKuliah->nama ?? '-' }}
                         </div>
                         <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.15rem;">
-                            Kelas {{ $pengampu->kelas ?? '-' }}
+                            Kelas {{ $pengampu->kelas ?? '-' }} &middot; Semester {{ $pengampu->semester_akademik ?? '-' }}
                         </div>
                         <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.1rem;">
-                            Dosen: {{ $pengampu->dosen->user->name ?? '-' }}
+                            Dosen: {{ $pengampu->dosen?->user?->name ?? '-' }}
                         </div>
                     </div>
                 </div>

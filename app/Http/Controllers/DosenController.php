@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\User;
+
 use App\Models\Dosen;
-use App\Models\ProgramStudi;
 use App\Models\Pengampu;
+use App\Models\ProgramStudi;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,15 +18,15 @@ class DosenController extends Controller
     {
         $dosens = Dosen::with([
             'user',
-            'programStudi'
+            'programStudi',
         ])
-        ->when($request->program_studi_id, function ($q) use ($request) {
-            $q->where('program_studi_id', $request->program_studi_id);
-        })
-        ->when($request->jabatan, function ($q) use ($request) {
-            $q->where('jabatan', $request->jabatan);
-        })
-        ->latest()->paginate(10);
+            ->when($request->program_studi_id, function ($q) use ($request) {
+                $q->where('program_studi_id', $request->program_studi_id);
+            })
+            ->when($request->jabatan, function ($q) use ($request) {
+                $q->where('jabatan', $request->jabatan);
+            })
+            ->latest()->paginate(10);
 
         $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
 
@@ -38,6 +39,7 @@ class DosenController extends Controller
     public function create()
     {
         $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
+
         return view('dosen.create', compact('programStudis'));
     }
 
@@ -65,6 +67,7 @@ class DosenController extends Controller
             'nidn' => $request->nidn,
             'jabatan' => $request->jabatan,
         ]);
+
         return redirect()->route('dosen.index')->with('success', 'Dosen berhasil ditambahkan. Password default menggunakan NIDN.');
     }
 
@@ -80,7 +83,7 @@ class DosenController extends Controller
     {
         $dosen = auth()->user()->dosen;
 
-        if (!$dosen) {
+        if (! $dosen) {
             return redirect()->route('dashboard')->with('error', 'Data dosen tidak ditemukan.');
         }
 
@@ -95,6 +98,7 @@ class DosenController extends Controller
     public function edit(Dosen $dosen)
     {
         $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
+
         return view('dosen.edit', compact('dosen', 'programStudis'));
     }
 
@@ -105,8 +109,8 @@ class DosenController extends Controller
     {
         $request->validate([
             'name' => 'required|min:3',
-            'email' => 'required|email|unique:users,email,' . $dosen->user_id,
-            'nidn' => 'required|unique:dosens,nidn,' . $dosen->id,
+            'email' => 'required|email|unique:users,email,'.$dosen->user_id,
+            'nidn' => 'required|unique:dosens,nidn,'.$dosen->id,
             'program_studi_id' => 'required|exists:program_studis,id',
             'jabatan' => 'required|in:dosen,kaprodi',
         ]);
@@ -119,6 +123,7 @@ class DosenController extends Controller
             'nidn' => $request->nidn,
             'jabatan' => $request->jabatan,
         ]);
+
         return redirect()->route('dosen.index')->with('succcess', 'Data dosen berhasil diperbarui');
     }
 
@@ -128,14 +133,16 @@ class DosenController extends Controller
     public function destroy(Dosen $dosen)
     {
         $dosen->user->delete();
+
         return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil dihapus');
     }
+
     public function riwayat(Dosen $dosen)
     {
         $riwayat = Pengampu::with([
-                'mataKuliah.rps',
-                'tahunAkademik'
-            ])
+            'mataKuliah.rps',
+            'tahunAkademik',
+        ])
             ->where('dosen_id', $dosen->id)
             ->orderByDesc('tahun_akademik_id')
             ->orderBy('semester_akademik')
@@ -154,7 +161,7 @@ class DosenController extends Controller
     {
         $dosen = auth()->user()->dosen;
 
-        if (!$dosen) {
+        if (! $dosen) {
             return redirect()->route('dashboard')->with('error', 'Data dosen tidak ditemukan.');
         }
 

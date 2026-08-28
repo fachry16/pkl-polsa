@@ -39,7 +39,7 @@
             <label class="form-label">Lampiran File</label>
             @if($diskusi->file_path)
                 <div style="font-size: 0.8rem; color: #475569; margin-bottom: 0.5rem;">
-                    File saat ini: <a href="{{ route('lms.forum.file', [$pengampu->id, $diskusi->id]) }}" target="_blank" style="color: #4f46e5;">{{ basename($diskusi->file_path) }}</a>
+                    File saat ini: <a href="{{ route('lms.file', ['forum', $diskusi->id]) }}" target="_blank" style="color: #4f46e5;">{{ basename($diskusi->file_path) }}</a>
                 </div>
                 <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #dc2626; margin-bottom: 0.5rem;">
                     <input type="checkbox" name="remove_file" value="1">
@@ -48,12 +48,6 @@
             @endif
             <input type="file" name="file" class="form-input">
             @error('file') <div class="form-error">{{ $message }}</div> @enderror
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Atau Link Eksternal</label>
-            <input type="url" name="link_external" class="form-input" placeholder="https://drive.google.com/..." value="{{ old('link_external', $diskusi->link_external) }}">
-            @error('link_external') <div class="form-error">{{ $message }}</div> @enderror
         </div>
 
         <div style="display: flex; gap: 0.5rem;">

@@ -53,6 +53,8 @@ img { max-width: 100%; }
 .sidebar-logo {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
     gap: 0.6rem;
 }
 
@@ -165,6 +167,123 @@ img { max-width: 100%; }
 .sidebar-user .logout-btn:hover {
     background: #fee2e2;
     color: #dc2626;
+}
+
+/* ---------- NOTIFICATION BELL ---------- */
+.notif-wrap {
+    position: relative;
+    padding: 0;
+}
+
+.notif-bell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.notif-bell:hover {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 1.05rem;
+    height: 1.05rem;
+    padding: 0 0.2rem;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.notif-dropdown {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: -1.5rem;
+    right: auto;
+    width: calc(100% + 3rem);
+    max-width: calc(100vw - 2rem);
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+    z-index: 50;
+    overflow: hidden;
+}
+
+.notif-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.notif-read-all {
+    background: #eef2ff;
+    color: #4f46e5;
+    border: none;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.notif-read-all:hover {
+    background: #e0e7ff;
+}
+
+.notif-list {
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    text-decoration: none;
+    border-bottom: 1px solid #f8fafc;
+    transition: all 0.1s;
+}
+
+.notif-item:hover {
+    background: #f8fafc;
+}
+
+.notif-item.unread {
+    background: #f5f3ff;
+}
+
+.notif-item.unread:hover {
+    background: #eef2ff;
+}
+
+.notif-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    padding: 2rem 1rem;
 }
 
 /* ---------- MAIN CONTENT ---------- */
@@ -538,6 +657,8 @@ table.data-table .empty-row td {
 .btn-secondary:hover { background: #e2e8f0; }
 
 .btn-sm { padding: 0.35rem 0.85rem; font-size: 0.8rem; }
+
+.btn-xs { padding: 0.15rem 0.5rem; font-size: 0.7rem; }
 
 .btn-group {
     display: flex;

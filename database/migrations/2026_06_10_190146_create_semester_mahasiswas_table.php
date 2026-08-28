@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('status', [
                 'Aktif',
                 'Cuti',
-                'Lulus'
+                'Lulus',
             ])->default('Aktif');
             $table->timestamps();
         });

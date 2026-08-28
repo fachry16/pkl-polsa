@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('bahan_kajian_id')->constrained()->cascadeOnDelete();
             $table->unique([
                 'mata_kuliah_id',
-                'bahan_kajian_id'
+                'bahan_kajian_id',
             ]);
             $table->timestamps();
         });

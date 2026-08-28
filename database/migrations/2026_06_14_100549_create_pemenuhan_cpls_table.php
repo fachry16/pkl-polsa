@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unique([
                 'kurikulum_id',
                 'cpl_id',
-                'semester'
+                'semester',
             ]);
         });
     }

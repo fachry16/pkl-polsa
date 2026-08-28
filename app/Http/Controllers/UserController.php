@@ -11,6 +11,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::latest()->paginate(10);
+
         return view('users.index', compact('users'));
     }
 
@@ -47,7 +48,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|min:3',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'role' => 'required|in:admin,dosen,direktur',
         ]);
 
@@ -70,6 +71,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
 }

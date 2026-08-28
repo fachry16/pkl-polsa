@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\TahunAkademik;
-use App\Models\MahasiswaTahunAKademik;
 use Illuminate\Http\Request;
 
 class TahunAkademikController extends Controller
@@ -13,6 +13,7 @@ class TahunAkademikController extends Controller
     public function index()
     {
         $tahunAkademiks = TahunAkademik::latest()->paginate(10);
+
         return view('tahun-akademik.index', compact('tahunAkademiks'));
     }
 
@@ -42,6 +43,7 @@ class TahunAkademikController extends Controller
             'semester' => $request->semester,
             'is_active' => false,
         ]);
+
         return redirect()->route('tahun-akademik.index')->with('success', 'Tahun akademik berhasil ditambahkan');
     }
 
@@ -78,6 +80,7 @@ class TahunAkademikController extends Controller
             'tahun' => $request->tahun,
             'semester' => $request->semester,
         ]);
+
         return redirect()->route('tahun-akademik.index')->with('success', 'Data berhasil diperbarui');
     }
 
@@ -90,18 +93,19 @@ class TahunAkademikController extends Controller
             return back()->with('error', 'Semester aktif tidak dapat dihapus');
         }
         $tahunAkademik->delete();
+
         return redirect()->route('tahun-akademik.index')->with('success', 'Data berhasil dihapus');
     }
-    public function aktifkan(TahunAkademik $tahunAkademik) 
+
+    public function aktifkan(TahunAkademik $tahunAkademik)
     {
         TahunAkademik::query()->update([
-            'is_active' => false
+            'is_active' => false,
         ]);
         $tahunAkademik->update([
-            'is_active' => true
+            'is_active' => true,
         ]);
+
         return back()->with('success', 'Semester berhasil diaktifkan');
     }
 }
-
-

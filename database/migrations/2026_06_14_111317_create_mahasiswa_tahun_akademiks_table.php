@@ -29,14 +29,14 @@ return new class extends Migration
                 'Aktif',
                 'Cuti',
                 'Lulus',
-                'DO'
+                'DO',
             ])->default('Aktif');
 
             $table->timestamps();
 
             $table->unique([
                 'mahasiswa_id',
-                'tahun_akademik_id'
+                'tahun_akademik_id',
             ]);
         });
     }

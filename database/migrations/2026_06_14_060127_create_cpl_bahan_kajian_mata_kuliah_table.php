@@ -19,8 +19,8 @@ return new class extends Migration
             $table->unique([
                 'mata_kuliah_id',
                 'cpl_id',
-                'bahan_kajian_id'
-            ]);
+                'bahan_kajian_id',
+            ], 'cpl_bk_mk_unique');
             $table->timestamps();
         });
     }

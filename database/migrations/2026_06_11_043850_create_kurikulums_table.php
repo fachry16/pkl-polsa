@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('status', [
                 'Draft',
                 'Aktif',
-                'Arsip'
+                'Arsip',
             ])->default('Draft');
             $table->timestamps();
         });

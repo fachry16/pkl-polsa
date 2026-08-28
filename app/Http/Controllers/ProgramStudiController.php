@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProgramStudi;
-
 use Illuminate\Http\Request;
 
 class ProgramStudiController extends Controller
@@ -14,6 +13,7 @@ class ProgramStudiController extends Controller
     public function index()
     {
         $programStudis = ProgramStudi::latest()->paginate(10);
+
         return view('program-studi.index', compact('programStudis'));
     }
 
@@ -42,6 +42,7 @@ class ProgramStudiController extends Controller
             'jenjang' => $request->jenjang,
             'akreditasi' => $request->akreditasi,
         ]);
+
         return redirect()->route('program-studi.index')->with('success', 'Program studi berhasil ditambahkan');
     }
 
@@ -67,7 +68,7 @@ class ProgramStudiController extends Controller
     public function update(Request $request, ProgramStudi $programStudi)
     {
         $request->validate([
-            'kode_prodi' => 'required|unique:program_studis,kode_prodi,' . $programStudi->id,
+            'kode_prodi' => 'required|unique:program_studis,kode_prodi,'.$programStudi->id,
             'nama_prodi' => 'required',
             'jenjang' => 'required',
             'akreditasi' => 'required|in:Baik,Baik Sekali,Unggul',
@@ -78,6 +79,7 @@ class ProgramStudiController extends Controller
             'jenjang' => $request->jenjang,
             'akreditasi' => $request->akreditasi,
         ]);
+
         return redirect()->route('program-studi.index')->with('success', 'Program studi berhasil diperbarui');
     }
 
@@ -87,6 +89,7 @@ class ProgramStudiController extends Controller
     public function destroy(ProgramStudi $programStudi)
     {
         $programStudi->delete();
+
         return redirect()->route('program-studi.index')->with('success', 'Program studi berhasil dihapus');
     }
 }

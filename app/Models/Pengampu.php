@@ -51,8 +51,28 @@ class Pengampu extends Model
         return $this->hasMany(LmsTugas::class);
     }
 
+    public function lmsSubmissions()
+    {
+        return $this->hasManyThrough(LmsSubmission::class, LmsTugas::class);
+    }
+
     public function lmsForumDiskusis()
     {
         return $this->hasMany(LmsForumDiskusi::class);
+    }
+
+    public function lmsPengumumans()
+    {
+        return $this->hasMany(LmsPengumuman::class);
+    }
+
+    public function lmsSesiAbsensis()
+    {
+        return $this->hasMany(LmsSesiAbsensi::class);
+    }
+
+    public function rpsPertemuans()
+    {
+        return $this->mataKuliah?->rps?->pertemuans()->orderBy('minggu')->get() ?? collect();
     }
 }

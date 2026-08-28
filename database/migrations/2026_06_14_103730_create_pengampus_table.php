@@ -15,33 +15,33 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('dosen_id')
-                    ->constrained()
-                    ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->foreignId('mata_kuliah_id')
-                    ->constrained()
-                    ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->foreignId('tahun_akademik_id')
-                    ->constrained()
-                    ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->enum('semester_akademik', [
-                    'Ganjil',
-                    'Genap'
-                ]);
+                'Ganjil',
+                'Genap',
+            ]);
 
             $table->string('kelas')->nullable();
 
             $table->timestamps();
 
             $table->unique([
-                    'dosen_id',
-                    'mata_kuliah_id',
-                    'tahun_akademik_id',
-                    'semester_akademik',
-                    'kelas'
-            ]);        
+                'dosen_id',
+                'mata_kuliah_id',
+                'tahun_akademik_id',
+                'semester_akademik',
+                'kelas',
+            ], 'pengampu_unique');
         });
     }
 

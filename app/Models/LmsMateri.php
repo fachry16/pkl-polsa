@@ -12,7 +12,6 @@ class LmsMateri extends Model
         'judul',
         'deskripsi',
         'file_path',
-        'link_external',
     ];
 
     public function pengampu()
@@ -23,5 +22,18 @@ class LmsMateri extends Model
     public function rpsPertemuan()
     {
         return $this->belongsTo(RpsPertemuan::class);
+    }
+
+    public function progress()
+    {
+        return $this->hasMany(LmsMateriMahasiswa::class, 'materi_id');
+    }
+
+    public function dibacaOleh(Mahasiswa $mahasiswa): bool
+    {
+        return $this->progress()
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->whereNotNull('dibaca_pada')
+            ->exists();
     }
 }

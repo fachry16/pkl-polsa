@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Mahasiswa;
 use App\Models\ProgramStudi;
-use App\Models\TahunAkademik;
 use App\Models\SemesterMahasiswa;
+use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -48,6 +49,7 @@ class MahasiswaController extends Controller
     {
         $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
         $tahunAkademiks = TahunAkademik::orderByDesc('is_active')->orderByDesc('tahun')->get();
+
         return view('mahasiswa.create', compact('programStudis', 'tahunAkademiks'));
     }
 
@@ -78,6 +80,7 @@ class MahasiswaController extends Controller
             'email' => $this->emailUntukNim($request->nim),
             'password' => Hash::make($request->nim),
             'role' => 'mahasiswa',
+            'email_verified_at' => now(),
         ]);
 
         $mahasiswa = Mahasiswa::create([
@@ -92,6 +95,7 @@ class MahasiswaController extends Controller
             'tahun_akademik_id' => $request->tahun_akademik_id,
             'semester' => $request->semester,
         ]);
+
         return redirect()->route('mahasiswa.index')->with('success', 'Mahasiswa berhasil ditambahkan.');
     }
 
@@ -111,6 +115,7 @@ class MahasiswaController extends Controller
         $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
         $tahunAkademiks = TahunAkademik::orderByDesc('is_active')->orderByDesc('tahun')->get();
         $semesterAktif = $mahasiswa->semesterMahasiswas()->latest()->first();
+
         return view('mahasiswa.edit', compact('mahasiswa', 'programStudis', 'tahunAkademiks', 'semesterAktif'));
     }
 
@@ -120,7 +125,7 @@ class MahasiswaController extends Controller
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
         $request->validate([
-            'nim' => 'required|unique:mahasiswas,nim,' . $mahasiswa->id,
+            'nim' => 'required|unique:mahasiswas,nim,'.$mahasiswa->id,
             'nama' => 'required',
             'program_studi_id' => 'required|exists:program_studis,id',
             'angkatan' => 'required|digits:4',
@@ -148,6 +153,7 @@ class MahasiswaController extends Controller
                 'semester' => $request->semester,
             ]);
         }
+
         return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil diperbarui.');
     }
 
@@ -161,11 +167,12 @@ class MahasiswaController extends Controller
         }
 
         $mahasiswa->delete();
+
         return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil dihapus.');
     }
 
     private function emailUntukNim(string $nim): string
     {
-        return $nim . '@polsa.ac.id';
+        return $nim.'@polsa.ac.id';
     }
 }

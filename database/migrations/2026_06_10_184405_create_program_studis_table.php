@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('akreditasi', [
                 'Baik',
                 'Baik Sekali',
-                'Unggul'
+                'Unggul',
             ])->default('Baik');
             $table->timestamps();
         });
