@@ -83,6 +83,13 @@ class LmsMateriController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($materi->pengampu_id !== $pengampu->id, 404);
 
+        // Batas waktu edit 30 menit
+        if ($materi->created_at->diffInMinutes(now()) > 30) {
+            return redirect()
+                ->back()
+                ->with('toast_error', 'Batas waktu edit sudah lewat (30 menit).');
+        }
+
         $request->validate([
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
@@ -116,6 +123,13 @@ class LmsMateriController extends Controller
         $dosen = Auth::user()->dosen;
 
         abort_if(! $dosen || $materi->pengampu->dosen_id !== $dosen->id, 403);
+
+        // Batas waktu hapus 30 menit
+        if ($materi->created_at->diffInMinutes(now()) > 30) {
+            return redirect()
+                ->back()
+                ->with('toast_error', 'Batas waktu hapus sudah lewat (30 menit).');
+        }
 
         if ($materi->file_path) {
             Storage::disk('public')->delete($materi->file_path);

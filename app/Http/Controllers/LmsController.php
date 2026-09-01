@@ -81,6 +81,20 @@ class LmsController extends Controller
         $materiCount = $pengampu->lmsMateris()->count();
         $tugasCount = $pengampu->lmsTugas()->count();
 
-        return view('lms.show', compact('pengampu', 'materiCount', 'tugasCount'));
+        // Hitung counter unread untuk badge
+        $unreadMateri = 0;
+        $unreadTugas = 0;
+
+        if ($dosen) {
+            // Untuk dosen: hitung materi/tugas baru dalam 7 hari terakhir
+            $unreadMateri = $pengampu->lmsMateris()
+                ->where('created_at', '>=', now()->subDays(7))
+                ->count();
+            $unreadTugas = $pengampu->lmsTugas()
+                ->where('created_at', '>=', now()->subDays(7))
+                ->count();
+        }
+
+        return view('lms.show', compact('pengampu', 'materiCount', 'tugasCount', 'unreadMateri', 'unreadTugas'));
     }
 }

@@ -109,6 +109,13 @@ class LmsTugasController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
+        // Batas waktu edit 30 menit untuk dosen
+        if ($tugas->created_at->diffInMinutes(now()) > 30) {
+            return redirect()
+                ->back()
+                ->with('toast_error', 'Batas waktu edit tugas sudah lewat (30 menit).');
+        }
+
         $request->validate([
             'judul' => 'required|string|max:255',
             'instruksi' => 'required|string',
@@ -149,6 +156,13 @@ class LmsTugasController extends Controller
 
         abort_if(! $dosen || $tugas->pengampu->dosen_id !== $dosen->id, 403);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
+
+        // Batas waktu hapus 30 menit untuk dosen
+        if ($tugas->created_at->diffInMinutes(now()) > 30) {
+            return redirect()
+                ->back()
+                ->with('toast_error', 'Batas waktu hapus tugas sudah lewat (30 menit).');
+        }
 
         if ($tugas->file_lampiran) {
             Storage::disk('public')->delete($tugas->file_lampiran);

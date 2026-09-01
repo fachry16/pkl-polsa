@@ -54,8 +54,19 @@ class LmsForumController extends Controller
     {
         $this->authorizePost($pengampu, $diskusi);
 
-        $data = $this->validated($request, $pengampu->id);
+        // Batas waktu edit 30 menit
+        if ($diskusi->created_at->diffInMinutes(now()) > 30) {
+            return redirect()
+                ->route('lms.forum.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu edit sudah lewat (30 menit).');
+        }
 
+        $data = $this->validated($request, $pengampu->id);
+        // ... (sisanya sama)
+        
+        // Perbaikan: data['pesan'] harus diupdate, tetapi validated() mereset pesannya.
+        // Sebenarnya validated() sudah memproses data untuk update.
+        
         if ($request->hasFile('file')) {
             if ($diskusi->file_path) {
                 Storage::disk('public')->delete($diskusi->file_path);
@@ -74,6 +85,13 @@ class LmsForumController extends Controller
     public function destroy(Pengampu $pengampu, LmsForumDiskusi $diskusi)
     {
         $this->authorizePost($pengampu, $diskusi);
+
+        // Batas waktu hapus 30 menit
+        if ($diskusi->created_at->diffInMinutes(now()) > 30) {
+            return redirect()
+                ->route('lms.forum.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu hapus sudah lewat (30 menit).');
+        }
 
         if ($diskusi->file_path) {
             Storage::disk('public')->delete($diskusi->file_path);

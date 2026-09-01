@@ -157,6 +157,10 @@ class LmsMahasiswaController extends Controller
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
         abort_unless(Auth::id() === $diskusi->user_id, 403);
 
+        if ($diskusi->created_at->diffInMinutes(now()) > 30) {
+            return back()->with('toast_error', 'Batas waktu hapus pesan sudah lewat (30 menit).');
+        }
+
         foreach ($diskusi->replies as $reply) {
             if ($reply->file_path) {
                 Storage::disk('public')->delete($reply->file_path);
@@ -182,6 +186,10 @@ class LmsMahasiswaController extends Controller
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
         abort_unless(Auth::id() === $diskusi->user_id, 403);
+
+        if ($diskusi->created_at->diffInMinutes(now()) > 30) {
+            return back()->with('toast_error', 'Batas waktu edit pesan sudah lewat (30 menit).');
+        }
 
         $validated = $request->validate([
             'pesan' => 'required|string',
@@ -272,6 +280,12 @@ class LmsMahasiswaController extends Controller
         $pengampu = $tugas->pengampu;
 
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
+
+        // Batas waktu edit 30 menit sejak pengumpulan pertama
+        if ($submission->dikumpulkan_pada && $submission->dikumpulkan_pada->diffInMinutes(now()) > 30) {
+            return back()->with('toast_error', 'Batas waktu edit sudah lewat (30 menit). Hubungi dosen jika perlu perubahan.');
+        }
+
         abort_if($tugas->deadline->isPast(), 403, 'Tidak dapat memperbarui: melewati deadline.');
         abort_if($submission->nilai !== null, 403, 'Tidak dapat memperbarui: tugas sudah dinilai.');
 
