@@ -16,9 +16,9 @@ class LmsPengumumanController extends Controller
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
 
-        $pengampu->load('mataKuliah', 'tahunAkademik');
+        $pengampu->load(['mataKuliah', 'tahunAkademik', 'dosen.user']);
 
-        $pengumumans = $pengampu->lmsPengumumans()->latest()->paginate(10);
+        $pengumumans = $pengampu->lmsPengumumans()->with('pengampu.dosen.user')->latest()->paginate(10);
 
         return view('lms.pengumuman.index', compact('pengampu', 'pengumumans'));
     }
