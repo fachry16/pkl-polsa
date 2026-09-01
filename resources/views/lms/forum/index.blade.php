@@ -39,16 +39,16 @@
                             </div>
                         @endif
 
-                        @if(Auth::id() === $post->user_id)
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+                            @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(15))
                                 <a href="{{ route('lms.forum.edit', [$pengampu->id, $post->id]) }}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Edit</a>
-                                <form action="{{ route('lms.forum.destroy', [$pengampu->id, $post->id]) }}" method="POST" onsubmit="return confirm('Hapus pesan ini? Semua balasan terkait juga ikut terhapus.');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Hapus</button>
-                                </form>
-                            </div>
-                        @endif
+                            @endif
+                            <form action="{{ route('lms.forum.destroy', [$pengampu->id, $post->id]) }}" method="POST" onsubmit="return confirm('Hapus pesan ini? Semua balasan terkait juga ikut terhapus.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Hapus</button>
+                            </form>
+                        </div>
 
                         @if($post->replies->count())
                             <div style="margin-top: 0.75rem; padding-left: 1rem; border-left: 2px solid #e2e8f0;">
@@ -57,20 +57,20 @@
                                         <div style="width: 1.5rem; height: 1.5rem; border-radius: 6px; background: linear-gradient(135deg, #4f46e5, #818cf8); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.55rem; flex-shrink: 0;">{{ substr($reply->user->name ?? '?', 0, 2) }}</div>
                                         <div style="flex: 1;">
                                             <div style="font-size: 0.75rem; font-weight: 500; color: #1e293b;">
-                                                {{ $reply->user->name ?? '-' }}
-                                                <span style="font-weight: 400; color: #94a3b8; font-size: 0.65rem;">{{ $reply->created_at->diffForHumans() }}</span>
+                                              {{ $reply->user->name ?? '-' }}
+                                              <span style="font-weight: 400; color: #94a3b8; font-size: 0.65rem;">{{ $reply->created_at->diffForHumans() }}</span>
                                             </div>
                                             <div style="font-size: 0.8rem; color: #475569; margin-top: 0.15rem; white-space: pre-wrap;">{!! linkify($reply->pesan) !!}</div>
-                                            @if(Auth::id() === $reply->user_id)
-                                                <div style="display: flex; gap: 0.5rem; margin-top: 0.4rem;">
+                                            <div style="display: flex; gap: 0.5rem; margin-top: 0.4rem;">
+                                                @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(15))
                                                     <a href="{{ route('lms.forum.edit', [$pengampu->id, $reply->id]) }}" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Edit</a>
-                                                    <form action="{{ route('lms.forum.destroy', [$pengampu->id, $reply->id]) }}" method="POST" onsubmit="return confirm('Hapus balasan ini?');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Hapus</button>
-                                                    </form>
-                                                </div>
-                                            @endif
+                                                @endif
+                                                <form action="{{ route('lms.forum.destroy', [$pengampu->id, $reply->id]) }}" method="POST" onsubmit="return confirm('Hapus balasan ini?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Hapus</button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach

@@ -73,7 +73,15 @@ class LmsForumController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsForumDiskusi $diskusi)
     {
-        $this->authorizePost($pengampu, $diskusi);
+        $this->authorizePengampu($pengampu);
+        abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
+
+        foreach ($diskusi->replies as $reply) {
+            if ($reply->file_path) {
+                Storage::disk('public')->delete($reply->file_path);
+            }
+        }
+        $diskusi->replies()->delete();
 
         if ($diskusi->file_path) {
             Storage::disk('public')->delete($diskusi->file_path);
@@ -128,5 +136,8 @@ class LmsForumController extends Controller
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
 
         abort_unless(Auth::id() === $diskusi->user_id, 403);
+
+        abort_unless($diskusi->isWithinTimeLimit(15), 403, 'Batas waktu 15 menit untuk mengubah pesan telah berakhir.');
     }
 }
+

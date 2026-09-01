@@ -260,7 +260,7 @@
                             </div>
                         @endif
 
-                        @if($post->user_id === auth()->id())
+                        @if($post->user_id === auth()->id() && $post->isWithinTimeLimit(15))
                             <form x-show="editPost" action="{{ route('mahasiswa.lms.forum.update', [$pengampu->id, $post->id]) }}" method="POST" enctype="multipart/form-data" style="margin-top: 0.5rem; padding: 0.75rem; background: #f8fafc; border-radius: 8px;">
                                 @csrf @method('PATCH')
                                 <textarea name="pesan" class="form-textarea" style="min-height: 80px;" required>{{ old('pesan', $post->pesan) }}</textarea>
@@ -290,7 +290,7 @@
                                                     <x-file-link :file="$reply->file_path" compact :href="route('mahasiswa.lms.file', ['forum', $reply->id])" />
                                                 </div>
                                             @endif
-                                            @if($reply->user_id === auth()->id())
+                                            @if($reply->user_id === auth()->id() && $reply->isWithinTimeLimit(15))
                                                 <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap;">
                                                     <button type="button" @click="editReply = !editReply" class="btn btn-secondary btn-xs">
                                                         <span x-text="editReply ? 'Batal' : 'Ubah'">Ubah</span>
@@ -320,7 +320,7 @@
                             </div>
                         @endif
 
-                        @if($post->user_id === auth()->id() && ! $post->parent_id)
+                        @if($post->user_id === auth()->id() && ! $post->parent_id && $post->isWithinTimeLimit(15))
                             <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
                                 <button type="button" @click="editPost = !editPost" class="btn btn-secondary btn-xs">
                                     <span x-text="editPost ? 'Batal' : 'Ubah'">Ubah</span>
