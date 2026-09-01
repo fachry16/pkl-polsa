@@ -82,22 +82,6 @@
                 <td>
 
                     <div class="flex gap-2">
-                        @if($mataKuliah->rps)
-
-                        <a href="{{ route('mata-kuliah.rps.index', $mataKuliah) }}"
-                        class="btn btn-success btn-sm">
-                            Lihat RPS
-                        </a>
-
-                        @else
-
-                        <a href="{{ route('mata-kuliah.rps.create', $mataKuliah) }}"
-                        class="btn btn-primary btn-sm">
-                            Buat RPS
-                        </a>
-
-                        @endif
-
                         @if(auth()->user()->role !== 'dosen')
                         <a href="{{ route('kurikulum.mata-kuliah.edit', [$kurikulum->id, $mataKuliah->id]) }}"
                            class="btn btn-warning btn-sm">

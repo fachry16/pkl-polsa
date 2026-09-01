@@ -75,4 +75,29 @@ class Pengampu extends Model
     {
         return $this->mataKuliah?->rps?->pertemuans()->orderBy('minggu')->get() ?? collect();
     }
+
+    public function getNamaMataKuliahAttribute()
+    {
+        return $this->mataKuliah?->nama ?? '-';
+    }
+
+    public function getKodeMataKuliahAttribute()
+    {
+        return $this->mataKuliah?->kode ?? '-';
+    }
+
+    public function getTotalSksAttribute()
+    {
+        return $this->mataKuliah ? (int) $this->mataKuliah->getTotalSksAttribute() : 0;
+    }
+
+    public function getNamaDosenAttribute()
+    {
+        return $this->dosen?->user?->name ?? '-';
+    }
+
+    public function getNamaKelasAttribute()
+    {
+        return $this->kelas ?? '-';
+    }
 }

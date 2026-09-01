@@ -68,6 +68,12 @@ class DashboardController extends Controller
                 ->count();
         }
 
+        if (Auth::user()->isDirektur() && $tahunAkademik) {
+            $pengampuIds = Pengampu::where('tahun_akademik_id', $tahunAkademik->id)->pluck('id');
+
+            $statKelas = $pengampuIds->count();
+        }
+
         if (Auth::user()->isMahasiswa()) {
             $mahasiswa = Auth::user()->mahasiswa;
 

@@ -9,6 +9,7 @@ use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\TahunAkademik;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class KrsController extends Controller
@@ -148,6 +149,125 @@ class KrsController extends Controller
         return redirect()
             ->route('krs.index')
             ->with('success', 'Data KRS berhasil dihapus.');
+    }
+
+    public function cetakPilih()
+    {
+        $user = auth()->user();
+        $kaprodiProdiId = $user->isKaprodi()
+            ? (int) $user->dosen->program_studi_id
+            : null;
+
+        $programStudis = $kaprodiProdiId
+            ? ProgramStudi::where('id', $kaprodiProdiId)->orderBy('nama_prodi')->get()
+            : ProgramStudi::orderBy('nama_prodi')->get();
+
+        $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
+
+        return view('krs.cetak-pilih', compact('programStudis', 'tahunAkademiks'));
+    }
+
+    public function pilihMahasiswa(Request $request)
+    {
+        $request->validate([
+            'program_studi_id' => 'required|exists:program_studis,id',
+            'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
+            'mahasiswa_id' => 'required|exists:mahasiswas,id',
+        ]);
+
+        return redirect()->route('krs.cetak', [
+            $request->mahasiswa_id,
+            'tahun_akademik_id' => $request->tahun_akademik_id,
+        ]);
+    }
+
+    public function cetak(Mahasiswa $mahasiswa)
+    {
+        $this->authorizeCetak($mahasiswa);
+
+        $tahunAkademikId = request('tahun_akademik_id');
+
+        $kelas = $this->kelasMahasiswa($mahasiswa, $tahunAkademikId);
+
+        $tahunAkademik = $tahunAkademikId
+            ? TahunAkademik::find($tahunAkademikId)
+            : null;
+
+        return view('krs.cetak', compact('mahasiswa', 'kelas', 'tahunAkademik'));
+    }
+
+    public function cetakPdf(Mahasiswa $mahasiswa)
+    {
+        $this->authorizeCetak($mahasiswa);
+
+        $tahunAkademikId = request('tahun_akademik_id');
+
+        $kelas = $this->kelasMahasiswa($mahasiswa, $tahunAkademikId);
+
+        $tahunAkademik = $tahunAkademikId
+            ? TahunAkademik::find($tahunAkademikId)
+            : null;
+
+        $pdf = Pdf::loadView('krs.pdf', compact('mahasiswa', 'kelas', 'tahunAkademik'));
+
+        $filename = 'KRS-'.$mahasiswa->nim.'-'.$mahasiswa->nama.'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    public function mahasiswaOptions(Request $request)
+    {
+        $request->validate([
+            'program_studi_id' => 'required|exists:program_studis,id',
+        ]);
+
+        $mahasiswas = Mahasiswa::with('programStudi')
+            ->where('program_studi_id', $request->program_studi_id)
+            ->orderBy('nim')
+            ->get();
+
+        return response()->json($mahasiswas->map(fn ($m) => [
+            'id' => $m->id,
+            'nim' => $m->nim,
+            'nama' => $m->nama,
+            'label' => $m->nim.' - '.$m->nama,
+        ]));
+    }
+
+    private function kelasMahasiswa(Mahasiswa $mahasiswa, $tahunAkademikId = null)
+    {
+        return $mahasiswa->pengampus()
+            ->with([
+                'mataKuliah',
+                'dosen.user',
+                'tahunAkademik',
+                'krs',
+            ])
+            ->when($tahunAkademikId, function ($q) use ($tahunAkademikId) {
+                $q->where('tahun_akademik_id', $tahunAkademikId);
+            })
+            ->orderBy('mata_kuliah_id')
+            ->get();
+    }
+
+    private function authorizeCetak(Mahasiswa $mahasiswa)
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin() || $user->isDirektur()) {
+            return;
+        }
+
+        if ($user->isKaprodi()) {
+            abort_unless(
+                (int) $user->dosen->program_studi_id === (int) $mahasiswa->program_studi_id,
+                403
+            );
+
+            return;
+        }
+
+        abort(403);
     }
 
     private function authorizeKrsRead(Krs $krs)

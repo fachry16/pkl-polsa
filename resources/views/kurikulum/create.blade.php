@@ -98,7 +98,7 @@
 
             </button>
 
-            <a href="{{ route('program-studi.kurikulum', $prodi->id) }}"
+            <a href="{{ route('kurikulum.index') }}"
                class="btn btn-secondary">
 
                 Kembali

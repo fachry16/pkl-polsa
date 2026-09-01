@@ -7,14 +7,6 @@ use App\Http\Controllers\CplController;
 use App\Http\Controllers\CplCpmkMkController;
 use App\Http\Controllers\CplPlController;
 use App\Http\Controllers\CpmkController;
-use App\Http\Controllers\PemenuhanCplsController;
-use App\Http\Controllers\PengampuController;
-use App\Http\Controllers\MahasiswaTahunAkademikController;
-use App\Http\Controllers\RpsController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RpsPertemuanController;
-use App\Http\Controllers\RpsPenilaianController;
-use App\Http\Controllers\RpsTugasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\KrsController;
@@ -28,12 +20,20 @@ use App\Http\Controllers\LmsMateriController;
 use App\Http\Controllers\LmsPengumumanController;
 use App\Http\Controllers\LmsTugasController;
 use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\MahasiswaTahunAkademikController;
 use App\Http\Controllers\MataKuliahController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PemenuhanCplsController;
+use App\Http\Controllers\PengampuController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilLulusanController;
 use App\Http\Controllers\ProgramStudiController;
+use App\Http\Controllers\RpsController;
+use App\Http\Controllers\RpsPenilaianController;
+use App\Http\Controllers\RpsPertemuanController;
+use App\Http\Controllers\RpsTugasController;
 use App\Http\Controllers\TahunAkademikController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -167,6 +167,31 @@ Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
         'krs/{krs}',
         [KrsController::class, 'show']
     )->where('krs', '[0-9]+')->name('krs.show');
+
+    Route::get(
+        'krs/cetak/pilih-mahasiswa',
+        [KrsController::class, 'cetakPilih']
+    )->name('krs.cetak-pilih');
+
+    Route::post(
+        'krs/cetak/pilih-mahasiswa',
+        [KrsController::class, 'pilihMahasiswa']
+    )->name('krs.pilih-mahasiswa');
+
+    Route::get(
+        'krs/cetak/{mahasiswa}',
+        [KrsController::class, 'cetak']
+    )->where(['mahasiswa' => '[0-9]+'])->name('krs.cetak');
+
+    Route::get(
+        'krs/cetak/{mahasiswa}/pdf',
+        [KrsController::class, 'cetakPdf']
+    )->where(['mahasiswa' => '[0-9]+'])->name('krs.cetak-pdf');
+
+    Route::get(
+        'krs/cetak/mahasiswa-options',
+        [KrsController::class, 'mahasiswaOptions']
+    )->name('krs.mahasiswa-options');
 });
 
 /* KRS — Admin + Kaprodi (mutations) */
@@ -634,6 +659,8 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
 
     Route::get('/{pengampu}/pengumuman', [LmsPengumumanController::class, 'index'])->name('pengumuman.index');
     Route::post('/{pengampu}/pengumuman', [LmsPengumumanController::class, 'store'])->name('pengumuman.store');
+    Route::get('/{pengampu}/pengumuman/{pengumuman}/edit', [LmsPengumumanController::class, 'edit'])->name('pengumuman.edit');
+    Route::patch('/{pengampu}/pengumuman/{pengumuman}', [LmsPengumumanController::class, 'update'])->name('pengumuman.update');
     Route::delete('/{pengampu}/pengumuman/{pengumuman}', [LmsPengumumanController::class, 'destroy'])->name('pengumuman.destroy');
 
     Route::get('/{pengampu}/rekap-nilai', [LmsTugasController::class, 'rekap'])->name('tugas.rekap');

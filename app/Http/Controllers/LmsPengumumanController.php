@@ -50,6 +50,40 @@ class LmsPengumumanController extends Controller
         return back()->with('toast_success', 'Pengumuman berhasil dikirim.');
     }
 
+    public function edit(Pengampu $pengampu, LmsPengumuman $pengumuman)
+    {
+        $dosen = Auth::user()->dosen;
+
+        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
+
+        $pengampu->load('mataKuliah', 'tahunAkademik');
+
+        return view('lms.pengumuman.edit', compact('pengampu', 'pengumuman'));
+    }
+
+    public function update(Request $request, Pengampu $pengampu, LmsPengumuman $pengumuman)
+    {
+        $dosen = Auth::user()->dosen;
+
+        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
+
+        $request->validate([
+            'judul' => 'required|string|max:255',
+            'isi' => 'required|string',
+        ]);
+
+        $pengumuman->update([
+            'judul' => $request->judul,
+            'isi' => $request->isi,
+        ]);
+
+        return redirect()
+            ->route('lms.pengumuman.index', $pengampu->id)
+            ->with('toast_success', 'Pengumuman berhasil diperbarui.');
+    }
+
     public function destroy(Pengampu $pengampu, LmsPengumuman $pengumuman)
     {
         $dosen = Auth::user()->dosen;

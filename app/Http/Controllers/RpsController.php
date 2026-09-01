@@ -86,7 +86,7 @@ class RpsController extends Controller
     {
         $this->authorizeRps($mataKuliah);
 
-        return view('rps.show', compact('mataKuliah', 'rps'));
+        return redirect()->route('mata-kuliah.rps.index', $mataKuliah);
     }
 
     public function edit(MataKuliah $mataKuliah, Rps $rps)

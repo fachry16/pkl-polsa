@@ -79,7 +79,7 @@
             <label class="form-label">
                 Beban Studi
             </label>
-            <input type="number" name="beban_studi" value="{{ old('beban_Studi', $kurikulum->beban_studi) }}" class="form-input">
+            <input type="number" name="beban_studi" value="{{ old('beban_studi', $kurikulum->beban_studi) }}" class="form-input">
         </div>
 
         <div class="form-group">
@@ -96,7 +96,7 @@
 
             </button>
 
-            <a href="{{ route('program-studi.kurikulum', $prodi->id) }}"
+            <a href="{{ route('program-studi.kurikulum', $kurikulum->program_studi_id) }}"
                class="btn btn-secondary">
 
                 Kembali
