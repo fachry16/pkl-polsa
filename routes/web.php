@@ -134,9 +134,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('program-studi', ProgramStudiController::class)
         ->except(['index']);
 
+    Route::get('dosen/template-import', [DosenController::class, 'downloadTemplate'])->name('dosen.template-import');
+    Route::post('dosen/import', [DosenController::class, 'import'])->name('dosen.import');
     Route::resource('dosen', DosenController::class)
         ->except(['index']);
 
+    Route::get('mahasiswa/template-import', [MahasiswaController::class, 'downloadTemplate'])->name('mahasiswa.template-import');
+    Route::post('mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
     Route::resource('mahasiswa', MahasiswaController::class)
         ->except(['index'])
         ->where(['mahasiswa' => '[0-9]+']);

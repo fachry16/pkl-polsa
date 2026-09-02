@@ -6,7 +6,9 @@ use App\Models\Dosen;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\User;
+use App\Services\CsvImportService;
 use Illuminate\Http\Request;
+
 class DosenController extends Controller
 {
     /**
@@ -211,14 +213,95 @@ class DosenController extends Controller
         );
     }
 
-    public function riwayatSelf()
+    public function downloadTemplate(CsvImportService $csvService)
     {
-        $dosen = auth()->user()->dosen;
+        $headers = ['nama', 'nidn', 'email', 'kode_prodi', 'jabatan'];
+        $samples = [
+            ['Bambang Sudarsono, M.Kom', '0612345678', 'bambang@polsa.ac.id', 'TRPL', 'Dosen'],
+            ['Dr. Siti Aminah, M.T.', '0623456789', 'siti@polsa.ac.id', 'TI', 'Dosen'],
+        ];
 
-        if (! $dosen) {
-            return redirect()->route('dashboard')->with('error', 'Data dosen tidak ditemukan.');
+        return $csvService->downloadTemplate('template_import_dosen.csv', $headers, $samples);
+    }
+
+    public function import(Request $request, CsvImportService $csvService)
+    {
+        $request->validate([
+            'file' => 'required|file|max:5120',
+        ]);
+
+        $rows = $csvService->parseCsv($request->file('file')->getRealPath());
+
+        if (empty($rows)) {
+            return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
         }
 
-        return $this->riwayat($dosen);
+        $imported = 0;
+        $skipped = [];
+        $programStudis = ProgramStudi::all()->keyBy(fn ($p) => strtoupper(trim($p->kode_prodi)));
+
+        foreach ($rows as $row) {
+            $rowNum = $row['_row_number'] ?? '?';
+            $nama = trim($row['nama'] ?? '');
+            $nidn = trim($row['nidn'] ?? '');
+            $email = trim($row['email'] ?? '');
+            $kodeProdi = strtoupper(trim($row['kode_prodi'] ?? ''));
+            $jabatan = trim($row['jabatan'] ?? '') ?: 'Dosen';
+
+            if ($nama === '' || $nidn === '' || $email === '' || $kodeProdi === '') {
+                $skipped[] = "Baris {$rowNum}: Data tidak lengkap (nama, nidn, email, dan kode_prodi wajib diisi).";
+                continue;
+            }
+
+            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $skipped[] = "Baris {$rowNum}: Format email ({$email}) tidak valid.";
+                continue;
+            }
+
+            if (Dosen::where('nidn', $nidn)->exists()) {
+                $skipped[] = "Baris {$rowNum}: NIDN {$nidn} sudah terdaftar.";
+                continue;
+            }
+
+            if (User::where('email', $email)->exists()) {
+                $skipped[] = "Baris {$rowNum}: Email {$email} sudah digunakan akun lain.";
+                continue;
+            }
+
+            $prodi = $programStudis->get($kodeProdi);
+            if (! $prodi) {
+                $prodi = ProgramStudi::whereRaw('UPPER(nama_prodi) = ?', [$kodeProdi])->first();
+                if (! $prodi) {
+                    $skipped[] = "Baris {$rowNum}: Kode program studi '{$kodeProdi}' tidak ditemukan.";
+                    continue;
+                }
+            }
+
+            $user = User::create([
+                'name' => $nama,
+                'email' => $email,
+                'password' => $nidn,
+                'role' => 'dosen',
+                'roles' => ['dosen'],
+                'email_verified_at' => now(),
+            ]);
+
+            Dosen::create([
+                'user_id' => $user->id,
+                'program_studi_id' => $prodi->id,
+                'nidn' => $nidn,
+                'jabatan' => $jabatan,
+            ]);
+
+            $imported++;
+        }
+
+        $msg = "Berhasil mengimpor {$imported} data dosen.";
+        if (! empty($skipped)) {
+            $msg .= ' ' . count($skipped) . ' baris dilewati.';
+            return back()->with('success', $msg)->with('import_warnings', $skipped);
+        }
+
+        return back()->with('success', $msg);
     }
 }
