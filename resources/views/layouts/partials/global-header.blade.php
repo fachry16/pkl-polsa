@@ -8,7 +8,16 @@
 @endphp
 
 @auth
-<header class="global-campus-sticky-header no-print">
+<header class="global-campus-sticky-header no-print"
+        x-data="{
+            isScrolled: window.pageYOffset > 10,
+            openKebab: false,
+            init() {
+                this.isScrolled = window.pageYOffset > 10;
+            }
+        }"
+        @scroll.window="isScrolled = (window.pageYOffset > 10)"
+        :class="{ 'is-scrolled': isScrolled }">
     <div class="campus-header-card">
         {{-- Sisi Kiri: Identitas Kampus POLSA --}}
         <div class="campus-header-left">
@@ -38,7 +47,7 @@
         </div>
 
         {{-- Sisi Kanan: Profil User & Kebab Menu (Titik 3) --}}
-        <div x-data="{ openKebab: false }" @click.outside="openKebab = false" style="position: relative;">
+        <div @click.outside="openKebab = false" style="position: relative;">
             <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem 0.35rem 0.75rem; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0;">
                 {{-- Avatar & Info --}}
                 @if(auth()->user()->avatar_url)
