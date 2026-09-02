@@ -167,7 +167,7 @@
                 </svg>
             </div>
             <h2>PIKOBE Polsa</h2>
-            <p>Sistem Informasi Kurikulum &amp; RPS — Politeknik Sawunggalih Aji</p>
+            <p>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS) — Politeknik Sawunggalih Aji</p>
         </div>
 
         <div class="login-form-wrap">

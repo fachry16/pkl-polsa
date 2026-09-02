@@ -22,7 +22,7 @@
                 </span>
             </div>
             <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span>Sistem Informasi Akademik &amp; LMS OBE</span>
+                <span>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS)</span>
                 @if($tahunAkademik)
                     <span>&bull;</span>
                     <span style="color: #059669; font-weight: 600;">TA {{ $tahunAkademik->tahun }} ({{ $tahunAkademik->semester }})</span>
