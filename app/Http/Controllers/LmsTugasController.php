@@ -79,6 +79,11 @@ class LmsTugasController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
+        Auth::user()->unreadNotifications()
+            ->where('data->pengampu_id', $pengampu->id)
+            ->where('data->url', route('lms.tugas.show', [$pengampu->id, $tugas->id]))
+            ->update(['read_at' => now()]);
+
         $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
 
         $mahasiswas = $pengampu->mahasiswas()->orderBy('nim')->paginate(20);

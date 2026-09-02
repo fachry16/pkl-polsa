@@ -154,4 +154,34 @@ class User extends Authenticatable
         }
         return null;
     }
+
+    public function getUnreadNotificationsCountAttribute(): int
+    {
+        return $this->unreadNotifications()->count();
+    }
+
+    public function getUnreadLmsCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->whereIn('type', [
+                \App\Notifications\MateriBaru::class,
+                \App\Notifications\TugasBaru::class,
+                \App\Notifications\PengumumanBaru::class,
+                \App\Notifications\NilaiDiberikan::class,
+                \App\Notifications\SubmissionBaru::class,
+                \App\Notifications\ForumDiskusiBaru::class,
+            ])
+            ->count();
+    }
+
+    public function getUnreadRpsCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->whereIn('type', [
+                \App\Notifications\RpsDiajukan::class,
+                \App\Notifications\RpsDisetujui::class,
+                \App\Notifications\RpsDirevisi::class,
+            ])
+            ->count();
+    }
 }

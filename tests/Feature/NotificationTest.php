@@ -238,4 +238,97 @@ class NotificationTest extends TestCase
 
         $this->assertNotNull($notification->fresh()->read_at);
     }
+
+    public function test_kaprodi_setujui_rps_mengirim_notif_ke_dosen(): void
+    {
+        $data = $this->buatData();
+
+        $rps = Rps::create([
+            'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
+            'semester' => 3,
+            'dosen_pengampu' => $data['dosen']->user->name,
+            'status' => 'Diajukan',
+        ]);
+
+        Notification::fake();
+
+        $userKaprodi = User::create([
+            'name' => 'Kaprodi User',
+            'email' => 'kaprodi2@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+        ]);
+
+        Dosen::create([
+            'user_id' => $userKaprodi->id,
+            'program_studi_id' => $data['pengampu']->mataKuliah->kurikulum->program_studi_id,
+            'nidn' => '1301',
+            'jabatan' => 'Kaprodi',
+        ]);
+
+        $this->actingAs($userKaprodi)
+            ->patch(route('rps.setujui', $rps->id))
+            ->assertSessionHas('success');
+
+        Notification::assertSentTo($data['userDosen'], \App\Notifications\RpsDisetujui::class);
+    }
+
+    public function test_kaprodi_revisi_rps_mengirim_notif_ke_dosen(): void
+    {
+        $data = $this->buatData();
+
+        $rps = Rps::create([
+            'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
+            'semester' => 3,
+            'dosen_pengampu' => $data['dosen']->user->name,
+            'status' => 'Diajukan',
+        ]);
+
+        Notification::fake();
+
+        $userKaprodi = User::create([
+            'name' => 'Kaprodi User',
+            'email' => 'kaprodi3@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+        ]);
+
+        Dosen::create([
+            'user_id' => $userKaprodi->id,
+            'program_studi_id' => $data['pengampu']->mataKuliah->kurikulum->program_studi_id,
+            'nidn' => '1302',
+            'jabatan' => 'Kaprodi',
+        ]);
+
+        $this->actingAs($userKaprodi)
+            ->patch(route('rps.revisi', $rps->id), [
+                'catatan_revisi' => 'Tolong lengkapi indikator penilaian',
+            ])
+            ->assertSessionHas('success');
+
+        Notification::assertSentTo($data['userDosen'], \App\Notifications\RpsDirevisi::class);
+    }
+
+    public function test_mahasiswa_buka_kelas_lms_otomatis_tandai_notif_terbaca(): void
+    {
+        $data = $this->buatData();
+
+        $tugas = LmsTugas::create([
+            'pengampu_id' => $data['pengampu']->id,
+            'judul' => 'Tugas Mandiri',
+            'instruksi' => 'Kerjakan modul 1',
+            'deadline' => now()->addDays(3),
+            'bobot_nilai' => 15,
+        ]);
+
+        $data['userMhs']->notify(new TugasBaru($data['pengampu'], $tugas));
+
+        $this->assertEquals(1, $data['userMhs']->unreadNotifications()->count());
+
+        $this->actingAs($data['userMhs'])
+            ->get(route('mahasiswa.lms.show', $data['pengampu']->id))
+            ->assertOk();
+
+        $this->assertEquals(0, $data['userMhs']->fresh()->unreadNotifications()->count());
+    }
 }

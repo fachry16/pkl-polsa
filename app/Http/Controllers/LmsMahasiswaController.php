@@ -47,6 +47,10 @@ class LmsMahasiswaController extends Controller
         abort_if(! $mahasiswa, 403);
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
 
+        Auth::user()->unreadNotifications()
+            ->where('data->pengampu_id', $pengampu->id)
+            ->update(['read_at' => now()]);
+
         $pengampu->load([
             'mataKuliah',
             'dosen.user',

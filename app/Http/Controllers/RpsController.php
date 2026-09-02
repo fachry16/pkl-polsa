@@ -7,6 +7,8 @@ use App\Models\Dosen;
 use App\Models\MataKuliah;
 use App\Models\Rps;
 use App\Notifications\RpsDiajukan;
+use App\Notifications\RpsDirevisi;
+use App\Notifications\RpsDisetujui;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -19,6 +21,13 @@ class RpsController extends Controller
     {
         $this->authorizeRps($mataKuliah);
         $rps = $mataKuliah->rps;
+
+        if ($rps && auth()->check()) {
+            auth()->user()->unreadNotifications()
+                ->whereIn('type', [RpsDisetujui::class, RpsDirevisi::class])
+                ->where('data->rps_id', $rps->id)
+                ->update(['read_at' => now()]);
+        }
 
         return view('rps.index', compact('mataKuliah', 'rps'));
     }
@@ -188,6 +197,12 @@ class RpsController extends Controller
     {
         $user = auth()->user();
 
+        if ($user) {
+            $user->unreadNotifications()
+                ->where('type', RpsDiajukan::class)
+                ->update(['read_at' => now()]);
+        }
+
         $rpss = Rps::whereIn('status', ['Diajukan', 'Revisi', 'Disetujui'])
             ->whereHas('mataKuliah.kurikulum', function ($q) use ($user) {
                 $q->where('program_studi_id', $user->dosen->program_studi_id);
@@ -210,6 +225,13 @@ class RpsController extends Controller
             'catatan_revisi' => $request->catatan_revisi,
         ]);
 
+        $peninjau = auth()->user()->name ?? 'Kaprodi';
+        foreach ($rps->mataKuliah->pengampus as $pengampu) {
+            if ($pengampu->dosen?->user) {
+                $pengampu->dosen->user->notify(new RpsDirevisi($rps, $request->catatan_revisi, $peninjau));
+            }
+        }
+
         return back()->with('success', 'RPS dikembalikan untuk direvisi.');
     }
 
@@ -224,6 +246,13 @@ class RpsController extends Controller
             'disetujui_oleh' => auth()->id(),
             'tanggal_disetujui' => now(),
         ]);
+
+        $penyetuju = auth()->user()->name ?? 'Kaprodi';
+        foreach ($rps->mataKuliah->pengampus as $pengampu) {
+            if ($pengampu->dosen?->user) {
+                $pengampu->dosen->user->notify(new RpsDisetujui($rps, $penyetuju));
+            }
+        }
 
         return back()->with('success', 'RPS berhasil disetujui.');
     }

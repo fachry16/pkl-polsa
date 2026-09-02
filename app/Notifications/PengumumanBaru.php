@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class PengumumanBaru extends Notification implements ShouldQueue
+class PengumumanBaru extends Notification
 {
     use Queueable;
 
@@ -29,8 +29,8 @@ class PengumumanBaru extends Notification implements ShouldQueue
             'mata_kuliah' => $this->pengampu->mataKuliah?->nama,
             'mata_kuliah_kode' => $this->pengampu->mataKuliah?->kode,
             'kelas' => $this->pengampu->kelas,
-            'judul' => $this->pengumuman->judul,
-            'url' => route('mahasiswa.lms.show', $this->pengampu->id),
+            'judul' => 'Pengumuman: '.$this->pengumuman->judul,
+            'url' => route('mahasiswa.lms.show', $this->pengampu->id).'?tab=forum',
         ];
     }
 }
