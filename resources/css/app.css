@@ -34,7 +34,7 @@ img { max-width: 100%; }
     min-height: 100vh;
     width: 100%;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip; /* ponytail: clip ≠ hidden — tidak buat scroll container, sticky tetap bekerja */
 }
 
 /* ---------- SIDEBAR ---------- */
@@ -461,9 +461,6 @@ img { max-width: 100%; }
     min-height: 100vh;
     min-width: 0;
     box-sizing: border-box;
-    /* Jadikan main-content scroll container agar position:sticky pada header bekerja */
-    height: 100vh;
-    overflow-y: auto;
     transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
                 width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
                 max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -472,7 +469,7 @@ img { max-width: 100%; }
 /* ---------- GLOBAL CAMPUS & PROFILE HEADER (STICKY + FROSTED GLASS) ---------- */
 .global-campus-sticky-header {
     position: sticky;
-    top: -1.75rem; /* kompensasi padding atas main-content */
+    top: 0;
     z-index: 90;
     margin: -1.75rem -2rem 1.5rem -2rem;
     padding: 0.85rem 2rem;
