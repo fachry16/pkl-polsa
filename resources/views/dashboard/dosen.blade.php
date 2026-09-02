@@ -231,7 +231,7 @@
                                     {{ $pengampu->mataKuliah->nama ?? 'Mata Kuliah' }}
                                 </div>
                                 <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.2rem;">
-                                    {{ $pengampu->mataKuliah->kode ?? '-' }} &bull; Semester {{ $pengampu->semester_akademik ?? '-' }}
+                                    {{ $pengampu->mataKuliah->kode ?? '-' }} &bull; {{ $pengampu->label_semester }}
                                 </div>
                             </div>
                             <span style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; flex-shrink: 0; background: {{ $isKelasB ? '#fef3c7' : '#e0f2fe' }}; color: {{ $isKelasB ? '#b45309' : '#0369a1' }};">

@@ -14,7 +14,7 @@
             <span style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
                 {{ $pengampu->mataKuliah->kode ?? 'MK' }} &middot; Kelas {{ $pengampu->kelas ?? '-' }}
             </span>
-            <span style="font-size: 0.8rem; opacity: 0.9;">{{ $pengampu->semester_akademik ?? 'Semester' }} {{ $pengampu->tahunAkademik?->tahun ?? '' }}</span>
+            <span style="font-size: 0.8rem; opacity: 0.9;">{{ $pengampu->label_semester }} {{ $pengampu->tahunAkademik?->tahun ? '· TA ' . $pengampu->tahunAkademik->tahun : '' }}</span>
         </div>
         <h1 style="font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem; line-height: 1.2;">
             {{ $pengampu->mataKuliah->nama ?? 'Nama Mata Kuliah' }}

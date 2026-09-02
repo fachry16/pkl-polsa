@@ -23,7 +23,7 @@
                             {{ $pengampu->mataKuliah->kode ?? '' }} - {{ $pengampu->mataKuliah->nama ?? '-' }}
                         </div>
                         <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.15rem;">
-                            Kelas {{ $pengampu->kelas ?? '-' }} &middot; Semester {{ $pengampu->semester_akademik ?? '-' }}
+                            {{ $pengampu->label_semester }} &middot; Kelas {{ $pengampu->kelas ?? '-' }}
                         </div>
                         <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">
                             {{ $pengampu->dosen?->user?->name ?? '-' }}
