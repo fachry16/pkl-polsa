@@ -33,6 +33,10 @@ class MahasiswaController extends Controller
             });
         }
 
+        if ($jenisKelas = request('jenis_kelas')) {
+            $query->where('jenis_kelas', $jenisKelas);
+        }
+
         $mahasiswas = $query->latest()->paginate(10);
 
         $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
@@ -73,6 +77,7 @@ class MahasiswaController extends Controller
             'angkatan' => 'required|digits:4',
             'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
             'semester' => 'required|integer|min:1|max:14',
+            'jenis_kelas' => 'nullable|in:Reguler,Karyawan',
         ]);
 
         $user = User::create([
@@ -89,6 +94,7 @@ class MahasiswaController extends Controller
             'nama' => $request->nama,
             'program_studi_id' => $request->program_studi_id,
             'angkatan' => $request->angkatan,
+            'jenis_kelas' => $request->jenis_kelas ?: 'Reguler',
         ]);
         SemesterMahasiswa::create([
             'mahasiswa_id' => $mahasiswa->id,
@@ -131,12 +137,14 @@ class MahasiswaController extends Controller
             'angkatan' => 'required|digits:4',
             'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
             'semester' => 'required|integer|min:1|max:14',
+            'jenis_kelas' => 'nullable|in:Reguler,Karyawan',
         ]);
         $mahasiswa->update([
             'nim' => $request->nim,
             'nama' => $request->nama,
             'program_studi_id' => $request->program_studi_id,
             'angkatan' => $request->angkatan,
+            'jenis_kelas' => $request->jenis_kelas ?: $mahasiswa->jenis_kelas ?: 'Reguler',
         ]);
 
         if ($mahasiswa->user) {
@@ -178,10 +186,10 @@ class MahasiswaController extends Controller
 
     public function downloadTemplate(CsvImportService $csvService)
     {
-        $headers = ['nim', 'nama', 'kode_prodi', 'angkatan', 'semester', 'status'];
+        $headers = ['nim', 'nama', 'kode_prodi', 'angkatan', 'semester', 'status', 'jenis_kelas'];
         $samples = [
-            ['32240001', 'Ahmad Fauzi', 'TRPL', '2024', '1', 'Aktif'],
-            ['32240002', 'Budi Santoso', 'TI', '2024', '1', 'Aktif'],
+            ['32240001', 'Ahmad Fauzi', 'TRPL', '2024', '1', 'Aktif', 'Reguler'],
+            ['32240002', 'Budi Santoso', 'TI', '2024', '1', 'Aktif', 'Karyawan'],
         ];
 
         return $csvService->downloadTemplate('template_import_mahasiswa.csv', $headers, $samples);
@@ -212,6 +220,8 @@ class MahasiswaController extends Controller
             $angkatan = trim($row['angkatan'] ?? '');
             $semester = (int) (trim($row['semester'] ?? '1') ?: 1);
             $status = trim($row['status'] ?? '') ?: 'Aktif';
+            $jenisKelasRaw = trim($row['jenis_kelas'] ?? '');
+            $jenisKelas = (preg_match('/karyawan|sore|malam|B/i', $jenisKelasRaw)) ? 'Karyawan' : 'Reguler';
 
             if ($nim === '' || $nama === '' || $kodeProdi === '' || $angkatan === '') {
                 $skipped[] = "Baris {$rowNum}: Data tidak lengkap (nim, nama, kode_prodi, dan angkatan wajib diisi).";
@@ -263,6 +273,7 @@ class MahasiswaController extends Controller
                 'program_studi_id' => $prodi->id,
                 'angkatan' => (int) $angkatan,
                 'status' => $status,
+                'jenis_kelas' => $jenisKelas,
             ]);
 
             if ($activeTa) {

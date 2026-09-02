@@ -15,9 +15,23 @@
                 <span>NIM: <strong>{{ $mahasiswa->nim ?? '-' }}</strong></span>
                 <span>&bull;</span>
                 <span>Prodi: <strong>{{ $mahasiswa->programStudi->nama_prodi ?? 'Politeknik Sawunggalih Aji' }}</strong></span>
+                @if($semesterAktif)
+                    <span>&bull;</span>
+                    <span>Semester: <strong>{{ $semesterAktif->semester }}</strong></span>
+                @endif
                 @if($mahasiswa?->angkatan)
                     <span>&bull;</span>
                     <span>Angkatan: <strong>{{ $mahasiswa->angkatan }}</strong></span>
+                @endif
+                <span>&bull;</span>
+                @if(($mahasiswa?->jenis_kelas ?? 'Reguler') === 'Karyawan')
+                    <span style="background: #f59e0b; color: #78350f; border: 1px solid #fde68a; padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
+                        Kelas Karyawan (Kelas B)
+                    </span>
+                @else
+                    <span style="background: rgba(255, 255, 255, 0.2); color: #ecfdf5; border: 1px solid rgba(255, 255, 255, 0.35); padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
+                        Kelas Reguler (Kelas A)
+                    </span>
                 @endif
             </div>
         </div>

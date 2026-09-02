@@ -55,7 +55,7 @@ class DataImportTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
-        $this->assertStringContainsString('nim,nama,kode_prodi,angkatan,semester,status', $response->streamedContent());
+        $this->assertStringContainsString('nim,nama,kode_prodi,angkatan,semester,status,jenis_kelas', $response->streamedContent());
     }
 
     public function test_admin_dapat_mengimpor_dosen_melalui_csv(): void
@@ -140,9 +140,9 @@ class DataImportTest extends TestCase
             'is_active' => true,
         ]);
 
-        $csvContent = "nim,nama,kode_prodi,angkatan,semester,status\n"
-            . "32240001,Ahmad Fauzi,TRPL,2024,1,Aktif\n"
-            . "32240002,Budi Santoso,TRPL,2024,1,Aktif\n";
+        $csvContent = "nim,nama,kode_prodi,angkatan,semester,status,jenis_kelas\n"
+            . "32240001,Ahmad Fauzi,TRPL,2024,1,Aktif,Reguler\n"
+            . "32240002,Budi Santoso,TRPL,2024,1,Aktif,Karyawan\n";
 
         $file = UploadedFile::fake()->createWithContent('import_mahasiswa.csv', $csvContent);
 
@@ -157,6 +157,7 @@ class DataImportTest extends TestCase
             'nama' => 'Ahmad Fauzi',
             'program_studi_id' => $prodi->id,
             'angkatan' => 2024,
+            'jenis_kelas' => 'Reguler',
         ]);
         $this->assertDatabaseHas('users', [
             'email' => '32240001@polsa.ac.id',
@@ -166,6 +167,7 @@ class DataImportTest extends TestCase
         $this->assertDatabaseHas('mahasiswas', [
             'nim' => '32240002',
             'nama' => 'Budi Santoso',
+            'jenis_kelas' => 'Karyawan',
         ]);
     }
 

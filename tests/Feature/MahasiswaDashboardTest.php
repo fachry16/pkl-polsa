@@ -113,5 +113,39 @@ class MahasiswaDashboardTest extends TestCase
         $response->assertSee('Tugas CRUD Laravel &amp; Tailwind', false);
         $response->assertSee('Pemrograman Web Lanjut');
         $response->assertSee('Masuk Kelas');
+        $response->assertSee('Kelas Reguler (Kelas A)');
+    }
+
+    public function test_mahasiswa_karyawan_melihat_badge_kelas_karyawan_di_header(): void
+    {
+        $prodi = ProgramStudi::create([
+            'kode_prodi' => 'TI',
+            'nama_prodi' => 'Teknik Informatika',
+            'jenjang' => 'D3',
+            'akreditasi' => 'Baik',
+        ]);
+
+        $userMhs = User::create([
+            'name' => 'Budi Karyawan',
+            'email' => 'budi@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'mahasiswa',
+            'roles' => ['mahasiswa'],
+        ]);
+
+        $mhs = Mahasiswa::create([
+            'user_id' => $userMhs->id,
+            'program_studi_id' => $prodi->id,
+            'nim' => '32240099',
+            'nama' => 'Budi Karyawan',
+            'angkatan' => 2024,
+            'status' => 'Aktif',
+            'jenis_kelas' => 'Karyawan',
+        ]);
+
+        $response = $this->actingAs($userMhs)->get(route('dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Kelas Karyawan (Kelas B)');
     }
 }

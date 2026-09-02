@@ -53,6 +53,7 @@
                     <th>NIM</th>
                     <th>Nama</th>
                     <th>Prodi</th>
+                    <th>Program</th>
                     <th>Angkatan</th>
                     <th>Aksi</th>
                 </tr>
@@ -67,6 +68,13 @@
                         <td>{{ $mahasiswa->nim }}</td>
                         <td>{{ $mahasiswa->nama }}</td>
                         <td>{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</td>
+                        <td>
+                            @if(($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan')
+                                <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 700;">Karyawan</span>
+                            @else
+                                <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 700;">Reguler</span>
+                            @endif
+                        </td>
                         <td>{{ $mahasiswa->angkatan }}</td>
                         <td>
                             @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
@@ -84,7 +92,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="6" class="text-center">
+                        <td colspan="7" class="text-center">
                             Belum ada mahasiswa di kelas ini.
                         </td>
                     </tr>
@@ -121,8 +129,14 @@
                         <div class="krs-mahasiswa-nama">
                             {{ $mahasiswa->nim }} - {{ $mahasiswa->nama }}
                         </div>
-                        <div class="krs-mahasiswa-info">
-                            {{ $mahasiswa->programStudi->nama_prodi ?? '-' }} | Angkatan {{ $mahasiswa->angkatan }}
+                        <div class="krs-mahasiswa-info" style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.15rem;">
+                            <span>{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</span>
+                            <span>&bull;</span>
+                            <span>Angkatan {{ $mahasiswa->angkatan }}</span>
+                            <span>&bull;</span>
+                            <span style="font-weight: 600; color: {{ ($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan' ? '#d97706' : '#2563eb' }};">
+                                {{ $mahasiswa->jenis_kelas ?? 'Reguler' }}
+                            </span>
                         </div>
                     </div>
                     <form action="{{ route('krs.mahasiswa.store', $krs->id) }}" method="POST" style="margin: 0; flex-shrink: 0;">

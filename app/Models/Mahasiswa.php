@@ -13,7 +13,18 @@ class Mahasiswa extends Model
         'nama',
         'angkatan',
         'status',
+        'jenis_kelas',
     ];
+
+    public function isKaryawan(): bool
+    {
+        return strtolower($this->jenis_kelas ?? '') === 'karyawan';
+    }
+
+    public function isReguler(): bool
+    {
+        return ! $this->isKaryawan();
+    }
 
     public function user()
     {

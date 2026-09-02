@@ -70,6 +70,7 @@
                             <li><code>angkatan</code>: Tahun angkatan 4 digit (contoh: <strong>2024</strong>).</li>
                             <li><code>semester</code>: Semester awal (angka 1-14, default: <strong>1</strong>).</li>
                             <li><code>status</code>: Opsional (default: <em>Aktif</em>).</li>
+                            <li><code>jenis_kelas</code>: <strong>Reguler</strong> (Kelas A / Pagi) atau <strong>Karyawan</strong> (Kelas B / Sore-Malam). Default: <em>Reguler</em>.</li>
                         </ul>
                         <div style="margin-top: 0.5rem; font-size: 0.72rem; color: #059669; font-weight: 600;">
                             💡 Akun login mahasiswa otomatis dibuat dengan email: <code>[nim]@polsa.ac.id</code>
@@ -144,6 +145,15 @@
     </div>
 
     <div class="filter-group">
+        <label class="filter-label">Program / Kelas</label>
+        <select name="jenis_kelas" class="form-select filter-select">
+            <option value="">Semua</option>
+            <option value="Reguler" {{ request('jenis_kelas') == 'Reguler' ? 'selected' : '' }}>Reguler (Kelas A)</option>
+            <option value="Karyawan" {{ request('jenis_kelas') == 'Karyawan' ? 'selected' : '' }}>Karyawan (Kelas B)</option>
+        </select>
+    </div>
+
+    <div class="filter-group">
         <label class="filter-label">Tahun Akademik</label>
         <select name="tahun_akademik_id" class="form-select filter-select">
             <option value="">Semua</option>
@@ -172,6 +182,7 @@
                 <th>NIM</th>
                 <th>Nama</th>
                 <th>Prodi</th>
+                <th>Program</th>
                 <th>Angkatan</th>
                 <th>Semester</th>
                 <th>Tahun Akademik</th>
@@ -205,6 +216,14 @@
 
                 <td>
                     {{ $mahasiswa->programStudi->nama_prodi }}
+                </td>
+
+                <td>
+                    @if(($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan')
+                        <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700;">Karyawan</span>
+                    @else
+                        <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700;">Reguler</span>
+                    @endif
                 </td>
 
                 <td>

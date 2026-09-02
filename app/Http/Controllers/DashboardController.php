@@ -59,6 +59,7 @@ class DashboardController extends Controller
         $tugasMendekati = collect();
         $materiBaru = collect();
         $forumTerbaru = collect();
+        $semesterAktif = null;
 
         if (Auth::user()->isDosen() || Auth::user()->isKaprodi()) {
             $dosen = Auth::user()->dosen;
@@ -428,9 +429,14 @@ class DashboardController extends Controller
         if (Auth::user()->isMahasiswa()) {
             $mahasiswa = Auth::user()->mahasiswa;
 
-            if ($mahasiswa && $tahunAkademik) {
+            if ($mahasiswa) {
                 $mahasiswa->load('programStudi');
-                $kelasSaya = $mahasiswa->pengampus()
+                $semesterAktif = $tahunAkademik
+                    ? ($mahasiswa->semesterMahasiswas()->where('tahun_akademik_id', $tahunAkademik->id)->first() ?? $mahasiswa->semesterMahasiswas()->latest()->first())
+                    : $mahasiswa->semesterMahasiswas()->latest()->first();
+
+                if ($tahunAkademik) {
+                    $kelasSaya = $mahasiswa->pengampus()
                     ->where('tahun_akademik_id', $tahunAkademik->id)
                     ->with(['mataKuliah.kurikulum', 'dosen.user', 'tahunAkademik'])
                     ->withCount(['lmsMateris', 'lmsTugas'])
@@ -479,6 +485,7 @@ class DashboardController extends Controller
                 $statBelumDikumpul = LmsTugas::whereIn('pengampu_id', $pengampuIds)
                     ->whereNotIn('id', $idTugasDikumpul)
                     ->count();
+                }
             }
         }
 
@@ -535,7 +542,8 @@ class DashboardController extends Controller
             'rpsDiajukanProdi',
             'kaprodiRpsStats',
             'rombelKosongProdi',
-            'kurikulumProdi'
+            'kurikulumProdi',
+            'semesterAktif'
         );
 
         return view('dashboard', $data);
