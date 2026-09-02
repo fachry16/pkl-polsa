@@ -122,10 +122,10 @@
                                 <div style="min-width: 0;">
                                     <div style="font-weight: 600; font-size: 0.85rem; color: #92400e;">{{ $rps->mataKuliah->kode }} - {{ $rps->mataKuliah->nama }}</div>
                                     <div style="font-size: 0.72rem; color: #b45309; margin-top: 0.15rem;">
-                                        Diajukan oleh: <strong>{{ $rps->pengaju->name ?? 'Dosen' }}</strong> &bull; {{ $rps->updated_at->diffForHumans() }}
+                                        Dosen: <strong>{{ $rps->dosen_pengembang_rps ?? $rps->dosen_pengampu ?? 'Dosen Pengampu' }}</strong> &bull; {{ $rps->updated_at->diffForHumans() }}
                                     </div>
                                 </div>
-                                <a href="{{ route('rps.show', $rps->mata_kuliah_id) }}" class="btn btn-primary btn-sm" style="font-size: 0.7rem; padding: 0.25rem 0.6rem;">
+                                <a href="{{ route('mata-kuliah.rps.show', [$rps->mata_kuliah_id, $rps->id]) }}" class="btn btn-primary btn-sm" style="font-size: 0.7rem; padding: 0.25rem 0.6rem;">
                                     Review &amp; Setujui
                                 </a>
                             </div>
