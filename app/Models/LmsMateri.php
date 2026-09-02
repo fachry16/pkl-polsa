@@ -36,4 +36,10 @@ class LmsMateri extends Model
             ->whereNotNull('dibaca_pada')
             ->exists();
     }
+
+    public function komentars()
+    {
+        return $this->hasMany(LmsTopikKomentar::class, 'topik_id')->where('tipe_topik', 'materi');
+    }
 }
+
