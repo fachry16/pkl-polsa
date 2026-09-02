@@ -115,6 +115,22 @@ class KhsController extends Controller
             return redirect()->route('dashboard')->with('error', 'Data mahasiswa tidak ditemukan.');
         }
 
+        // Cek apakah KHS semester ini sudah disetujui Kaprodi
+        $tahunAkademikId = $request->tahun_akademik_id;
+        $tahunAkademik = $tahunAkademikId
+            ? TahunAkademik::find($tahunAkademikId)
+            : TahunAkademik::latest()->first();
+
+        $approval = $tahunAkademik
+            ? KhsApproval::where('mahasiswa_id', $mahasiswa->id)
+                ->where('tahun_akademik_id', $tahunAkademik->id)
+                ->first()
+            : null;
+
+        if (! $approval || ! $approval->isDisetujui()) {
+            return view('khs.belum-disetujui', compact('mahasiswa', 'tahunAkademik', 'approval'));
+        }
+
         return $this->cetak($mahasiswa);
     }
 
