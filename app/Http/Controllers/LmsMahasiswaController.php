@@ -215,7 +215,7 @@ class LmsMahasiswaController extends Controller
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
         abort_unless(Auth::id() === $diskusi->user_id, 403);
-        abort_unless($diskusi->isWithinTimeLimit(15), 403, 'Batas waktu 15 menit untuk menghapus pesan telah berakhir.');
+        abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
 
         foreach ($diskusi->replies as $reply) {
             if ($reply->file_path) {
@@ -242,7 +242,7 @@ class LmsMahasiswaController extends Controller
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
         abort_unless(Auth::id() === $diskusi->user_id, 403);
-        abort_unless($diskusi->isWithinTimeLimit(15), 403, 'Batas waktu 15 menit untuk mengubah pesan telah berakhir.');
+        abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk mengubah pesan telah berakhir.');
 
         $validated = $request->validate([
             'pesan' => 'required|string',

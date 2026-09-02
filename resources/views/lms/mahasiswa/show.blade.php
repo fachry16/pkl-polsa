@@ -180,8 +180,8 @@
                                         </div>
                                     @endif
 
-                                    {{-- Actions (15-min limit) --}}
-                                    @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(15))
+                                    {{-- Actions (30-min limit) --}}
+                                    @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(30))
                                         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
                                             <button type="button" @click="editPost = !editPost" class="btn btn-secondary btn-xs">
                                                 <span x-text="editPost ? 'Batal' : 'Ubah'">Ubah</span>
@@ -230,7 +230,7 @@
                                                             </div>
                                                         @endif
 
-                                                        @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(15))
+                                                        @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(30))
                                                             <div style="display: flex; gap: 0.4rem; margin-top: 0.3rem;">
                                                                 <button type="button" @click="editReply = !editReply" class="btn btn-secondary btn-xs">
                                                                     <span x-text="editReply ? 'Batal' : 'Ubah'">Ubah</span>

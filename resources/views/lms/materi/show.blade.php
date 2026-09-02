@@ -19,9 +19,11 @@
             <div style="flex: 1;">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                     <h1 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0;">{{ $materi->judul }}</h1>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a href="{{ route('lms.materi.edit', [$pengampu->id, $materi->id]) }}" class="btn btn-secondary btn-sm">Edit Materi</a>
-                    </div>
+                    @if($materi->canBeModified())
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{{ route('lms.materi.edit', [$pengampu->id, $materi->id]) }}" class="btn btn-secondary btn-sm">Edit Materi</a>
+                        </div>
+                    @endif
                 </div>
                 <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                     <span>{{ $pengampu->dosen?->user?->name ?? 'Dosen' }}</span>

@@ -34,9 +34,14 @@ class LmsForumDiskusi extends Model
         return $this->hasMany(self::class, 'parent_id')->oldest();
     }
 
-    public function isWithinTimeLimit(int $minutes = 15): bool
+    public function isWithinTimeLimit(int $minutes = 30): bool
     {
         return $this->created_at ? $this->created_at->addMinutes($minutes)->isFuture() : false;
+    }
+
+    public function canBeModified(): bool
+    {
+        return $this->isWithinTimeLimit(30);
     }
 }
 

@@ -94,7 +94,7 @@ class LmsForumTimeLimitTest extends TestCase
         return compact('userDosen', 'dosen', 'userMhs', 'mahasiswa', 'pengampu');
     }
 
-    public function test_mahasiswa_dapat_mengubah_dan_menghapus_pesan_dalam_15_menit(): void
+    public function test_mahasiswa_dapat_mengubah_dan_menghapus_pesan_dalam_30_menit(): void
     {
         $data = $this->buatData();
 
@@ -106,8 +106,8 @@ class LmsForumTimeLimitTest extends TestCase
             'pesan' => 'Pesan asli mahasiswa',
         ]);
 
-        // Maju 10 menit (masih dalam batas 15 menit)
-        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 10, 0));
+        // Maju 20 menit (masih dalam batas 30 menit)
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 20, 0));
 
         $this->actingAs($data['userMhs'])
             ->patch(route('mahasiswa.lms.forum.update', [$data['pengampu']->id, $diskusi->id]), [
@@ -120,7 +120,7 @@ class LmsForumTimeLimitTest extends TestCase
             'pesan' => 'Pesan diperbarui oleh mahasiswa',
         ]);
 
-        // Hapus sebelum 15 menit
+        // Hapus sebelum 30 menit
         $this->actingAs($data['userMhs'])
             ->delete(route('mahasiswa.lms.forum.destroy', [$data['pengampu']->id, $diskusi->id]))
             ->assertSessionHas('toast_success');
@@ -130,7 +130,7 @@ class LmsForumTimeLimitTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function test_mahasiswa_ditolak_mengubah_dan_menghapus_pesan_setelah_15_menit(): void
+    public function test_mahasiswa_ditolak_mengubah_dan_menghapus_pesan_setelah_30_menit(): void
     {
         $data = $this->buatData();
 
@@ -142,8 +142,8 @@ class LmsForumTimeLimitTest extends TestCase
             'pesan' => 'Pesan lama mahasiswa',
         ]);
 
-        // Maju 16 menit (lewat batas 15 menit)
-        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 16, 0));
+        // Maju 35 menit (lewat batas 30 menit)
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 35, 0));
 
         $this->actingAs($data['userMhs'])
             ->patch(route('mahasiswa.lms.forum.update', [$data['pengampu']->id, $diskusi->id]), [
@@ -163,7 +163,7 @@ class LmsForumTimeLimitTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function test_dosen_ditolak_mengedit_pesan_sendiri_setelah_15_menit(): void
+    public function test_dosen_ditolak_mengedit_dan_menghapus_pesan_sendiri_setelah_30_menit(): void
     {
         $data = $this->buatData();
 
@@ -175,8 +175,8 @@ class LmsForumTimeLimitTest extends TestCase
             'pesan' => 'Pesan dosen',
         ]);
 
-        // Maju 20 menit
-        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 20, 0));
+        // Maju 35 menit
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 35, 0));
 
         $this->actingAs($data['userDosen'])
             ->get(route('lms.forum.edit', [$data['pengampu']->id, $diskusi->id]))
@@ -186,6 +186,10 @@ class LmsForumTimeLimitTest extends TestCase
             ->patch(route('lms.forum.update', [$data['pengampu']->id, $diskusi->id]), [
                 'pesan' => 'Ubah pesan dosen lama',
             ])
+            ->assertForbidden();
+
+        $this->actingAs($data['userDosen'])
+            ->delete(route('lms.forum.destroy', [$data['pengampu']->id, $diskusi->id]))
             ->assertForbidden();
 
         Carbon::setTestNow();
@@ -208,9 +212,11 @@ class LmsForumTimeLimitTest extends TestCase
         $this->assertDatabaseHas('lms_forum_diskusis', ['id' => $diskusi->id]);
     }
 
-    public function test_dosen_dapat_menghapus_pesan_sendiri(): void
+    public function test_dosen_dapat_menghapus_pesan_sendiri_dalam_30_menit(): void
     {
         $data = $this->buatData();
+
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 0, 0));
 
         $diskusi = LmsForumDiskusi::create([
             'pengampu_id' => $data['pengampu']->id,
@@ -218,11 +224,16 @@ class LmsForumTimeLimitTest extends TestCase
             'pesan' => 'Pesan dosen sendiri',
         ]);
 
+        // Maju 10 menit
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 10, 0));
+
         $this->actingAs($data['userDosen'])
             ->delete(route('lms.forum.destroy', [$data['pengampu']->id, $diskusi->id]))
             ->assertRedirect(route('lms.forum.index', $data['pengampu']->id))
             ->assertSessionHas('toast_success');
 
         $this->assertDatabaseMissing('lms_forum_diskusis', ['id' => $diskusi->id]);
+
+        Carbon::setTestNow();
     }
 }

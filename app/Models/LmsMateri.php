@@ -41,5 +41,10 @@ class LmsMateri extends Model
     {
         return $this->hasMany(LmsTopikKomentar::class, 'topik_id')->where('tipe_topik', 'materi');
     }
+
+    public function canBeModified(): bool
+    {
+        return $this->created_at ? $this->created_at->addHours(24)->isFuture() : false;
+    }
 }
 

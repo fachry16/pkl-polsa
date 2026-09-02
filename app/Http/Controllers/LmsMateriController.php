@@ -82,6 +82,11 @@ class LmsMateriController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($materi->pengampu_id !== $pengampu->id, 404);
 
+        if (! $materi->canBeModified()) {
+            return redirect()->route('lms.materi.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu 1x24 jam untuk mengedit materi telah berakhir.');
+        }
+
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
         $pertemuans = $pengampu->rpsPertemuans();
@@ -95,6 +100,11 @@ class LmsMateriController extends Controller
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($materi->pengampu_id !== $pengampu->id, 404);
+
+        if (! $materi->canBeModified()) {
+            return redirect()->route('lms.materi.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu 1x24 jam untuk mengedit materi telah berakhir.');
+        }
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -124,11 +134,16 @@ class LmsMateriController extends Controller
             ->with('toast_success', 'Materi berhasil diperbarui.');
     }
 
-    public function destroy(LmsMateri $materi)
+    public function destroy(Pengampu $pengampu, LmsMateri $materi)
     {
         $dosen = Auth::user()->dosen;
 
-        abort_if(! $dosen || $materi->pengampu->dosen_id !== $dosen->id, 403);
+        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        abort_if($materi->pengampu_id !== $pengampu->id, 404);
+
+        if (! $materi->canBeModified()) {
+            return back()->with('toast_error', 'Batas waktu 1x24 jam untuk menghapus materi telah berakhir.');
+        }
 
         if ($materi->file_path) {
             Storage::disk('public')->delete($materi->file_path);

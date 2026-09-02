@@ -114,6 +114,11 @@ class LmsTugasController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
+        if (! $tugas->canBeModified()) {
+            return redirect()->route('lms.tugas.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu 1x24 jam untuk mengedit tugas telah berakhir.');
+        }
+
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
         $pertemuans = $pengampu->rpsPertemuans();
@@ -127,6 +132,11 @@ class LmsTugasController extends Controller
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
+
+        if (! $tugas->canBeModified()) {
+            return redirect()->route('lms.tugas.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu 1x24 jam untuk mengedit tugas telah berakhir.');
+        }
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -168,6 +178,10 @@ class LmsTugasController extends Controller
 
         abort_if(! $dosen || $tugas->pengampu->dosen_id !== $dosen->id, 403);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
+
+        if (! $tugas->canBeModified()) {
+            return back()->with('toast_error', 'Batas waktu 1x24 jam untuk menghapus tugas telah berakhir.');
+        }
 
         if ($tugas->file_lampiran) {
             Storage::disk('public')->delete($tugas->file_lampiran);

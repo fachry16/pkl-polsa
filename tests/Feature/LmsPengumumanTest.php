@@ -169,6 +169,61 @@ class LmsPengumumanTest extends TestCase
         $this->assertDatabaseMissing('lms_pengumumans', ['id' => $pengumuman->id]);
     }
 
+    public function test_dosen_ditolak_mengedit_pengumuman_setelah_30_menit(): void
+    {
+        $data = $this->buatData();
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 2, 10, 0, 0));
+
+        $pengumuman = LmsPengumuman::create([
+            'pengampu_id' => $data['pengampu']->id,
+            'judul' => 'Judul Awal',
+            'isi' => 'Isi awal',
+            'published_at' => now(),
+        ]);
+
+        // Maju 35 menit
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 2, 10, 35, 0));
+
+        $this->actingAs($data['userDosen'])
+            ->get(route('lms.pengumuman.edit', [$data['pengampu']->id, $pengumuman->id]))
+            ->assertRedirect(route('lms.pengumuman.index', $data['pengampu']->id))
+            ->assertSessionHas('toast_error');
+
+        $this->actingAs($data['userDosen'])
+            ->patch(route('lms.pengumuman.update', [$data['pengampu']->id, $pengumuman->id]), [
+                'judul' => 'Judul Berubah',
+                'isi' => 'Isi berubah',
+            ])
+            ->assertRedirect(route('lms.pengumuman.index', $data['pengampu']->id))
+            ->assertSessionHas('toast_error');
+
+        \Illuminate\Support\Carbon::setTestNow();
+    }
+
+    public function test_dosen_ditolak_menghapus_pengumuman_setelah_24_jam(): void
+    {
+        $data = $this->buatData();
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 2, 10, 0, 0));
+
+        $pengumuman = LmsPengumuman::create([
+            'pengampu_id' => $data['pengampu']->id,
+            'judul' => 'Judul Awal',
+            'isi' => 'Isi awal',
+            'published_at' => now(),
+        ]);
+
+        // Maju 25 jam
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 3, 11, 0, 0));
+
+        $this->actingAs($data['userDosen'])
+            ->delete(route('lms.pengumuman.destroy', [$data['pengampu']->id, $pengumuman->id]))
+            ->assertSessionHas('toast_error');
+
+        $this->assertDatabaseHas('lms_pengumumans', ['id' => $pengumuman->id]);
+
+        \Illuminate\Support\Carbon::setTestNow();
+    }
+
     public function test_dosen_lain_tidak_dapat_mengelola_pengumuman(): void
     {
         $data = $this->buatData();

@@ -209,12 +209,12 @@
                                         </div>
                                     @endif
 
-                                    {{-- Actions (15-min limit / Dosen) --}}
+                                    {{-- Actions (30-min limit / Dosen) --}}
                                     <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                                        @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(15))
+                                        @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(30))
                                             <a href="{{ route('lms.forum.edit', [$pengampu->id, $post->id]) }}" class="btn btn-secondary btn-xs">Edit</a>
                                         @endif
-                                        @if(! $post->user?->isMahasiswa())
+                                        @if(! $post->user?->isMahasiswa() && $post->isWithinTimeLimit(30))
                                             <form action="{{ route('lms.forum.destroy', [$pengampu->id, $post->id]) }}" method="POST" onsubmit="return confirm('Hapus pesan ini? Semua balasan terkait juga akan terhapus.');" style="margin: 0;">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-xs">Hapus</button>
@@ -237,10 +237,10 @@
                                                         </div>
                                                         <div style="font-size: 0.8rem; color: #475569; margin-top: 0.15rem; white-space: pre-wrap;">{!! linkify($reply->pesan) !!}</div>
                                                         <div style="display: flex; gap: 0.4rem; margin-top: 0.3rem;">
-                                                            @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(15))
+                                                            @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(30))
                                                                 <a href="{{ route('lms.forum.edit', [$pengampu->id, $reply->id]) }}" class="btn btn-secondary btn-xs">Edit</a>
                                                             @endif
-                                                            @if(! $reply->user?->isMahasiswa())
+                                                            @if(! $reply->user?->isMahasiswa() && $reply->isWithinTimeLimit(30))
                                                                 <form action="{{ route('lms.forum.destroy', [$pengampu->id, $reply->id]) }}" method="POST" onsubmit="return confirm('Hapus balasan ini?');" style="margin: 0;">
                                                                     @csrf @method('DELETE')
                                                                     <button type="submit" class="btn btn-danger btn-xs">Hapus</button>
@@ -375,10 +375,12 @@
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     Salin Link
                                 </button>
-                                <a href="{{ $item->edit_url }}" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                    Edit
-                                </a>
+                                @if($item->obj->canBeModified())
+                                    <a href="{{ $item->edit_url }}" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                        Edit
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

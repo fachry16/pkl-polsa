@@ -40,10 +40,10 @@
                         @endif
 
                         <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
-                            @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(15))
+                            @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(30))
                                 <a href="{{ route('lms.forum.edit', [$pengampu->id, $post->id]) }}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Edit</a>
                             @endif
-                            @if(! $post->user?->isMahasiswa())
+                            @if(! $post->user?->isMahasiswa() && $post->isWithinTimeLimit(30))
                                 <form action="{{ route('lms.forum.destroy', [$pengampu->id, $post->id]) }}" method="POST" onsubmit="return confirm('Hapus pesan ini? Semua balasan terkait juga ikut terhapus.');">
                                     @csrf
                                     @method('DELETE')
@@ -64,10 +64,10 @@
                                             </div>
                                             <div style="font-size: 0.8rem; color: #475569; margin-top: 0.15rem; white-space: pre-wrap;">{!! linkify($reply->pesan) !!}</div>
                                             <div style="display: flex; gap: 0.5rem; margin-top: 0.4rem;">
-                                                @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(15))
+                                                @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(30))
                                                     <a href="{{ route('lms.forum.edit', [$pengampu->id, $reply->id]) }}" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Edit</a>
                                                 @endif
-                                                @if(! $reply->user?->isMahasiswa())
+                                                @if(! $reply->user?->isMahasiswa() && $reply->isWithinTimeLimit(30))
                                                     <form action="{{ route('lms.forum.destroy', [$pengampu->id, $reply->id]) }}" method="POST" onsubmit="return confirm('Hapus balasan ini?');">
                                                         @csrf
                                                         @method('DELETE')

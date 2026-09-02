@@ -90,12 +90,16 @@
                         </div>
                     </div>
                 </a>
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
-                    <a href="{{ route('lms.tugas.edit', [$pengampu->id, $item->id]) }}" class="btn btn-secondary btn-sm">Edit</a>
-                    <form action="{{ route('lms.tugas.destroy', ['pengampu' => $pengampu->id, 'tugas' => $item->id]) }}" method="POST" style="margin: 0;">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus tugas ini beserta seluruh pengumpulannya?')">Hapus</button>
-                    </form>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+                    @if($item->canBeModified())
+                        <a href="{{ route('lms.tugas.edit', [$pengampu->id, $item->id]) }}" class="btn btn-secondary btn-sm">Edit</a>
+                        <form action="{{ route('lms.tugas.destroy', ['pengampu' => $pengampu->id, 'tugas' => $item->id]) }}" method="POST" style="margin: 0;">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus tugas ini beserta seluruh pengumpulannya?')">Hapus</button>
+                        </form>
+                    @else
+                        <span style="font-size: 0.72rem; color: #94a3b8;">Terkunci (lewat 1x24 jam)</span>
+                    @endif
                 </div>
             </div>
         @empty
