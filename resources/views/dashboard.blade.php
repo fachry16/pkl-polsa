@@ -30,6 +30,9 @@
         </div>
     </div>
 
+@if(auth()->user()->isAdmin())
+    @include('dashboard.admin')
+@else
 @if(auth()->user()->isMahasiswa())
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
         <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
@@ -91,40 +94,6 @@
             <div style="flex: 1; min-width: 0;">
                 <span style="font-weight: 700; font-size: 1.1rem; color: #d97706; display: block; line-height: 1.3;">{{ $tahunAkademik ? $tahunAkademik->tahun.' '.ucfirst($tahunAkademik->semester) : '-' }}</span>
                 <span style="font-size: 0.8rem; color: #fbbf24; font-weight: 500;">Tahun Akademik Aktif</span>
-            </div>
-        </div>
-    </div>
-@endif
-
-@if(auth()->user()->isAdmin())
-    <div style="display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.75rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-        <span style="font-weight: 700; font-size: 0.9rem; color: #1e293b;">Statistik LMS</span>
-        <a href="{{ route('lms.monitor') }}" style="margin-left: auto; font-size: 0.75rem; color: #4f46e5; text-decoration: none;">Lihat Kelas &rarr;</a>
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-        <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
-            <div style="flex: 1; min-width: 0;">
-                <span style="font-weight: 700; font-size: 1.35rem; color: #4f46e5; display: block; line-height: 1.2;">{{ $statKelasLMS }}</span>
-                <span style="font-size: 0.8rem; color: #818cf8; font-weight: 500;">Kelas Aktif</span>
-            </div>
-        </div>
-        <div class="stat-prodi-card" style="border-left: 4px solid #10b981;">
-            <div style="flex: 1; min-width: 0;">
-                <span style="font-weight: 700; font-size: 1.35rem; color: #059669; display: block; line-height: 1.2;">{{ $statMateriLMS }}</span>
-                <span style="font-size: 0.8rem; color: #34d399; font-weight: 500;">Total Materi</span>
-            </div>
-        </div>
-        <div class="stat-prodi-card" style="border-left: 4px solid #f59e0b;">
-            <div style="flex: 1; min-width: 0;">
-                <span style="font-weight: 700; font-size: 1.35rem; color: #d97706; display: block; line-height: 1.2;">{{ $statTugasLMS }}</span>
-                <span style="font-size: 0.8rem; color: #fbbf24; font-weight: 500;">Total Tugas</span>
-            </div>
-        </div>
-        <div class="stat-prodi-card" style="border-left: 4px solid #ef4444;">
-            <div style="flex: 1; min-width: 0;">
-                <span style="font-weight: 700; font-size: 1.35rem; color: #dc2626; display: block; line-height: 1.2;">{{ $statBelumDinilaiLMS }}</span>
-                <span style="font-size: 0.8rem; color: #f87171; font-weight: 500;">Submission Blm Dinilai</span>
             </div>
         </div>
     </div>
@@ -340,6 +309,7 @@
             </div>
         @endif
     </div>
+@endif
 @endif
 
 @endsection
