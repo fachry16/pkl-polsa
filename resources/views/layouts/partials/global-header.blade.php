@@ -8,17 +8,8 @@
 @endphp
 
 @auth
-<header class="global-campus-sticky-header no-print"
-        x-data="{
-            isScrolled: window.pageYOffset > 10,
-            openKebab: false,
-            init() {
-                this.isScrolled = window.pageYOffset > 10;
-            }
-        }"
-        @scroll.window="isScrolled = (window.pageYOffset > 10)"
-        :class="{ 'is-scrolled': isScrolled }">
-    <div class="campus-header-card">
+<header class="global-campus-sticky-header no-print">
+    <div class="campus-header-card" x-data="{ openKebab: false }" @click.outside="openKebab = false">
         {{-- Sisi Kiri: Identitas Kampus POLSA --}}
         <div class="campus-header-left">
             <div class="campus-header-icon">
