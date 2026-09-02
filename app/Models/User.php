@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'password',
         'role',
         'roles',
@@ -144,5 +145,13 @@ class User extends Authenticatable
     public function isMahasiswa(): bool
     {
         return $this->hasRole('mahasiswa');
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if ($this->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
+            return \Illuminate\Support\Facades\Storage::url($this->avatar);
+        }
+        return null;
     }
 }
