@@ -64,8 +64,8 @@ Route::middleware(['auth'])->group(function () {
     )->name('dosen.self.riwayat');
 });
 
-/* Shared read-only (Admin + Direktur) */
-Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
+/* Master Data (Admin only) */
+Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get(
         'tahun-akademik',
@@ -156,8 +156,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('roles', \App\Http\Controllers\RoleController::class);
 });
 
-/* KRS — Admin, Direktur (read-only), Kaprodi */
-Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
+/* KRS — Admin, Kaprodi */
+Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
 
     Route::get(
         'krs',
