@@ -42,3 +42,25 @@ if (! function_exists('linkify')) {
         return $result;
     }
 }
+
+if (! function_exists('konversiNilaiHuruf')) {
+    function konversiNilaiHuruf(?float $nilai): ?string
+    {
+        return \App\Services\PenilaianService::konversiHuruf($nilai);
+    }
+}
+
+if (! function_exists('konversiBobotMutu')) {
+    function konversiBobotMutu(?float $nilai): ?float
+    {
+        return \App\Services\PenilaianService::konversiBobotMutu($nilai);
+    }
+}
+
+if (! function_exists('predikatNilai')) {
+    function predikatNilai(?float $nilai): ?string
+    {
+        return \App\Services\PenilaianService::predikat($nilai);
+    }
+}
+

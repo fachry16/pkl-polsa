@@ -406,4 +406,26 @@ class LmsPenilaianTest extends TestCase
         $this->assertDatabaseMissing('lms_tugas', ['id' => $tugas->id]);
         $this->assertDatabaseMissing('lms_submissions', ['lms_tugas_id' => $tugas->id]);
     }
+
+    public function test_konversi_nilai_huruf_dan_tampilan_rekap(): void
+    {
+        $this->assertEquals('A', PenilaianService::konversiHuruf(85));
+        $this->assertEquals(4.00, PenilaianService::konversiBobotMutu(85));
+        $this->assertEquals('B+', PenilaianService::konversiHuruf(78));
+        $this->assertEquals(3.50, PenilaianService::konversiBobotMutu(78));
+        $this->assertEquals('B', PenilaianService::konversiHuruf(72));
+        $this->assertEquals('C+', PenilaianService::konversiHuruf(68));
+        $this->assertEquals('C', PenilaianService::konversiHuruf(61));
+        $this->assertEquals('D', PenilaianService::konversiHuruf(55));
+        $this->assertEquals('E', PenilaianService::konversiHuruf(40));
+
+        $data = $this->buatKelas();
+
+        $response = $this->actingAs($data['dosen']->user)
+            ->get(route('lms.tugas.rekap', $data['pengampu']->id));
+
+        $response->assertOk();
+        $response->assertSee('Panduan Formula Penilaian &amp; Konversi Abjad Nilai Mutu', false);
+        $response->assertSee('Huruf Mutu');
+    }
 }

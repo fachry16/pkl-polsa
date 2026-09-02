@@ -499,13 +499,75 @@
                         @endforeach
                     </tbody>
                     <tfoot>
-                        <tr>
-                            @php $nilaiAkhir = $nilaiByKomponen->get('akhir')?->nilai; @endphp
-                            <td colspan="3" style="text-align: right; font-weight: 700;">Nilai Akhir</td>
-                            <td style="text-align: center; font-weight: 700;">{{ $nilaiAkhir !== null ? number_format($nilaiAkhir, 2) : '-' }}</td>
+                        @php
+                            $nilaiAkhir = $nilaiByKomponen->get('akhir')?->nilai;
+                            $hurufAkhir = konversiNilaiHuruf($nilaiAkhir);
+                            $bobotAkhir = konversiBobotMutu($nilaiAkhir);
+                            $predikatAkhir = predikatNilai($nilaiAkhir);
+                            $badgeStyle = match($hurufAkhir) {
+                                'A' => 'background: #ecfdf5; color: #059669; border-color: #a7f3d0;',
+                                'B+', 'B' => 'background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;',
+                                'C+', 'C' => 'background: #fefce8; color: #a16207; border-color: #fde047;',
+                                'D' => 'background: #fff7ed; color: #c2410c; border-color: #fdba74;',
+                                default => 'background: #fef2f2; color: #b91c1c; border-color: #fecaca;',
+                            };
+                        @endphp
+                        <tr style="background: #f8fafc;">
+                            <td colspan="2" style="text-align: right; font-weight: 700; color: #1e293b;">Nilai Akhir (Skala 100)</td>
+                            <td style="text-align: center; font-weight: 800; font-size: 1rem; color: #1e293b;">
+                                {{ $nilaiAkhir !== null ? number_format($nilaiAkhir, 2) : '-' }}
+                            </td>
+                            <td style="text-align: center;">
+                                @if($nilaiAkhir !== null)
+                                    <span style="{{ $badgeStyle }} border-width: 1px; border-style: solid; padding: 0.2rem 0.65rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                        <span>Nilai {{ $hurufAkhir }}</span>
+                                        <span style="font-size: 0.72rem; opacity: 0.85;">({{ number_format($bobotAkhir, 2) }})</span>
+                                    </span>
+                                    <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">{{ $predikatAkhir }}</div>
+                                @else
+                                    <span style="color: #94a3b8; font-size: 0.75rem;">Belum Terkalkulasi</span>
+                                @endif
+                            </td>
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+
+            {{-- Penjelasan Transparansi Perhitungan Nilai Mahasiswa --}}
+            <div x-data="{ showDetail: false }" style="margin-top: 1.25rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+                <button type="button" @click="showDetail = !showDetail" style="background: none; border: none; padding: 0; font-size: 0.8rem; font-weight: 600; color: #2563eb; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span x-text="showDetail ? 'Sembunyikan Informasi Perhitungan Nilai & Skala Abjad' : 'Lihat Cara Perhitungan Nilai & Standar Abjad (KHS)'"></span>
+                </button>
+
+                <div x-show="showDetail" style="margin-top: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; font-size: 0.78rem; color: #475569; line-height: 1.6;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+                        <div>
+                            <strong style="color: #1e293b; display: block; margin-bottom: 0.25rem;">Cara Perhitungan Nilai:</strong>
+                            <p style="margin: 0 0 0.35rem;">
+                                Nilai akhir dihitung berdasarkan <strong>Rata-Rata Tertimbang</strong> bobot RPS mata kuliah ini.
+                            </p>
+                            <p style="margin: 0 0 0.35rem;">
+                                <code>Nilai Akhir = &Sigma;(Nilai Komponen &times; Bobot RPS) &divide; &Sigma;Bobot Terisi</code>
+                            </p>
+                            <p style="margin: 0; font-size: 0.74rem; color: #64748b;">
+                                <em>Catatan:</em> Presensi kehadiran 16 sesi digunakan sebagai rekam jejak kedisiplinan dan monitoring kelas. Nilai keaktifan dan sikap dinilai dosen pada komponen kuis/tugas partisipatif.
+                            </p>
+                        </div>
+                        <div>
+                            <strong style="color: #1e293b; display: block; margin-bottom: 0.25rem;">Standar Konversi Abjad &amp; Bobot Mutu:</strong>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; font-size: 0.74rem;">
+                                <div>&bull; &ge; 80.00 : <strong>A (4.00)</strong></div>
+                                <div>&bull; 75.00 - 79.99 : <strong>B+ (3.50)</strong></div>
+                                <div>&bull; 70.00 - 74.99 : <strong>B (3.00)</strong></div>
+                                <div>&bull; 65.00 - 69.99 : <strong>C+ (2.50)</strong></div>
+                                <div>&bull; 60.00 - 64.99 : <strong>C (2.00)</strong></div>
+                                <div>&bull; 50.00 - 59.99 : <strong>D (1.00)</strong></div>
+                                <div style="grid-column: span 2;">&bull; &lt; 50.00 : <strong style="color: #dc2626;">E (0.00)</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
