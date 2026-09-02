@@ -1,3 +1,55 @@
+{{-- Header Sambutan Personal Mahasiswa --}}
+<div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(6, 78, 59, 0.15);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #6ee7b7; border: 1px solid rgba(255, 255, 255, 0.2);">
+            @if(auth()->user()->avatar_url)
+                <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+            @else
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            @endif
+        </div>
+        <div>
+            <div style="font-size: 0.72rem; color: #6ee7b7; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Portal Perkuliahan &amp; LMS OBE POLSA</div>
+            <div style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">{{ auth()->user()->name }}</div>
+            <div style="font-size: 0.8rem; color: #d1fae5; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <span>NIM: <strong>{{ $mahasiswa->nim ?? '-' }}</strong></span>
+                <span>&bull;</span>
+                <span>Prodi: <strong>{{ $mahasiswa->programStudi->nama_prodi ?? 'Politeknik Sawunggalih Aji' }}</strong></span>
+                @if($semesterAktif)
+                    <span>&bull;</span>
+                    <span>Semester: <strong>{{ $semesterAktif->semester }}</strong></span>
+                @endif
+                @if($mahasiswa?->angkatan)
+                    <span>&bull;</span>
+                    <span>Angkatan: <strong>{{ $mahasiswa->angkatan }}</strong></span>
+                @endif
+                <span>&bull;</span>
+                @if(($mahasiswa?->jenis_kelas ?? 'Reguler') === 'Karyawan')
+                    <span style="background: #f59e0b; color: #78350f; border: 1px solid #fde68a; padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
+                        Kelas Karyawan (Kelas B)
+                    </span>
+                @else
+                    <span style="background: rgba(255, 255, 255, 0.2); color: #ecfdf5; border: 1px solid rgba(255, 255, 255, 0.35); padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
+                        Kelas Reguler (Kelas A)
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+        <a href="{{ route('khs.self') }}" class="btn btn-sm" style="background: #ffffff; color: #065f46; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 4px rgba(0,0,0,0.12); font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Kartu Hasil Studi (KHS)
+        </a>
+        <span style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #ecfdf5;">
+            {{ $tahunAkademik ? $tahunAkademik->tahun.' '.ucfirst($tahunAkademik->semester) : 'Semester Aktif' }}
+        </span>
+        <span style="background: #10b981; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            {{ $totalSksSemester }} SKS Ditempuh
+        </span>
+    </div>
+</div>
+
 {{-- Baris 1: 4 Quick KPI Cards Mahasiswa --}}
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
     {{-- Kelas Kuliah Aktif --}}

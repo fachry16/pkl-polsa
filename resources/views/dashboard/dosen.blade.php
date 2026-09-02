@@ -1,3 +1,31 @@
+{{-- Header Sambutan Personal Dosen --}}
+<div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(30, 27, 75, 0.15);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #a5b4fc; border: 1px solid rgba(255, 255, 255, 0.2);">
+            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+        </div>
+        <div>
+            <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Selamat Datang, Dosen Pengajar POLSA</div>
+            <div style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">{{ auth()->user()->name }}</div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <span>NIDN: <strong>{{ auth()->user()->dosen->nidn ?? '-' }}</strong></span>
+                <span>&bull;</span>
+                <span>Prodi: <strong>{{ auth()->user()->dosen->programStudi->nama_prodi ?? 'Politeknik Sawunggalih Aji' }}</strong></span>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #e0e7ff;">
+            {{ $tahunAkademik ? $tahunAkademik->tahun.' '.ucfirst($tahunAkademik->semester) : 'Semester Aktif' }}
+        </span>
+        @if(auth()->user()->isKaprodi())
+            <span style="background: #10b981; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: #fff;">
+                Kaprodi
+            </span>
+        @endif
+    </div>
+</div>
+
 {{-- Baris 1: 4 KPI Cards Mengajar Dosen --}}
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
     {{-- Kelas Diampu --}}
