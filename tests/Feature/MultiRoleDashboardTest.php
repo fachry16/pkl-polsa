@@ -87,7 +87,7 @@ class MultiRoleDashboardTest extends TestCase
         $response->assertSee('Mahasiswa Aktif Prodi');
         $response->assertSee('Dosen Homebase Prodi');
         // Dosen section
-        $response->assertSee('Selamat Datang, Dosen Pengajar POLSA');
+        $response->assertSee('Kelas Paket Diampu');
         $response->assertSee('Ruang Kelas LMS yang Diampu');
     }
 

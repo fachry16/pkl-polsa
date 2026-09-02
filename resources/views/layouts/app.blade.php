@@ -53,7 +53,12 @@
     @endauth
 
     <main class="main-content">
-        @yield('content')
+        @auth
+            @include('layouts.partials.global-header')
+        @endauth
+        <div class="page-content-wrapper">
+            @yield('content')
+        </div>
     </main>
 
     <div class="toast-container">
