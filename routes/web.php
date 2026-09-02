@@ -9,6 +9,7 @@ use App\Http\Controllers\CplPlController;
 use App\Http\Controllers\CpmkController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DosenController;
+use App\Http\Controllers\KhsController;
 use App\Http\Controllers\KrsController;
 use App\Http\Controllers\KurikulumController;
 use App\Http\Controllers\LmsAbsensiController;
@@ -199,6 +200,34 @@ Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
         'krs/cetak/mahasiswa-options',
         [KrsController::class, 'mahasiswaOptions']
     )->name('krs.mahasiswa-options');
+});
+
+/* KHS — Admin, Kaprodi, Direktur, Mahasiswa */
+Route::middleware(['auth'])->group(function () {
+    Route::get(
+        'khs/cetak/pilih-mahasiswa',
+        [KhsController::class, 'cetakPilih']
+    )->middleware('role:admin,kaprodi,direktur')->name('khs.cetak-pilih');
+
+    Route::post(
+        'khs/cetak/pilih-mahasiswa',
+        [KhsController::class, 'pilihMahasiswa']
+    )->middleware('role:admin,kaprodi,direktur')->name('khs.pilih-mahasiswa');
+
+    Route::get(
+        'khs/self',
+        [KhsController::class, 'self']
+    )->name('khs.self');
+
+    Route::get(
+        'khs/cetak/{mahasiswa}',
+        [KhsController::class, 'cetak']
+    )->where(['mahasiswa' => '[0-9]+'])->name('khs.cetak');
+
+    Route::get(
+        'khs/cetak/{mahasiswa}/pdf',
+        [KhsController::class, 'cetakPdf']
+    )->where(['mahasiswa' => '[0-9]+'])->name('khs.cetak-pdf');
 });
 
 /* KRS — Admin + Kaprodi (mutations) */
