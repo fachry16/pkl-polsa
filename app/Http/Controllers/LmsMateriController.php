@@ -62,6 +62,19 @@ class LmsMateriController extends Controller
         return back()->with('toast_success', 'Materi berhasil ditambahkan.');
     }
 
+    public function show(Pengampu $pengampu, LmsMateri $materi)
+    {
+        $dosen = Auth::user()->dosen;
+
+        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        abort_if($materi->pengampu_id !== $pengampu->id, 404);
+
+        $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
+        $materi->load(['rpsPertemuan', 'komentars.user']);
+
+        return view('lms.materi.show', compact('pengampu', 'materi'));
+    }
+
     public function edit(Pengampu $pengampu, LmsMateri $materi)
     {
         $dosen = Auth::user()->dosen;

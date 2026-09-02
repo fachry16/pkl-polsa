@@ -193,9 +193,9 @@
 <div class="mt-5">
 
     @if(auth()->user()->role === 'dosen' && auth()->user()->dosen && strtolower(auth()->user()->dosen->jabatan) !== 'kaprodi')
-        <a href="{{ route('dosen.self') }}"
+        <a href="{{ route('dosen.self.riwayat') }}"
            class="btn btn-secondary">
-            Kembali ke Data Diri
+            Kembali ke Riwayat Mengajar &amp; RPS
         </a>
     @else
         <a href="{{ route('kurikulum.mata-kuliah.index', $mataKuliah->kurikulum_id) }}"

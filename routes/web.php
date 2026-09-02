@@ -632,10 +632,13 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
 
     Route::get('/monitor-kelas', [LmsController::class, 'monitor'])->middleware('role:admin')->name('monitor');
 
+    Route::get('/file/{model}/{id}', [LmsFileController::class, 'show'])->name('file');
+
     Route::get('/{pengampu}', [LmsController::class, 'show'])->name('show');
 
     Route::get('/{pengampu}/materi', [LmsMateriController::class, 'index'])->name('materi.index');
     Route::post('/{pengampu}/materi', [LmsMateriController::class, 'store'])->name('materi.store');
+    Route::get('/{pengampu}/materi/{materi}', [LmsMateriController::class, 'show'])->name('materi.show');
     Route::get('/{pengampu}/materi/{materi}/edit', [LmsMateriController::class, 'edit'])->name('materi.edit');
     Route::patch('/{pengampu}/materi/{materi}', [LmsMateriController::class, 'update'])->name('materi.update');
     Route::delete('/{pengampu}/materi/{materi}', [LmsMateriController::class, 'destroy'])->name('materi.destroy');
@@ -647,6 +650,9 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::patch('/{pengampu}/tugas/{tugas}', [LmsTugasController::class, 'update'])->name('tugas.update');
     Route::delete('/{pengampu}/tugas/{tugas}', [LmsTugasController::class, 'destroy'])->name('tugas.destroy');
 
+    Route::post('/{pengampu}/topik-komentar', [\App\Http\Controllers\LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
+    Route::delete('/{pengampu}/topik-komentar/{komentar}', [\App\Http\Controllers\LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
+
     Route::patch('/submission/{submission}/nilai', [LmsTugasController::class, 'nilai'])->name('submission.nilai');
 
     Route::get('/{pengampu}/forum', [LmsForumController::class, 'index'])->name('forum.index');
@@ -654,8 +660,6 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::get('/{pengampu}/forum/{diskusi}/edit', [LmsForumController::class, 'edit'])->name('forum.edit');
     Route::patch('/{pengampu}/forum/{diskusi}', [LmsForumController::class, 'update'])->name('forum.update');
     Route::delete('/{pengampu}/forum/{diskusi}', [LmsForumController::class, 'destroy'])->name('forum.destroy');
-
-    Route::get('/file/{model}/{id}', [LmsFileController::class, 'show'])->name('file');
 
     Route::get('/{pengampu}/pengumuman', [LmsPengumumanController::class, 'index'])->name('pengumuman.index');
     Route::post('/{pengampu}/pengumuman', [LmsPengumumanController::class, 'store'])->name('pengumuman.store');
@@ -677,6 +681,10 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
 Route::middleware(['auth'])->prefix('mahasiswa')->name('mahasiswa.lms.')->group(function () {
     Route::get('/kelas-saya', [LmsMahasiswaController::class, 'index'])->name('index');
     Route::get('/kelas/{pengampu}', [LmsMahasiswaController::class, 'show'])->name('show');
+    Route::get('/kelas/{pengampu}/materi/{materi}', [LmsMahasiswaController::class, 'showMateri'])->name('materi.show');
+    Route::get('/kelas/{pengampu}/tugas/{tugas}', [LmsMahasiswaController::class, 'showTugas'])->name('tugas.show');
+    Route::post('/kelas/{pengampu}/topik-komentar', [\App\Http\Controllers\LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
+    Route::delete('/kelas/{pengampu}/topik-komentar/{komentar}', [\App\Http\Controllers\LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
     Route::post('/kelas/{pengampu}/forum', [LmsMahasiswaController::class, 'storeForum'])->name('forum.store');
     Route::patch('/kelas/{pengampu}/forum/{diskusi}', [LmsMahasiswaController::class, 'updateForum'])->name('forum.update');
     Route::delete('/kelas/{pengampu}/forum/{diskusi}', [LmsMahasiswaController::class, 'destroyForum'])->name('forum.destroy');
