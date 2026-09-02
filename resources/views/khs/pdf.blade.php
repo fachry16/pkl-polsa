@@ -105,14 +105,22 @@
             width: 50%;
             font-size: 9.5px;
         }
-        .space { height: 50px; }
+        .space { height: 45px; }
+
+        .validation-stamp {
+            border: 1px dashed #000;
+            padding: 3px 6px;
+            font-size: 8px;
+            display: inline-block;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 
     <div class="kop">
-        <div class="institusi">PIKOBE - Politeknik Sawunggaling Aji</div>
-        <div class="alamat">Jl. Khatib Tegal No. 01 Kutoarjo, Purworejo, Jawa Tengah</div>
+        <div class="institusi">PIKOBE - Politeknik Sawunggalih Aji</div>
+        <div class="alamat">Jl. W.R. Supratman No. 5 Kutoarjo, Purworejo, Jawa Tengah</div>
         <div class="judul">KARTU HASIL STUDI (KHS)</div>
         <div class="semester">
             {{ $tahunAkademik ? 'Tahun Akademik '.$tahunAkademik->tahun.' / Semester '.ucfirst($tahunAkademik->semester) : 'Semua Tahun Akademik' }}
@@ -226,10 +234,19 @@
                 <div>NIDN. ........................................</div>
             </td>
             <td>
-                Purworejo, {{ now()->format('d F Y') }}<br>
+                Purworejo, {{ $approval?->approved_at ? $approval->approved_at->format('d F Y') : now()->format('d F Y') }}<br>
                 <strong>Ketua Program Studi</strong>
-                <div class="space"></div>
-                <div style="text-decoration: underline; font-weight: bold;">( ________________________ )</div>
+                <div class="space">
+                    @if($approval && $approval->isDisetujui())
+                        <div class="validation-stamp">
+                            TERVERIFIKASI RESMI<br>
+                            {{ $approval->approver?->name }} ({{ $approval->approved_at?->format('d/m/Y') }})
+                        </div>
+                    @endif
+                </div>
+                <div style="text-decoration: underline; font-weight: bold;">
+                    ( {{ $approval?->approver?->name ?? '________________________' }} )
+                </div>
                 <div>NIDN. ........................................</div>
             </td>
         </tr>

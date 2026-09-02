@@ -2,29 +2,95 @@
 
 @section('content')
 
+@php
+    $isApproved = $approval && $approval->isDisetujui();
+    $isMhs = auth()->user()->isMahasiswa();
+@endphp
+
 <div class="no-print" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; gap: 0.5rem; flex-wrap: wrap;">
     <h1 class="page-header" style="margin: 0;">Kartu Hasil Studi (KHS) - {{ $mahasiswa->nama }}</h1>
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        @if(auth()->user()->isMahasiswa())
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+        @if($isMhs)
             <a href="{{ route('dashboard') }}" class="btn btn-secondary">&larr; Kembali ke Dashboard</a>
         @else
-            <a href="{{ route('khs.cetak-pilih') }}" class="btn btn-secondary">Pilih Ulang</a>
+            <a href="{{ route('khs.index') }}" class="btn btn-secondary">&larr; Daftar KHS</a>
         @endif
-        <button onclick="window.print()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.35rem;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            Cetak
-        </button>
-        <a href="{{ route('khs.cetak-pdf', [
-            $mahasiswa->id,
-            'tahun_akademik_id' => $tahunAkademik?->id,
-        ]) }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.35rem;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            Unduh PDF
-        </a>
+
+        @if($isApproved || !$isMhs)
+            <button onclick="window.print()" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Cetak
+            </button>
+            <a href="{{ route('khs.cetak-pdf', [
+                $mahasiswa->id,
+                'tahun_akademik_id' => $tahunAkademik?->id,
+            ]) }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Unduh PDF
+            </a>
+        @else
+            <button class="btn btn-secondary" disabled title="KHS belum disetujui oleh Kaprodi" style="opacity: 0.6; cursor: not-allowed;">
+                Unduh PDF (Terkunci)
+            </button>
+        @endif
     </div>
 </div>
 
 <x-alert type="success" :message="session('success')" />
+<x-alert type="error" :message="session('error')" />
+
+{{-- Status Approval Banner (No Print) --}}
+<div class="no-print" style="margin-bottom: 1.25rem;">
+    @if($isApproved)
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #065f46; font-size: 0.95rem;">KHS Telah Disetujui &amp; Dipublikasikan</div>
+                    <div style="font-size: 0.8rem; color: #047857; margin-top: 0.1rem;">
+                        Divalidasi oleh: <strong>{{ $approval->approver?->name ?? 'Kaprodi' }}</strong> pada {{ $approval->approved_at ? $approval->approved_at->format('d F Y, H:i') : '-' }} WIB.
+                    </div>
+                </div>
+            </div>
+            @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
+                <form action="{{ route('khs.unapprove', [$mahasiswa->id, $tahunAkademik->id]) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Batalkan persetujuan KHS mahasiswa ini?');">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; color: #b91c1c; border-color: #fca5a5;">
+                        Batalkan Persetujuan
+                    </button>
+                </form>
+            @endif
+        </div>
+    @else
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #f59e0b; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #92400e; font-size: 0.95rem;">KHS Menunggu Verifikasi &amp; Persetujuan Kaprodi</div>
+                    <div style="font-size: 0.8rem; color: #b45309; margin-top: 0.1rem;">
+                        @if($isMhs)
+                            Nilai di bawah ini merupakan draf sementara. Dokumen resmi PDF dapat diunduh setelah Kaprodi menyetujui hasil studi Anda.
+                        @else
+                            Silakan tinjau rincian nilai mahasiswa ini lalu klik tombol setujui untuk mempublikasikan KHS resmi.
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
+                <form action="{{ route('khs.approve', [$mahasiswa->id, $tahunAkademik->id]) }}" method="POST" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-size: 0.8rem; font-weight: 600;">
+                        Setujui KHS Sekarang &rarr;
+                    </button>
+                </form>
+            @endif
+        </div>
+    @endif
+</div>
 
 <div class="print-area">
 
@@ -38,14 +104,20 @@
             </svg>
         </div>
         <div class="krs-kop-text">
-            <div class="krs-institusi">PIKOBE - Politeknik Sawunggaling Aji</div>
-            <div class="krs-alamat">Jl. Khatib Tegal No. 01 Kutoarjo, Purworejo, Jawa Tengah</div>
+            <div class="krs-institusi">PIKOBE - Politeknik Sawunggalih Aji</div>
+            <div class="krs-alamat">Jl. W.R. Supratman No. 5 Kutoarjo, Purworejo, Jawa Tengah</div>
             <div class="krs-judul">KARTU HASIL STUDI (KHS)</div>
             <div class="krs-semester">
                 {{ $tahunAkademik ? 'Tahun Akademik '.$tahunAkademik->tahun.' / Semester '.ucfirst($tahunAkademik->semester) : 'Semua Tahun Akademik' }}
             </div>
         </div>
-        <div class="krs-kop-nip">DOKUMEN RESMI AKADEMIK</div>
+        <div class="krs-kop-nip">
+            @if($isApproved)
+                <span style="color: #047857; font-weight: 700;">TERVERIFIKASI RESMI</span>
+            @else
+                <span style="color: #b45309; font-weight: 700;">DRAF SEMENTARA</span>
+            @endif
+        </div>
     </div>
 
     {{-- ====== Identitas Mahasiswa ====== --}}
@@ -190,10 +262,19 @@
             <div style="font-size: 0.72rem; color: #64748b;">NIDN. ........................................</div>
         </div>
         <div>
-            <div style="font-size: 0.8rem; color: #64748b;">Purworejo, {{ now()->format('d F Y') }}</div>
+            <div style="font-size: 0.8rem; color: #64748b;">Purworejo, {{ $approval?->approved_at ? $approval->approved_at->format('d F Y') : now()->format('d F Y') }}</div>
             <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Ketua Program Studi,</div>
-            <div style="height: 60px;"></div>
-            <div style="font-weight: 600; font-size: 0.85rem; color: #0f172a;">( ________________________ )</div>
+            <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                @if($isApproved)
+                    <div style="border: 1px dashed #059669; background: #ecfdf5; color: #047857; font-size: 0.72rem; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 700;">
+                        TERVERIFIKASI SECARA DIGITAL<br>
+                        <span style="font-size: 0.65rem; font-weight: normal;">{{ $approval->approver?->name }} ({{ $approval->approved_at?->format('d/m/Y') }})</span>
+                    </div>
+                @endif
+            </div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: #0f172a;">
+                ( {{ $approval?->approver?->name ?? '________________________' }} )
+            </div>
             <div style="font-size: 0.72rem; color: #64748b;">NIDN. ........................................</div>
         </div>
     </div>
@@ -227,7 +308,6 @@
     align-self: flex-start;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #475569;
     letter-spacing: 0.05em;
     background: #f1f5f9;
     padding: 0.2rem 0.5rem;

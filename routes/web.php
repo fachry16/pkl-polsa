@@ -205,6 +205,26 @@ Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
 /* KHS — Admin, Kaprodi, Direktur, Mahasiswa */
 Route::middleware(['auth'])->group(function () {
     Route::get(
+        'khs',
+        [KhsController::class, 'index']
+    )->middleware('role:admin,kaprodi,direktur')->name('khs.index');
+
+    Route::post(
+        'khs/approve-all',
+        [KhsController::class, 'approveAll']
+    )->middleware('role:admin,kaprodi')->name('khs.approve-all');
+
+    Route::post(
+        'khs/{mahasiswa}/{tahunAkademik}/approve',
+        [KhsController::class, 'approve']
+    )->middleware('role:admin,kaprodi')->name('khs.approve');
+
+    Route::post(
+        'khs/{mahasiswa}/{tahunAkademik}/unapprove',
+        [KhsController::class, 'unapprove']
+    )->middleware('role:admin,kaprodi')->name('khs.unapprove');
+
+    Route::get(
         'khs/cetak/pilih-mahasiswa',
         [KhsController::class, 'cetakPilih']
     )->middleware('role:admin,kaprodi,direktur')->name('khs.cetak-pilih');

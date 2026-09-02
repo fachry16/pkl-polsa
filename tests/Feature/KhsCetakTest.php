@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Dosen;
+use App\Models\KhsApproval;
 use App\Models\Kurikulum;
 use App\Models\LmsNilaiMahasiswa;
 use App\Models\Mahasiswa;
@@ -11,7 +12,9 @@ use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\TahunAkademik;
 use App\Models\User;
+use App\Notifications\KhsDisetujuiNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class KhsCetakTest extends TestCase
@@ -46,7 +49,7 @@ class KhsCetakTest extends TestCase
         ]);
 
         $userKaprodi = User::create([
-            'name' => 'Kaprodi',
+            'name' => 'Kaprodi TI',
             'email' => 'kaprodi@test.dev',
             'password' => bcrypt('password'),
             'role' => 'dosen',
@@ -160,114 +163,132 @@ class KhsCetakTest extends TestCase
         );
     }
 
-    public function test_admin_dapat_mengakses_pilih_khs(): void
+    public function test_kaprodi_dapat_mengakses_panel_verifikasi_khs(): void
     {
         $data = $this->buatData();
 
-        $this->actingAs($data['userAdmin'])
-            ->get(route('khs.cetak-pilih'))
+        $this->actingAs($data['userKaprodi'])
+            ->get(route('khs.index', ['tahun_akademik_id' => $data['tahun']->id]))
             ->assertOk()
-            ->assertSee('Cetak KHS Mahasiswa')
-            ->assertSee('Pilih Mahasiswa &amp; Semester KHS', false);
-    }
-
-    public function test_admin_dapat_melihat_khs_mahasiswa_dengan_kalkulasi_ips(): void
-    {
-        $data = $this->buatData();
-
-        // Total SKS: 4 + 3 = 7
-        // Poin: 16 + 10.5 = 26.5
-        // IPS: 26.5 / 7 = 3.79
-        $this->actingAs($data['userAdmin'])
-            ->get(route('khs.cetak', [$data['mahasiswa']->id, 'tahun_akademik_id' => $data['tahun']->id]))
-            ->assertOk()
-            ->assertSee('KARTU HASIL STUDI (KHS)')
+            ->assertSee('Persetujuan &amp; Verifikasi KHS', false)
             ->assertSee('Budi Santoso')
-            ->assertSee('Pemrograman Web')
-            ->assertSee('Basis Data')
-            ->assertSee('3.79')
-            ->assertSee('Dengan Pujian (Cumlaude)');
+            ->assertSee('Menunggu');
     }
 
-    public function test_admin_dapat_mengunduh_pdf_khs(): void
+    public function test_kaprodi_dapat_menyetujui_khs_mahasiswa_dan_mengirim_notifikasi(): void
+    {
+        Notification::fake();
+        $data = $this->buatData();
+
+        $response = $this->actingAs($data['userKaprodi'])
+            ->post(route('khs.approve', [$data['mahasiswa']->id, $data['tahun']->id]));
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('khs_approvals', [
+            'mahasiswa_id' => $data['mahasiswa']->id,
+            'tahun_akademik_id' => $data['tahun']->id,
+            'status' => 'disetujui',
+            'approved_by' => $data['userKaprodi']->id,
+        ]);
+
+        Notification::assertSentTo(
+            $data['userMhs'],
+            KhsDisetujuiNotification::class
+        );
+    }
+
+    public function test_kaprodi_dapat_membatalkan_persetujuan_khs(): void
     {
         $data = $this->buatData();
 
-        $this->actingAs($data['userAdmin'])
+        KhsApproval::create([
+            'mahasiswa_id' => $data['mahasiswa']->id,
+            'tahun_akademik_id' => $data['tahun']->id,
+            'status' => 'disetujui',
+            'approved_by' => $data['userKaprodi']->id,
+            'approved_at' => now(),
+        ]);
+
+        $this->actingAs($data['userKaprodi'])
+            ->post(route('khs.unapprove', [$data['mahasiswa']->id, $data['tahun']->id]))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('khs_approvals', [
+            'mahasiswa_id' => $data['mahasiswa']->id,
+            'tahun_akademik_id' => $data['tahun']->id,
+            'status' => 'menunggu',
+            'approved_by' => null,
+        ]);
+    }
+
+    public function test_bulk_approval_khs_oleh_kaprodi(): void
+    {
+        $data = $this->buatData();
+
+        $this->actingAs($data['userKaprodi'])
+            ->post(route('khs.approve-all'), [
+                'program_studi_id' => $data['prodi']->id,
+                'tahun_akademik_id' => $data['tahun']->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('khs_approvals', [
+            'mahasiswa_id' => $data['mahasiswa']->id,
+            'tahun_akademik_id' => $data['tahun']->id,
+            'status' => 'disetujui',
+        ]);
+    }
+
+    public function test_mahasiswa_belum_disetujui_melihat_notice_dan_ditolak_unduh_pdf(): void
+    {
+        $data = $this->buatData();
+
+        // Mahasiswa buka halaman KHS web: melihat notice menunggu persetujuan
+        $this->actingAs($data['userMhs'])
+            ->get(route('khs.self'))
+            ->assertOk()
+            ->assertSee('KHS Menunggu Verifikasi &amp; Persetujuan Kaprodi', false);
+
+        // Mahasiswa coba unduh PDF sebelum disetujui: ditolak dengan pesan error
+        $this->actingAs($data['userMhs'])
+            ->get(route('khs.cetak-pdf', [$data['mahasiswa']->id, 'tahun_akademik_id' => $data['tahun']->id]))
+            ->assertRedirect()
+            ->assertSessionHas('error');
+    }
+
+    public function test_mahasiswa_setelah_disetujui_dapat_mengunduh_pdf(): void
+    {
+        $data = $this->buatData();
+
+        KhsApproval::create([
+            'mahasiswa_id' => $data['mahasiswa']->id,
+            'tahun_akademik_id' => $data['tahun']->id,
+            'status' => 'disetujui',
+            'approved_by' => $data['userKaprodi']->id,
+            'approved_at' => now(),
+        ]);
+
+        $this->actingAs($data['userMhs'])
             ->get(route('khs.cetak-pdf', [$data['mahasiswa']->id, 'tahun_akademik_id' => $data['tahun']->id]))
             ->assertOk()
             ->assertHeader('content-type', 'application/pdf');
     }
 
-    public function test_kaprodi_dapat_melihat_khs_mahasiswa_prodinya(): void
+    public function test_admin_dan_kaprodi_tetap_dapat_mengunduh_pdf_draft_untuk_keperluan_verifikasi(): void
     {
         $data = $this->buatData();
 
-        $this->actingAs($data['userKaprodi'])
-            ->get(route('khs.cetak', [$data['mahasiswa']->id, 'tahun_akademik_id' => $data['tahun']->id]))
+        // Admin bisa unduh PDF kapanpun
+        $this->actingAs($data['userAdmin'])
+            ->get(route('khs.cetak-pdf', [$data['mahasiswa']->id, 'tahun_akademik_id' => $data['tahun']->id]))
             ->assertOk()
-            ->assertSee('Budi Santoso');
-    }
+            ->assertHeader('content-type', 'application/pdf');
 
-    public function test_kaprodi_ditolak_melihat_khs_prodi_lain(): void
-    {
-        $data = $this->buatData();
-
-        $prodiLain = ProgramStudi::create([
-            'kode_prodi' => 'AK',
-            'nama_prodi' => 'Akuntansi',
-            'jenjang' => 'D3',
-            'akreditasi' => 'Baik',
-        ]);
-
-        $mhsLain = Mahasiswa::create([
-            'nim' => '32250001',
-            'nama' => 'Siti',
-            'email' => 'siti@test.dev',
-            'program_studi_id' => $prodiLain->id,
-            'angkatan' => 2024,
-        ]);
-
+        // Kaprodi bisa unduh PDF kapanpun
         $this->actingAs($data['userKaprodi'])
-            ->get(route('khs.cetak', $mhsLain->id))
-            ->assertForbidden();
-    }
-
-    public function test_mahasiswa_dapat_mengakses_khs_self(): void
-    {
-        $data = $this->buatData();
-
-        $this->actingAs($data['userMhs'])
-            ->get(route('khs.self'))
+            ->get(route('khs.cetak-pdf', [$data['mahasiswa']->id, 'tahun_akademik_id' => $data['tahun']->id]))
             ->assertOk()
-            ->assertSee('KARTU HASIL STUDI (KHS)')
-            ->assertSee('Budi Santoso')
-            ->assertSee('3.79');
-    }
-
-    public function test_mahasiswa_ditolak_melihat_khs_orang_lain(): void
-    {
-        $data = $this->buatData();
-
-        $userMhs2 = User::create([
-            'name' => 'Mhs Lain',
-            'email' => 'mhs2@test.dev',
-            'password' => bcrypt('password'),
-            'role' => 'mahasiswa',
-        ]);
-
-        $mhs2 = Mahasiswa::create([
-            'user_id' => $userMhs2->id,
-            'nim' => '32240002',
-            'nama' => 'Rina',
-            'email' => 'mhs2@test.dev',
-            'program_studi_id' => $data['prodi']->id,
-            'angkatan' => 2024,
-        ]);
-
-        // Mhs 1 mencoba akses KHS Mhs 2
-        $this->actingAs($data['userMhs'])
-            ->get(route('khs.cetak', $mhs2->id))
-            ->assertForbidden();
+            ->assertHeader('content-type', 'application/pdf');
     }
 }

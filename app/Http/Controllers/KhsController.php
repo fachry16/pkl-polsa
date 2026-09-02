@@ -3,17 +3,79 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dosen;
+use App\Models\KhsApproval;
 use App\Models\Krs;
 use App\Models\LmsNilaiMahasiswa;
 use App\Models\Mahasiswa;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\TahunAkademik;
+use App\Notifications\KhsDisetujuiNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class KhsController extends Controller
 {
+    /**
+     * Halaman Dashboard Verifikasi & Persetujuan KHS untuk Kaprodi & Admin
+     */
+    public function index(Request $request)
+    {
+        $user = auth()->user();
+        $kaprodiProdiId = $user->isKaprodi()
+            ? (int) $user->dosen->program_studi_id
+            : null;
+
+        $programStudis = $kaprodiProdiId
+            ? ProgramStudi::where('id', $kaprodiProdiId)->orderBy('nama_prodi')->get()
+            : ProgramStudi::orderBy('nama_prodi')->get();
+
+        $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
+
+        $selectedProdiId = $kaprodiProdiId ?: ($request->program_studi_id ?: $programStudis->first()?->id);
+        $selectedTahunId = $request->tahun_akademik_id ?: ($tahunAkademiks->firstWhere('is_active', true)?->id ?? $tahunAkademiks->first()?->id);
+
+        $mahasiswas = [];
+        $tahunAkademik = TahunAkademik::find($selectedTahunId);
+
+        if ($selectedProdiId && $selectedTahunId) {
+            $mahasiswaList = Mahasiswa::where('program_studi_id', $selectedProdiId)
+                ->with(['user', 'programStudi'])
+                ->orderBy('nim')
+                ->get();
+
+            $approvals = KhsApproval::where('tahun_akademik_id', $selectedTahunId)
+                ->whereIn('mahasiswa_id', $mahasiswaList->pluck('id'))
+                ->with('approver')
+                ->get()
+                ->keyBy('mahasiswa_id');
+
+            foreach ($mahasiswaList as $mhs) {
+                $kelas = $this->kelasMahasiswa($mhs, $selectedTahunId);
+                $khsData = $this->formatKhsItems($kelas, $mhs);
+                $approval = $approvals->get($mhs->id);
+
+                $mahasiswas[] = [
+                    'mahasiswa' => $mhs,
+                    'kelas_count' => $kelas->count(),
+                    'total_sks' => $khsData['total_sks'],
+                    'ips' => $khsData['ips'],
+                    'approval' => $approval,
+                    'is_disetujui' => $approval?->isDisetujui() ?? false,
+                ];
+            }
+        }
+
+        return view('khs.index', compact(
+            'programStudis',
+            'tahunAkademiks',
+            'selectedProdiId',
+            'selectedTahunId',
+            'tahunAkademik',
+            'mahasiswas'
+        ));
+    }
+
     public function cetakPilih()
     {
         $user = auth()->user();
@@ -70,7 +132,15 @@ class KhsController extends Controller
 
         $khsData = $this->formatKhsItems($kelas, $mahasiswa);
 
-        return view('khs.cetak', compact('mahasiswa', 'kelas', 'tahunAkademik', 'khsData'));
+        $approval = null;
+        if ($tahunAkademik) {
+            $approval = KhsApproval::where('mahasiswa_id', $mahasiswa->id)
+                ->where('tahun_akademik_id', $tahunAkademik->id)
+                ->with('approver')
+                ->first();
+        }
+
+        return view('khs.cetak', compact('mahasiswa', 'kelas', 'tahunAkademik', 'khsData', 'approval'));
     }
 
     public function cetakPdf(Mahasiswa $mahasiswa)
@@ -85,13 +155,119 @@ class KhsController extends Controller
             ? TahunAkademik::find($tahunAkademikId)
             : ($kelas->first()?->tahunAkademik ?? TahunAkademik::latest()->first());
 
+        $approval = null;
+        if ($tahunAkademik) {
+            $approval = KhsApproval::where('mahasiswa_id', $mahasiswa->id)
+                ->where('tahun_akademik_id', $tahunAkademik->id)
+                ->with('approver')
+                ->first();
+        }
+
+        // Mahasiswa hanya boleh unduh PDF jika sudah disetujui Kaprodi
+        if (auth()->user()->isMahasiswa() && (! $approval || ! $approval->isDisetujui())) {
+            return back()->with('error', 'KHS semester ini belum disetujui oleh Kaprodi sehingga belum dapat diunduh.');
+        }
+
         $khsData = $this->formatKhsItems($kelas, $mahasiswa);
 
-        $pdf = Pdf::loadView('khs.pdf', compact('mahasiswa', 'kelas', 'tahunAkademik', 'khsData'));
+        $pdf = Pdf::loadView('khs.pdf', compact('mahasiswa', 'kelas', 'tahunAkademik', 'khsData', 'approval'));
 
         $filename = 'KHS-'.$mahasiswa->nim.'-'.$mahasiswa->nama.'.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Kaprodi / Admin menyetujui KHS 1 mahasiswa
+     */
+    public function approve(Request $request, Mahasiswa $mahasiswa, TahunAkademik $tahunAkademik)
+    {
+        $this->authorizeApproval($mahasiswa);
+
+        $approval = KhsApproval::updateOrCreate(
+            [
+                'mahasiswa_id' => $mahasiswa->id,
+                'tahun_akademik_id' => $tahunAkademik->id,
+            ],
+            [
+                'status' => 'disetujui',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+                'catatan' => $request->catatan,
+            ]
+        );
+
+        if ($mahasiswa->user) {
+            $approverName = auth()->user()->name;
+            $mahasiswa->user->notify(new KhsDisetujuiNotification($mahasiswa, $tahunAkademik, $approverName));
+        }
+
+        return back()->with('success', "KHS mahasiswa {$mahasiswa->nama} ({$mahasiswa->nim}) berhasil disetujui dan dipublikasikan.");
+    }
+
+    /**
+     * Kaprodi / Admin membatalkan persetujuan KHS mahasiswa
+     */
+    public function unapprove(Request $request, Mahasiswa $mahasiswa, TahunAkademik $tahunAkademik)
+    {
+        $this->authorizeApproval($mahasiswa);
+
+        KhsApproval::updateOrCreate(
+            [
+                'mahasiswa_id' => $mahasiswa->id,
+                'tahun_akademik_id' => $tahunAkademik->id,
+            ],
+            [
+                'status' => 'menunggu',
+                'approved_by' => null,
+                'approved_at' => null,
+                'catatan' => $request->catatan,
+            ]
+        );
+
+        return back()->with('success', "Persetujuan KHS mahasiswa {$mahasiswa->nama} berhasil dibatalkan.");
+    }
+
+    /**
+     * Kaprodi / Admin menyetujui KHS seluruh mahasiswa prodi pada tahun akademik yang dipilih (Bulk Approval)
+     */
+    public function approveAll(Request $request)
+    {
+        $request->validate([
+            'program_studi_id' => 'required|exists:program_studis,id',
+            'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
+        ]);
+
+        $user = auth()->user();
+        if ($user->isKaprodi()) {
+            abort_unless((int) $user->dosen->program_studi_id === (int) $request->program_studi_id, 403);
+        } elseif (! $user->isAdmin()) {
+            abort(403);
+        }
+
+        $tahunAkademik = TahunAkademik::findOrFail($request->tahun_akademik_id);
+        $mahasiswas = Mahasiswa::where('program_studi_id', $request->program_studi_id)->get();
+        $approverName = auth()->user()->name;
+
+        foreach ($mahasiswas as $mhs) {
+            KhsApproval::updateOrCreate(
+                [
+                    'mahasiswa_id' => $mhs->id,
+                    'tahun_akademik_id' => $tahunAkademik->id,
+                ],
+                [
+                    'status' => 'disetujui',
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                ]
+            );
+
+            if ($mhs->user) {
+                $mhs->user->notify(new KhsDisetujuiNotification($mhs, $tahunAkademik, $approverName));
+            }
+        }
+
+        return back()->with('success', 'Seluruh KHS mahasiswa prodi berhasil disetujui dan dipublikasikan.');
     }
 
     private function formatKhsItems($kelas, Mahasiswa $mahasiswa)
@@ -171,6 +347,26 @@ class KhsController extends Controller
         }
 
         if ($user->isMahasiswa() && $user->mahasiswa?->id === $mahasiswa->id) {
+            return;
+        }
+
+        if ($user->isKaprodi()) {
+            abort_unless(
+                (int) $user->dosen->program_studi_id === (int) $mahasiswa->program_studi_id,
+                403
+            );
+
+            return;
+        }
+
+        abort(403);
+    }
+
+    private function authorizeApproval(Mahasiswa $mahasiswa)
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
             return;
         }
 
