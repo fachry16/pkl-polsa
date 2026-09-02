@@ -114,6 +114,58 @@
     </div>
 </div>
 
+{{-- Running Text Visi & Misi POLSA --}}
+<div class="card" style="padding: 0.5rem 0.85rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
+    {{-- Fixed Badge on Left --}}
+    <div style="display: flex; align-items: center; gap: 0.35rem; background: #eef2ff; border: 1px solid #e0e7ff; color: #4338ca; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap; flex-shrink: 0; z-index: 2;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="12 8 8 12 12 16 12 8"/>
+        </svg>
+        <span>VISI &amp; MISI POLSA</span>
+    </div>
+
+    {{-- Marquee Track --}}
+    <div style="flex: 1; overflow: hidden; position: relative; white-space: nowrap; mask-image: linear-gradient(to right, transparent, black 15px, black calc(100% - 15px), transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15px, black calc(100% - 15px), transparent);">
+        <div class="marquee-content" style="display: inline-block; white-space: nowrap; font-size: 0.82rem; color: #475569; animation: marquee-scroll 45s linear infinite;">
+            <strong style="color: #1e293b;">VISI:</strong> Menjadi politeknik unggulan yang menghasilkan sumber daya manusia profesional, kompeten, dan berdaya saing global di bidang bisnis dan teknologi pada tahun 2030.
+            <span style="color: #cbd5e1; margin: 0 0.85rem;">&bull;&bull;&bull;</span>
+            <strong style="color: #1e293b;">MISI:</strong> (1) Menyelenggarakan pendidikan vokasi berkualitas &amp; relevan kebutuhan industri
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (2) Melaksanakan penelitian terapan inovatif bagi masyarakat
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (3) Menjalin kemitraan strategis dengan dunia usaha &amp; industri (DUDIKA)
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (4) Mengembangkan tata kelola institusi profesional, transparan, &amp; akuntabel
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (5) Membudayakan nilai Pancasila &amp; kearifan lokal dalam tridharma.
+            <span style="color: #cbd5e1; margin: 0 0.85rem;">&bull;&bull;&bull;</span>
+            <strong style="color: #1e293b;">VISI:</strong> Menjadi politeknik unggulan yang menghasilkan sumber daya manusia profesional, kompeten, dan berdaya saing global di bidang bisnis dan teknologi pada tahun 2030.
+            <span style="color: #cbd5e1; margin: 0 0.85rem;">&bull;&bull;&bull;</span>
+            <strong style="color: #1e293b;">MISI:</strong> (1) Menyelenggarakan pendidikan vokasi berkualitas &amp; relevan kebutuhan industri
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (2) Melaksanakan penelitian terapan inovatif bagi masyarakat
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (3) Menjalin kemitraan strategis dengan dunia usaha &amp; industri (DUDIKA)
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (4) Mengembangkan tata kelola institusi profesional, transparan, &amp; akuntabel
+            <span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+            (5) Membudayakan nilai Pancasila &amp; kearifan lokal dalam tridharma.
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes marquee-scroll {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+}
+.marquee-content:hover {
+    animation-play-state: paused !important;
+    cursor: default;
+}
+</style>
+
 @if(auth()->user()->isMahasiswa())
     {{-- Mahasiswa Dashboard --}}
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
