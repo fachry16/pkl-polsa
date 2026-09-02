@@ -43,11 +43,13 @@
                             @if(Auth::id() === $post->user_id && $post->isWithinTimeLimit(15))
                                 <a href="{{ route('lms.forum.edit', [$pengampu->id, $post->id]) }}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Edit</a>
                             @endif
-                            <form action="{{ route('lms.forum.destroy', [$pengampu->id, $post->id]) }}" method="POST" onsubmit="return confirm('Hapus pesan ini? Semua balasan terkait juga ikut terhapus.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Hapus</button>
-                            </form>
+                            @if(! $post->user?->isMahasiswa())
+                                <form action="{{ route('lms.forum.destroy', [$pengampu->id, $post->id]) }}" method="POST" onsubmit="return confirm('Hapus pesan ini? Semua balasan terkait juga ikut terhapus.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Hapus</button>
+                                </form>
+                            @endif
                         </div>
 
                         @if($post->replies->count())
@@ -65,11 +67,13 @@
                                                 @if(Auth::id() === $reply->user_id && $reply->isWithinTimeLimit(15))
                                                     <a href="{{ route('lms.forum.edit', [$pengampu->id, $reply->id]) }}" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Edit</a>
                                                 @endif
-                                                <form action="{{ route('lms.forum.destroy', [$pengampu->id, $reply->id]) }}" method="POST" onsubmit="return confirm('Hapus balasan ini?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Hapus</button>
-                                                </form>
+                                                @if(! $reply->user?->isMahasiswa())
+                                                    <form action="{{ route('lms.forum.destroy', [$pengampu->id, $reply->id]) }}" method="POST" onsubmit="return confirm('Hapus balasan ini?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.7rem;">Hapus</button>
+                                                    </form>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

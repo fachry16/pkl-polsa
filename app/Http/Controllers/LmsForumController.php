@@ -76,6 +76,8 @@ class LmsForumController extends Controller
         $this->authorizePengampu($pengampu);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
 
+        abort_if($diskusi->user?->isMahasiswa(), 403, 'Dosen tidak dapat menghapus pesan forum yang dikirim oleh mahasiswa.');
+
         foreach ($diskusi->replies as $reply) {
             if ($reply->file_path) {
                 Storage::disk('public')->delete($reply->file_path);
@@ -89,7 +91,7 @@ class LmsForumController extends Controller
 
         $diskusi->delete();
 
-        return redirect()->route('lms.forum.index', $pengampu->id)->with('toast_success', 'Pesan berhasil dihapus.');
+        return redirect()->back(fallback: route('lms.forum.index', $pengampu->id))->with('toast_success', 'Pesan berhasil dihapus.');
     }
 
     private function validated(Request $request, int $pengampuId): array

@@ -191,20 +191,32 @@ class LmsForumTimeLimitTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function test_dosen_dapat_menghapus_pesan_mahasiswa_kapan_saja_untuk_moderasi(): void
+    public function test_dosen_tidak_dapat_menghapus_pesan_mahasiswa(): void
     {
         $data = $this->buatData();
-
-        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 0, 0));
 
         $diskusi = LmsForumDiskusi::create([
             'pengampu_id' => $data['pengampu']->id,
             'user_id' => $data['userMhs']->id,
-            'pesan' => 'Pesan spam mahasiswa',
+            'pesan' => 'Pesan mahasiswa',
         ]);
 
-        // Maju 1 hari
-        Carbon::setTestNow(Carbon::create(2026, 9, 3, 10, 0, 0));
+        $this->actingAs($data['userDosen'])
+            ->delete(route('lms.forum.destroy', [$data['pengampu']->id, $diskusi->id]))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('lms_forum_diskusis', ['id' => $diskusi->id]);
+    }
+
+    public function test_dosen_dapat_menghapus_pesan_sendiri(): void
+    {
+        $data = $this->buatData();
+
+        $diskusi = LmsForumDiskusi::create([
+            'pengampu_id' => $data['pengampu']->id,
+            'user_id' => $data['userDosen']->id,
+            'pesan' => 'Pesan dosen sendiri',
+        ]);
 
         $this->actingAs($data['userDosen'])
             ->delete(route('lms.forum.destroy', [$data['pengampu']->id, $diskusi->id]))
@@ -212,7 +224,5 @@ class LmsForumTimeLimitTest extends TestCase
             ->assertSessionHas('toast_success');
 
         $this->assertDatabaseMissing('lms_forum_diskusis', ['id' => $diskusi->id]);
-
-        Carbon::setTestNow();
     }
 }
