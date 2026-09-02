@@ -8,9 +8,37 @@
 </head>
 <body>
 
-<div class="app-layout">
+<div class="app-layout"
+     x-data="{
+         isMobile: window.innerWidth < 768,
+         sidebarOpen: window.innerWidth >= 768 ? (localStorage.getItem('sidebar_open') !== 'false') : false,
+         toggleSidebar() {
+             this.sidebarOpen = !this.sidebarOpen;
+             if (!this.isMobile) {
+                 localStorage.setItem('sidebar_open', this.sidebarOpen);
+             }
+         },
+         init() {
+             window.addEventListener('resize', () => {
+                 this.isMobile = window.innerWidth < 768;
+             });
+         }
+     }"
+     :class="{ 'sidebar-collapsed': !sidebarOpen, 'sidebar-open': sidebarOpen }">
 
     @auth
+        {{-- Mobile Backdrop Overlay --}}
+        <div x-show="sidebarOpen && isMobile"
+             x-cloak
+             x-transition:enter="transition-opacity ease-linear duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="sidebarOpen = false"
+             style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 90; backdrop-filter: blur(2px);">
+        </div>
         @if(auth()->user()->isAdmin())
             @include('layouts.sidebar.admin')
         @elseif(auth()->user()->isDirektur())

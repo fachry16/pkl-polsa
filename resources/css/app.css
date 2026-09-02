@@ -43,6 +43,50 @@ img { max-width: 100%; }
     left: 0;
     bottom: 0;
     z-index: 100;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar Toggle Button on Vertical Right Border */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 20px;
+    right: -13px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #475569;
+    z-index: 110;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.sidebar-toggle-btn:hover {
+    background: #f8fafc;
+    color: #4f46e5;
+    border-color: #818cf8;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.16);
+    transform: scale(1.05);
+}
+
+/* Desktop Collapsed State */
+.app-layout.sidebar-collapsed .sidebar {
+    transform: translateX(-260px);
+}
+
+.app-layout.sidebar-collapsed .sidebar .sidebar-toggle-btn {
+    right: -38px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.app-layout.sidebar-collapsed .main-content {
+    margin-left: 0;
 }
 
 .sidebar-header {
@@ -292,7 +336,8 @@ img { max-width: 100%; }
     padding: 2rem;
     flex: 1;
     min-height: 100vh;
-    max-width: 1200px;
+    max-width: 100%;
+    transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ---------- PAGE HEADER ---------- */
@@ -1795,5 +1840,64 @@ table.rps-korelasi-table {
     .rps-approval {
         margin: 1rem;
         padding: 0.75rem;
+    }
+}
+
+/* ---------- RESPONSIVE / ADAPTIF UNTUK PERANGKAT (MOBILE & TABLET) ---------- */
+@media (max-width: 1024px) {
+    .main-content {
+        padding: 1.5rem 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 0 0 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .app-layout.sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+
+    .sidebar-toggle-btn {
+        right: -38px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .app-layout.sidebar-open .sidebar .sidebar-toggle-btn {
+        right: -13px;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 1rem 0.75rem;
+        width: 100%;
+    }
+
+    .page-header {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .form-row,
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-content {
+        width: 95% !important;
+        margin: 1rem auto !important;
+        padding: 1.25rem !important;
     }
 }
