@@ -214,4 +214,34 @@ class MultiRoleDosenTest extends TestCase
         $response->assertSee(route('dosen.self'));
         $response->assertSee(route('lms.index'));
     }
+
+    public function test_dosen_dapat_mengakses_riwayat_self(): void
+    {
+        $prodi = ProgramStudi::create([
+            'kode_prodi' => 'TI',
+            'nama_prodi' => 'Teknik Informatika',
+            'jenjang' => 'D3',
+            'akreditasi' => 'Baik',
+        ]);
+
+        $user = User::create([
+            'name' => 'Dosen Test',
+            'email' => 'dosentest@polsa.ac.id',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+            'roles' => ['dosen'],
+        ]);
+
+        Dosen::create([
+            'user_id' => $user->id,
+            'program_studi_id' => $prodi->id,
+            'nidn' => '0601019001',
+            'jabatan' => 'Dosen',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('dosen.self.riwayat'));
+        $response->assertOk();
+        $response->assertSee('Riwayat Mengajar');
+        $response->assertSee('Dosen Test');
+    }
 }

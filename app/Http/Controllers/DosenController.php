@@ -121,6 +121,17 @@ class DosenController extends Controller
         return view('dosen.show', compact('dosen'));
     }
 
+    public function riwayatSelf()
+    {
+        $dosen = auth()->user()->dosen;
+
+        if (! $dosen) {
+            return redirect()->route('dashboard')->with('error', 'Data dosen tidak ditemukan.');
+        }
+
+        return $this->riwayat($dosen);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
