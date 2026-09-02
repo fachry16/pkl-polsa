@@ -144,22 +144,34 @@ class DashboardController extends Controller
 
             if ($kaprodiProdi) {
                 $prodiId = $kaprodiProdi->id;
-
                 $mhsProdiTotal = Mahasiswa::where('program_studi_id', $prodiId)->count();
                 $mhsProdiKelasA = Mahasiswa::where('program_studi_id', $prodiId)
-                    ->where(function ($q) {
-                        $q->where('kelas', 'like', '%A%')
-                            ->orWhere('kelas', 'like', '%reguler%')
-                            ->orWhere('kelas', 'like', '%pagi%');
+                    ->whereHas('pengampus', function ($q) use ($tahunAkademik) {
+                        if ($tahunAkademik) {
+                            $q->where('tahun_akademik_id', $tahunAkademik->id);
+                        }
+                        $q->where(function ($sub) {
+                            $sub->where('kelas', 'like', '%A%')
+                                ->orWhere('kelas', 'like', '%reguler%')
+                                ->orWhere('kelas', 'like', '%pagi%');
+                        });
                     })
+                    ->distinct()
                     ->count();
+
                 $mhsProdiKelasB = Mahasiswa::where('program_studi_id', $prodiId)
-                    ->where(function ($q) {
-                        $q->where('kelas', 'like', '%B%')
-                            ->orWhere('kelas', 'like', '%karyawan%')
-                            ->orWhere('kelas', 'like', '%sore%')
-                            ->orWhere('kelas', 'like', '%malam%');
+                    ->whereHas('pengampus', function ($q) use ($tahunAkademik) {
+                        if ($tahunAkademik) {
+                            $q->where('tahun_akademik_id', $tahunAkademik->id);
+                        }
+                        $q->where(function ($sub) {
+                            $sub->where('kelas', 'like', '%B%')
+                                ->orWhere('kelas', 'like', '%karyawan%')
+                                ->orWhere('kelas', 'like', '%sore%')
+                                ->orWhere('kelas', 'like', '%malam%');
+                        });
                     })
+                    ->distinct()
                     ->count();
 
                 $dosenProdiTotal = Dosen::where('program_studi_id', $prodiId)->count();
