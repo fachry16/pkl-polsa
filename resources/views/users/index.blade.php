@@ -13,7 +13,6 @@
         Tambah User
 
     </a>
-
 </div>
 
 <x-alert type="success" :message="session('success')" />
@@ -53,26 +52,25 @@
                 </td>
 
                 <td>
-                    @if($user->role == 'admin')
-
-                        <span class="badge badge-diajukan">
-                            Admin
-                        </span>
-
-                    @elseif($user->role == 'direktur')
-
-                        <span class="badge badge-disetujui">
-                            Direktur
-                        </span>
-
-                    @else
-
-                        <span class="badge badge-draft">
-                            Dosen
-                        </span>
-
-                    @endif
-
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                        @php
+                            $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
+                        @endphp
+                        @foreach($user->getRolesList() as $role)
+                            @php
+                                $roleName = $roleMap->get($role) ?? ucfirst(str_replace('_', ' ', $role));
+                            @endphp
+                            @if($role === 'admin')
+                                <span class="badge badge-diajukan">Admin</span>
+                            @elseif($role === 'direktur' || str_starts_with($role, 'direktur'))
+                                <span class="badge badge-disetujui">{{ $roleName }}</span>
+                            @elseif($role === 'kaprodi' || str_starts_with($role, 'kaprodi'))
+                                <span class="badge badge-diajukan" style="background: #e0e7ff; color: #4338ca;">{{ $roleName }}</span>
+                            @else
+                                <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">{{ $roleName }}</span>
+                            @endif
+                        @endforeach
+                    </div>
                 </td>
 
                 <td>

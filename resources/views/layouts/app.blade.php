@@ -11,12 +11,11 @@
 <div class="app-layout">
 
     @auth
-        @if(auth()->user()->role == 'admin')
+        @if(auth()->user()->isAdmin())
             @include('layouts.sidebar.admin')
-        @elseif(auth()->user()->role == 'direktur')
+        @elseif(auth()->user()->isDirektur())
             @include('layouts.sidebar.direktur')
-        @elseif(auth()->user()->dosen &&
-                 strtolower(auth()->user()->dosen->jabatan) == 'kaprodi')
+        @elseif(auth()->user()->isKaprodi())
             @include('layouts.sidebar.kaprodi')
         @elseif(auth()->user()->isMahasiswa())
             @include('layouts.sidebar.mahasiswa')

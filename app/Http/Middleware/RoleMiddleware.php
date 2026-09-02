@@ -16,11 +16,24 @@ class RoleMiddleware
         $user = auth()->user();
 
         foreach ($roles as $role) {
-            if (strtolower($role) === 'kaprodi') {
-                if ($user->role === 'admin' || $user->isKaprodi()) {
+            $r = strtolower($role);
+            if ($r === 'kaprodi') {
+                if ($user->isAdmin() || $user->isKaprodi()) {
                     return $next($request);
                 }
-            } elseif ($user->role === $role) {
+            } elseif ($r === 'dosen') {
+                if ($user->isDosen()) {
+                    return $next($request);
+                }
+            } elseif ($r === 'direktur') {
+                if ($user->isDirektur()) {
+                    return $next($request);
+                }
+            } elseif ($r === 'admin') {
+                if ($user->isAdmin()) {
+                    return $next($request);
+                }
+            } elseif ($user->hasRole($r) || $user->role === $role) {
                 return $next($request);
             }
         }

@@ -22,7 +22,13 @@ class DosenController extends Controller
                 $q->where('program_studi_id', $request->program_studi_id);
             })
             ->when($request->jabatan, function ($q) use ($request) {
-                $q->where('jabatan', $request->jabatan);
+                $jabatan = strtolower($request->jabatan);
+                $q->where(function ($sub) use ($jabatan) {
+                    $sub->whereRaw('LOWER(jabatan) = ?', [$jabatan])
+                        ->orWhereHas('user', function ($uq) use ($jabatan) {
+                            $uq->whereJsonContains('roles', $jabatan);
+                        });
+                });
             })
             ->latest()->paginate(10);
 
@@ -51,19 +57,42 @@ class DosenController extends Controller
             'email' => 'required|email|unique:users,email',
             'nidn' => 'required|unique:dosens,nidn',
             'program_studi_id' => 'required|exists:program_studis,id',
-            'jabatan' => 'required|in:dosen,kaprodi',
+            'roles' => 'nullable|array',
+            'roles.*' => 'string|max:50',
+            'jabatan' => 'nullable|string|max:50',
         ]);
+
+        $roles = $request->roles ?? [];
+        if ($request->filled('jabatan')) {
+            $roles[] = strtolower($request->jabatan);
+        }
+        if (! in_array('dosen', $roles)) {
+            $roles[] = 'dosen';
+        }
+        $roles = array_values(array_unique(array_map('strtolower', $roles)));
+
+        $jabatan = 'Dosen';
+        foreach ($roles as $r) {
+            if ($r !== 'dosen' && $r !== 'admin' && $r !== 'mahasiswa') {
+                $roleModel = \App\Models\Role::where('kode', $r)->first();
+                $jabatan = $roleModel ? $roleModel->nama : ucfirst($r);
+                break;
+            }
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'role' => 'dosen',
+            'roles' => $roles,
             'password' => $request->nidn,
         ]);
+
         Dosen::create([
             'user_id' => $user->id,
             'program_studi_id' => $request->program_studi_id,
             'nidn' => $request->nidn,
-            'jabatan' => $request->jabatan,
+            'jabatan' => $jabatan,
         ]);
 
         return redirect()->route('dosen.index')->with('success', 'Dosen berhasil ditambahkan. Password default menggunakan NIDN.');
@@ -110,19 +139,46 @@ class DosenController extends Controller
             'email' => 'required|email|unique:users,email,'.$dosen->user_id,
             'nidn' => 'required|unique:dosens,nidn,'.$dosen->id,
             'program_studi_id' => 'required|exists:program_studis,id',
-            'jabatan' => 'required|in:dosen,kaprodi',
+            'roles' => 'nullable|array',
+            'roles.*' => 'string|max:50',
+            'jabatan' => 'nullable|string|max:50',
         ]);
+
+        $roles = $request->roles ?? [];
+        if ($request->filled('jabatan')) {
+            $roles[] = strtolower($request->jabatan);
+        }
+        if (! in_array('dosen', $roles)) {
+            $roles[] = 'dosen';
+        }
+        if ($dosen->user && in_array('admin', $dosen->user->getRolesList())) {
+            $roles[] = 'admin';
+        }
+        $roles = array_values(array_unique(array_map('strtolower', $roles)));
+
+        $jabatan = 'Dosen';
+        foreach ($roles as $r) {
+            if ($r !== 'dosen' && $r !== 'admin' && $r !== 'mahasiswa') {
+                $roleModel = \App\Models\Role::where('kode', $r)->first();
+                $jabatan = $roleModel ? $roleModel->nama : ucfirst($r);
+                break;
+            }
+        }
+
         $dosen->user->update([
             'name' => $request->name,
             'email' => $request->email,
+            'roles' => $roles,
+            'role' => in_array('admin', $roles) ? 'admin' : 'dosen',
         ]);
+
         $dosen->update([
             'program_studi_id' => $request->program_studi_id,
             'nidn' => $request->nidn,
-            'jabatan' => $request->jabatan,
+            'jabatan' => $jabatan,
         ]);
 
-        return redirect()->route('dosen.index')->with('succcess', 'Data dosen berhasil diperbarui');
+        return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil diperbarui');
     }
 
     /**

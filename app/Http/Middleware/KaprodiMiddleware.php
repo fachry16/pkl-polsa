@@ -19,7 +19,7 @@ class KaprodiMiddleware
             abort(403);
         }
         if (
-            auth()->user()->role === 'admin' ||
+            auth()->user()->isAdmin() ||
             auth()->user()->isKaprodi()
         ) {
             return $next($request);

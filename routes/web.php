@@ -153,6 +153,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     )->name('pengampu.kelas.mahasiswa.destroy');
 
     Route::resource('users', UserController::class);
+    Route::resource('roles', \App\Http\Controllers\RoleController::class);
 });
 
 /* KRS — Admin, Direktur (read-only), Kaprodi */

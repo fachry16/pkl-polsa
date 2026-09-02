@@ -13,7 +13,6 @@
         Tambah Dosen
 
     </a>
-
 </div>
 @endunless
 
@@ -38,6 +37,7 @@
             <option value="">Semua</option>
             <option value="dosen" {{ request('jabatan') == 'dosen' ? 'selected' : '' }}>Dosen</option>
             <option value="kaprodi" {{ request('jabatan') == 'kaprodi' ? 'selected' : '' }}>Kaprodi</option>
+            <option value="direktur" {{ request('jabatan') == 'direktur' ? 'selected' : '' }}>Direktur</option>
         </select>
     </div>
 
@@ -59,7 +59,7 @@
                 <th>Email</th>
                 <th>NIDN</th>
                 <th>Program Studi</th>
-                <th>Jabatan</th>
+                <th>Jabatan / Role</th>
                 <th>Aksi</th>
             </tr>
 
@@ -92,20 +92,26 @@
                 </td>
 
                 <td>
-                    @if(strtolower($dosen->jabatan) == 'kaprodi')
-
-                        <span class="badge badge-diajukan">
-                            Kaprodi
-                        </span>
-
-                    @else
-
-                        <span class="badge badge-draft">
-                            Dosen
-                        </span>
-
-                    @endif
-
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                        @php
+                            $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
+                            $roles = $dosen->user ? $dosen->user->getRolesList() : ['dosen'];
+                        @endphp
+                        @foreach($roles as $r)
+                            @php
+                                $roleName = $roleMap->get($r) ?? ucfirst(str_replace('_', ' ', $r));
+                            @endphp
+                            @if($r === 'admin')
+                                <span class="badge badge-diajukan">Admin</span>
+                            @elseif($r === 'direktur' || str_starts_with($r, 'direktur'))
+                                <span class="badge badge-disetujui">{{ $roleName }}</span>
+                            @elseif($r === 'kaprodi' || str_starts_with($r, 'kaprodi'))
+                                <span class="badge badge-diajukan" style="background: #e0e7ff; color: #4338ca;">{{ $roleName }}</span>
+                            @else
+                                <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">{{ $roleName }}</span>
+                            @endif
+                        @endforeach
+                    </div>
                 </td>
 
                 <td>

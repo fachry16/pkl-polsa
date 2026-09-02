@@ -98,33 +98,30 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">
-                Jabatan
-            </label>
-
-            <select name="jabatan"
-                    class="form-select">
-
-                <option value="dosen"
-                    {{ old('jabatan', $dosen->jabatan) == 'dosen' ? 'selected' : '' }}>
-
-                    Dosen
-
-                </option>
-
-                <option value="kaprodi"
-                    {{ old('jabatan', $dosen->jabatan) == 'kaprodi' ? 'selected' : '' }}>
-
-                    Kaprodi
-
-                </option>
-
-            </select>
-
+            <label class="form-label">Role &amp; Jabatan <span style="color: #dc2626;">*</span></label>
+            @php
+                $dosenRoles = $dosen->user ? $dosen->user->getRolesList() : ['dosen'];
+            @endphp
+            <div style="display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: 0.35rem;">
+                <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" name="roles[]" value="dosen" checked onclick="return false;">
+                    <span style="font-weight: 500;">Dosen</span> <span style="color: #94a3b8; font-size: 0.8rem;">(Utama)</span>
+                </label>
+                @foreach($roles ?? \App\Models\Role::whereNotIn('kode', ['dosen', 'admin', 'mahasiswa'])->get() as $roleOption)
+                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.9rem;">
+                        <input type="checkbox" name="roles[]" value="{{ $roleOption->kode }}" {{ in_array($roleOption->kode, (array) old('roles', $dosenRoles)) || strtolower($dosen->jabatan) === $roleOption->kode ? 'checked' : '' }}>
+                        <span>{{ $roleOption->nama }}</span>
+                    </label>
+                @endforeach
+            </div>
+            <span style="font-size: 0.75rem; color: #64748b; margin-top: 0.35rem; display: block;">
+                Pilih role / jabatan tambahan jika dosen ini juga menjabat sebagai Kaprodi atau Direktur.
+            </span>
+            @error('roles')
+                <p class="form-error">{{ $message }}</p>
+            @enderror
             @error('jabatan')
-                <p class="form-error">
-                    {{ $message }}
-                </p>
+                <p class="form-error">{{ $message }}</p>
             @enderror
         </div>
 
