@@ -158,6 +158,9 @@ class MultiRoleDashboardTest extends TestCase
         $response = $this->actingAs($user)->get(route('dashboard-direktur'));
 
         $response->assertOk();
+        // Pastikan tombol navbar switch role muncul di route dashboard-direktur
+        $response->assertSee('Direktur (Eksekutif)');
+        $response->assertSee('Mengajar (Dosen)');
         $response->assertSee('Dashboard Eksekutif &amp; Tata Kelola', false);
         $response->assertSee('Rekapitulasi Program Studi POLSA Purworejo');
     }

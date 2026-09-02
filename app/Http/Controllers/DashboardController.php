@@ -506,10 +506,6 @@ class DashboardController extends Controller
             'kurikulumProdi'
         );
 
-        if (request()->routeIs('dashboard-direktur')) {
-            return view('dashboard-direktur', $data);
-        }
-
         return view('dashboard', $data);
     }
 }

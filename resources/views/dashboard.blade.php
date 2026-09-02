@@ -180,10 +180,10 @@
                 'icon' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="22.01"/><line x1="15" y1="22" x2="15" y2="22.01"/><line x1="8" y1="6" x2="8" y2="6.01"/><line x1="16" y1="6" x2="16" y2="6.01"/><line x1="8" y1="10" x2="8" y2="10.01"/><line x1="16" y1="10" x2="16" y2="10.01"/><line x1="8" y1="14" x2="8" y2="14.01"/><line x1="16" y1="14" x2="16" y2="14.01"/><line x1="8" y1="18" x2="8" y2="18.01"/><line x1="16" y1="18" x2="16" y2="18.01"/></svg>',
             ];
         }
-        if(auth()->user()->isDosen()) {
+        if(auth()->user()->isDosen() || auth()->user()->isKaprodi() || auth()->user()->isDirektur()) {
             $availableTabs['dosen'] = [
                 'label' => 'Mengajar (Dosen)',
-                'badge' => $dosenSubmissionsBelumDinilai > 0 ? $dosenSubmissionsBelumDinilai : null,
+                'badge' => ($dosenSubmissionsBelumDinilai ?? 0) > 0 ? $dosenSubmissionsBelumDinilai : null,
                 'badgeColor' => '#ea580c',
                 'icon' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
             ];
@@ -191,12 +191,14 @@
 
         $defaultTab = request('tab');
         if (!$defaultTab || !array_key_exists($defaultTab, $availableTabs)) {
-            if (isset($availableTabs['kaprodi'])) {
+            if (request()->routeIs('dashboard-direktur') && isset($availableTabs['direktur'])) {
+                $defaultTab = 'direktur';
+            } elseif (isset($availableTabs['kaprodi'])) {
                 $defaultTab = 'kaprodi';
-            } elseif (isset($availableTabs['admin'])) {
-                $defaultTab = 'admin';
             } elseif (isset($availableTabs['direktur'])) {
                 $defaultTab = 'direktur';
+            } elseif (isset($availableTabs['admin'])) {
+                $defaultTab = 'admin';
             } else {
                 $defaultTab = 'dosen';
             }
