@@ -182,24 +182,13 @@
 }
 </style>
 
+@if(!request()->routeIs('dosen.self.riwayat') && !$isSelf)
 <div class="mt-4">
-
-    @if(auth()->user()->role === 'dosen')
-        <a href="{{ route('dosen.self') }}"
-           class="btn btn-secondary">
-
-            Kembali
-
-        </a>
-    @else
-        <a href="{{ route('dosen.index') }}"
-           class="btn btn-secondary">
-
-            Kembali
-
-        </a>
-    @endif
-
+    <a href="{{ route('dosen.index') }}"
+       class="btn btn-secondary">
+        Kembali
+    </a>
 </div>
+@endif
 
 @endsection
