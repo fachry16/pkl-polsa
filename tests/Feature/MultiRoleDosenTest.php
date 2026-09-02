@@ -187,4 +187,31 @@ class MultiRoleDosenTest extends TestCase
         $this->assertTrue($user->isKaprodi());
         $this->assertEquals('Kaprodi TRPL', $dosen->jabatan);
     }
+
+    public function test_dosen_dengan_role_kaprodi_dan_direktur_melihat_menu_krs_dan_dashboard_direktur(): void
+    {
+        $prodi = $this->createProdi();
+
+        $user = User::create([
+            'name' => 'Dosen Kaprodi Direktur',
+            'email' => 'all_in_one@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+            'roles' => ['dosen', 'kaprodi', 'direktur'],
+        ]);
+
+        Dosen::create([
+            'user_id' => $user->id,
+            'program_studi_id' => $prodi->id,
+            'nidn' => '99887766',
+            'jabatan' => 'Direktur',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('dashboard-direktur'));
+        $response->assertOk();
+        $response->assertSee(route('krs.index'));
+        $response->assertSee(route('dashboard-direktur'));
+        $response->assertSee(route('dosen.self'));
+        $response->assertSee(route('lms.index'));
+    }
 }
