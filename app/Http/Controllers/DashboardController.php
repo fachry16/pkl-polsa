@@ -46,6 +46,20 @@ class DashboardController extends Controller
         $dosenMkBelumRps = collect();
         $dosenForumTerbaru = collect();
 
+        $mahasiswa = null;
+        $kelasSaya = collect();
+        $totalSksSemester = 0;
+        $statTugasSelesai = 0;
+        $persenKehadiran = 100;
+        $totalPresensi = 0;
+        $totalHadir = 0;
+        $statKelas = 0;
+        $statTugasAktif = 0;
+        $statBelumDikumpul = 0;
+        $tugasMendekati = collect();
+        $materiBaru = collect();
+        $forumTerbaru = collect();
+
         if (Auth::user()->isDosen() || Auth::user()->isKaprodi()) {
             $dosen = Auth::user()->dosen;
 
@@ -415,15 +429,26 @@ class DashboardController extends Controller
             $mahasiswa = Auth::user()->mahasiswa;
 
             if ($mahasiswa && $tahunAkademik) {
+                $mahasiswa->load('programStudi');
                 $kelasSaya = $mahasiswa->pengampus()
                     ->where('tahun_akademik_id', $tahunAkademik->id)
-                    ->with(['mataKuliah', 'dosen.user'])
+                    ->with(['mataKuliah.kurikulum', 'dosen.user', 'tahunAkademik'])
                     ->withCount(['lmsMateris', 'lmsTugas'])
                     ->get();
 
                 $pengampuIds = $kelasSaya->pluck('id');
 
                 $idTugasDikumpul = LmsSubmission::where('mahasiswa_id', $mahasiswa->id)->pluck('lms_tugas_id');
+
+                $totalSksSemester = $kelasSaya->sum(function ($k) {
+                    return ($k->mataKuliah->sks_teori ?? 0) + ($k->mataKuliah->sks_praktikum ?? 0);
+                });
+
+                $statTugasSelesai = $idTugasDikumpul->count();
+
+                $totalPresensi = LmsAbsensi::where('mahasiswa_id', $mahasiswa->id)->count();
+                $totalHadir = LmsAbsensi::where('mahasiswa_id', $mahasiswa->id)->where('status', 'hadir')->count();
+                $persenKehadiran = $totalPresensi > 0 ? round(($totalHadir / $totalPresensi) * 100) : 100;
 
                 $tugasMendekati = LmsTugas::whereIn('pengampu_id', $pengampuIds)
                     ->whereNotIn('id', $idTugasDikumpul)
@@ -463,6 +488,13 @@ class DashboardController extends Controller
             'totalDosen',
             'totalMahasiswa',
             'pengampus',
+            'mahasiswa',
+            'kelasSaya',
+            'totalSksSemester',
+            'statTugasSelesai',
+            'persenKehadiran',
+            'totalPresensi',
+            'totalHadir',
             'statKelas',
             'statTugasAktif',
             'statBelumDikumpul',
