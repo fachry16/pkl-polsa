@@ -40,10 +40,7 @@
         $rolesStr = implode(' & ', $rolesNames);
     @endphp
 
-    <div style="display: flex; align-items: center; gap: 0.75rem;">
-        @include('layouts.partials.notification-bell')
-
-        <div x-data="{ openKebab: false }" @click.outside="openKebab = false" style="position: relative;">
+    <div x-data="{ openKebab: false }" @click.outside="openKebab = false" style="position: relative;">
         <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem 0.35rem 0.75rem; border-radius: 10px; background: #f8fafc; border: 1px solid #f1f5f9;">
             {{-- Avatar & Info --}}
             @if(auth()->user()->avatar_url)
@@ -128,7 +125,6 @@
             @csrf
         </form>
     </div>
-</div>
 </div>
 
 {{-- Running Text Visi & Misi POLSA --}}
