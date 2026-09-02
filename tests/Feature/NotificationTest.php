@@ -331,4 +331,85 @@ class NotificationTest extends TestCase
 
         $this->assertEquals(0, $data['userMhs']->fresh()->unreadNotifications()->count());
     }
+
+    public function test_buat_krs_mengirim_notif_ke_admin(): void
+    {
+        $data = $this->buatData();
+
+        $admin = User::create([
+            'name' => 'Admin User',
+            'email' => 'admin_notif@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        $userKaprodi = User::create([
+            'name' => 'Kaprodi KRS',
+            'email' => 'kaprodi_krs@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+        ]);
+
+        Dosen::create([
+            'user_id' => $userKaprodi->id,
+            'program_studi_id' => $data['pengampu']->mataKuliah->kurikulum->program_studi_id,
+            'nidn' => '1308',
+            'jabatan' => 'Kaprodi',
+        ]);
+
+        Notification::fake();
+
+        $this->actingAs($userKaprodi)
+            ->post(route('krs.store'), [
+                'program_studi_id' => $data['pengampu']->mataKuliah->kurikulum->program_studi_id,
+                'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
+                'dosen_id' => $data['dosen']->id,
+                'tahun_akademik_id' => $data['pengampu']->tahun_akademik_id,
+                'kelas' => 'B',
+            ])
+            ->assertSessionHas('success');
+
+        Notification::assertSentTo($admin, \App\Notifications\KrsBaruAdmin::class);
+    }
+
+    public function test_buat_kurikulum_mengirim_notif_ke_admin(): void
+    {
+        $data = $this->buatData();
+
+        $admin = User::create([
+            'name' => 'Admin User 2',
+            'email' => 'admin2_notif@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        $userKaprodi = User::create([
+            'name' => 'Kaprodi Kurikulum',
+            'email' => 'kaprodi_kurikulum@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+            'jabatan' => 'Kaprodi',
+        ]);
+
+        Dosen::create([
+            'user_id' => $userKaprodi->id,
+            'program_studi_id' => $data['pengampu']->mataKuliah->kurikulum->program_studi_id,
+            'nidn' => '1309',
+            'jabatan' => 'Kaprodi',
+        ]);
+
+        Notification::fake();
+
+        $this->actingAs($userKaprodi)
+            ->post(route('kurikulum.store'), [
+                'program_studi_id' => $data['pengampu']->mataKuliah->kurikulum->program_studi_id,
+                'nama_kurikulum' => 'Kurikulum MBKM 2026',
+                'tahun_berlaku' => 2026,
+                'beban_studi' => '144 SKS',
+                'deskripsi' => 'Revisi kurikulum MBKM',
+            ])
+            ->assertSessionHas('success');
+
+        Notification::assertSentTo($admin, \App\Notifications\KurikulumBaruAdmin::class);
+    }
 }

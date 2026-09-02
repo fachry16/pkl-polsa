@@ -254,6 +254,13 @@ class RpsController extends Controller
             }
         }
 
+        $adminUsers = \App\Models\User::where('role', 'admin')->orWhereJsonContains('roles', 'admin')->get();
+        foreach ($adminUsers as $admin) {
+            if ($admin->id !== auth()->id()) {
+                $admin->notify(new RpsDisetujui($rps, $penyetuju));
+            }
+        }
+
         return back()->with('success', 'RPS berhasil disetujui.');
     }
 

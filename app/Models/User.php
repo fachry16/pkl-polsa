@@ -184,4 +184,18 @@ class User extends Authenticatable
             ])
             ->count();
     }
+
+    public function getUnreadKrsCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->where('type', \App\Notifications\KrsBaruAdmin::class)
+            ->count();
+    }
+
+    public function getUnreadKurikulumCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->where('type', \App\Notifications\KurikulumBaruAdmin::class)
+            ->count();
+    }
 }

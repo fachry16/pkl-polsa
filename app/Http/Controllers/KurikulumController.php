@@ -37,6 +37,13 @@ class KurikulumController extends Controller
 
         abort_unless($boleh, 403);
 
+        if ($user->isAdmin()) {
+            $user->unreadNotifications()
+                ->where('type', \App\Notifications\KurikulumBaruAdmin::class)
+                ->where('data->url', route('program-studi.kurikulum', $programStudi->id))
+                ->update(['read_at' => now()]);
+        }
+
         $kurikulums = Kurikulum::where(
             'program_studi_id',
             $programStudi->id
@@ -76,7 +83,7 @@ class KurikulumController extends Controller
 
         $programStudiId = $this->resolveProgramStudiId($request->program_studi_id);
 
-        Kurikulum::create([
+        $kurikulum = Kurikulum::create([
             'program_studi_id' => $programStudiId,
             'nama_kurikulum' => $request->nama_kurikulum,
             'tahun_berlaku' => $request->tahun_berlaku,
@@ -84,6 +91,14 @@ class KurikulumController extends Controller
             'deskripsi' => $request->deskripsi,
             'status' => 'Draft',
         ]);
+
+        $pembuat = auth()->user()->name ?? 'User';
+        $adminUsers = \App\Models\User::where('role', 'admin')->orWhereJsonContains('roles', 'admin')->get();
+        foreach ($adminUsers as $admin) {
+            if ($admin->id !== auth()->id()) {
+                $admin->notify(new \App\Notifications\KurikulumBaruAdmin($kurikulum, $pembuat));
+            }
+        }
 
         return redirect()
             ->route('program-studi.kurikulum', $programStudiId)
