@@ -143,6 +143,10 @@ class LmsAbsensiTest extends TestCase
 
         $this->actingAs($data['userDosen'])
             ->get(route('lms.absensi.index', $data['pengampu']->id))
+            ->assertRedirect(route('lms.show', [$data['pengampu']->id, 'tab' => 'presensi']));
+
+        $this->actingAs($data['userDosen'])
+            ->get(route('lms.show', [$data['pengampu']->id, 'tab' => 'presensi']))
             ->assertOk()
             ->assertSee('Presensi Kehadiran');
 

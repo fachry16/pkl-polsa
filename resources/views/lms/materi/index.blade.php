@@ -7,7 +7,7 @@
 </div>
 
 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-    <a href="{{ route('lms.show', $pengampu->id) }}" class="btn btn-secondary btn-sm">Kembali ke Kelas</a>
+    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas_kelas']) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas Kelas</a>
 </div>
 
 

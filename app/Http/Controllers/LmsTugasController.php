@@ -79,13 +79,27 @@ class LmsTugasController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
-        $pengampu->load('mataKuliah', 'tahunAkademik');
+        $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
 
         $mahasiswas = $pengampu->mahasiswas()->orderBy('nim')->paginate(20);
-
         $submissions = $tugas->submissions()->with('mahasiswa')->get()->keyBy('mahasiswa_id');
 
-        return view('lms.tugas.show', compact('pengampu', 'tugas', 'mahasiswas', 'submissions'));
+        $komentarsKelas = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+            ->where('topik_id', $tugas->id)
+            ->where('is_private', false)
+            ->with('user')
+            ->oldest()
+            ->get();
+
+        $komentarsPribadi = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+            ->where('topik_id', $tugas->id)
+            ->where('is_private', true)
+            ->with(['user', 'mahasiswa.user'])
+            ->oldest()
+            ->get()
+            ->groupBy('mahasiswa_id');
+
+        return view('lms.tugas.show', compact('pengampu', 'tugas', 'mahasiswas', 'submissions', 'komentarsKelas', 'komentarsPribadi'));
     }
 
     public function edit(Pengampu $pengampu, LmsTugas $tugas)
