@@ -29,22 +29,91 @@ class DashboardController extends Controller
 
         $pengampus = collect();
 
+        $dosenKelasA = 0;
+        $dosenKelasB = 0;
+        $dosenTotalMahasiswa = 0;
+        $dosenSubmissionsBelumDinilai = 0;
+        $dosenTugasNeedGrading = collect();
+        $dosenRpsStats = [
+            'total_mk' => 0,
+            'disetujui' => 0,
+            'diajukan' => 0,
+            'draft' => 0,
+            'persen' => 0,
+        ];
+        $dosenMkBelumRps = collect();
+        $dosenForumTerbaru = collect();
+
         if (Auth::user()->isDosen() || Auth::user()->isKaprodi()) {
             $dosen = Auth::user()->dosen;
 
             if ($dosen && $tahunAkademik) {
                 $pengampus = $dosen->pengampus()
                     ->where('tahun_akademik_id', $tahunAkademik->id)
-                    ->with(['mataKuliah'])
-                    ->withCount(['lmsMateris', 'lmsTugas'])
+                    ->with(['mataKuliah.rps', 'tahunAkademik'])
+                    ->withCount(['lmsMateris', 'lmsTugas', 'mahasiswas'])
                     ->get()
                     ->map(function ($pengampu) {
                         $pengampu->submissions_belum_dinilai = LmsSubmission::whereHas('lmsTugas', function ($q) use ($pengampu) {
                             $q->where('pengampu_id', $pengampu->id);
                         })->whereNull('nilai')->count();
 
+                        $pengampu->sesi_absensi_count = LmsSesiAbsensi::where('pengampu_id', $pengampu->id)->count();
+                        $pengampu->terakhir_presensi = LmsSesiAbsensi::where('pengampu_id', $pengampu->id)->latest('tanggal_aktual')->first();
+
                         return $pengampu;
                     });
+
+                $dosenPengampuIds = $pengampus->pluck('id');
+
+                $dosenKelasA = $pengampus->filter(fn ($p) => preg_match('/A|reguler|pagi/i', $p->kelas))->count();
+                $dosenKelasB = $pengampus->filter(fn ($p) => preg_match('/B|karyawan|sore|malam/i', $p->kelas))->count();
+
+                $dosenTotalMahasiswa = Mahasiswa::whereHas('pengampus', function ($q) use ($dosenPengampuIds) {
+                    $q->whereIn('pengampu_id', $dosenPengampuIds);
+                })->distinct()->count();
+
+                $dosenSubmissionsBelumDinilai = $pengampus->sum('submissions_belum_dinilai');
+
+                // Antrean tugas yang butuh segera dinilai
+                $dosenTugasNeedGrading = LmsTugas::whereIn('pengampu_id', $dosenPengampuIds)
+                    ->whereHas('submissions', fn ($q) => $q->whereNull('nilai'))
+                    ->with(['pengampu.mataKuliah'])
+                    ->withCount(['submissions as belum_dinilai_count' => fn ($q) => $q->whereNull('nilai')])
+                    ->orderByDesc('belum_dinilai_count')
+                    ->limit(5)
+                    ->get();
+
+                // Status RPS Mata Kuliah yang diampu dosen ini
+                $dosenMkIds = $pengampus->pluck('mata_kuliah_id')->unique();
+                $totalMkDosen = $dosenMkIds->count();
+                $rpsDisetujuiDosen = Rps::whereIn('mata_kuliah_id', $dosenMkIds)->where('status', 'Disetujui')->count();
+                $rpsDiajukanDosen = Rps::whereIn('mata_kuliah_id', $dosenMkIds)->where('status', 'Diajukan')->count();
+                $rpsDraftDosen = $totalMkDosen - ($rpsDisetujuiDosen + $rpsDiajukanDosen);
+
+                $dosenRpsStats = [
+                    'total_mk' => $totalMkDosen,
+                    'disetujui' => $rpsDisetujuiDosen,
+                    'diajukan' => $rpsDiajukanDosen,
+                    'draft' => max(0, $rpsDraftDosen),
+                    'persen' => $totalMkDosen > 0 ? round(($rpsDisetujuiDosen / $totalMkDosen) * 100) : 0,
+                ];
+
+                // Peringatan MK yang RPS-nya belum disetujui
+                $dosenMkBelumRps = MataKuliah::whereIn('id', $dosenMkIds)
+                    ->where(function ($q) {
+                        $q->whereDoesntHave('rps')
+                            ->orWhereHas('rps', fn ($sub) => $sub->where('status', '!=', 'Disetujui'));
+                    })
+                    ->with('rps')
+                    ->get();
+
+                // Forum diskusi terbaru di kelas dosen ini
+                $dosenForumTerbaru = LmsForumDiskusi::whereIn('pengampu_id', $dosenPengampuIds)
+                    ->with(['user', 'pengampu.mataKuliah'])
+                    ->latest()
+                    ->limit(5)
+                    ->get();
             }
         }
 
@@ -315,7 +384,15 @@ class DashboardController extends Controller
             'mahasiswaTanpaAkun',
             'userRoleStats',
             'pertemuanStats',
-            'prodiRecaps'
+            'prodiRecaps',
+            'dosenKelasA',
+            'dosenKelasB',
+            'dosenTotalMahasiswa',
+            'dosenSubmissionsBelumDinilai',
+            'dosenTugasNeedGrading',
+            'dosenRpsStats',
+            'dosenMkBelumRps',
+            'dosenForumTerbaru'
         ));
     }
 }
