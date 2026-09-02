@@ -474,8 +474,8 @@ img { max-width: 100%; }
     position: sticky;
     top: -1.75rem;
     z-index: 90;
-    margin: -1.75rem -2rem 0.7rem -2rem;
-    padding: 0.55rem 2rem;
+    margin: -1.75rem -2rem 0.6rem -2rem;
+    padding: 0.47rem 2rem;
     background: rgba(241, 245, 249, 0.75);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
