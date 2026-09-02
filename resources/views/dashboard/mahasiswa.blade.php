@@ -128,7 +128,7 @@
                                 <div style="min-width: 0; flex: 1;">
                                     <div style="font-weight: 700; font-size: 0.88rem; color: #0f172a; line-height: 1.35;">{{ $tugas->judul }}</div>
                                     <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
-                                        {{ $tugas->pengampu->mataKuliah->kode ?? '' }} {{ $tugas->pengampu->mataKuliah->nama ?? 'Mata Kuliah' }} &middot; {{ $tugas->pengampu->label_lengkap ?? "Kelas {$tugas->pengampu->kelas}" }}
+                                        {{ $tugas->pengampu->mataKuliah->kode ?? '' }} {{ $tugas->pengampu->mataKuliah->nama ?? 'Mata Kuliah' }} · {{ $tugas->pengampu->label_lengkap ?? "Kelas {$tugas->pengampu->kelas}" }}
                                     </div>
                                 </div>
                                 <span style="font-size: 0.72rem; font-weight: 700; background: #ea580c; color: #fff; padding: 0.2rem 0.6rem; border-radius: 6px; flex-shrink: 0;">

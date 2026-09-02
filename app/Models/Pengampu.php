@@ -124,6 +124,6 @@ class Pengampu extends Model
 
     public function getLabelLengkapAttribute(): string
     {
-        return "{$this->label_semester} &middot; {$this->label_kelas}";
+        return "{$this->label_semester} · {$this->label_kelas}";
     }
 }
