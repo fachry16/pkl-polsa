@@ -248,7 +248,7 @@ class KhsCetakTest extends TestCase
         $this->actingAs($data['userMhs'])
             ->get(route('khs.self'))
             ->assertOk()
-            ->assertSee('KHS Menunggu Verifikasi &amp; Persetujuan Kaprodi', false);
+            ->assertSee('KHS Belum Tersedia', false);
 
         // Mahasiswa coba unduh PDF sebelum disetujui: ditolak dengan pesan error
         $this->actingAs($data['userMhs'])
