@@ -620,9 +620,7 @@ Route::middleware(['auth', 'role:direktur'])->group(function () {
 
     Route::get(
         '/dashboard-direktur',
-        function () {
-            return view('dashboard-direktur');
-        }
+        [DashboardController::class, 'index']
     )->name('dashboard-direktur');
 });
 

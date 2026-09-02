@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dosen;
+use App\Models\Krs;
+use App\Models\Kurikulum;
 use App\Models\LmsAbsensi;
 use App\Models\LmsForumDiskusi;
 use App\Models\LmsMateri;
@@ -117,6 +119,91 @@ class DashboardController extends Controller
             }
         }
 
+        // Data Kaprodi
+        $kaprodiProdi = null;
+        $mhsProdiTotal = 0;
+        $mhsProdiKelasA = 0;
+        $mhsProdiKelasB = 0;
+        $dosenProdiTotal = 0;
+        $totalKelasPaketProdi = 0;
+        $krsProdiKelasA = 0;
+        $krsProdiKelasB = 0;
+        $rpsDiajukanProdi = collect();
+        $kaprodiRpsStats = [
+            'total_mk' => 0,
+            'disetujui' => 0,
+            'diajukan' => 0,
+            'draft' => 0,
+            'persen' => 0,
+        ];
+        $rombelKosongProdi = collect();
+        $kurikulumProdi = null;
+
+        if (Auth::user()->isKaprodi()) {
+            $kaprodiProdi = Auth::user()->dosen?->programStudi;
+
+            if ($kaprodiProdi) {
+                $prodiId = $kaprodiProdi->id;
+
+                $mhsProdiTotal = Mahasiswa::where('program_studi_id', $prodiId)->count();
+                $mhsProdiKelasA = Mahasiswa::where('program_studi_id', $prodiId)
+                    ->where(function ($q) {
+                        $q->where('kelas', 'like', '%A%')
+                            ->orWhere('kelas', 'like', '%reguler%')
+                            ->orWhere('kelas', 'like', '%pagi%');
+                    })
+                    ->count();
+                $mhsProdiKelasB = Mahasiswa::where('program_studi_id', $prodiId)
+                    ->where(function ($q) {
+                        $q->where('kelas', 'like', '%B%')
+                            ->orWhere('kelas', 'like', '%karyawan%')
+                            ->orWhere('kelas', 'like', '%sore%')
+                            ->orWhere('kelas', 'like', '%malam%');
+                    })
+                    ->count();
+
+                $dosenProdiTotal = Dosen::where('program_studi_id', $prodiId)->count();
+
+                // KRS Paket Prodi
+                $krsProdiQuery = Krs::where('program_studi_id', $prodiId);
+                if ($tahunAkademik) {
+                    $krsProdiQuery->where('tahun_akademik_id', $tahunAkademik->id);
+                }
+                $krsProdi = $krsProdiQuery->with(['mataKuliah', 'dosen.user'])->withCount('mahasiswas')->get();
+
+                $totalKelasPaketProdi = $krsProdi->count();
+                $krsProdiKelasA = $krsProdi->filter(fn ($k) => preg_match('/A|reguler|pagi/i', $k->kelas))->count();
+                $krsProdiKelasB = $krsProdi->filter(fn ($k) => preg_match('/B|karyawan|sore|malam/i', $k->kelas))->count();
+
+                // Rombel Kosong di Prodi (Zero-Student Alert)
+                $rombelKosongProdi = $krsProdi->filter(fn ($k) => $k->mahasiswas_count === 0);
+
+                // RPS Diajukan Butuh Review / Approval Kaprodi
+                $rpsDiajukanProdi = Rps::whereHas('mataKuliah.kurikulum', fn ($q) => $q->where('program_studi_id', $prodiId))
+                    ->where('status', 'Diajukan')
+                    ->with(['mataKuliah', 'pengaju'])
+                    ->latest()
+                    ->get();
+
+                // Kesiapan RPS Seluruh MK di Prodi
+                $mkProdiIds = MataKuliah::whereHas('kurikulum', fn ($q) => $q->where('program_studi_id', $prodiId))->pluck('id');
+                $totalMkProdi = $mkProdiIds->count();
+                $rpsDisetujuiProdi = Rps::whereIn('mata_kuliah_id', $mkProdiIds)->where('status', 'Disetujui')->count();
+                $rpsDiajukanCount = Rps::whereIn('mata_kuliah_id', $mkProdiIds)->where('status', 'Diajukan')->count();
+                $rpsDraftProdi = max(0, $totalMkProdi - ($rpsDisetujuiProdi + $rpsDiajukanCount));
+
+                $kaprodiRpsStats = [
+                    'total_mk' => $totalMkProdi,
+                    'disetujui' => $rpsDisetujuiProdi,
+                    'diajukan' => $rpsDiajukanCount,
+                    'draft' => $rpsDraftProdi,
+                    'persen' => $totalMkProdi > 0 ? round(($rpsDisetujuiProdi / $totalMkProdi) * 100) : 0,
+                ];
+
+                $kurikulumProdi = Kurikulum::where('program_studi_id', $prodiId)->where('status', 'Aktif')->first();
+            }
+        }
+
         $statKelas = 0;
         $statTugasAktif = 0;
         $statBelumDikumpul = 0;
@@ -154,7 +241,7 @@ class DashboardController extends Controller
         ];
         $prodiRecaps = collect();
 
-        if (Auth::user()->isAdmin() && $tahunAkademik) {
+        if ((Auth::user()->isAdmin() || Auth::user()->isDirektur()) && $tahunAkademik) {
             $pengampuIds = Pengampu::where('tahun_akademik_id', $tahunAkademik->id)->pluck('id');
 
             $statKelasLMS = $pengampuIds->count();
@@ -358,7 +445,7 @@ class DashboardController extends Controller
             }
         }
 
-        return view('dashboard', compact(
+        $data = compact(
             'programStudis',
             'tahunAkademik',
             'totalDosen',
@@ -392,7 +479,25 @@ class DashboardController extends Controller
             'dosenTugasNeedGrading',
             'dosenRpsStats',
             'dosenMkBelumRps',
-            'dosenForumTerbaru'
-        ));
+            'dosenForumTerbaru',
+            'kaprodiProdi',
+            'mhsProdiTotal',
+            'mhsProdiKelasA',
+            'mhsProdiKelasB',
+            'dosenProdiTotal',
+            'totalKelasPaketProdi',
+            'krsProdiKelasA',
+            'krsProdiKelasB',
+            'rpsDiajukanProdi',
+            'kaprodiRpsStats',
+            'rombelKosongProdi',
+            'kurikulumProdi'
+        );
+
+        if (request()->routeIs('dashboard-direktur')) {
+            return view('dashboard-direktur', $data);
+        }
+
+        return view('dashboard', $data);
     }
 }

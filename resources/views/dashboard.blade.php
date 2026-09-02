@@ -30,11 +30,8 @@
         </div>
     </div>
 
-@if(auth()->user()->isAdmin())
-    @include('dashboard.admin')
-@elseif(auth()->user()->isDosen() || auth()->user()->isKaprodi())
-    @include('dashboard.dosen')
-@elseif(auth()->user()->isMahasiswa())
+@if(auth()->user()->isMahasiswa())
+    {{-- Mahasiswa Dashboard --}}
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
         <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
             <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -157,6 +154,79 @@
                 @endif
             </div>
         </div>
+    </div>
+@else
+    {{-- Multi-Role Dashboard for Staff (Admin, Kaprodi, Direktur, Dosen) --}}
+    @php
+        $availableTabs = [];
+        if(auth()->user()->isAdmin()) {
+            $availableTabs['admin'] = ['label' => 'Pusat Kendali Admin', 'icon' => '⚙️'];
+        }
+        if(auth()->user()->isKaprodi()) {
+            $prodiLabel = $kaprodiProdi->kode_prodi ?? 'Prodi';
+            $availableTabs['kaprodi'] = ['label' => "Program Studi ($prodiLabel)", 'icon' => '🎓'];
+        }
+        if(auth()->user()->isDirektur()) {
+            $availableTabs['direktur'] = ['label' => 'Direktur (Eksekutif)', 'icon' => '🏛️'];
+        }
+        if(auth()->user()->isDosen()) {
+            $availableTabs['dosen'] = ['label' => 'Mengajar (Dosen)', 'icon' => '👨‍🏫'];
+        }
+
+        $defaultTab = request('tab');
+        if (!$defaultTab || !array_key_exists($defaultTab, $availableTabs)) {
+            if (isset($availableTabs['kaprodi'])) {
+                $defaultTab = 'kaprodi';
+            } elseif (isset($availableTabs['admin'])) {
+                $defaultTab = 'admin';
+            } elseif (isset($availableTabs['direktur'])) {
+                $defaultTab = 'direktur';
+            } else {
+                $defaultTab = 'dosen';
+            }
+        }
+    @endphp
+
+    <div x-data="{ activeTab: '{{ $defaultTab }}' }">
+        {{-- Tab Bar (Tampil jika user memiliki lebih dari 1 role aktif) --}}
+        @if(count($availableTabs) > 1)
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; overflow-x: auto;">
+                @foreach($availableTabs as $key => $tab)
+                    <button type="button"
+                            @click="activeTab = '{{ $key }}'"
+                            :style="activeTab === '{{ $key }}' ? 'background: #4f46e5; color: #fff; border-color: #4f46e5; font-weight: 700;' : 'background: #fff; color: #475569; border-color: #e2e8f0; font-weight: 500;'"
+                            style="display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;">
+                        <span>{{ $tab['icon'] }}</span>
+                        <span>{{ $tab['label'] }}</span>
+                    </button>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Seksi Tampilan Sesuai Tab Aktif --}}
+        @if(isset($availableTabs['admin']))
+            <div x-show="activeTab === 'admin'" x-cloak>
+                @include('dashboard.admin')
+            </div>
+        @endif
+
+        @if(isset($availableTabs['kaprodi']))
+            <div x-show="activeTab === 'kaprodi'" x-cloak>
+                @include('dashboard.kaprodi')
+            </div>
+        @endif
+
+        @if(isset($availableTabs['direktur']))
+            <div x-show="activeTab === 'direktur'" x-cloak>
+                @include('dashboard.direktur')
+            </div>
+        @endif
+
+        @if(isset($availableTabs['dosen']))
+            <div x-show="activeTab === 'dosen'" x-cloak>
+                @include('dashboard.dosen')
+            </div>
+        @endif
     </div>
 @endif
 
