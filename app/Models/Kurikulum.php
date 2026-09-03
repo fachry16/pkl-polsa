@@ -51,4 +51,19 @@ class Kurikulum extends Model
     {
         return $this->hasMany(Cpmk::class);
     }
+
+    public function metodeBobotPenilaians()
+    {
+        return $this->hasMany(MetodeBobotPenilaian::class);
+    }
+
+    public function rumusanNilaiAkhirMks()
+    {
+        return $this->hasMany(RumusanNilaiAkhirMk::class);
+    }
+
+    public function rumusanNilaiAkhirCpls()
+    {
+        return $this->hasMany(RumusanNilaiAkhirCpl::class);
+    }
 }

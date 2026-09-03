@@ -1083,6 +1083,24 @@ table.data-table .empty-row td {
     padding: 2.5rem;
 }
 
+.table-sub {
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: #94a3b8;
+    margin-top: 0.15rem;
+    line-height: 1.3;
+    white-space: normal;
+}
+
+table.data-table th .table-sub,
+table.data-table td .table-sub {
+    display: block;
+    max-width: 220px;
+    min-width: 120px;
+}
+
 /* ---------- FORMS ---------- */
 .form-group {
     margin-bottom: 1.25rem;
@@ -1400,7 +1418,7 @@ table.data-table .empty-row td {
     inset: 0;
     overflow-y: auto;
     padding: 1.5rem 1rem;
-    z-index: 50;
+    z-index: 9999;
 }
 
 .modal-backdrop {
@@ -2190,6 +2208,40 @@ table.rps-schedule-table {
     font-size: 0.85rem;
     font-weight: 600;
     color: #1e293b;
+}
+
+.rps-approved-stamp {
+    display: inline-block;
+    margin: 4px auto;
+}
+
+.rps-approved-check {
+    width: 46px;
+    height: 46px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #dcfce7;
+    border: 2px solid #16a34a;
+    color: #16a34a;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 42px;
+    text-align: center;
+}
+
+.rps-approved-text {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #16a34a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.rps-approved-date {
+    font-size: 0.72rem;
+    color: #16a34a;
+    margin-top: 2px;
 }
 
 /* Korelasi CPMK-Sub-CPMK table */

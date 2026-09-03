@@ -50,7 +50,13 @@
                     <tr>
 
                         <td class="font-medium">
-                            {{ $cpl->kode_cpl }}
+
+                            <div>{{ $cpl->kode_cpl }}</div>
+
+                            @if($cpl->deskripsi)
+                            <div class="table-sub">{{ $cpl->deskripsi }}</div>
+                            @endif
+
                         </td>
 
                         @for($semester = 1; $semester <= 8; $semester++)

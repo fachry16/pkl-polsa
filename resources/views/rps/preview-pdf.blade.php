@@ -168,9 +168,22 @@
                     <tr>
                         <td class="rps-pengesahan-col">
                             <div class="rps-pengesahan-role">Dosen Pengembang RPS</div>
+                            @if($rps->status === 'Disetujui')
+                            <div class="rps-approved-stamp">
+                                <div class="rps-approved-check">✓</div>
+                            </div>
+                            <div class="rps-approved-text">Disetujui</div>
+                            @if($rps->dosen_pengembang_rps)
+                            <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps }}</div>
+                            @endif
+                            @if($rps->tanggal_disetujui)
+                            <div class="rps-approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
+                            @endif
+                            @else
                             <div class="rps-pengesahan-space"></div>
                             <div class="rps-pengesahan-sign">(Tanda tangan)</div>
                             <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps ?? '-' }}</div>
+                            @endif
                         </td>
                         <td class="rps-pengesahan-col">
                             <div class="rps-pengesahan-role">Koordinator RMK</div>
@@ -180,9 +193,22 @@
                         </td>
                         <td class="rps-pengesahan-col">
                             <div class="rps-pengesahan-role">Ketua Program Studi</div>
+                            @if($rps->status === 'Disetujui')
+                            <div class="rps-approved-stamp">
+                                <div class="rps-approved-check">✓</div>
+                            </div>
+                            <div class="rps-approved-text">Disetujui</div>
+                            @if($rps->disetujuiOleh)
+                            <div class="rps-pengesahan-name">{{ $rps->disetujuiOleh->name }}</div>
+                            @endif
+                            @if($rps->tanggal_disetujui)
+                            <div class="rps-approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
+                            @endif
+                            @else
                             <div class="rps-pengesahan-space"></div>
                             <div class="rps-pengesahan-sign">(Tanda tangan)</div>
                             <div class="rps-pengesahan-name">{{ $rps->ketua_prodi ?? '-' }}</div>
+                            @endif
                         </td>
                     </tr>
                 </tbody>
@@ -458,18 +484,9 @@
     {{-- SECTION 10: RANCANGAN EVALUASI --}}
     <div class="rps-section">
         <h2 class="rps-section-title">5. Rancangan Evaluasi</h2>
-        @if($rps->penilaians->count())
+        @if($rps->bentukEvaluasis->count())
         @php
-            $penilaian = $rps->penilaians->first();
-            $evalRows = [
-                'Partisipasi & Keaktifan' => ['sub_cpmk' => 'Seluruh Sub-CPMK', 'bobot' => null],
-                'Tugas' => ['sub_cpmk' => null, 'bobot' => $penilaian->tugas],
-                'Kuis' => ['sub_cpmk' => null, 'bobot' => $penilaian->quiz],
-                'Praktikum' => ['sub_cpmk' => null, 'bobot' => $penilaian->praktikum],
-                'Proyek' => ['sub_cpmk' => null, 'bobot' => $penilaian->project],
-                'Tes Tulis (UTS)' => ['sub_cpmk' => null, 'bobot' => $penilaian->uts],
-                'Tes Tulis (UAS)' => ['sub_cpmk' => null, 'bobot' => $penilaian->uas],
-            ];
+            $totalBobotEval = $rps->bentukEvaluasis->sum('bobot');
         @endphp
         <div class="rps-table-wrap">
             <table class="rps-data-table">
@@ -491,17 +508,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($evalRows as $nama => $row)
-                    @if($row['bobot'] === null || $row['bobot'] > 0)
+                    @foreach($rps->bentukEvaluasis as $be)
                     <tr>
-                        <td class="rps-td">{{ $nama }}</td>
-                        <td class="rps-td">{{ $row['sub_cpmk'] ?? '-' }}</td>
-                        <td class="rps-td">{{ $row['bobot'] === null ? 'Observasi keaktifan diskusi, workshop, dan presentasi' : '-' }}</td>
-                        <td class="rps-td">{{ $row['bobot'] === null ? 'Presensi dan catatan keaktifan' : '-' }}</td>
-                        <td class="rps-td">{{ $row['bobot'] === null ? 'Presensi dan catatan kontribusi' : '-' }}</td>
-                        <td class="rps-td text-center">{{ $row['bobot'] === null ? '-' : $row['bobot'] }}</td>
+                        <td class="rps-td">{{ $be->bentuk_evaluasi }}</td>
+                        <td class="rps-td">{{ $be->sub_cpmk ?? '-' }}</td>
+                        <td class="rps-td">{{ $be->formatif ? ($be->instrumen ?? '-') : '-' }}</td>
+                        <td class="rps-td">{{ $be->sumatif ? ($be->instrumen ?? '-') : '-' }}</td>
+                        <td class="rps-td">{{ $be->tagihan ?? '-' }}</td>
+                        <td class="rps-td text-center">{{ $be->bobot }}</td>
                     </tr>
-                    @endif
                     @endforeach
                     <tr class="rps-total-row">
                         <td class="rps-td font-semibold">Total</td>
@@ -509,7 +524,7 @@
                         <td class="rps-td"></td>
                         <td class="rps-td"></td>
                         <td class="rps-td"></td>
-                        <td class="rps-td text-center font-semibold">{{ number_format((float) $penilaian->tugas + (float) $penilaian->quiz + (float) $penilaian->uts + (float) $penilaian->uas + (float) $penilaian->praktikum + (float) $penilaian->project, 0) }}%</td>
+                        <td class="rps-td text-center font-semibold">{{ number_format((float) $totalBobotEval, 0) }}%</td>
                     </tr>
                 </tbody>
             </table>

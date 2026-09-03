@@ -127,6 +127,11 @@
             Penilaian
         </a>
 
+        <a href="{{ route('rps.bentuk-evaluasi.index', $rps) }}"
+           class="btn btn-success">
+            Rancangan Evaluasi
+        </a>
+
         @if($rps->status == 'Disetujui')
 
         <a href="{{ route('rps.ekstrak-pdf', $rps) }}"

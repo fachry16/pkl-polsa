@@ -51,6 +51,11 @@ class Rps extends Model
         return $this->hasOne(RpsPenilaian::class);
     }
 
+    public function bentukEvaluasis()
+    {
+        return $this->hasMany(RpsBentukEvaluasi::class);
+    }
+
     public function tugas()
     {
         return $this->hasMany(RpsTugas::class);

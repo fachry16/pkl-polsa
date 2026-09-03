@@ -23,16 +23,20 @@ use App\Http\Controllers\LmsTugasController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\MahasiswaTahunAkademikController;
 use App\Http\Controllers\MataKuliahController;
+use App\Http\Controllers\MetodeBobotPenilaianController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PemenuhanCplsController;
 use App\Http\Controllers\PengampuController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilLulusanController;
 use App\Http\Controllers\ProgramStudiController;
+use App\Http\Controllers\RpsBentukEvaluasiController;
 use App\Http\Controllers\RpsController;
 use App\Http\Controllers\RpsPenilaianController;
 use App\Http\Controllers\RpsPertemuanController;
 use App\Http\Controllers\RpsTugasController;
+use App\Http\Controllers\RumusanNilaiAkhirCplController;
+use App\Http\Controllers\RumusanNilaiAkhirMkController;
 use App\Http\Controllers\TahunAkademikController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -548,6 +552,99 @@ Route::middleware(['auth'])->group(function () {
             [MataKuliahController::class, 'destroy']
         )->name('kurikulum.mata-kuliah.destroy');
 
+        /* Metode dan Bobot Penilaian */
+        Route::get(
+            'kurikulum/{kurikulum}/metode-bobot-penilaian',
+            [MetodeBobotPenilaianController::class, 'index']
+        )->name('kurikulum.metode-bobot-penilaian.index');
+
+        Route::get(
+            'kurikulum/{kurikulum}/metode-bobot-penilaian/create',
+            [MetodeBobotPenilaianController::class, 'create']
+        )->name('kurikulum.metode-bobot-penilaian.create');
+
+        Route::post(
+            'kurikulum/{kurikulum}/metode-bobot-penilaian',
+            [MetodeBobotPenilaianController::class, 'store']
+        )->name('kurikulum.metode-bobot-penilaian.store');
+
+        Route::get(
+            'kurikulum/{kurikulum}/metode-bobot-penilaian/{metodeBobotPenilaian}/edit',
+            [MetodeBobotPenilaianController::class, 'edit']
+        )->name('kurikulum.metode-bobot-penilaian.edit');
+
+        Route::put(
+            'kurikulum/{kurikulum}/metode-bobot-penilaian/{metodeBobotPenilaian}',
+            [MetodeBobotPenilaianController::class, 'update']
+        )->name('kurikulum.metode-bobot-penilaian.update');
+
+        Route::delete(
+            'kurikulum/{kurikulum}/metode-bobot-penilaian/{metodeBobotPenilaian}',
+            [MetodeBobotPenilaianController::class, 'destroy']
+        )->name('kurikulum.metode-bobot-penilaian.destroy');
+
+        /* Rumusan Nilai Akhir MK */
+        Route::get(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk',
+            [RumusanNilaiAkhirMkController::class, 'index']
+        )->name('kurikulum.rumusan-nilai-akhir-mk.index');
+
+        Route::get(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk/create',
+            [RumusanNilaiAkhirMkController::class, 'create']
+        )->name('kurikulum.rumusan-nilai-akhir-mk.create');
+
+        Route::post(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk',
+            [RumusanNilaiAkhirMkController::class, 'store']
+        )->name('kurikulum.rumusan-nilai-akhir-mk.store');
+
+        Route::get(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk/{rumusanNilaiAkhirMk}/edit',
+            [RumusanNilaiAkhirMkController::class, 'edit']
+        )->name('kurikulum.rumusan-nilai-akhir-mk.edit');
+
+        Route::put(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk/{rumusanNilaiAkhirMk}',
+            [RumusanNilaiAkhirMkController::class, 'update']
+        )->name('kurikulum.rumusan-nilai-akhir-mk.update');
+
+        Route::delete(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk/{rumusanNilaiAkhirMk}',
+            [RumusanNilaiAkhirMkController::class, 'destroy']
+        )->name('kurikulum.rumusan-nilai-akhir-mk.destroy');
+
+        /* Rumusan Nilai Akhir CPL */
+        Route::get(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl',
+            [RumusanNilaiAkhirCplController::class, 'index']
+        )->name('kurikulum.rumusan-nilai-akhir-cpl.index');
+
+        Route::get(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl/create',
+            [RumusanNilaiAkhirCplController::class, 'create']
+        )->name('kurikulum.rumusan-nilai-akhir-cpl.create');
+
+        Route::post(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl',
+            [RumusanNilaiAkhirCplController::class, 'store']
+        )->name('kurikulum.rumusan-nilai-akhir-cpl.store');
+
+        Route::get(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl/{rumusanNilaiAkhirCpl}/edit',
+            [RumusanNilaiAkhirCplController::class, 'edit']
+        )->name('kurikulum.rumusan-nilai-akhir-cpl.edit');
+
+        Route::put(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl/{rumusanNilaiAkhirCpl}',
+            [RumusanNilaiAkhirCplController::class, 'update']
+        )->name('kurikulum.rumusan-nilai-akhir-cpl.update');
+
+        Route::delete(
+            'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl/{rumusanNilaiAkhirCpl}',
+            [RumusanNilaiAkhirCplController::class, 'destroy']
+        )->name('kurikulum.rumusan-nilai-akhir-cpl.destroy');
+
     });
 
     Route::resource(
@@ -621,6 +718,36 @@ Route::middleware(['auth'])->group(function () {
     )->name('rps.penilaian.update');
 
     Route::get(
+        'rps/{rps}/bentuk-evaluasi',
+        [RpsBentukEvaluasiController::class, 'index']
+    )->name('rps.bentuk-evaluasi.index');
+
+    Route::get(
+        'rps/{rps}/bentuk-evaluasi/create',
+        [RpsBentukEvaluasiController::class, 'create']
+    )->name('rps.bentuk-evaluasi.create');
+
+    Route::post(
+        'rps/{rps}/bentuk-evaluasi',
+        [RpsBentukEvaluasiController::class, 'store']
+    )->name('rps.bentuk-evaluasi.store');
+
+    Route::get(
+        'rps/{rps}/bentuk-evaluasi/{bentukEvaluasi}/edit',
+        [RpsBentukEvaluasiController::class, 'edit']
+    )->name('rps.bentuk-evaluasi.edit');
+
+    Route::put(
+        'rps/{rps}/bentuk-evaluasi/{bentukEvaluasi}',
+        [RpsBentukEvaluasiController::class, 'update']
+    )->name('rps.bentuk-evaluasi.update');
+
+    Route::delete(
+        'rps/{rps}/bentuk-evaluasi/{bentukEvaluasi}',
+        [RpsBentukEvaluasiController::class, 'destroy']
+    )->name('rps.bentuk-evaluasi.destroy');
+
+    Route::get(
         'rps/{rps}/tugas',
         [RpsTugasController::class, 'index']
     )->name('rps.tugas.index');
@@ -649,6 +776,11 @@ Route::middleware(['auth'])->group(function () {
         'rps/{rps}/tugas/{tugas}',
         [RpsTugasController::class, 'destroy']
     )->name('rps.tugas.destroy');
+
+    Route::post(
+        'rps/{rps}/tugas/{tugas}/upload-ke-lms',
+        [RpsTugasController::class, 'uploadKeLms']
+    )->name('rps.tugas.upload-ke-lms');
 });
 
 /* Kaprodi */

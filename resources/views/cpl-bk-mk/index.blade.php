@@ -86,7 +86,11 @@
 
                         <th>
 
-                            {{ $bk->kode_bk }}
+                            <div>{{ $bk->kode_bk }}</div>
+
+                            @if($bk->nama_bk)
+                            <div class="table-sub">{{ $bk->nama_bk }}</div>
+                            @endif
 
                         </th>
 
@@ -104,7 +108,11 @@
 
                         <td class="font-medium">
 
-                            {{ $cpl->kode_cpl }}
+                            <div>{{ $cpl->kode_cpl }}</div>
+
+                            @if($cpl->deskripsi)
+                            <div class="table-sub">{{ $cpl->deskripsi }}</div>
+                            @endif
 
                         </td>
 

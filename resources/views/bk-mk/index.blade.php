@@ -14,7 +14,12 @@
                     <th>Kode MK</th>
                     <th>Nama MK</th>
                     @foreach($bahanKajians as $bahanKajian)
-                    <th>{{ $bahanKajian->kode_bk }}</th>
+                    <th>
+                        <div>{{ $bahanKajian->kode_bk }}</div>
+                        @if($bahanKajian->nama_bk)
+                        <div class="table-sub">{{ $bahanKajian->nama_bk }}</div>
+                        @endif
+                    </th>
                     @endforeach
                 </tr>
             </thead>

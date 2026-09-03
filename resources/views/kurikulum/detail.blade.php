@@ -155,6 +155,45 @@
         </div>
     </a>
 
+    <a href="{{ route('kurikulum.metode-bobot-penilaian.index', $kurikulum->id) }}"
+       style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem 1rem; border-radius: 12px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; transition: all 0.1s; text-align: center;"
+       onmouseover="this.style.borderColor='#a7f3d0';this.style.boxShadow='0 4px 16px rgba(16,185,129,0.08)'"
+       onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #ecfdf5; display: flex; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Metode & Bobot Penilaian</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">Metode penilaian</div>
+        </div>
+    </a>
+
+    <a href="{{ route('kurikulum.rumusan-nilai-akhir-mk.index', $kurikulum->id) }}"
+       style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem 1rem; border-radius: 12px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; transition: all 0.1s; text-align: center;"
+       onmouseover="this.style.borderColor='#fde68a';this.style.boxShadow='0 4px 16px rgba(245,158,11,0.08)'"
+       onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #fffbeb; display: flex; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Rumusan Nilai Akhir MK</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">Skor per MK</div>
+        </div>
+    </a>
+
+    <a href="{{ route('kurikulum.rumusan-nilai-akhir-cpl.index', $kurikulum->id) }}"
+       style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem 1rem; border-radius: 12px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; transition: all 0.1s; text-align: center;"
+       onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(79,70,229,0.08)'"
+       onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
+        </div>
+        <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Rumusan Nilai Akhir CPL</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">Skor per CPL</div>
+        </div>
+    </a>
+
 </div>
 
 <div class="mt-4">

@@ -28,7 +28,11 @@
 
                     <th>
 
-                        {{ $pl->kode_pl }}
+                        <div>{{ $pl->kode_pl }}</div>
+
+                        @if($pl->nama_pl)
+                        <div class="table-sub">{{ $pl->nama_pl }}</div>
+                        @endif
 
                     </th>
 
@@ -46,7 +50,11 @@
 
                     <td>
 
-                        {{ $cpl->kode_cpl }}
+                        <div class="font-medium">{{ $cpl->kode_cpl }}</div>
+
+                        @if($cpl->deskripsi)
+                        <div class="table-sub">{{ $cpl->deskripsi }}</div>
+                        @endif
 
                     </td>
 

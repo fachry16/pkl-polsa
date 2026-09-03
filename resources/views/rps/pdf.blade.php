@@ -231,6 +231,40 @@
             color: #1e293b;
         }
 
+        .approved-stamp {
+            display: inline-block;
+            margin: 4px auto;
+        }
+
+        .approved-check {
+            width: 36px;
+            height: 36px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: #dcfce7;
+            border: 2px solid #16a34a;
+            color: #16a34a;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 32px;
+            text-align: center;
+        }
+
+        .approved-text {
+            font-size: 8px;
+            font-weight: 700;
+            color: #16a34a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .approved-date {
+            font-size: 8px;
+            color: #16a34a;
+            margin-top: 2px;
+        }
+
         /* Data tables */
         .data-table {
             width: 100%;
@@ -476,9 +510,22 @@
                 <tr>
                     <td>
                         <div class="pengesahan-role">Dosen Pengembang RPS</div>
+                        @if($rps->status === 'Disetujui')
+                        <div class="approved-stamp">
+                            <div class="approved-check">✓</div>
+                        </div>
+                        <div class="approved-text">Disetujui</div>
+                        @if($rps->dosen_pengembang_rps)
+                        <div class="pengesahan-name">{{ $rps->dosen_pengembang_rps }}</div>
+                        @endif
+                        @if($rps->tanggal_disetujui)
+                        <div class="approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
+                        @endif
+                        @else
                         <div class="pengesahan-space"></div>
                         <div class="pengesahan-sign">(Tanda tangan)</div>
                         <div class="pengesahan-name">{{ $rps->dosen_pengembang_rps ?? '-' }}</div>
+                        @endif
                     </td>
                     <td>
                         <div class="pengesahan-role">Koordinator RMK</div>
@@ -488,9 +535,22 @@
                     </td>
                     <td>
                         <div class="pengesahan-role">Ketua Program Studi</div>
+                        @if($rps->status === 'Disetujui')
+                        <div class="approved-stamp">
+                            <div class="approved-check">✓</div>
+                        </div>
+                        <div class="approved-text">Disetujui</div>
+                        @if($rps->disetujuiOleh)
+                        <div class="pengesahan-name">{{ $rps->disetujuiOleh->name }}</div>
+                        @endif
+                        @if($rps->tanggal_disetujui)
+                        <div class="approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
+                        @endif
+                        @else
                         <div class="pengesahan-space"></div>
                         <div class="pengesahan-sign">(Tanda tangan)</div>
                         <div class="pengesahan-name">{{ $rps->ketua_prodi ?? '-' }}</div>
+                        @endif
                     </td>
                 </tr>
             </table>
@@ -751,18 +811,9 @@
     {{-- SECTION 10: RANCANGAN EVALUASI --}}
     <div class="section">
         <div class="section-title">5. Rancangan Evaluasi</div>
-        @if($rps->penilaians->count())
+        @if($rps->bentukEvaluasis->count())
         @php
-            $penilaian = $rps->penilaians->first();
-            $evalRows = [
-                'Partisipasi & Keaktifan' => ['sub_cpmk' => 'Seluruh Sub-CPMK', 'bobot' => null],
-                'Tugas' => ['sub_cpmk' => null, 'bobot' => $penilaian->tugas],
-                'Kuis' => ['sub_cpmk' => null, 'bobot' => $penilaian->quiz],
-                'Praktikum' => ['sub_cpmk' => null, 'bobot' => $penilaian->praktikum],
-                'Proyek' => ['sub_cpmk' => null, 'bobot' => $penilaian->project],
-                'Tes Tulis (UTS)' => ['sub_cpmk' => null, 'bobot' => $penilaian->uts],
-                'Tes Tulis (UAS)' => ['sub_cpmk' => null, 'bobot' => $penilaian->uas],
-            ];
+            $totalBobotEval = $rps->bentukEvaluasis->sum('bobot');
         @endphp
         <table class="data-table">
             <thead>
@@ -783,17 +834,15 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($evalRows as $nama => $row)
-                @if($row['bobot'] === null || $row['bobot'] > 0)
+                @foreach($rps->bentukEvaluasis as $be)
                 <tr>
-                    <td>{{ $nama }}</td>
-                    <td>{{ $row['sub_cpmk'] ?? '-' }}</td>
-                    <td>{{ $row['bobot'] === null ? 'Observasi keaktifan diskusi, workshop, dan presentasi' : '-' }}</td>
-                    <td>{{ $row['bobot'] === null ? 'Presensi dan catatan keaktifan' : '-' }}</td>
-                    <td>{{ $row['bobot'] === null ? 'Presensi dan catatan kontribusi' : '-' }}</td>
-                    <td class="text-center">{{ $row['bobot'] === null ? '-' : $row['bobot'] }}</td>
+                    <td>{{ $be->bentuk_evaluasi }}</td>
+                    <td>{{ $be->sub_cpmk ?? '-' }}</td>
+                    <td>{{ $be->formatif ? ($be->instrumen ?? '-') : '-' }}</td>
+                    <td>{{ $be->sumatif ? ($be->instrumen ?? '-') : '-' }}</td>
+                    <td>{{ $be->tagihan ?? '-' }}</td>
+                    <td class="text-center">{{ $be->bobot }}</td>
                 </tr>
-                @endif
                 @endforeach
                 <tr class="total-row">
                     <td class="font-semibold">Total</td>
@@ -801,7 +850,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td class="text-center font-semibold">{{ number_format((float) $penilaian->tugas + (float) $penilaian->quiz + (float) $penilaian->uts + (float) $penilaian->uas + (float) $penilaian->praktikum + (float) $penilaian->project, 0) }}%</td>
+                    <td class="text-center font-semibold">{{ number_format((float) $totalBobotEval, 0) }}%</td>
                 </tr>
             </tbody>
         </table>
