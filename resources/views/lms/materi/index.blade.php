@@ -7,7 +7,7 @@
 </div>
 
 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-    <a href="{{ route('lms.show', $pengampu->id) }}" class="btn btn-secondary btn-sm">Kembali ke Kelas</a>
+    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas_kelas']) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas Kelas</a>
 </div>
 
 
@@ -66,12 +66,16 @@
                             @if($materi->file_path)
                                 <x-file-link :file="$materi->file_path" :href="route('lms.file', ['materi', $materi->id])" />
                             @endif
-                            <div style="margin-left: auto; display: flex; gap: 0.5rem;">
-                                <a href="{{ route('lms.materi.edit', [$pengampu->id, $materi->id]) }}" class="btn btn-secondary btn-sm">Edit</a>
-                                <form action="{{ route('lms.materi.destroy', ['pengampu' => $pengampu->id, 'materi' => $materi->id]) }}" method="POST" style="margin: 0;">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus materi ini?')">Hapus</button>
-                                </form>
+                            <div style="margin-left: auto; display: flex; align-items: center; gap: 0.5rem;">
+                                @if($materi->canBeModified())
+                                    <a href="{{ route('lms.materi.edit', [$pengampu->id, $materi->id]) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                    <form action="{{ route('lms.materi.destroy', ['pengampu' => $pengampu->id, 'materi' => $materi->id]) }}" method="POST" style="margin: 0;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus materi ini?')">Hapus</button>
+                                    </form>
+                                @else
+                                    <span style="font-size: 0.72rem; color: #94a3b8;">Terkunci (lewat 1x24 jam)</span>
+                                @endif
                             </div>
                         </div>
                     </div>

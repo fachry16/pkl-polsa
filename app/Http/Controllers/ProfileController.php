@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -26,35 +27,71 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($request->hasFile('avatar')) {
+            $this->processAvatarUpload($request);
         }
 
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('toast_success', 'Profil berhasil diperbarui.');
     }
 
     /**
-     * Delete the user's account.
+     * Upload or update user avatar.
+     */
+    public function updateAvatar(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'file', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+        ], [
+            'avatar.required' => 'Pilih file gambar terlebih dahulu.',
+            'avatar.file' => 'File harus berupa dokumen gambar valid.',
+            'avatar.mimes' => 'Format gambar yang diperbolehkan: JPEG, PNG, JPG, WEBP.',
+            'avatar.max' => 'Ukuran gambar maksimal 2MB.',
+        ]);
+
+        $this->processAvatarUpload($request);
+
+        return Redirect::route('profile.edit')->with('toast_success', 'Foto profil berhasil diperbarui.');
+    }
+
+    /**
+     * Delete user avatar (revert to default initial).
+     */
+    public function destroyAvatar(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->avatar) {
+            if (Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $user->avatar = null;
+            $user->save();
+        }
+
+        return Redirect::route('profile.edit')->with('toast_success', 'Foto profil berhasil dihapus. Kembali ke avatar inisial default.');
+    }
+
+    /**
+     * Process avatar storage.
+     */
+    protected function processAvatarUpload(Request $request): void
+    {
+        $user = $request->user();
+
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->avatar = $path;
+        $user->save();
+    }
+
+    /**
+     * Delete the user's account (Disabled for academic data integrity).
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return Redirect::route('profile.edit')->with('toast_error', 'Penghapusan akun dinonaktifkan demi menjaga integritas data akademik.');
     }
 }

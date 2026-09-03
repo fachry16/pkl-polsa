@@ -63,24 +63,47 @@ class LmsController extends Controller
             'mataKuliah',
             'tahunAkademik',
             'dosen.user',
-            'lmsMateris' => function ($q) {
-                $q->latest()->limit(5);
-            },
+            'mahasiswas.user',
+            'lmsMateris.rpsPertemuan',
+            'lmsTugas.rpsPertemuan',
             'lmsTugas' => function ($q) {
-                $q->withCount(['submissions'])->latest()->limit(5);
+                $q->withCount(['submissions'])->latest();
             },
             'lmsForumDiskusis' => function ($q) {
-                $q->whereNull('parent_id')->with('user')->latest()->limit(5);
+                $q->whereNull('parent_id')->with(['user', 'replies.user'])->latest();
             },
-            'lmsForumDiskusis.replies.user',
             'lmsPengumumans' => function ($q) {
-                $q->latest()->limit(5);
+                $q->latest();
             },
         ]);
 
-        $materiCount = $pengampu->lmsMateris()->count();
-        $tugasCount = $pengampu->lmsTugas()->count();
+        $materiCount = $pengampu->lmsMateris->count();
+        $tugasCount = $pengampu->lmsTugas->count();
+        $mahasiswaCount = $pengampu->mahasiswas->count();
+        $pertemuans = $pengampu->rpsPertemuans();
 
-        return view('lms.show', compact('pengampu', 'materiCount', 'tugasCount'));
+        $sesis = $pengampu->lmsSesiAbsensis()
+            ->with('absensis')
+            ->get()
+            ->keyBy('rps_pertemuan_id');
+
+        $tugasList = $pengampu->lmsTugas()->with('submissions')->get();
+        $nilaiByMhs = \App\Models\LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
+            ->whereIn('mahasiswa_id', $pengampu->mahasiswas->pluck('id'))
+            ->get()
+            ->groupBy('mahasiswa_id');
+        $bobot = app(\App\Services\PenilaianService::class)->bobotKomponen($pengampu);
+
+        return view('lms.show', compact(
+            'pengampu',
+            'materiCount',
+            'tugasCount',
+            'mahasiswaCount',
+            'pertemuans',
+            'sesis',
+            'tugasList',
+            'nilaiByMhs',
+            'bobot'
+        ));
     }
 }

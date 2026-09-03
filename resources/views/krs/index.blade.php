@@ -14,6 +14,9 @@
 <a href="{{ route('krs.cetak-pilih') }}" class="btn btn-secondary">
     Cetak KRS
 </a>
+<a href="{{ route('khs.cetak-pilih') }}" class="btn btn-secondary" style="background: #eef2ff; color: #4338ca; border-color: #c7d2fe; font-weight: 600;">
+    Cetak KHS
+</a>
 
 <x-alert type="success" :message="session('success')" />
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\CplPlController;
 use App\Http\Controllers\CpmkController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DosenController;
+use App\Http\Controllers\KhsController;
 use App\Http\Controllers\KrsController;
 use App\Http\Controllers\KurikulumController;
 use App\Http\Controllers\LmsAbsensiController;
@@ -45,6 +46,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['au
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
@@ -64,8 +67,8 @@ Route::middleware(['auth'])->group(function () {
     )->name('dosen.self.riwayat');
 });
 
-/* Shared read-only (Admin + Direktur) */
-Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
+/* Master Data (Admin only) */
+Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get(
         'tahun-akademik',
@@ -132,9 +135,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('program-studi', ProgramStudiController::class)
         ->except(['index']);
 
+    Route::get('dosen/template-import', [DosenController::class, 'downloadTemplate'])->name('dosen.template-import');
+    Route::post('dosen/import', [DosenController::class, 'import'])->name('dosen.import');
     Route::resource('dosen', DosenController::class)
         ->except(['index']);
 
+    Route::get('mahasiswa/template-import', [MahasiswaController::class, 'downloadTemplate'])->name('mahasiswa.template-import');
+    Route::post('mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
     Route::resource('mahasiswa', MahasiswaController::class)
         ->except(['index'])
         ->where(['mahasiswa' => '[0-9]+']);
@@ -153,10 +160,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     )->name('pengampu.kelas.mahasiswa.destroy');
 
     Route::resource('users', UserController::class);
+    Route::resource('roles', \App\Http\Controllers\RoleController::class);
 });
 
-/* KRS — Admin, Direktur (read-only), Kaprodi */
-Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
+/* KRS — Admin, Kaprodi */
+Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
 
     Route::get(
         'krs',
@@ -192,6 +200,54 @@ Route::middleware(['auth', 'role:admin,direktur,kaprodi'])->group(function () {
         'krs/cetak/mahasiswa-options',
         [KrsController::class, 'mahasiswaOptions']
     )->name('krs.mahasiswa-options');
+});
+
+/* KHS — Admin, Kaprodi, Direktur, Mahasiswa */
+Route::middleware(['auth'])->group(function () {
+    Route::get(
+        'khs',
+        [KhsController::class, 'index']
+    )->middleware('role:admin,kaprodi,direktur')->name('khs.index');
+
+    Route::post(
+        'khs/approve-all',
+        [KhsController::class, 'approveAll']
+    )->middleware('role:admin,kaprodi')->name('khs.approve-all');
+
+    Route::post(
+        'khs/{mahasiswa}/{tahunAkademik}/approve',
+        [KhsController::class, 'approve']
+    )->middleware('role:admin,kaprodi')->name('khs.approve');
+
+    Route::post(
+        'khs/{mahasiswa}/{tahunAkademik}/unapprove',
+        [KhsController::class, 'unapprove']
+    )->middleware('role:admin,kaprodi')->name('khs.unapprove');
+
+    Route::get(
+        'khs/cetak/pilih-mahasiswa',
+        [KhsController::class, 'cetakPilih']
+    )->middleware('role:admin,kaprodi,direktur')->name('khs.cetak-pilih');
+
+    Route::post(
+        'khs/cetak/pilih-mahasiswa',
+        [KhsController::class, 'pilihMahasiswa']
+    )->middleware('role:admin,kaprodi,direktur')->name('khs.pilih-mahasiswa');
+
+    Route::get(
+        'khs/self',
+        [KhsController::class, 'self']
+    )->name('khs.self');
+
+    Route::get(
+        'khs/cetak/{mahasiswa}',
+        [KhsController::class, 'cetak']
+    )->where(['mahasiswa' => '[0-9]+'])->name('khs.cetak');
+
+    Route::get(
+        'khs/cetak/{mahasiswa}/pdf',
+        [KhsController::class, 'cetakPdf']
+    )->where(['mahasiswa' => '[0-9]+'])->name('khs.cetak-pdf');
 });
 
 /* KRS — Admin + Kaprodi (mutations) */
@@ -619,9 +675,7 @@ Route::middleware(['auth', 'role:direktur'])->group(function () {
 
     Route::get(
         '/dashboard-direktur',
-        function () {
-            return view('dashboard-direktur');
-        }
+        [DashboardController::class, 'index']
     )->name('dashboard-direktur');
 });
 
@@ -632,10 +686,13 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
 
     Route::get('/monitor-kelas', [LmsController::class, 'monitor'])->middleware('role:admin')->name('monitor');
 
+    Route::get('/file/{model}/{id}', [LmsFileController::class, 'show'])->name('file');
+
     Route::get('/{pengampu}', [LmsController::class, 'show'])->name('show');
 
     Route::get('/{pengampu}/materi', [LmsMateriController::class, 'index'])->name('materi.index');
     Route::post('/{pengampu}/materi', [LmsMateriController::class, 'store'])->name('materi.store');
+    Route::get('/{pengampu}/materi/{materi}', [LmsMateriController::class, 'show'])->name('materi.show');
     Route::get('/{pengampu}/materi/{materi}/edit', [LmsMateriController::class, 'edit'])->name('materi.edit');
     Route::patch('/{pengampu}/materi/{materi}', [LmsMateriController::class, 'update'])->name('materi.update');
     Route::delete('/{pengampu}/materi/{materi}', [LmsMateriController::class, 'destroy'])->name('materi.destroy');
@@ -647,6 +704,9 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::patch('/{pengampu}/tugas/{tugas}', [LmsTugasController::class, 'update'])->name('tugas.update');
     Route::delete('/{pengampu}/tugas/{tugas}', [LmsTugasController::class, 'destroy'])->name('tugas.destroy');
 
+    Route::post('/{pengampu}/topik-komentar', [\App\Http\Controllers\LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
+    Route::delete('/{pengampu}/topik-komentar/{komentar}', [\App\Http\Controllers\LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
+
     Route::patch('/submission/{submission}/nilai', [LmsTugasController::class, 'nilai'])->name('submission.nilai');
 
     Route::get('/{pengampu}/forum', [LmsForumController::class, 'index'])->name('forum.index');
@@ -654,8 +714,6 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::get('/{pengampu}/forum/{diskusi}/edit', [LmsForumController::class, 'edit'])->name('forum.edit');
     Route::patch('/{pengampu}/forum/{diskusi}', [LmsForumController::class, 'update'])->name('forum.update');
     Route::delete('/{pengampu}/forum/{diskusi}', [LmsForumController::class, 'destroy'])->name('forum.destroy');
-
-    Route::get('/file/{model}/{id}', [LmsFileController::class, 'show'])->name('file');
 
     Route::get('/{pengampu}/pengumuman', [LmsPengumumanController::class, 'index'])->name('pengumuman.index');
     Route::post('/{pengampu}/pengumuman', [LmsPengumumanController::class, 'store'])->name('pengumuman.store');
@@ -677,6 +735,10 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
 Route::middleware(['auth'])->prefix('mahasiswa')->name('mahasiswa.lms.')->group(function () {
     Route::get('/kelas-saya', [LmsMahasiswaController::class, 'index'])->name('index');
     Route::get('/kelas/{pengampu}', [LmsMahasiswaController::class, 'show'])->name('show');
+    Route::get('/kelas/{pengampu}/materi/{materi}', [LmsMahasiswaController::class, 'showMateri'])->name('materi.show');
+    Route::get('/kelas/{pengampu}/tugas/{tugas}', [LmsMahasiswaController::class, 'showTugas'])->name('tugas.show');
+    Route::post('/kelas/{pengampu}/topik-komentar', [\App\Http\Controllers\LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
+    Route::delete('/kelas/{pengampu}/topik-komentar/{komentar}', [\App\Http\Controllers\LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
     Route::post('/kelas/{pengampu}/forum', [LmsMahasiswaController::class, 'storeForum'])->name('forum.store');
     Route::patch('/kelas/{pengampu}/forum/{diskusi}', [LmsMahasiswaController::class, 'updateForum'])->name('forum.update');
     Route::delete('/kelas/{pengampu}/forum/{diskusi}', [LmsMahasiswaController::class, 'destroyForum'])->name('forum.destroy');

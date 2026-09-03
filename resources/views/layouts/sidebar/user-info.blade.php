@@ -3,7 +3,15 @@
         <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
         <div class="user-detail">
             <div class="user-name">{{ auth()->user()->name }}</div>
-            <div class="user-role">{{ auth()->user()->dosen?->jabatan ?? ucfirst(auth()->user()->role) }}</div>
+            <div class="user-role">
+                @php
+                    $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
+                    $rolesNames = array_map(function($r) use ($roleMap) {
+                        return $roleMap->get($r) ?? ucfirst(str_replace('_', ' ', $r));
+                    }, auth()->user()->getRolesList());
+                @endphp
+                {{ implode(' & ', $rolesNames) }}
+            </div>
         </div>
     </div>
     <a href="#" class="logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

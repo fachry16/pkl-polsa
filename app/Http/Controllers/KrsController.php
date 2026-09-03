@@ -87,6 +87,14 @@ class KrsController extends Controller
             'kelas' => $request->kelas,
         ]);
 
+        $pembuat = auth()->user()->name ?? 'User';
+        $adminUsers = \App\Models\User::where('role', 'admin')->orWhereJsonContains('roles', 'admin')->get();
+        foreach ($adminUsers as $admin) {
+            if ($admin->id !== auth()->id()) {
+                $admin->notify(new \App\Notifications\KrsBaruAdmin($krs, $pembuat));
+            }
+        }
+
         return redirect()
             ->route('krs.show', $krs)
             ->with('success', 'KRS berhasil dibuat dan muncul di menu Pengampu.');
@@ -95,6 +103,13 @@ class KrsController extends Controller
     public function show(Krs $krs)
     {
         $this->authorizeKrsRead($krs);
+
+        if (auth()->check() && auth()->user()->isAdmin()) {
+            auth()->user()->unreadNotifications()
+                ->where('type', \App\Notifications\KrsBaruAdmin::class)
+                ->where('data->krs_id', $krs->id)
+                ->update(['read_at' => now()]);
+        }
 
         $krs->load(['programStudi', 'mataKuliah', 'dosen.user', 'tahunAkademik', 'mahasiswas' => function ($q) {
             $q->with('programStudi')->orderBy('nim');

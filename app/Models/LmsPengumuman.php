@@ -23,4 +23,14 @@ class LmsPengumuman extends Model
     {
         return $this->belongsTo(Pengampu::class);
     }
+
+    public function canBeEdited(): bool
+    {
+        return $this->created_at ? $this->created_at->addMinutes(30)->isFuture() : false;
+    }
+
+    public function canBeDeleted(): bool
+    {
+        return $this->created_at ? $this->created_at->addHours(24)->isFuture() : false;
+    }
 }

@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class SubmissionBaru extends Notification implements ShouldQueue
+class SubmissionBaru extends Notification
 {
     use Queueable;
 

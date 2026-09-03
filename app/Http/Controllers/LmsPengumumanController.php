@@ -57,6 +57,11 @@ class LmsPengumumanController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
 
+        if (! $pengumuman->canBeEdited()) {
+            return redirect()->route('lms.pengumuman.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu 30 menit untuk mengedit pengumuman telah berakhir.');
+        }
+
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
         return view('lms.pengumuman.edit', compact('pengampu', 'pengumuman'));
@@ -68,6 +73,11 @@ class LmsPengumumanController extends Controller
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
+
+        if (! $pengumuman->canBeEdited()) {
+            return redirect()->route('lms.pengumuman.index', $pengampu->id)
+                ->with('toast_error', 'Batas waktu 30 menit untuk mengedit pengumuman telah berakhir.');
+        }
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -90,6 +100,10 @@ class LmsPengumumanController extends Controller
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
+
+        if (! $pengumuman->canBeDeleted()) {
+            return back()->with('toast_error', 'Batas waktu 1x24 jam untuk menghapus pengumuman telah berakhir.');
+        }
 
         $pengumuman->delete();
 

@@ -21,8 +21,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'password',
         'role',
+        'roles',
         'email_verified_at',
     ];
 
@@ -46,6 +48,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'roles' => 'array',
         ];
     }
 
@@ -59,29 +62,140 @@ class User extends Authenticatable
         return $this->hasOne(Mahasiswa::class);
     }
 
-    public function isAdmin()
+    public function getRolesList(): array
     {
-        return $this->role === 'admin';
+        $roles = $this->roles ?? [];
+        if (empty($roles)) {
+            $roles = $this->role ? [$this->role] : [];
+            if ($this->dosen) {
+                $roles[] = 'dosen';
+                $jabatan = strtolower($this->dosen->jabatan ?? '');
+                if ($jabatan === 'kaprodi') {
+                    $roles[] = 'kaprodi';
+                } elseif ($jabatan === 'direktur') {
+                    $roles[] = 'direktur';
+                }
+            }
+        } elseif ($this->dosen && ! in_array('dosen', $roles)) {
+            $roles[] = 'dosen';
+        }
+
+        return array_values(array_unique(array_map('strtolower', $roles)));
     }
 
-    public function isDirektur()
+    public function hasRole(string $role): bool
     {
-        return $this->role === 'direktur';
+        return in_array(strtolower($role), $this->getRolesList());
     }
 
-    public function isDosen()
+    public function isAdmin(): bool
     {
-        return $this->role === 'dosen';
+        return $this->hasRole('admin');
     }
 
-    public function isKaprodi()
+    public function isDirektur(): bool
     {
-        return $this->role === 'dosen'
-            && strtolower($this->dosen?->jabatan ?? '') === 'kaprodi';
+        if ($this->hasRole('direktur')) {
+            return true;
+        }
+
+        foreach ($this->getRolesList() as $r) {
+            if (str_starts_with($r, 'direktur')) {
+                return true;
+            }
+        }
+
+        if ($this->isDosen()) {
+            $jabatan = strtolower($this->dosen?->jabatan ?? '');
+            if (str_contains($jabatan, 'direktur')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public function isMahasiswa()
+    public function isDosen(): bool
     {
-        return $this->role === 'mahasiswa';
+        return $this->hasRole('dosen') || $this->dosen !== null;
+    }
+
+    public function isKaprodi(): bool
+    {
+        if ($this->hasRole('kaprodi')) {
+            return true;
+        }
+
+        foreach ($this->getRolesList() as $r) {
+            if (str_starts_with($r, 'kaprodi')) {
+                return true;
+            }
+        }
+
+        if ($this->isDosen()) {
+            $jabatan = strtolower($this->dosen?->jabatan ?? '');
+            if (str_contains($jabatan, 'kaprodi')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isMahasiswa(): bool
+    {
+        return $this->hasRole('mahasiswa');
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if ($this->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
+            return \Illuminate\Support\Facades\Storage::url($this->avatar);
+        }
+        return null;
+    }
+
+    public function getUnreadNotificationsCountAttribute(): int
+    {
+        return $this->unreadNotifications()->count();
+    }
+
+    public function getUnreadLmsCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->whereIn('type', [
+                \App\Notifications\MateriBaru::class,
+                \App\Notifications\TugasBaru::class,
+                \App\Notifications\PengumumanBaru::class,
+                \App\Notifications\NilaiDiberikan::class,
+                \App\Notifications\SubmissionBaru::class,
+                \App\Notifications\ForumDiskusiBaru::class,
+            ])
+            ->count();
+    }
+
+    public function getUnreadRpsCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->whereIn('type', [
+                \App\Notifications\RpsDiajukan::class,
+                \App\Notifications\RpsDisetujui::class,
+                \App\Notifications\RpsDirevisi::class,
+            ])
+            ->count();
+    }
+
+    public function getUnreadKrsCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->where('type', \App\Notifications\KrsBaruAdmin::class)
+            ->count();
+    }
+
+    public function getUnreadKurikulumCountAttribute(): int
+    {
+        return $this->unreadNotifications()
+            ->where('type', \App\Notifications\KurikulumBaruAdmin::class)
+            ->count();
     }
 }

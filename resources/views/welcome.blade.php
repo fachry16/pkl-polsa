@@ -435,7 +435,7 @@
             <div class="hero-inner">
                 <div class="hero-text">
                     <h1>Selamat Datang di<br><span class="highlight">PIKOBE</span> Polsa</h1>
-                    <p>Sistem Informasi Kurikulum & RPS — Platform digital untuk mengelola kurikulum, CPL, CPMK, dan RPS secara terintegrasi di lingkungan Politeknik Sawunggalih Aji.</p>
+                    <p>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS) — Platform digital untuk mengelola kurikulum, RPS, dan perkuliahan berbasis OBE secara terintegrasi di lingkungan Politeknik Sawunggalih Aji.</p>
                     @if (Route::has('login'))
                         <a href="{{ route('login') }}" class="btn">Masuk ke Sistem</a>
                     @endif

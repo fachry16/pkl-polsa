@@ -34,10 +34,6 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('dashboard-direktur', absolute: false));
         }
 
-        if ($user->isMahasiswa()) {
-            return redirect()->intended(route('mahasiswa.lms.index', absolute: false));
-        }
-
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

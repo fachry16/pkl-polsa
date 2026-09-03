@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LmsForumDiskusi;
 use App\Models\Pengampu;
+use App\Notifications\ForumDiskusiBaru;
 use App\Rules\LmsFileMime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,13 @@ class LmsForumController extends Controller
     public function index(Pengampu $pengampu)
     {
         $this->authorizePengampu($pengampu);
+
+        if (Auth::check()) {
+            Auth::user()->unreadNotifications()
+                ->where('type', ForumDiskusiBaru::class)
+                ->where('data->pengampu_id', $pengampu->id)
+                ->update(['read_at' => now()]);
+        }
 
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
@@ -36,7 +44,17 @@ class LmsForumController extends Controller
             $data['file_path'] = $request->file('file')->store('lms/forum', 'public');
         }
 
-        LmsForumDiskusi::create($data);
+        $forum = LmsForumDiskusi::create($data);
+
+        $sender = Auth::user();
+        if ($pengampu->dosen?->user && $pengampu->dosen->user->id !== $sender->id) {
+            $pengampu->dosen->user->notify(new ForumDiskusiBaru($pengampu, $forum, $sender->name));
+        }
+        foreach ($pengampu->mahasiswas as $mhs) {
+            if ($mhs->user && $mhs->user->id !== $sender->id) {
+                $mhs->user->notify(new ForumDiskusiBaru($pengampu, $forum, $sender->name));
+            }
+        }
 
         return back()->with('toast_success', 'Pesan berhasil dikirim.');
     }
@@ -73,7 +91,18 @@ class LmsForumController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsForumDiskusi $diskusi)
     {
-        $this->authorizePost($pengampu, $diskusi);
+        $this->authorizePengampu($pengampu);
+        abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
+
+        abort_if($diskusi->user?->isMahasiswa(), 403, 'Dosen tidak dapat menghapus pesan forum yang dikirim oleh mahasiswa.');
+        abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
+
+        foreach ($diskusi->replies as $reply) {
+            if ($reply->file_path) {
+                Storage::disk('public')->delete($reply->file_path);
+            }
+        }
+        $diskusi->replies()->delete();
 
         if ($diskusi->file_path) {
             Storage::disk('public')->delete($diskusi->file_path);
@@ -81,7 +110,7 @@ class LmsForumController extends Controller
 
         $diskusi->delete();
 
-        return redirect()->route('lms.forum.index', $pengampu->id)->with('toast_success', 'Pesan berhasil dihapus.');
+        return redirect()->back(fallback: route('lms.forum.index', $pengampu->id))->with('toast_success', 'Pesan berhasil dihapus.');
     }
 
     private function validated(Request $request, int $pengampuId): array
@@ -128,5 +157,8 @@ class LmsForumController extends Controller
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
 
         abort_unless(Auth::id() === $diskusi->user_id, 403);
+
+        abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk mengubah pesan telah berakhir.');
     }
 }
+

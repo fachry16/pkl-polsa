@@ -33,14 +33,6 @@ class LmsSesiAbsensi extends Model
 
     public function canEdit(): bool
     {
-        $minggu = $this->rpsPertemuan?->minggu;
-
-        if ($minggu === null) {
-            return true;
-        }
-
-        return ! self::where('pengampu_id', $this->pengampu_id)
-            ->whereHas('rpsPertemuan', fn ($q) => $q->where('minggu', '>', $minggu))
-            ->exists();
+        return true;
     }
 }

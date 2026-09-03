@@ -143,6 +143,10 @@ class LmsAbsensiTest extends TestCase
 
         $this->actingAs($data['userDosen'])
             ->get(route('lms.absensi.index', $data['pengampu']->id))
+            ->assertRedirect(route('lms.show', [$data['pengampu']->id, 'tab' => 'presensi']));
+
+        $this->actingAs($data['userDosen'])
+            ->get(route('lms.show', [$data['pengampu']->id, 'tab' => 'presensi']))
             ->assertOk()
             ->assertSee('Presensi Kehadiran');
 
@@ -172,7 +176,7 @@ class LmsAbsensiTest extends TestCase
         $this->assertEquals(1, LmsSesiAbsensi::where('rps_pertemuan_id', $pertemuan->id)->count());
     }
 
-    public function test_sesi_terkunci_setelah_sesi_berikutnya_dibuka(): void
+    public function test_sesi_tetap_bisa_diedit_meskipun_sesi_berikutnya_dibuka(): void
     {
         $data = $this->buatData();
         [$p1, $p2] = $data['pertemuans']->values();
@@ -193,11 +197,12 @@ class LmsAbsensiTest extends TestCase
             ->post(route('lms.absensi.store', [$data['pengampu']->id, $sesi1->id]), [
                 'status' => [$data['mahasiswa']->id => 'hadir'],
             ])
-            ->assertSessionHas('toast_error');
+            ->assertSessionHas('toast_success');
 
-        $this->assertDatabaseMissing('lms_absensis', [
+        $this->assertDatabaseHas('lms_absensis', [
             'sesi_id' => $sesi1->id,
             'mahasiswa_id' => $data['mahasiswa']->id,
+            'status' => 'hadir',
         ]);
     }
 

@@ -47,10 +47,17 @@ class LmsMahasiswaController extends Controller
         abort_if(! $mahasiswa, 403);
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
 
+        Auth::user()->unreadNotifications()
+            ->where('data->pengampu_id', $pengampu->id)
+            ->update(['read_at' => now()]);
+
         $pengampu->load([
             'mataKuliah',
             'dosen.user',
             'tahunAkademik',
+            'mahasiswas.user',
+            'lmsMateris.rpsPertemuan',
+            'lmsTugas.rpsPertemuan',
             'lmsMateris' => function ($q) {
                 $q->latest();
             },
@@ -105,6 +112,58 @@ class LmsMahasiswaController extends Controller
         ));
     }
 
+    public function showTugas(Pengampu $pengampu, LmsTugas $tugas)
+    {
+        $mahasiswa = Auth::user()->mahasiswa;
+
+        abort_if(! $mahasiswa, 403);
+        abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
+        abort_if($tugas->pengampu_id !== $pengampu->id, 404);
+
+        $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
+        $submission = LmsSubmission::where('lms_tugas_id', $tugas->id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->first();
+
+        $komentarsKelas = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+            ->where('topik_id', $tugas->id)
+            ->where('is_private', false)
+            ->with('user')
+            ->oldest()
+            ->get();
+
+        $komentarsPribadi = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+            ->where('topik_id', $tugas->id)
+            ->where('is_private', true)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->with('user')
+            ->oldest()
+            ->get();
+
+        return view('lms.mahasiswa.tugas.show', compact('pengampu', 'tugas', 'submission', 'komentarsKelas', 'komentarsPribadi'));
+    }
+
+    public function showMateri(Pengampu $pengampu, LmsMateri $materi)
+    {
+        $mahasiswa = Auth::user()->mahasiswa;
+
+        abort_if(! $mahasiswa, 403);
+        abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
+        abort_if($materi->pengampu_id !== $pengampu->id, 404);
+
+        $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
+        $isSelesai = $materi->dibacaOleh($mahasiswa);
+
+        $komentarsKelas = \App\Models\LmsTopikKomentar::where('tipe_topik', 'materi')
+            ->where('topik_id', $materi->id)
+            ->where('is_private', false)
+            ->with('user')
+            ->oldest()
+            ->get();
+
+        return view('lms.mahasiswa.materi.show', compact('pengampu', 'materi', 'isSelesai', 'komentarsKelas'));
+    }
+
     public function storeForum(Request $request, Pengampu $pengampu)
     {
         $mahasiswa = Auth::user()->mahasiswa;
@@ -156,6 +215,7 @@ class LmsMahasiswaController extends Controller
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
         abort_unless(Auth::id() === $diskusi->user_id, 403);
+        abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
 
         foreach ($diskusi->replies as $reply) {
             if ($reply->file_path) {
@@ -182,6 +242,7 @@ class LmsMahasiswaController extends Controller
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
         abort_unless(Auth::id() === $diskusi->user_id, 403);
+        abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk mengubah pesan telah berakhir.');
 
         $validated = $request->validate([
             'pesan' => 'required|string',
@@ -226,17 +287,15 @@ class LmsMahasiswaController extends Controller
         $maxKb = ($tugas->batas_upload_mb ?: 50) * 1024;
 
         $request->validate([
-            'file_jawaban' => ['nullable', 'file', "max:{$maxKb}", new LmsFileMime, 'required_without:catatan_mahasiswa'],
-            'catatan_mahasiswa' => ['nullable', 'string', 'required_without:file_jawaban'],
-        ], [
-            'file_jawaban.max' => 'Ukuran file maksimal '.($tugas->batas_upload_mb ?: 50).' MB.',
-            'file_jawaban.required_without' => 'Kumpulkan tugas dengan mengunggah file atau menulis catatan.',
-            'catatan_mahasiswa.required_without' => 'Kumpulkan tugas dengan mengunggah file atau menulis catatan.',
+            'file_jawaban' => ['nullable', 'file', "max:{$maxKb}", new LmsFileMime],
+            'link_jawaban' => ['nullable', 'string', 'max:500'],
+            'catatan_mahasiswa' => ['nullable', 'string'],
         ]);
 
         $data = [
             'lms_tugas_id' => $tugas->id,
             'mahasiswa_id' => $mahasiswa->id,
+            'link_jawaban' => $request->link_jawaban,
             'catatan_mahasiswa' => $request->catatan_mahasiswa,
             'dikumpulkan_pada' => now(),
         ];
@@ -258,7 +317,7 @@ class LmsMahasiswaController extends Controller
             $pengampu->dosen->user->notify(new SubmissionBaru($pengampu, $tugas, $mahasiswa));
         }
 
-        return back()->with('toast_success', 'Tugas berhasil dikumpulkan.');
+        return back()->with('toast_success', 'Tugas berhasil dikumpulkan / ditandai selesai.');
     }
 
     public function updateSubmission(Request $request, LmsSubmission $submission)
@@ -279,6 +338,7 @@ class LmsMahasiswaController extends Controller
 
         $request->validate([
             'file_jawaban' => ['nullable', 'file', "max:{$maxKb}", new LmsFileMime],
+            'link_jawaban' => ['nullable', 'string', 'max:500'],
             'catatan_mahasiswa' => ['nullable', 'string'],
         ]);
 
@@ -286,6 +346,10 @@ class LmsMahasiswaController extends Controller
             'catatan_mahasiswa' => $request->catatan_mahasiswa,
             'dikumpulkan_pada' => now(),
         ];
+
+        if ($request->has('link_jawaban')) {
+            $data['link_jawaban'] = $request->link_jawaban;
+        }
 
         if ($request->hasFile('file_jawaban')) {
             if ($submission->file_jawaban) {

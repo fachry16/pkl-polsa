@@ -40,12 +40,19 @@
                             <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">{{ $pengumuman->published_at?->format('d M Y H:i') }}</span>
                         </div>
                         <div style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem; line-height: 1.7; white-space: pre-wrap;">{!! linkify($pengumuman->isi) !!}</div>
-                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
-                            <a href="{{ route('lms.pengumuman.edit', [$pengampu->id, $pengumuman->id]) }}" class="btn btn-secondary btn-sm">Edit</a>
-                            <form action="{{ route('lms.pengumuman.destroy', [$pengampu->id, $pengumuman->id]) }}" method="POST" style="margin: 0;">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus pengumuman ini?')">Hapus</button>
-                            </form>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+                            @if($pengumuman->canBeEdited())
+                                <a href="{{ route('lms.pengumuman.edit', [$pengampu->id, $pengumuman->id]) }}" class="btn btn-secondary btn-sm">Edit</a>
+                            @endif
+                            @if($pengumuman->canBeDeleted())
+                                <form action="{{ route('lms.pengumuman.destroy', [$pengampu->id, $pengumuman->id]) }}" method="POST" style="margin: 0;">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus pengumuman ini?')">Hapus</button>
+                                </form>
+                            @endif
+                            @if(! $pengumuman->canBeEdited() && ! $pengumuman->canBeDeleted())
+                                <span style="font-size: 0.72rem; color: #94a3b8;">Terkunci (melewati batas edit 30m / hapus 24j)</span>
+                            @endif
                         </div>
                     </div>
                 </div>

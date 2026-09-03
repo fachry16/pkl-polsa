@@ -127,4 +127,97 @@ class PenilaianService
             ['nilai' => $nilai]
         );
     }
+
+    /**
+     * Konversi nilai angka (skala 0 - 100) ke nilai huruf (A, B+, B, C+, C, D, E).
+     */
+    public static function konversiHuruf(?float $nilai): ?string
+    {
+        if ($nilai === null) {
+            return null;
+        }
+
+        if ($nilai >= 80) {
+            return 'A';
+        }
+        if ($nilai >= 75) {
+            return 'B+';
+        }
+        if ($nilai >= 70) {
+            return 'B';
+        }
+        if ($nilai >= 65) {
+            return 'C+';
+        }
+        if ($nilai >= 60) {
+            return 'C';
+        }
+        if ($nilai >= 50) {
+            return 'D';
+        }
+
+        return 'E';
+    }
+
+    /**
+     * Konversi nilai angka ke bobot mutu (skala 0.00 - 4.00).
+     */
+    public static function konversiBobotMutu(?float $nilai): ?float
+    {
+        if ($nilai === null) {
+            return null;
+        }
+
+        if ($nilai >= 80) {
+            return 4.00;
+        }
+        if ($nilai >= 75) {
+            return 3.50;
+        }
+        if ($nilai >= 70) {
+            return 3.00;
+        }
+        if ($nilai >= 65) {
+            return 2.50;
+        }
+        if ($nilai >= 60) {
+            return 2.00;
+        }
+        if ($nilai >= 50) {
+            return 1.00;
+        }
+
+        return 0.00;
+    }
+
+    /**
+     * Deskripsi predikat capaian nilai.
+     */
+    public static function predikat(?float $nilai): ?string
+    {
+        if ($nilai === null) {
+            return null;
+        }
+
+        if ($nilai >= 80) {
+            return 'Sangat Baik (Istimewa)';
+        }
+        if ($nilai >= 75) {
+            return 'Antara Sangat Baik & Baik';
+        }
+        if ($nilai >= 70) {
+            return 'Baik';
+        }
+        if ($nilai >= 65) {
+            return 'Antara Baik & Cukup';
+        }
+        if ($nilai >= 60) {
+            return 'Cukup (Lulus)';
+        }
+        if ($nilai >= 50) {
+            return 'Kurang (Perlu Remedi)';
+        }
+
+        return 'Gagal (Tidak Lulus)';
+    }
 }

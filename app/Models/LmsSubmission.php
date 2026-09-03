@@ -10,6 +10,7 @@ class LmsSubmission extends Model
         'lms_tugas_id',
         'mahasiswa_id',
         'file_jawaban',
+        'link_jawaban',
         'catatan_mahasiswa',
         'nilai',
         'catatan_dosen',

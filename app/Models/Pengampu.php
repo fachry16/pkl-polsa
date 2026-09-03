@@ -100,4 +100,30 @@ class Pengampu extends Model
     {
         return $this->kelas ?? '-';
     }
+
+    public function getLabelSemesterAttribute(): string
+    {
+        $semTingkat = $this->mataKuliah?->semester;
+        $semAkademik = $this->semester_akademik ?: $this->tahunAkademik?->semester;
+
+        if ($semTingkat && $semAkademik) {
+            return "Semester {$semTingkat} (" . ucfirst($semAkademik) . ")";
+        } elseif ($semTingkat) {
+            return "Semester {$semTingkat}";
+        } elseif ($semAkademik) {
+            return "Semester " . ucfirst($semAkademik);
+        }
+
+        return "Semester -";
+    }
+
+    public function getLabelKelasAttribute(): string
+    {
+        return "Kelas {$this->nama_kelas}";
+    }
+
+    public function getLabelLengkapAttribute(): string
+    {
+        return "{$this->label_semester} · {$this->label_kelas}";
+    }
 }

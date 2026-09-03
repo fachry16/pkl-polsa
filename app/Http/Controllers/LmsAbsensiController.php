@@ -22,16 +22,7 @@ class LmsAbsensiController extends Controller
     {
         $this->authorizeDosen($pengampu);
 
-        $pengampu->load('mataKuliah', 'tahunAkademik');
-
-        $pertemuans = $pengampu->rpsPertemuans();
-
-        $sesis = $pengampu->lmsSesiAbsensis()
-            ->with('absensis')
-            ->get()
-            ->keyBy('rps_pertemuan_id');
-
-        return view('lms.absensi.index', compact('pengampu', 'pertemuans', 'sesis'));
+        return redirect()->route('lms.show', [$pengampu->id, 'tab' => 'presensi']);
     }
 
     public function bukaSesi(Request $request, Pengampu $pengampu)

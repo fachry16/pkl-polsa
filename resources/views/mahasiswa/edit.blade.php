@@ -81,6 +81,20 @@
         </div>
 
         <div class="form-group">
+            <label class="form-label">
+                Program / Jenis Kelas
+            </label>
+            <select name="jenis_kelas" class="form-select">
+                <option value="Reguler" {{ old('jenis_kelas', $mahasiswa->jenis_kelas ?? 'Reguler') === 'Reguler' ? 'selected' : '' }}>
+                    Reguler (Kelas A / Pagi)
+                </option>
+                <option value="Karyawan" {{ old('jenis_kelas', $mahasiswa->jenis_kelas) === 'Karyawan' ? 'selected' : '' }}>
+                    Karyawan (Kelas B / Sore-Malam)
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
 
             <label class="form-label">
                 Tahun Akademik
