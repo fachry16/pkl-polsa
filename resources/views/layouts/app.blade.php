@@ -24,6 +24,7 @@
              });
          }
      }"
+     @toggle-sidebar.window="toggleSidebar()"
      :class="{ 'sidebar-collapsed': !sidebarOpen, 'sidebar-open': sidebarOpen }">
 
     @auth

@@ -119,8 +119,8 @@
 <body>
 
     <div class="kop">
-        <div class="institusi">PIKOBE - Politeknik Sawunggalih Aji</div>
-        <div class="alamat">Jl. W.R. Supratman No. 5 Kutoarjo, Purworejo, Jawa Tengah</div>
+        <div class="institusi">POLITEKNIK SAWUNGGALIH AJI (POLSA)</div>
+        <div class="alamat">Jl. W.R. Supratman No. 5 Kutoarjo, Purworejo, Jawa Tengah 54212 | Telp. (0275) 640123 | www.polsa.ac.id</div>
         <div class="judul">KARTU HASIL STUDI (KHS)</div>
         <div class="semester">
             {{ $tahunAkademik ? 'Tahun Akademik '.$tahunAkademik->tahun.' / Semester '.ucfirst($tahunAkademik->semester) : 'Semua Tahun Akademik' }}

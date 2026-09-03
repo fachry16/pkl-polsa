@@ -27,8 +27,8 @@
             </svg>
         </div>
         <div class="krs-kop-text">
-            <div class="krs-institusi">PIKOBE - Politeknik Sawunggaling Aji</div>
-            <div class="krs-alamat">Purworejo, Jawa Tengah</div>
+            <div class="krs-institusi">POLITEKNIK SAWUNGGALIH AJI (POLSA)</div>
+            <div class="krs-alamat">Jl. W.R. Supratman No. 5 Kutoarjo, Purworejo, Jawa Tengah</div>
             <div class="krs-judul">KARTU RENCANA STUDI (KRS)</div>
             <div class="krs-semester">
                 {{ $tahunAkademik ? 'Tahun Akademik '.$tahunAkademik->tahun.' / Semester '.ucfirst($tahunAkademik->semester) : 'Semua Tahun Akademik' }}

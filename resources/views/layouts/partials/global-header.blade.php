@@ -10,8 +10,20 @@
 @auth
 <header class="global-campus-sticky-header no-print">
     <div class="campus-header-card" x-data="{ openKebab: false }" @click.outside="openKebab = false">
-        {{-- Sisi Kiri: Identitas Kampus POLSA --}}
+        {{-- Sisi Kiri: Identitas Kampus POLSA & Mobile Hamburger --}}
         <div class="campus-header-left">
+            {{-- Tombol Hamburger khusus layar Mobile/Tablet --}}
+            <button type="button"
+                    class="mobile-menu-toggle-btn"
+                    @click="$dispatch('toggle-sidebar')"
+                    aria-label="Toggle Sidebar Menu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+
             <div class="campus-header-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -20,14 +32,14 @@
             </div>
             <div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <a href="{{ route('dashboard') }}" style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.01em; line-height: 1.2; text-decoration: none;">
+                    <a href="{{ route('dashboard') }}" class="campus-title-link">
                         POLITEKNIK SAWUNGGALIH AJI
                     </a>
-                    <span style="font-size: 0.68rem; font-weight: 700; background: #e0e7ff; color: #4338ca; padding: 0.15rem 0.5rem; border-radius: 6px; letter-spacing: 0.02em;">
+                    <span class="campus-badge">
                         POLSA PURWOREJO
                     </span>
                 </div>
-                <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                <div class="campus-subtitle">
                     <span>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS)</span>
                     @if($taAktif)
                         <span>&bull;</span>
