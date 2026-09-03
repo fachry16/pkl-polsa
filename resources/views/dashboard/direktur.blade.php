@@ -1,12 +1,12 @@
 {{-- Header Banner Direktur --}}
-<div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(6, 78, 59, 0.15);">
+<div class="role-hero-banner" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);">
     <div style="display: flex; align-items: center; gap: 1rem;">
-        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255, 255, 255, 0.2);">
             🏛️
         </div>
         <div>
             <div style="font-size: 0.72rem; color: #a7f3d0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dashboard Eksekutif &amp; Tata Kelola</div>
-            <div style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">Politeknik Sawunggalih Aji (POLSA) Purworejo</div>
+            <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">Politeknik Sawunggalih Aji (POLSA) Purworejo</div>
             <div style="font-size: 0.8rem; color: #d1fae5; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <span>Direktur: <strong>{{ auth()->user()->name }}</strong></span>
                 <span>&bull;</span>
@@ -22,7 +22,7 @@
 </div>
 
 {{-- Baris 1: 4 KPI Cards Eksekutif --}}
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+<div class="dashboard-kpi-grid">
     <div class="stat-prodi-card" style="border-left: 4px solid #059669;">
         <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>

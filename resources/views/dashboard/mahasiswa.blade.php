@@ -1,7 +1,7 @@
 {{-- Header Sambutan Personal Mahasiswa --}}
-<div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(6, 78, 59, 0.15);">
+<div class="role-hero-banner" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%);">
     <div style="display: flex; align-items: center; gap: 1rem;">
-        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #6ee7b7; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #6ee7b7; border: 1px solid rgba(255, 255, 255, 0.2);">
             @if(auth()->user()->avatar_url)
                 <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
             @else
@@ -10,7 +10,7 @@
         </div>
         <div>
             <div style="font-size: 0.72rem; color: #6ee7b7; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Portal Perkuliahan &amp; LMS OBE POLSA</div>
-            <div style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">{{ auth()->user()->name }}</div>
+            <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">{{ auth()->user()->name }}</div>
             <div style="font-size: 0.8rem; color: #d1fae5; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <span>NIM: <strong>{{ $mahasiswa->nim ?? '-' }}</strong></span>
                 <span>&bull;</span>
@@ -51,7 +51,7 @@
 </div>
 
 {{-- Baris 1: 4 Quick KPI Cards Mahasiswa --}}
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+<div class="dashboard-kpi-grid">
     {{-- Kelas Kuliah Aktif --}}
     <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
         <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">

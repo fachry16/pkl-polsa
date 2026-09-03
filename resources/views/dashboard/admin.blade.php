@@ -1,8 +1,8 @@
 {{-- Executive Admin Hero Banner --}}
-<div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; color: #fff; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);">
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+<div class="role-hero-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; width: 100%;">
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.5rem; font-weight: 700; color: #38bdf8;">
+            <div class="hero-avatar" style="width: 52px; height: 52px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.5rem; font-weight: 700; color: #38bdf8;">
                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
             </div>
             <div>
@@ -10,7 +10,7 @@
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     Pusat Kendali Akademik POLSA
                 </div>
-                <div style="font-size: 1.35rem; font-weight: 800; line-height: 1.25; margin-top: 0.15rem; color: #f8fafc;">
+                <div class="hero-title" style="font-size: 1.35rem; font-weight: 800; line-height: 1.25; margin-top: 0.15rem; color: #f8fafc;">
                     {{ auth()->user()->name }}
                 </div>
                 <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
@@ -34,7 +34,7 @@
     </div>
 
     {{-- Quick Action Buttons Bar --}}
-    <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.12); flex-wrap: wrap;">
+    <div class="quick-action-bar" style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.12); width: 100%;">
         <a href="{{ route('krs.create') }}" class="btn btn-sm" style="background: #4f46e5; color: #fff; border: 1px solid #6366f1; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; padding: 0.4rem 0.8rem; border-radius: 8px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Buat Kelas Paket (KRS)
@@ -55,7 +55,7 @@
 </div>
 
 {{-- Baris 1: 4 Kartu KPI Utama POLSA --}}
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+<div class="dashboard-kpi-grid">
     {{-- Tahun Akademik --}}
     <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
         <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
