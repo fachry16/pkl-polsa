@@ -13,7 +13,12 @@ class LmsAbsensiController extends Controller
 {
     private function authorizeDosen(Pengampu $pengampu): void
     {
-        $dosen = Auth::user()->dosen;
+        $user = Auth::user();
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $dosen = $user->dosen;
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
     }

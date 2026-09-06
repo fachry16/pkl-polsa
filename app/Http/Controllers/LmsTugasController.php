@@ -18,11 +18,21 @@ use Illuminate\Support\Facades\Storage;
 
 class LmsTugasController extends Controller
 {
-    public function index(Pengampu $pengampu)
+    private function authorizeDosen(Pengampu $pengampu): void
     {
-        $dosen = Auth::user()->dosen;
+        $user = Auth::user();
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $dosen = $user->dosen;
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+    }
+
+    public function index(Pengampu $pengampu)
+    {
+        $this->authorizeDosen($pengampu);
 
         $pengampu->load('mataKuliah', 'tahunAkademik');
         $tugas = $pengampu->lmsTugas()->withCount('submissions')->latest()->paginate(10);
@@ -33,9 +43,7 @@ class LmsTugasController extends Controller
 
     public function store(Request $request, Pengampu $pengampu)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -74,9 +82,7 @@ class LmsTugasController extends Controller
 
     public function show(Pengampu $pengampu, LmsTugas $tugas)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         Auth::user()->unreadNotifications()
@@ -109,9 +115,7 @@ class LmsTugasController extends Controller
 
     public function edit(Pengampu $pengampu, LmsTugas $tugas)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         if (! $tugas->canBeModified()) {
@@ -128,9 +132,7 @@ class LmsTugasController extends Controller
 
     public function update(Request $request, Pengampu $pengampu, LmsTugas $tugas)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         if (! $tugas->canBeModified()) {
@@ -174,9 +176,7 @@ class LmsTugasController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsTugas $tugas)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $tugas->pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         if (! $tugas->canBeModified()) {
@@ -202,9 +202,12 @@ class LmsTugasController extends Controller
 
     public function nilai(Request $request, LmsSubmission $submission)
     {
-        $dosen = Auth::user()->dosen;
+        $user = Auth::user();
 
-        abort_if(! $dosen || $submission->lmsTugas->pengampu->dosen_id !== $dosen->id, 403);
+        if (! $user->isAdmin()) {
+            $dosen = $user->dosen;
+            abort_if(! $dosen || $submission->lmsTugas->pengampu->dosen_id !== $dosen->id, 403);
+        }
 
         $request->validate([
             'nilai' => 'nullable|numeric|min:0|max:100',
@@ -229,9 +232,7 @@ class LmsTugasController extends Controller
 
     public function rekap(Pengampu $pengampu)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
 
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
@@ -250,9 +251,7 @@ class LmsTugasController extends Controller
 
     public function simpanKomponen(Request $request, Pengampu $pengampu)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
 
         $request->validate([
             'nilai' => 'required|array',
@@ -301,9 +300,7 @@ class LmsTugasController extends Controller
 
     public function hitungUlangNilai(Pengampu $pengampu)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
 
         app(PenilaianService::class)->simpanNilaiKelas($pengampu);
 

@@ -51,6 +51,7 @@
                 </div>
 
                 <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                    <a href="{{ route('lms.show', $pengampu->id) }}" class="btn btn-primary btn-sm">Buka Kelas</a>
                     <a href="{{ route('pengampu.lihat-kelas', $pengampu->id) }}" class="btn btn-secondary btn-sm">Mahasiswa</a>
                 </div>
             </div>

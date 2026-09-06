@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="page-header">Kelas LMS Saya</div>
+<div class="page-header">{{ auth()->user()->isAdmin() ? 'Semua Kelas LMS' : 'Kelas LMS Saya' }}</div>
 
 @if($tahunAkademik)
     <p class="page-subtitle">Tahun Akademik: {{ $tahunAkademik->tahun }} {{ ucfirst($tahunAkademik->semester) }}</p>
@@ -24,6 +24,9 @@
                         </div>
                         <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.15rem;">
                             {{ $pengampu->label_semester }} &middot; Kelas {{ $pengampu->kelas ?? '-' }}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">
+                            {{ $pengampu->dosen?->user?->name ?? '-' }}
                         </div>
                     </div>
                 </div>
