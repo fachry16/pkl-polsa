@@ -34,11 +34,12 @@ class LmsTugasController extends Controller
     {
         $this->authorizeDosen($pengampu);
 
-        $pengampu->load('mataKuliah', 'tahunAkademik');
+        $pengampu->load(['mataKuliah.rps.tugas', 'mataKuliah.rps.pertemuans', 'tahunAkademik']);
         $tugas = $pengampu->lmsTugas()->withCount('submissions')->latest()->paginate(10);
         $pertemuans = $pengampu->rpsPertemuans();
+        $rpsTugasList = $pengampu->mataKuliah?->rps?->tugas ?? collect();
 
-        return view('lms.tugas.index', compact('pengampu', 'tugas', 'pertemuans'));
+        return view('lms.tugas.index', compact('pengampu', 'tugas', 'pertemuans', 'rpsTugasList'));
     }
 
     public function store(Request $request, Pengampu $pengampu)

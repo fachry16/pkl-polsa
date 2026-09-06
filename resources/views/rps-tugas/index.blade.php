@@ -159,7 +159,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const url = @js(route('rps.tugas.upload-ke-lms', ['rps' => $rps->id, 'tugas' => '__TUGAS__'])).replace('__TUGAS__', item.id);
         document.getElementById('upload-form').action = url;
         document.getElementById('upload-judul').value = item.nama_tugas || '';
-        document.getElementById('upload-instruksi').value = item.penugasan || '';
+        
+        let ins = '';
+        if (item.penugasan) ins += 'Penugasan: ' + item.penugasan + '\n\n';
+        if (item.ruang_lingkup) ins += 'Ruang Lingkup: ' + item.ruang_lingkup + '\n';
+        if (item.cara_pengerjaan) ins += 'Cara Pengerjaan: ' + item.cara_pengerjaan + '\n';
+        if (item.luaran_tugas) ins += 'Luaran Tugas: ' + item.luaran_tugas;
+        document.getElementById('upload-instruksi').value = ins.trim() || item.penugasan || '';
+
+        document.getElementById('preview-topik').innerText = 'Minggu ' + (item.minggu_topik || '-');
+        document.getElementById('preview-judul').innerText = item.nama_tugas || '-';
+        document.getElementById('preview-subcpmk').innerText = item.sub_cpmk || '-';
+        document.getElementById('preview-penugasan').innerText = item.penugasan || '-';
+        document.getElementById('preview-ruanglingkup').innerText = item.ruang_lingkup || '-';
+        document.getElementById('preview-carapengerjaan').innerText = item.cara_pengerjaan || '-';
+        document.getElementById('preview-luaran').innerText = item.luaran_tugas || '-';
+        document.getElementById('preview-bataswaktu').innerText = item.batas_waktu || '-';
+
         document.getElementById('upload-pertemuan').value = autoPertemuan(item.minggu_topik);
         document.getElementById('upload-file').value = '';
         dispatchEvent(new CustomEvent('open-modal', { detail: 'upload-tugas-modal' }));
@@ -173,6 +189,27 @@ document.addEventListener('DOMContentLoaded', function () {
         <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600;">Upload Tugas ke LMS</h3>
         <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.2rem;">
             Tugas akan dibuat sebagai LmsTugas pada kelas dan pertemuan yang dipilih.
+        </div>
+    </div>
+
+    {{-- Live Preview Box RPS --}}
+    <div style="margin: 1.25rem 1.5rem 0 1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.85rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: 0.5px;">Preview Rancangan Tugas RPS</span>
+            <span id="preview-topik" style="font-size: 0.7rem; background: #dcfce7; color: #16a34a; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600;"></span>
+        </div>
+        <div id="preview-judul" style="font-size: 0.88rem; font-weight: 700; color: #14532d;"></div>
+        <div style="font-size: 0.75rem; color: #166534; margin-top: 0.3rem;">
+            <strong>Sub-CPMK:</strong> <span id="preview-subcpmk"></span>
+        </div>
+        <div style="font-size: 0.75rem; color: #334155; margin-top: 0.3rem; line-height: 1.4;">
+            <strong>Penugasan:</strong> <span id="preview-penugasan"></span>
+        </div>
+        <div style="font-size: 0.72rem; color: #475569; margin-top: 0.25rem;">
+            <strong>Ruang Lingkup:</strong> <span id="preview-ruanglingkup"></span> &middot; <strong>Luaran:</strong> <span id="preview-luaran"></span>
+        </div>
+        <div style="font-size: 0.72rem; color: #16a34a; margin-top: 0.25rem; font-weight: 600;">
+            Batas Waktu RPS: <span id="preview-bataswaktu"></span>
         </div>
     </div>
 

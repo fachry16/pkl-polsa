@@ -30,11 +30,12 @@ class LmsMateriController extends Controller
     {
         $this->authorizeDosen($pengampu);
 
-        $pengampu->load('mataKuliah', 'tahunAkademik');
+        $pengampu->load(['mataKuliah.rps.pertemuans', 'tahunAkademik']);
         $materis = $pengampu->lmsMateris()->latest()->paginate(10);
         $pertemuans = $pengampu->rpsPertemuans();
+        $rpsPertemuans = $pengampu->mataKuliah?->rps?->pertemuans ?? collect();
 
-        return view('lms.materi.index', compact('pengampu', 'materis', 'pertemuans'));
+        return view('lms.materi.index', compact('pengampu', 'materis', 'pertemuans', 'rpsPertemuans'));
     }
 
     public function store(Request $request, Pengampu $pengampu)
