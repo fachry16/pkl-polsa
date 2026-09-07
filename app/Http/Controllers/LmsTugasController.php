@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 
 class LmsTugasController extends Controller
 {
-    private function authorizeDosen(Pengampu $pengampu): void
+    private function authorizeRead(Pengampu $pengampu): void
     {
         $user = Auth::user();
         if ($user->isAdmin()) {
@@ -30,9 +30,19 @@ class LmsTugasController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
     }
 
+    private function authorizeWrite(Pengampu $pengampu): void
+    {
+        $user = Auth::user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
+        $dosen = $user->dosen;
+
+        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+    }
+
     public function index(Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeRead($pengampu);
 
         $pengampu->load(['mataKuliah.rps.tugas', 'mataKuliah.rps.pertemuans', 'tahunAkademik']);
         $tugas = $pengampu->lmsTugas()->withCount('submissions')->latest()->paginate(10);
@@ -44,7 +54,7 @@ class LmsTugasController extends Controller
 
     public function store(Request $request, Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -83,7 +93,7 @@ class LmsTugasController extends Controller
 
     public function tugaskan(Pengampu $pengampu, LmsTugas $tugas)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         $tugas->update(['is_active' => true]);
@@ -99,7 +109,7 @@ class LmsTugasController extends Controller
 
     public function show(Pengampu $pengampu, LmsTugas $tugas)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeRead($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         Auth::user()->unreadNotifications()
@@ -132,7 +142,7 @@ class LmsTugasController extends Controller
 
     public function edit(Pengampu $pengampu, LmsTugas $tugas)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         if (! $tugas->canBeModified()) {
@@ -149,7 +159,7 @@ class LmsTugasController extends Controller
 
     public function update(Request $request, Pengampu $pengampu, LmsTugas $tugas)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         if (! $tugas->canBeModified()) {
@@ -193,7 +203,7 @@ class LmsTugasController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsTugas $tugas)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
         if (! $tugas->canBeModified()) {
@@ -220,11 +230,10 @@ class LmsTugasController extends Controller
     public function nilai(Request $request, LmsSubmission $submission)
     {
         $user = Auth::user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
 
-        if (! $user->isAdmin()) {
-            $dosen = $user->dosen;
-            abort_if(! $dosen || $submission->lmsTugas->pengampu->dosen_id !== $dosen->id, 403);
-        }
+        $dosen = $user->dosen;
+        abort_if(! $dosen || $submission->lmsTugas->pengampu->dosen_id !== $dosen->id, 403);
 
         $request->validate([
             'nilai' => 'nullable|numeric|min:0|max:100',
@@ -249,7 +258,7 @@ class LmsTugasController extends Controller
 
     public function rekap(Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeRead($pengampu);
 
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
@@ -268,7 +277,7 @@ class LmsTugasController extends Controller
 
     public function simpanKomponen(Request $request, Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
 
         $request->validate([
             'nilai' => 'required|array',
@@ -317,7 +326,7 @@ class LmsTugasController extends Controller
 
     public function hitungUlangNilai(Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
 
         app(PenilaianService::class)->simpanNilaiKelas($pengampu);
 

@@ -12,10 +12,12 @@ class LmsTopikKomentarController extends Controller
     public function store(Request $request, Pengampu $pengampu)
     {
         $user = Auth::user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
         $dosen = $user->dosen;
         $mahasiswa = $user->mahasiswa;
 
-        $isDosen = $user->isAdmin() || ($dosen && $pengampu->dosen_id === $dosen->id);
+        $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
         $isMhs = $mahasiswa && $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists();
 
         abort_unless($isDosen || $isMhs, 403);
@@ -54,8 +56,10 @@ class LmsTopikKomentarController extends Controller
     public function destroy(Pengampu $pengampu, LmsTopikKomentar $komentar)
     {
         $user = Auth::user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
         $dosen = $user->dosen;
-        $isDosen = $user->isAdmin() || ($dosen && $pengampu->dosen_id === $dosen->id);
+        $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
 
         if ($isDosen) {
             $komentar->delete();

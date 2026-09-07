@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LmsPengumumanController extends Controller
 {
-    private function authorizeDosen(Pengampu $pengampu): void
+    private function authorizeRead(Pengampu $pengampu): void
     {
         $user = Auth::user();
         if ($user->isAdmin()) {
@@ -22,9 +22,19 @@ class LmsPengumumanController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
     }
 
+    private function authorizeWrite(Pengampu $pengampu): void
+    {
+        $user = Auth::user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
+        $dosen = $user->dosen;
+
+        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+    }
+
     public function index(Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeRead($pengampu);
 
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
@@ -35,7 +45,7 @@ class LmsPengumumanController extends Controller
 
     public function store(Request $request, Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -60,7 +70,7 @@ class LmsPengumumanController extends Controller
 
     public function edit(Pengampu $pengampu, LmsPengumuman $pengumuman)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
 
         if (! $pengumuman->canBeEdited()) {
@@ -75,7 +85,7 @@ class LmsPengumumanController extends Controller
 
     public function update(Request $request, Pengampu $pengampu, LmsPengumuman $pengumuman)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
 
         if (! $pengumuman->canBeEdited()) {
@@ -100,7 +110,7 @@ class LmsPengumumanController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsPengumuman $pengumuman)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
 
         if (! $pengumuman->canBeDeleted()) {

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LmsAbsensiController extends Controller
 {
-    private function authorizeDosen(Pengampu $pengampu): void
+    private function authorizeRead(Pengampu $pengampu): void
     {
         $user = Auth::user();
         if ($user->isAdmin()) {
@@ -23,16 +23,26 @@ class LmsAbsensiController extends Controller
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
     }
 
+    private function authorizeWrite(Pengampu $pengampu): void
+    {
+        $user = Auth::user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
+        $dosen = $user->dosen;
+
+        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+    }
+
     public function index(Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeRead($pengampu);
 
         return redirect()->route('lms.show', [$pengampu->id, 'tab' => 'presensi']);
     }
 
     public function bukaSesi(Request $request, Pengampu $pengampu)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
 
         $valid = $request->validate([
             'rps_pertemuan_id' => 'required|exists:rps_pertemuans,id',
@@ -63,7 +73,7 @@ class LmsAbsensiController extends Controller
 
     public function show(Pengampu $pengampu, LmsSesiAbsensi $sesi)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeRead($pengampu);
         abort_if($sesi->pengampu_id !== $pengampu->id, 404);
 
         $mahasiswas = $pengampu->mahasiswas()->orderBy('nim')->get();
@@ -76,7 +86,7 @@ class LmsAbsensiController extends Controller
 
     public function simpan(Request $request, Pengampu $pengampu, LmsSesiAbsensi $sesi)
     {
-        $this->authorizeDosen($pengampu);
+        $this->authorizeWrite($pengampu);
         abort_if($sesi->pengampu_id !== $pengampu->id, 404);
 
         if (! $sesi->canEdit()) {
