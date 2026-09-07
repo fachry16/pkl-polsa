@@ -21,7 +21,7 @@
                     <h1 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0;">{{ $materi->judul }}</h1>
                     @if($materi->canBeModified())
                         <div style="display: flex; gap: 0.5rem;">
-                            <a href="{{ route('lms.materi.edit', [$pengampu->id, $materi->id]) }}" class="btn btn-secondary btn-sm">Edit Materi</a>
+                            <a href="{{ route('mata-kuliah.rps.index', $pengampu->mata_kuliah_id) }}" class="btn btn-secondary btn-sm">Perbarui di RPS</a>
                         </div>
                     @endif
                 </div>
