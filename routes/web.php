@@ -835,6 +835,7 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::get('/{pengampu}/tugas/{tugas}/edit', [LmsTugasController::class, 'edit'])->name('tugas.edit');
     Route::patch('/{pengampu}/tugas/{tugas}', [LmsTugasController::class, 'update'])->name('tugas.update');
     Route::delete('/{pengampu}/tugas/{tugas}', [LmsTugasController::class, 'destroy'])->name('tugas.destroy');
+    Route::post('/{pengampu}/tugas/{tugas}/tugaskan', [LmsTugasController::class, 'tugaskan'])->name('tugas.tugaskan');
 
     Route::post('/{pengampu}/topik-komentar', [\App\Http\Controllers\LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
     Route::delete('/{pengampu}/topik-komentar/{komentar}', [\App\Http\Controllers\LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');

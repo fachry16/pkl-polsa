@@ -167,79 +167,78 @@ class RpsTugasController extends Controller
     }
 
     /**
-     * Upload rancangan tugas ke LMS sebagai LmsTugas pada pertemuan tertentu.
+     * Upload / Konfirmasi rancangan tugas dari RPS ke seluruh kelas LMS sebagai Draf.
      */
     public function uploadKeLms(Request $request, Rps $rps, RpsTugas $tugas)
     {
         $this->authorizeRpsModel($rps);
 
-        $dosen = Auth::user()->dosen;
+        $pengampuKelas = $this->pengampuKelas($rps);
 
-        $request->validate([
-            'pengampu_id' => ['required', 'exists:pengampus,id', function ($attribute, $value, $fail) use ($dosen, $rps) {
-                $kelas = Pengampu::find($value);
-
-                if (! $kelas
-                    || $kelas->mata_kuliah_id !== $rps->mata_kuliah_id
-                    || ($dosen && $kelas->dosen_id !== $dosen->id && ! Auth::user()->isAdmin())) {
-                    $fail('Kelas tidak valid untuk tugas ini.');
-                }
-            }],
-            'judul' => 'required|string|max:255',
-            'instruksi' => 'required|string',
-            'rps_pertemuan_id' => ['required', 'exists:rps_pertemuans,id', function ($attribute, $value, $fail) use ($rps) {
-                if (! $rps->pertemuans()->where('id', $value)->exists()) {
-                    $fail('Pertemuan tidak valid untuk RPS ini.');
-                }
-            }],
-            'deadline' => 'required|date',
-            'bobot_nilai' => 'required|integer|min:0|max:100',
-            'batas_upload_mb' => 'nullable|integer|min:1|max:50',
-            'file' => ['nullable', 'file', 'max:51200', new LmsFileMime],
-        ]);
-
-        $pengampu = Pengampu::findOrFail($request->pengampu_id);
-
-        $sudahAda = LmsTugas::where('pengampu_id', $pengampu->id)
-            ->where('rps_pertemuan_id', $request->rps_pertemuan_id)
-            ->where('judul', $request->judul)
-            ->exists();
-
-        if ($sudahAda) {
+        if ($pengampuKelas->isEmpty()) {
             return redirect()
                 ->route('rps.tugas.index', $rps->id)
-                ->with('success', 'Tugas sudah pernah diunggah ke LMS untuk kelas dan pertemuan tersebut.');
+                ->with('error', 'Belum ada kelas LMS (pengampu) yang Anda ampu untuk mata kuliah ini.');
         }
 
-        $filePath = null;
-        if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('lms/tugas', 'public');
-        } elseif ($tugas->file_soal) {
-            $filePath = $tugas->file_soal;
+        $mingguNo = null;
+        if ($tugas->minggu_topik && preg_match('/\d+/', $tugas->minggu_topik, $matches)) {
+            $mingguNo = (int) $matches[0];
         }
 
-        $data = [
-            'pengampu_id' => $pengampu->id,
-            'rps_pertemuan_id' => $request->rps_pertemuan_id,
-            'judul' => $request->judul,
-            'instruksi' => $request->instruksi,
-            'deadline' => $request->deadline,
-            'bobot_nilai' => $request->bobot_nilai,
-            'batas_upload_mb' => $request->batas_upload_mb,
-            'file_lampiran' => $filePath,
-        ];
+        $pertemuan = $mingguNo
+            ? $rps->pertemuans()->where('minggu', $mingguNo)->first()
+            : null;
 
-        $lmsTugas = LmsTugas::create($data);
+        $instruksiArr = [];
+        if ($tugas->penugasan) {
+            $instruksiArr[] = "Penugasan: " . $tugas->penugasan;
+        }
+        if ($tugas->ruang_lingkup) {
+            $instruksiArr[] = "Ruang Lingkup: " . $tugas->ruang_lingkup;
+        }
+        if ($tugas->cara_pengerjaan) {
+            $instruksiArr[] = "Cara Pengerjaan: " . $tugas->cara_pengerjaan;
+        }
+        if ($tugas->luaran_tugas) {
+            $instruksiArr[] = "Luaran Tugas: " . $tugas->luaran_tugas;
+        }
 
-        foreach ($pengampu->mahasiswas as $mahasiswa) {
-            if ($mahasiswa->user) {
-                $mahasiswa->user->notify(new TugasBaru($pengampu, $lmsTugas));
+        $instruksiText = implode("\n\n", $instruksiArr) ?: ($tugas->nama_tugas ?? 'Tugas RPS');
+        $deadline = $tugas->deadline ?? now()->addDays(7);
+        $bobot = $tugas->bobot_nilai ?? 100;
+
+        $createdCount = 0;
+
+        foreach ($pengampuKelas as $pengampu) {
+            $sudahAda = LmsTugas::where('pengampu_id', $pengampu->id)
+                ->where('judul', $tugas->nama_tugas)
+                ->exists();
+
+            if (! $sudahAda) {
+                LmsTugas::create([
+                    'pengampu_id' => $pengampu->id,
+                    'rps_pertemuan_id' => $pertemuan?->id,
+                    'judul' => $tugas->nama_tugas,
+                    'instruksi' => $instruksiText,
+                    'file_lampiran' => $tugas->file_soal,
+                    'deadline' => $deadline,
+                    'bobot_nilai' => $bobot,
+                    'is_active' => false,
+                ]);
+                $createdCount++;
             }
+        }
+
+        if ($createdCount === 0) {
+            return redirect()
+                ->route('rps.tugas.index', $rps->id)
+                ->with('success', 'Tugas RPS sudah pernah diunggah ke seluruh kelas LMS.');
         }
 
         return redirect()
             ->route('rps.tugas.index', $rps->id)
-            ->with('success', 'Tugas berhasil diunggah ke LMS.');
+            ->with('success', "Rancangan tugas berhasil diunggah ke {$createdCount} kelas LMS sebagai Draf. Silakan klik \"Tugaskan\" pada kelas LMS untuk mengaktifkan tugas.");
     }
 
     /**
@@ -249,13 +248,13 @@ class RpsTugasController extends Controller
     {
         $dosen = Auth::user()->dosen;
 
-        if (! $dosen) {
-            return collect();
+        $query = Pengampu::where('mata_kuliah_id', $rps->mata_kuliah_id);
+
+        if ($dosen && ! Auth::user()->isAdmin()) {
+            $query->where('dosen_id', $dosen->id);
         }
 
-        return Pengampu::where('mata_kuliah_id', $rps->mata_kuliah_id)
-            ->where('dosen_id', $dosen->id)
-            ->with(['tahunAkademik'])
+        return $query->with(['tahunAkademik'])
             ->orderBy('kelas')
             ->get();
     }

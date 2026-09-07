@@ -81,6 +81,22 @@ class LmsTugasController extends Controller
         return back()->with('toast_success', 'Tugas berhasil ditambahkan.');
     }
 
+    public function tugaskan(Pengampu $pengampu, LmsTugas $tugas)
+    {
+        $this->authorizeDosen($pengampu);
+        abort_if($tugas->pengampu_id !== $pengampu->id, 404);
+
+        $tugas->update(['is_active' => true]);
+
+        foreach ($pengampu->mahasiswas as $mahasiswa) {
+            if ($mahasiswa->user) {
+                $mahasiswa->user->notify(new TugasBaru($pengampu, $tugas));
+            }
+        }
+
+        return back()->with('toast_success', 'Tugas berhasil ditugaskan ke mahasiswa.');
+    }
+
     public function show(Pengampu $pengampu, LmsTugas $tugas)
     {
         $this->authorizeDosen($pengampu);

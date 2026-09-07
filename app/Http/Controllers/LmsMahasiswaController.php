@@ -62,7 +62,7 @@ class LmsMahasiswaController extends Controller
                 $q->latest();
             },
             'lmsTugas' => function ($q) {
-                $q->withCount('submissions')->latest();
+                $q->where('is_active', true)->withCount('submissions')->latest();
             },
             'lmsForumDiskusis' => function ($q) {
                 $q->whereNull('parent_id')->with('user', 'replies.user')->latest();

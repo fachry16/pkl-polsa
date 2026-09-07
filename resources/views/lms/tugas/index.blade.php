@@ -203,7 +203,9 @@
                                 @if($item->rps_pertemuan_id)
                                     <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Minggu {{ $item->rpsPertemuan->minggu ?? '?' }}</span>
                                 @endif
-                                @if($item->deadline->isPast())
+                                @if(! $item->is_active)
+                                    <span style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Draf (Belum Ditugaskan)</span>
+                                @elseif($item->deadline->isPast())
                                     <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Tutup</span>
                                 @else
                                     <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Aktif</span>
@@ -216,6 +218,14 @@
                     </div>
                 </a>
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+                    @if(! $item->is_active)
+                        <form action="{{ route('lms.tugas.tugaskan', [$pengampu->id, $item->id]) }}" method="POST" style="margin: 0;">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Aktifkan dan tugaskan rancangan ini ke mahasiswa di kelas ini?')">
+                                🚀 Tugaskan
+                            </button>
+                        </form>
+                    @endif
                     @if($item->canBeModified())
                         <a href="{{ route('lms.tugas.edit', [$pengampu->id, $item->id]) }}" class="btn btn-secondary btn-sm">Edit</a>
                         <form action="{{ route('lms.tugas.destroy', ['pengampu' => $pengampu->id, 'tugas' => $item->id]) }}" method="POST" style="margin: 0;">

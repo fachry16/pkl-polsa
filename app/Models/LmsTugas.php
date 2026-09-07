@@ -15,10 +15,12 @@ class LmsTugas extends Model
         'deadline',
         'bobot_nilai',
         'batas_upload_mb',
+        'is_active',
     ];
 
     protected $casts = [
         'deadline' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     public function pengampu()
