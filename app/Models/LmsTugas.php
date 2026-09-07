@@ -9,6 +9,7 @@ class LmsTugas extends Model
     protected $fillable = [
         'pengampu_id',
         'rps_pertemuan_id',
+        'rps_tugas_id',
         'judul',
         'instruksi',
         'file_lampiran',
@@ -31,6 +32,11 @@ class LmsTugas extends Model
     public function rpsPertemuan()
     {
         return $this->belongsTo(RpsPertemuan::class);
+    }
+
+    public function rpsTugas()
+    {
+        return $this->belongsTo(RpsTugas::class);
     }
 
     public function submissions()

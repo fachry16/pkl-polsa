@@ -12,7 +12,11 @@
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
     <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas_kelas']) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas Kelas</a>
     @if($tugas->canBeModified())
-        <a href="{{ route('mata-kuliah.rps.index', $pengampu->mata_kuliah_id) }}" class="btn btn-secondary btn-sm">Perbarui di RPS</a>
+        @if($tugas->rps_tugas_id && $pengampu->mataKuliah?->rps)
+            <a href="{{ route('rps.tugas.edit', [$pengampu->mataKuliah->rps->id, $tugas->rps_tugas_id]) }}" class="btn btn-secondary btn-sm">Perbarui di RPS</a>
+        @else
+            <a href="{{ route('mata-kuliah.rps.index', $pengampu->mata_kuliah_id) }}" class="btn btn-secondary btn-sm">Perbarui di RPS</a>
+        @endif
     @endif
 </div>
 

@@ -91,7 +91,11 @@
                         </form>
                     @endif
                     @if($item->canBeModified())
-                        <a href="{{ route('mata-kuliah.rps.index', $pengampu->mata_kuliah_id) }}" class="btn btn-secondary btn-sm">Perbarui</a>
+                        @if($item->rps_tugas_id && $pengampu->mataKuliah?->rps)
+                            <a href="{{ route('rps.tugas.edit', [$pengampu->mataKuliah->rps->id, $item->rps_tugas_id]) }}" class="btn btn-secondary btn-sm">Perbarui</a>
+                        @else
+                            <a href="{{ route('mata-kuliah.rps.index', $pengampu->mata_kuliah_id) }}" class="btn btn-secondary btn-sm">Perbarui</a>
+                        @endif
                         <form action="{{ route('lms.tugas.destroy', ['pengampu' => $pengampu->id, 'tugas' => $item->id]) }}" method="POST" style="margin: 0;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus tugas ini beserta seluruh pengumpulannya?')">Hapus</button>

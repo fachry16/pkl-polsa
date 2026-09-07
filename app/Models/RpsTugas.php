@@ -29,4 +29,9 @@ class RpsTugas extends Model
     {
         return $this->belongsTo(Rps::class);
     }
+
+    public function lmsTugas()
+    {
+        return $this->hasMany(LmsTugas::class, 'rps_tugas_id');
+    }
 }

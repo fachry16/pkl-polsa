@@ -141,7 +141,44 @@ class RpsTugasController extends Controller
             $data['file_soal'] = $request->file('file')->store('lms/tugas', 'public');
         }
 
+        $oldTitle = $tugas->getOriginal('nama_tugas');
         $tugas->update($data);
+
+        $instruksiArr = [];
+        if ($tugas->penugasan) {
+            $instruksiArr[] = "Penugasan: " . $tugas->penugasan;
+        }
+        if ($tugas->ruang_lingkup) {
+            $instruksiArr[] = "Ruang Lingkup: " . $tugas->ruang_lingkup;
+        }
+        if ($tugas->cara_pengerjaan) {
+            $instruksiArr[] = "Cara Pengerjaan: " . $tugas->cara_pengerjaan;
+        }
+        if ($tugas->luaran_tugas) {
+            $instruksiArr[] = "Luaran Tugas: " . $tugas->luaran_tugas;
+        }
+
+        $instruksiText = implode("\n\n", $instruksiArr) ?: ($tugas->nama_tugas ?? 'Tugas RPS');
+        $deadline = $tugas->deadline ?? now()->addDays(7);
+        $bobot = $tugas->bobot_nilai ?? 100;
+
+        // Auto-update seluruh LMS Tugas yang terhubung dengan RPS Tugas ini
+        LmsTugas::where('rps_tugas_id', $tugas->id)
+            ->orWhere(function ($query) use ($oldTitle, $rps) {
+                $query->whereNull('rps_tugas_id')
+                    ->where('judul', $oldTitle)
+                    ->whereHas('pengampu', function ($q) use ($rps) {
+                        $q->where('mata_kuliah_id', $rps->mata_kuliah_id);
+                    });
+            })
+            ->update([
+                'rps_tugas_id' => $tugas->id,
+                'judul' => $tugas->nama_tugas,
+                'instruksi' => $instruksiText,
+                'file_lampiran' => $tugas->file_soal,
+                'deadline' => $deadline,
+                'bobot_nilai' => $bobot,
+            ]);
 
         return redirect()
             ->route('rps.tugas.index', $rps->id)
@@ -212,13 +249,17 @@ class RpsTugasController extends Controller
 
         foreach ($pengampuKelas as $pengampu) {
             $sudahAda = LmsTugas::where('pengampu_id', $pengampu->id)
-                ->where('judul', $tugas->nama_tugas)
+                ->where(function ($q) use ($tugas) {
+                    $q->where('rps_tugas_id', $tugas->id)
+                        ->orWhere('judul', $tugas->nama_tugas);
+                })
                 ->exists();
 
             if (! $sudahAda) {
                 LmsTugas::create([
                     'pengampu_id' => $pengampu->id,
                     'rps_pertemuan_id' => $pertemuan?->id,
+                    'rps_tugas_id' => $tugas->id,
                     'judul' => $tugas->nama_tugas,
                     'instruksi' => $instruksiText,
                     'file_lampiran' => $tugas->file_soal,

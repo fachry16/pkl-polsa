@@ -326,6 +326,10 @@
                     ]);
                 }
                 foreach($pengampu->lmsTugas as $t) {
+                    $tugasEditUrl = ($t->rps_tugas_id && $pengampu->mataKuliah?->rps)
+                        ? route('rps.tugas.edit', [$pengampu->mataKuliah->rps->id, $t->rps_tugas_id])
+                        : route('mata-kuliah.rps.index', $pengampu->mata_kuliah_id);
+
                     $allClasswork->push((object)[
                         'type' => 'tugas',
                         'id' => $t->id,
@@ -335,7 +339,7 @@
                         'submissions_count' => $t->submissions_count,
                         'created_at' => $t->created_at,
                         'url' => route('lms.tugas.show', [$pengampu->id, $t->id]),
-                        'edit_url' => route('mata-kuliah.rps.index', $pengampu->mata_kuliah_id),
+                        'edit_url' => $tugasEditUrl,
                         'obj' => $t
                     ]);
                 }
