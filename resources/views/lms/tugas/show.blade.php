@@ -94,7 +94,11 @@
                                 <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.7rem; font-weight: 600;">Tepat Waktu</span>
                             @endif
                         @else
-                            <span style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.7rem; font-weight: 600;">Belum</span>
+                            @if($tugas->deadline && $tugas->deadline->isPast())
+                                <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.7rem; font-weight: 600;">Belum (Terlewat)</span>
+                            @else
+                                <span style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.7rem; font-weight: 600;">Belum</span>
+                            @endif
                         @endif
                     </td>
                     <td style="font-size: 0.8rem;">

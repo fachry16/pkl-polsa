@@ -117,9 +117,9 @@
                     <h3 style="font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0;">Tugas Anda</h3>
                     @if($submission)
                         <span style="background: {{ $submission->isTerlambat() ? '#fef2f2' : '#ecfdf5' }}; color: {{ $submission->isTerlambat() ? '#dc2626' : '#059669' }}; border: 1px solid {{ $submission->isTerlambat() ? '#fecaca' : '#a7f3d0' }}; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
-                            {{ $submission->isTerlambat() ? 'Terlambat' : 'Diserahkan' }}
+                            {{ $submission->isTerlambat() ? 'Diserahkan Terlambat' : 'Diserahkan' }}
                         </span>
-                    @elseif($tugas->deadline->isPast())
+                    @elseif($tugas->deadline && $tugas->deadline->isPast())
                         <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
                             Terlewat
                         </span>
@@ -173,8 +173,8 @@
                         @endif
                     </div>
 
-                    {{-- Form Perbarui Kiriman jika belum dinilai & belum deadline --}}
-                    @if(!$tugas->deadline->isPast() && $submission->nilai === null)
+                    {{-- Form Perbarui Kiriman jika belum dinilai --}}
+                    @if($submission->nilai === null)
                         <div x-data="{ openEdit: false }">
                             <button type="button" @click="openEdit = !openEdit" class="btn btn-secondary btn-sm" style="width: 100%;">
                                 <span x-text="openEdit ? 'Batal Perbarui' : 'Batalkan / Perbarui Pengiriman'">Batalkan / Perbarui Pengiriman</span>
@@ -199,8 +199,14 @@
                         </div>
                     @endif
 
-                {{-- Jika Belum Dikumpulkan & Belum Deadline --}}
-                @elseif(!$tugas->deadline->isPast())
+                {{-- Jika Belum Dikumpulkan --}}
+                @else
+                    @if($tugas->deadline && $tugas->deadline->isPast())
+                        <div style="font-size: 0.8rem; color: #991b1b; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 0.65rem 0.75rem; margin-bottom: 0.75rem;">
+                            ⚠️ <strong>Tenggat Waktu Telah Berakhir:</strong> Pengumpulan tugas ini akan ditandai sebagai <strong>Terlambat</strong>.
+                        </div>
+                    @endif
+
                     <form action="{{ route('mahasiswa.lms.tugas.kumpul', $tugas->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
@@ -226,8 +232,8 @@
                             </div>
 
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-weight: 600;">
-                                    Serahkan Tugas
+                                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-weight: 600; {{ ($tugas->deadline && $tugas->deadline->isPast()) ? 'background: #dc2626; border-color: #dc2626;' : '' }}">
+                                    {{ ($tugas->deadline && $tugas->deadline->isPast()) ? 'Serahkan Tugas (Terlambat)' : 'Serahkan Tugas' }}
                                 </button>
                                 
                                 <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%; font-size: 0.8rem;">
@@ -236,10 +242,6 @@
                             </div>
                         </div>
                     </form>
-                @else
-                    <div style="font-size: 0.8rem; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 0.75rem; text-align: center;">
-                        Tenggat pengumpulan tugas telah berakhir.
-                    </div>
                 @endif
             </div>
 

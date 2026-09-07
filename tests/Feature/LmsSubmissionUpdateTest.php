@@ -143,18 +143,20 @@ class LmsSubmissionUpdateTest extends TestCase
         Storage::disk('public')->assertExists($submission->file_jawaban);
     }
 
-    public function test_mahasiswa_tidak_bisa_memperbarui_setelah_deadline(): void
+    public function test_mahasiswa_dapat_memperbarui_setelah_deadline_jika_belum_dinilai(): void
     {
         $data = $this->buatData();
         $payload = $this->buatSubmission($data, ['deadline' => now()->subDay()]);
 
         $this->actingAs($data['userMhs'])
             ->patch(route('mahasiswa.lms.tugas.update', $payload['submission']->id), [
-                'catatan_mahasiswa' => 'Nekat revisi',
+                'catatan_mahasiswa' => 'Revisi terlambat',
             ])
-            ->assertForbidden();
+            ->assertSessionHas('toast_success');
 
-        $this->assertEquals('Versi awal', $payload['submission']->fresh()->catatan_mahasiswa);
+        $submission = $payload['submission']->fresh();
+        $this->assertEquals('Revisi terlambat', $submission->catatan_mahasiswa);
+        $this->assertTrue($submission->isTerlambat());
     }
 
     public function test_mahasiswa_tidak_bisa_memperbarui_setelah_dinilai(): void

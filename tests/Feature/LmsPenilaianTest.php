@@ -332,7 +332,7 @@ class LmsPenilaianTest extends TestCase
         $this->assertEquals('Versi awal', $submission->fresh()->catatan_mahasiswa);
     }
 
-    public function test_mahasiswa_tidak_bisa_mengumpulkan_pertama_setelah_deadline(): void
+    public function test_mahasiswa_dapat_mengumpulkan_setelah_deadline_dengan_label_terlambat(): void
     {
         $data = $this->buatKelas();
 
@@ -346,11 +346,13 @@ class LmsPenilaianTest extends TestCase
 
         $this->actingAs($data['mahasiswa']->user)
             ->post(route('mahasiswa.lms.tugas.kumpul', $tugas->id), [
-                'catatan_mahasiswa' => 'Nekat kumpul',
+                'catatan_mahasiswa' => 'Kumpul terlambat',
             ])
-            ->assertForbidden();
+            ->assertSessionHas('toast_success');
 
-        $this->assertDatabaseMissing('lms_submissions', ['lms_tugas_id' => $tugas->id]);
+        $submission = LmsSubmission::where('lms_tugas_id', $tugas->id)->first();
+        $this->assertNotNull($submission);
+        $this->assertTrue($submission->isTerlambat());
     }
 
     public function test_dosen_memperbarui_tugas(): void

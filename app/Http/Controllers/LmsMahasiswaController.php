@@ -282,7 +282,6 @@ class LmsMahasiswaController extends Controller
             ->first();
 
         abort_if($existing?->nilai !== null, 403, 'Tidak dapat mengumpulkan: tugas sudah dinilai.');
-        abort_if($tugas->deadline->isPast(), 403, 'Tidak dapat mengumpulkan: melewati deadline.');
 
         $maxKb = ($tugas->batas_upload_mb ?: 50) * 1024;
 
@@ -331,7 +330,6 @@ class LmsMahasiswaController extends Controller
         $pengampu = $tugas->pengampu;
 
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
-        abort_if($tugas->deadline->isPast(), 403, 'Tidak dapat memperbarui: melewati deadline.');
         abort_if($submission->nilai !== null, 403, 'Tidak dapat memperbarui: tugas sudah dinilai.');
 
         $maxKb = ($tugas->batas_upload_mb ?: 50) * 1024;
