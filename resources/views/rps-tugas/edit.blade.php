@@ -8,6 +8,7 @@
 
 <form action="{{ route('rps.tugas.update', [$rps->id, $tugas->id]) }}"
       method="POST"
+      enctype="multipart/form-data"
       class="card">
 
     @csrf
@@ -99,6 +100,47 @@
         <textarea name="luaran_tugas"
                   class="form-textarea w-full"
                   rows="4">{{ old('luaran_tugas', $tugas->luaran_tugas) }}</textarea>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">Tenggat Waktu / Deadline (LMS)</label>
+
+        <input type="datetime-local"
+               name="deadline"
+               class="form-input w-full"
+               value="{{ old('deadline', $tugas->deadline?->format('Y-m-d\TH:i')) }}">
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">Bobot Nilai (0 - 100)</label>
+
+        <input type="number"
+               name="bobot_nilai"
+               class="form-input w-full"
+               min="0"
+               max="100"
+               value="{{ old('bobot_nilai', $tugas->bobot_nilai ?? 100) }}">
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">File Soal / Lampiran</label>
+
+        <input type="file"
+               name="file"
+               class="form-input w-full">
+        @if($tugas->file_soal)
+            <div style="font-size: 0.75rem; color: #16a34a; margin-top: 0.25rem;">
+                File saat ini: <a href="{{ Storage::url($tugas->file_soal) }}" target="_blank" style="text-decoration: underline;">Unduh Lampiran</a>
+            </div>
+        @else
+            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Format PDF, DOC, XLS, PPT, ZIP, gambar (maks 50 MB)</div>
+        @endif
 
     </div>
 

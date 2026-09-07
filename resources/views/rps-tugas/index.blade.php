@@ -155,6 +155,18 @@ document.addEventListener('DOMContentLoaded', function () {
         return found ? found.id : '';
     }
 
+    function formatDatetimeLocal(dtString) {
+        if (! dtString) return '';
+        const d = new Date(dtString);
+        if (isNaN(d.getTime())) return '';
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
     window.openUpload = function (item) {
         const url = @js(route('rps.tugas.upload-ke-lms', ['rps' => $rps->id, 'tugas' => '__TUGAS__'])).replace('__TUGAS__', item.id);
         document.getElementById('upload-form').action = url;
@@ -172,9 +184,30 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('preview-subcpmk').innerText = item.sub_cpmk || '-';
         document.getElementById('preview-penugasan').innerText = item.penugasan || '-';
         document.getElementById('preview-ruanglingkup').innerText = item.ruang_lingkup || '-';
-        document.getElementById('preview-carapengerjaan').innerText = item.cara_pengerjaan || '-';
         document.getElementById('preview-luaran').innerText = item.luaran_tugas || '-';
         document.getElementById('preview-bataswaktu').innerText = item.batas_waktu || '-';
+
+        const form = document.getElementById('upload-form');
+        if (item.deadline) {
+            form.querySelector('input[name="deadline"]').value = formatDatetimeLocal(item.deadline);
+        } else {
+            form.querySelector('input[name="deadline"]').value = '';
+        }
+        if (item.bobot_nilai !== null && item.bobot_nilai !== undefined) {
+            form.querySelector('input[name="bobot_nilai"]').value = item.bobot_nilai;
+        } else {
+            form.querySelector('input[name="bobot_nilai"]').value = 100;
+        }
+
+        const fileNotice = document.getElementById('preview-file-soal-notice');
+        if (fileNotice) {
+            if (item.file_soal) {
+                fileNotice.style.display = 'block';
+                fileNotice.innerText = '📎 File Lampiran Soal terlampir dari RPS';
+            } else {
+                fileNotice.style.display = 'none';
+            }
+        }
 
         document.getElementById('upload-pertemuan').value = autoPertemuan(item.minggu_topik);
         document.getElementById('upload-file').value = '';
@@ -210,6 +243,8 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
         <div style="font-size: 0.72rem; color: #16a34a; margin-top: 0.25rem; font-weight: 600;">
             Batas Waktu RPS: <span id="preview-bataswaktu"></span>
+        </div>
+        <div id="preview-file-soal-notice" style="display: none; font-size: 0.72rem; color: #0284c7; margin-top: 0.25rem; font-weight: 600;">
         </div>
     </div>
 

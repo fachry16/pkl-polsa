@@ -60,9 +60,12 @@ class RpsTugasController extends Controller
             'cara_pengerjaan' => 'nullable|string',
             'batas_waktu' => 'nullable|string|max:255',
             'luaran_tugas' => 'nullable|string',
+            'deadline' => 'nullable|date',
+            'bobot_nilai' => 'nullable|integer|min:0|max:100',
+            'file' => ['nullable', 'file', 'max:51200', new LmsFileMime],
         ]);
 
-        RpsTugas::create([
+        $data = [
             'rps_id' => $rps->id,
             'minggu_topik' => $request->minggu_topik,
             'nama_tugas' => $request->nama_tugas,
@@ -72,7 +75,15 @@ class RpsTugasController extends Controller
             'cara_pengerjaan' => $request->cara_pengerjaan,
             'batas_waktu' => $request->batas_waktu,
             'luaran_tugas' => $request->luaran_tugas,
-        ]);
+            'deadline' => $request->deadline,
+            'bobot_nilai' => $request->bobot_nilai ?? 100,
+        ];
+
+        if ($request->hasFile('file')) {
+            $data['file_soal'] = $request->file('file')->store('lms/tugas', 'public');
+        }
+
+        RpsTugas::create($data);
 
         return redirect()
             ->route('rps.tugas.index', $rps->id)
@@ -105,9 +116,12 @@ class RpsTugasController extends Controller
             'cara_pengerjaan' => 'nullable|string',
             'batas_waktu' => 'nullable|string|max:255',
             'luaran_tugas' => 'nullable|string',
+            'deadline' => 'nullable|date',
+            'bobot_nilai' => 'nullable|integer|min:0|max:100',
+            'file' => ['nullable', 'file', 'max:51200', new LmsFileMime],
         ]);
 
-        $tugas->update([
+        $data = [
             'minggu_topik' => $request->minggu_topik,
             'nama_tugas' => $request->nama_tugas,
             'sub_cpmk' => $request->sub_cpmk,
@@ -116,7 +130,18 @@ class RpsTugasController extends Controller
             'cara_pengerjaan' => $request->cara_pengerjaan,
             'batas_waktu' => $request->batas_waktu,
             'luaran_tugas' => $request->luaran_tugas,
-        ]);
+            'deadline' => $request->deadline,
+            'bobot_nilai' => $request->bobot_nilai ?? 100,
+        ];
+
+        if ($request->hasFile('file')) {
+            if ($tugas->file_soal) {
+                Storage::disk('public')->delete($tugas->file_soal);
+            }
+            $data['file_soal'] = $request->file('file')->store('lms/tugas', 'public');
+        }
+
+        $tugas->update($data);
 
         return redirect()
             ->route('rps.tugas.index', $rps->id)
@@ -129,6 +154,10 @@ class RpsTugasController extends Controller
     public function destroy(Rps $rps, RpsTugas $tugas)
     {
         $this->authorizeRpsModel($rps);
+
+        if ($tugas->file_soal) {
+            Storage::disk('public')->delete($tugas->file_soal);
+        }
 
         $tugas->delete();
 
@@ -152,7 +181,7 @@ class RpsTugasController extends Controller
 
                 if (! $kelas
                     || $kelas->mata_kuliah_id !== $rps->mata_kuliah_id
-                    || ($dosen && $kelas->dosen_id !== $dosen->id)) {
+                    || ($dosen && $kelas->dosen_id !== $dosen->id && ! Auth::user()->isAdmin())) {
                     $fail('Kelas tidak valid untuk tugas ini.');
                 }
             }],
@@ -182,6 +211,13 @@ class RpsTugasController extends Controller
                 ->with('success', 'Tugas sudah pernah diunggah ke LMS untuk kelas dan pertemuan tersebut.');
         }
 
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('lms/tugas', 'public');
+        } elseif ($tugas->file_soal) {
+            $filePath = $tugas->file_soal;
+        }
+
         $data = [
             'pengampu_id' => $pengampu->id,
             'rps_pertemuan_id' => $request->rps_pertemuan_id,
@@ -190,11 +226,8 @@ class RpsTugasController extends Controller
             'deadline' => $request->deadline,
             'bobot_nilai' => $request->bobot_nilai,
             'batas_upload_mb' => $request->batas_upload_mb,
+            'file_lampiran' => $filePath,
         ];
-
-        if ($request->hasFile('file')) {
-            $data['file_lampiran'] = $request->file('file')->store('lms/tugas', 'public');
-        }
 
         $lmsTugas = LmsTugas::create($data);
 

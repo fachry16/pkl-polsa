@@ -28,6 +28,17 @@
              let found = this.pertemuans.find(p => p.minggu === minggu);
              return found ? found.id : '';
          },
+         formatDatetimeLocal(dtString) {
+             if (!dtString) return '';
+             let d = new Date(dtString);
+             if (isNaN(d.getTime())) return '';
+             let year = d.getFullYear();
+             let month = String(d.getMonth() + 1).padStart(2, '0');
+             let day = String(d.getDate()).padStart(2, '0');
+             let hours = String(d.getHours()).padStart(2, '0');
+             let minutes = String(d.getMinutes()).padStart(2, '0');
+             return `${year}-${month}-${day}T${hours}:${minutes}`;
+         },
          selectRpsTugas(id) {
              this.selectedRpsTugasId = id;
              if (!id) {
@@ -47,6 +58,15 @@
                  let autoId = this.autoPertemuan(this.selectedRpsTugas.minggu_topik);
                  let rpsSelect = document.getElementById('input-rps-pertemuan');
                  if (rpsSelect && autoId) rpsSelect.value = autoId;
+
+                 if (this.selectedRpsTugas.deadline) {
+                     let dlInput = document.querySelector('input[name="deadline"]');
+                     if (dlInput) dlInput.value = this.formatDatetimeLocal(this.selectedRpsTugas.deadline);
+                 }
+                 if (this.selectedRpsTugas.bobot_nilai !== null && this.selectedRpsTugas.bobot_nilai !== undefined) {
+                     let bobotInput = document.querySelector('input[name="bobot_nilai"]');
+                     if (bobotInput) bobotInput.value = this.selectedRpsTugas.bobot_nilai;
+                 }
              }
          }
      }">
@@ -71,7 +91,7 @@
                 </template>
             </select>
             <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.35rem;">
-                Pilih rancangan tugas RPS untuk otomatis mengisi judul dan rincian instruksi.
+                Pilih rancangan tugas RPS untuk otomatis mengisi judul, instruksi, deadline, dan bobot nilai.
             </div>
         </div>
 
@@ -95,8 +115,12 @@
                 <div style="font-size: 0.72rem; color: #475569; margin-top: 0.2rem;" x-show="selectedRpsTugas.luaran_tugas">
                     <strong>Luaran Tugas:</strong> <span x-text="selectedRpsTugas.luaran_tugas"></span>
                 </div>
-                <div style="font-size: 0.72rem; color: #16a34a; margin-top: 0.35rem; font-weight: 600;" x-show="selectedRpsTugas.batas_waktu">
-                    Batas Waktu RPS: <span x-text="selectedRpsTugas.batas_waktu"></span>
+                <div style="font-size: 0.72rem; color: #16a34a; margin-top: 0.35rem; font-weight: 600;" x-show="selectedRpsTugas.batas_waktu || selectedRpsTugas.bobot_nilai">
+                    <span x-show="selectedRpsTugas.batas_waktu" x-text="'Batas Waktu: ' + selectedRpsTugas.batas_waktu"></span>
+                    <span x-show="selectedRpsTugas.bobot_nilai" x-text="' &middot; Bobot: ' + selectedRpsTugas.bobot_nilai"></span>
+                </div>
+                <div style="font-size: 0.72rem; color: #0284c7; margin-top: 0.25rem; font-weight: 600;" x-show="selectedRpsTugas.file_soal">
+                    📎 File Lampiran Soal terlampir dari RPS
                 </div>
             </div>
         </template>
