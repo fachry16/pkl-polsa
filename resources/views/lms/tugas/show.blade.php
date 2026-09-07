@@ -73,7 +73,7 @@
                 <th>Nama</th>
                 <th>Status</th>
                 <th>Waktu Kumpul</th>
-                <th>File Jawaban</th>
+                <th>File Jawaban &amp; Catatan Mahasiswa</th>
                 <th>Nilai</th>
                 <th>Catatan Dosen</th>
                 <th>Aksi</th>
@@ -106,18 +106,25 @@
                     </td>
                     <td>
                         @if($submission)
-                            <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
-                                @if($submission->file_jawaban)
-                                    <x-file-link :file="$submission->file_jawaban" compact :href="route('lms.file', ['submission', $submission->id])" />
-                                @endif
-                                @if($submission->link_jawaban)
-                                    <a href="{{ $submission->link_jawaban }}" target="_blank" class="btn btn-secondary btn-xs" style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.7rem; padding: 0.15rem 0.4rem;" title="{{ $submission->link_jawaban }}">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                        Link
-                                    </a>
-                                @endif
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                                    @if($submission->file_jawaban)
+                                        <x-file-link :file="$submission->file_jawaban" compact :href="route('lms.file', ['submission', $submission->id])" />
+                                    @endif
+                                    @if($submission->link_jawaban)
+                                        <a href="{{ $submission->link_jawaban }}" target="_blank" class="btn btn-secondary btn-xs" style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.7rem; padding: 0.15rem 0.4rem;" title="{{ $submission->link_jawaban }}">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                            Link
+                                        </a>
+                                    @endif
+                                    @if(!$submission->file_jawaban && !$submission->link_jawaban)
+                                        <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">(Ditandai Selesai)</span>
+                                    @endif
+                                </div>
                                 @if($submission->catatan_mahasiswa)
-                                    <span style="font-size: 0.7rem; color: #64748b; cursor: help;" title="{{ $submission->catatan_mahasiswa }}">Catatan</span>
+                                    <div style="font-size: 0.78rem; color: #1e293b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.35rem 0.6rem; border-radius: 6px; line-height: 1.4; word-break: break-word;">
+                                        💬 <strong>Catatan:</strong> {{ $submission->catatan_mahasiswa }}
+                                    </div>
                                 @endif
                             </div>
                         @else
@@ -137,8 +144,12 @@
                         {{ $submission->catatan_dosen ?? '-' }}
                     </td>
                     <td>
-                        <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
                             @if($submission)
+                                <button type="button" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 0.25rem;" onclick="document.getElementById('preview-submission-{{ $submission->id }}').classList.toggle('hidden')">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <span>Preview</span>
+                                </button>
                                 <button type="button" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="document.getElementById('nilai-form-{{ $submission->id }}').classList.toggle('hidden')">Nilai</button>
                             @endif
                             @php
@@ -155,8 +166,80 @@
                     </td>
                 </tr>
                 @if($submission)
+                    <tr id="preview-submission-{{ $submission->id }}" class="hidden">
+                        <td colspan="9" style="padding: 1rem 1.25rem; background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">
+                                    <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 0.4rem;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                        Preview Kiriman Tugas: {{ $mahasiswa->nama }} ({{ $mahasiswa->nim }})
+                                    </h4>
+                                    <button type="button" class="btn btn-link btn-xs" style="color: #64748b; text-decoration: none;" onclick="document.getElementById('preview-submission-{{ $submission->id }}').classList.add('hidden')">&times; Tutup Preview</button>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    <div>
+                                        <div style="font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Waktu Dikumpulkan</div>
+                                        <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600; margin-top: 0.15rem;">
+                                            {{ $submission->dikumpulkan_pada->format('d M Y H:i') }}
+                                            @if($submission->isTerlambat())
+                                                <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.1rem 0.4rem; font-size: 0.65rem; margin-left: 0.3rem;">Terlambat</span>
+                                            @else
+                                                <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.4rem; font-size: 0.65rem; margin-left: 0.3rem;">Tepat Waktu</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Status Nilai</div>
+                                        <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600; margin-top: 0.15rem;">
+                                            {{ $submission->nilai !== null ? $submission->nilai . ' / 100' : 'Belum Dinilai' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if($submission->catatan_mahasiswa)
+                                    <div style="margin-bottom: 1rem;">
+                                        <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">💬 Pesan / Catatan Mahasiswa:</div>
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem; font-size: 0.85rem; color: #334155; line-height: 1.5; white-space: pre-wrap;">{{ $submission->catatan_mahasiswa }}</div>
+                                    </div>
+                                @endif
+
+                                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                                    @if($submission->file_jawaban)
+                                        <div>
+                                            <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">📄 File Jawaban:</div>
+                                            <x-file-link :file="$submission->file_jawaban" :href="route('lms.file', ['submission', $submission->id])" />
+                                        </div>
+                                    @endif
+                                    @if($submission->link_jawaban)
+                                        <div>
+                                            <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">🔗 Link URL Jawaban:</div>
+                                            <a href="{{ $submission->link_jawaban }}" target="_blank" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                                Buka Tautan Jawaban
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
                     <tr id="nilai-form-{{ $submission->id }}" class="hidden">
                         <td colspan="9" style="padding: 0.75rem 1rem; background: #f8fafc;">
+                            <div style="font-size: 0.75rem; color: #475569; margin-bottom: 0.5rem; background: #ffffff; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                                <div>
+                                    <strong>Jawaban {{ $mahasiswa->nama }}:</strong>
+                                    @if($submission->file_jawaban)
+                                        <x-file-link :file="$submission->file_jawaban" compact :href="route('lms.file', ['submission', $submission->id])" />
+                                    @endif
+                                    @if($submission->link_jawaban)
+                                        <a href="{{ $submission->link_jawaban }}" target="_blank" style="color: #2563eb; font-weight: 500; text-decoration: underline; margin-left: 0.3rem;">[Buka Link]</a>
+                                    @endif
+                                </div>
+                                @if($submission->catatan_mahasiswa)
+                                    <div style="font-style: italic; color: #334155;">"{{ $submission->catatan_mahasiswa }}"</div>
+                                @endif
+                            </div>
                             <form action="{{ route('lms.submission.nilai', $submission->id) }}" method="POST" style="display: flex; gap: 0.75rem; align-items: flex-end; margin: 0;">
                                 @csrf @method('PATCH')
                                 <div style="flex: 0 0 100px;">
