@@ -10,11 +10,21 @@ use Illuminate\Support\Facades\Auth;
 
 class LmsPengumumanController extends Controller
 {
-    public function index(Pengampu $pengampu)
+    private function authorizeDosen(Pengampu $pengampu): void
     {
-        $dosen = Auth::user()->dosen;
+        $user = Auth::user();
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $dosen = $user->dosen;
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+    }
+
+    public function index(Pengampu $pengampu)
+    {
+        $this->authorizeDosen($pengampu);
 
         $pengampu->load('mataKuliah', 'tahunAkademik');
 
@@ -25,9 +35,7 @@ class LmsPengumumanController extends Controller
 
     public function store(Request $request, Pengampu $pengampu)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -52,9 +60,7 @@ class LmsPengumumanController extends Controller
 
     public function edit(Pengampu $pengampu, LmsPengumuman $pengumuman)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
 
         if (! $pengumuman->canBeEdited()) {
@@ -69,9 +75,7 @@ class LmsPengumumanController extends Controller
 
     public function update(Request $request, Pengampu $pengampu, LmsPengumuman $pengumuman)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
 
         if (! $pengumuman->canBeEdited()) {
@@ -96,9 +100,7 @@ class LmsPengumumanController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsPengumuman $pengumuman)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($pengumuman->pengampu_id !== $pengampu->id, 404);
 
         if (! $pengumuman->canBeDeleted()) {

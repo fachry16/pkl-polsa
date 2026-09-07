@@ -16,10 +16,22 @@ class RpsTugas extends Model
         'cara_pengerjaan',
         'batas_waktu',
         'luaran_tugas',
+        'deadline',
+        'bobot_nilai',
+        'file_soal',
+    ];
+
+    protected $casts = [
+        'deadline' => 'datetime',
     ];
 
     public function rps()
     {
         return $this->belongsTo(Rps::class);
+    }
+
+    public function lmsTugas()
+    {
+        return $this->hasMany(LmsTugas::class, 'rps_tugas_id');
     }
 }

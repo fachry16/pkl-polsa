@@ -14,24 +14,33 @@ use Illuminate\Support\Facades\Storage;
 
 class LmsMateriController extends Controller
 {
-    public function index(Pengampu $pengampu)
+    private function authorizeDosen(Pengampu $pengampu): void
     {
-        $dosen = Auth::user()->dosen;
+        $user = Auth::user();
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $dosen = $user->dosen;
 
         abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+    }
 
-        $pengampu->load('mataKuliah', 'tahunAkademik');
+    public function index(Pengampu $pengampu)
+    {
+        $this->authorizeDosen($pengampu);
+
+        $pengampu->load(['mataKuliah.rps.pertemuans', 'tahunAkademik']);
         $materis = $pengampu->lmsMateris()->latest()->paginate(10);
         $pertemuans = $pengampu->rpsPertemuans();
+        $rpsPertemuans = $pengampu->mataKuliah?->rps?->pertemuans ?? collect();
 
-        return view('lms.materi.index', compact('pengampu', 'materis', 'pertemuans'));
+        return view('lms.materi.index', compact('pengampu', 'materis', 'pertemuans', 'rpsPertemuans'));
     }
 
     public function store(Request $request, Pengampu $pengampu)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -64,9 +73,7 @@ class LmsMateriController extends Controller
 
     public function show(Pengampu $pengampu, LmsMateri $materi)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($materi->pengampu_id !== $pengampu->id, 404);
 
         $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
@@ -77,9 +84,7 @@ class LmsMateriController extends Controller
 
     public function edit(Pengampu $pengampu, LmsMateri $materi)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($materi->pengampu_id !== $pengampu->id, 404);
 
         if (! $materi->canBeModified()) {
@@ -96,9 +101,7 @@ class LmsMateriController extends Controller
 
     public function update(Request $request, Pengampu $pengampu, LmsMateri $materi)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($materi->pengampu_id !== $pengampu->id, 404);
 
         if (! $materi->canBeModified()) {
@@ -136,9 +139,7 @@ class LmsMateriController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsMateri $materi)
     {
-        $dosen = Auth::user()->dosen;
-
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $this->authorizeDosen($pengampu);
         abort_if($materi->pengampu_id !== $pengampu->id, 404);
 
         if (! $materi->canBeModified()) {

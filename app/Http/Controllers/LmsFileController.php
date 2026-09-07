@@ -69,6 +69,10 @@ class LmsFileController extends Controller
 
         abort_if(! $user, 403);
 
+        if ($user->isAdmin()) {
+            return;
+        }
+
         $dosen = $user->dosen;
 
         if ($dosen && $file['pengampu_id']) {

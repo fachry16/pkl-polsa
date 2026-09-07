@@ -38,16 +38,28 @@ class LmsController extends Controller
     public function index()
     {
         $tahunAkademik = TahunAkademik::where('is_active', true)->first();
-        $dosen = Auth::user()->dosen;
+        $user = Auth::user();
 
         $pengampus = collect();
 
-        if ($dosen && $tahunAkademik) {
-            $pengampus = $dosen->pengampus()
-                ->where('tahun_akademik_id', $tahunAkademik->id)
-                ->with('mataKuliah')
-                ->withCount(['lmsMateris', 'lmsTugas', 'lmsForumDiskusis'])
-                ->get();
+        if ($user->isAdmin()) {
+            if ($tahunAkademik) {
+                $pengampus = Pengampu::query()
+                    ->where('tahun_akademik_id', $tahunAkademik->id)
+                    ->with(['mataKuliah', 'dosen.user'])
+                    ->withCount(['lmsMateris', 'lmsTugas', 'lmsForumDiskusis'])
+                    ->get();
+            }
+        } else {
+            $dosen = $user->dosen;
+
+            if ($dosen && $tahunAkademik) {
+                $pengampus = $dosen->pengampus()
+                    ->where('tahun_akademik_id', $tahunAkademik->id)
+                    ->with(['mataKuliah', 'dosen.user'])
+                    ->withCount(['lmsMateris', 'lmsTugas', 'lmsForumDiskusis'])
+                    ->get();
+            }
         }
 
         return view('lms.index', compact('pengampus', 'tahunAkademik'));
@@ -55,9 +67,12 @@ class LmsController extends Controller
 
     public function show(Pengampu $pengampu)
     {
-        $dosen = Auth::user()->dosen;
+        $user = Auth::user();
+        $dosen = $user->dosen;
 
-        abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        if (! $user->isAdmin()) {
+            abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        }
 
         $pengampu->load([
             'mataKuliah',

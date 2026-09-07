@@ -347,7 +347,5 @@ class LmsScopingFileTest extends TestCase
 
         $response->assertSee('Rekap Nilai');
         $response->assertSee('85');
-        $response->assertSee('Kehadiran');
-        $response->assertSee('Hadir 0 dari 1 sesi');
     }
 }

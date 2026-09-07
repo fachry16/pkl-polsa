@@ -15,7 +15,7 @@ class LmsTopikKomentarController extends Controller
         $dosen = $user->dosen;
         $mahasiswa = $user->mahasiswa;
 
-        $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
+        $isDosen = $user->isAdmin() || ($dosen && $pengampu->dosen_id === $dosen->id);
         $isMhs = $mahasiswa && $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists();
 
         abort_unless($isDosen || $isMhs, 403);
@@ -55,7 +55,7 @@ class LmsTopikKomentarController extends Controller
     {
         $user = Auth::user();
         $dosen = $user->dosen;
-        $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
+        $isDosen = $user->isAdmin() || ($dosen && $pengampu->dosen_id === $dosen->id);
 
         if ($isDosen) {
             $komentar->delete();
