@@ -61,12 +61,6 @@
             Nilai
         </button>
 
-        <button type="button" @click="tab = 'kehadiran'; history.replaceState(null, null, '?tab=kehadiran')" 
-            class="btn btn-secondary btn-sm"
-            :style="tab === 'kehadiran' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
-            Kehadiran
-        </button>
-
         <a href="{{ route('mahasiswa.lms.index') }}" class="btn btn-secondary btn-sm" style="margin-left: auto;">
             Kembali ke Kelas Saya
         </a>
@@ -84,7 +78,7 @@
                         <h3 style="font-size: 0.9rem; font-weight: 700; color: #1e293b; margin: 0;">Mendatang</h3>
                     </div>
                     @php
-                        $tugasMendatang = $pengampu->lmsTugas->filter(fn($t) => $t->deadline && !$t->deadline->isPast())->sortBy('deadline')->take(5);
+                        $tugasMendatang = $pengampu->lmsTugas->filter(fn($t) => $t->is_active && $t->deadline && !$t->deadline->isPast())->sortBy('deadline')->take(5);
                     @endphp
                     @forelse($tugasMendatang as $tugas)
                         @php $sub = $submissions->get($tugas->id); @endphp
@@ -568,53 +562,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Tab: Kehadiran --}}
-    <div x-show="tab === 'kehadiran'">
-        <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem;">
-            <h3 style="font-size: 0.9rem; font-weight: 600; margin: 0 0 0.75rem; color: #1e293b;">Kehadiran</h3>
-            <div style="font-size: 0.85rem; color: #475569; margin-bottom: 0.75rem;">
-                Hadir {{ $hadirCount }} dari {{ $totalSesi }} sesi
-                @if($totalSesi > 0)
-                    &middot; <strong>{{ round($hadirCount / $totalSesi * 100, 1) }}%</strong>
-                @endif
-            </div>
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Pertemuan</th>
-                            <th>Materi</th>
-                            <th>Tanggal</th>
-                            <th style="text-align: center;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($absensiSesi as $sesi)
-                            <tr>
-                                <td>Pertemuan {{ $sesi->rpsPertemuan?->minggu ?? '-' }}</td>
-                                <td>{{ $sesi->rpsPertemuan?->materi ?? '-' }}</td>
-                                <td>{{ $sesi->tanggal_aktual?->format('d M Y') ?? '-' }}</td>
-                                <td style="text-align: center;">
-                                    @php
-                                        $label = [
-                                            'hadir' => ['Hadir', '#16a34a'],
-                                            'sakit' => ['Sakit', '#f59e0b'],
-                                            'izin' => ['Izin', '#3b82f6'],
-                                            'alpa' => ['Alpa', '#dc2626'],
-                                        ][$sesi->status_mahasiswa ?? 'alpa'];
-                                    @endphp
-                                    <span style="background: {{ $label[1] }}18; color: {{ $label[1] }}; border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.7rem; font-weight: 600;">{{ $label[0] }}</span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="4" style="text-align: center; color: #94a3b8;">Belum ada sesi kehadiran.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>

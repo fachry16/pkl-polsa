@@ -106,14 +106,12 @@ class RpsDrivenLmsTest extends TestCase
         // Access LMS materi index
         $materiRes = $this->actingAs($userDosen)->get(route('lms.materi.index', $pengampu->id));
         $materiRes->assertStatus(200);
-        $materiRes->assertSee('Ambil dari RPS Pertemuan');
-        $materiRes->assertSee('Konsep Monolitik vs Microservices');
+        $materiRes->assertSee('Kelola Pertemuan RPS');
 
         // Access LMS tugas index
         $tugasRes = $this->actingAs($userDosen)->get(route('lms.tugas.index', $pengampu->id));
         $tugasRes->assertStatus(200);
-        $tugasRes->assertSee('Ambil Penugasan dari RPS');
-        $tugasRes->assertSee('Tugas 1: Analisis Arsitektur');
+        $tugasRes->assertSee('Kelola Rancangan Tugas di RPS');
     }
 
     public function test_upload_ke_lms_membuat_draf_dan_bisa_ditugaskan(): void

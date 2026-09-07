@@ -54,12 +54,6 @@
             Orang ({{ $mahasiswaCount }})
         </button>
 
-        <button type="button" @click="tab = 'presensi'; history.replaceState(null, null, '?tab=presensi')" 
-            class="btn btn-secondary btn-sm"
-            :style="tab === 'presensi' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
-            Presensi
-        </button>
-
         <button type="button" @click="tab = 'rekap_nilai'; history.replaceState(null, null, '?tab=rekap_nilai')" 
             class="btn btn-secondary btn-sm"
             :style="tab === 'rekap_nilai' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
@@ -83,7 +77,7 @@
                         <h3 style="font-size: 0.9rem; font-weight: 700; color: #1e293b; margin: 0;">Mendatang</h3>
                     </div>
                     @php
-                        $tugasMendatang = $pengampu->lmsTugas->filter(fn($t) => $t->deadline && !$t->deadline->isPast())->sortBy('deadline')->take(5);
+                        $tugasMendatang = $pengampu->lmsTugas->filter(fn($t) => $t->is_active && $t->deadline && !$t->deadline->isPast())->sortBy('deadline')->take(5);
                     @endphp
                     @forelse($tugasMendatang as $tugas)
                         <div style="padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9;">
@@ -442,67 +436,7 @@
         </div>
     </div>
 
-    {{-- TAB 4: PRESENSI --}}
-    <div x-show="tab === 'presensi'">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <div>
-                <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem;">Presensi Kehadiran</h2>
-                <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Buka sesi pertemuan dan pantau kehadiran mahasiswa.</p>
-            </div>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            @forelse($pertemuans as $pertemuan)
-                @php
-                    $sesi = $sesis->get($pertemuan->id);
-                    $counts = $sesi ? $sesi->absensis->groupBy('status')->map->count() : collect();
-                @endphp
-                <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-                    <div style="flex: 1; min-width: 220px;">
-                        <div style="font-weight: 600; font-size: 0.95rem; color: #0f172a;">
-                            Pertemuan {{ $pertemuan->minggu }}
-                        </div>
-                        <div style="font-size: 0.85rem; color: #475569; margin-top: 0.2rem;">
-                            {{ $pertemuan->materi }}
-                        </div>
-                        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.35rem;">
-                            @if($sesi)
-                                <span style="display: inline-flex; align-items: center; gap: 0.3rem;">
-                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
-                                    Dilaksanakan {{ $sesi->tanggal_aktual->format('d M Y') }}
-                                </span> &middot;
-                                Hadir <strong style="color: #059669;">{{ $counts->get('hadir', 0) }}</strong> / 
-                                Sakit <strong style="color: #d97706;">{{ $counts->get('sakit', 0) }}</strong> /
-                                Izin <strong style="color: #2563eb;">{{ $counts->get('izin', 0) }}</strong> / 
-                                Alpa <strong style="color: #dc2626;">{{ $counts->get('alpa', 0) }}</strong>
-                            @else
-                                <span style="color: #94a3b8;">Belum dibuka</span>
-                            @endif
-                        </div>
-                    </div>
-                    <div>
-                        @if($sesi)
-                            <a href="{{ route('lms.absensi.show', [$pengampu->id, $sesi->id]) }}" class="btn btn-secondary btn-sm">
-                                Isi &amp; Ubah Presensi
-                            </a>
-                        @else
-                            <form action="{{ route('lms.absensi.buka', $pengampu->id) }}" method="POST" style="margin: 0;">
-                                @csrf
-                                <input type="hidden" name="rps_pertemuan_id" value="{{ $pertemuan->id }}">
-                                <button type="submit" class="btn btn-primary btn-sm">Buka Sesi</button>
-                            </form>
-                        @endif
-                    </div>
-                </div>
-            @empty
-                <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; padding: 3rem;">
-                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">RPS belum memiliki daftar pertemuan. Tambahkan pertemuan di menu RPS terlebih dahulu.</p>
-                </div>
-            @endforelse
-        </div>
-    </div>
-
-    {{-- TAB 5: REKAP NILAI --}}
+    {{-- TAB 4: REKAP NILAI --}}
     <div x-show="tab === 'rekap_nilai'">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
             <div>
