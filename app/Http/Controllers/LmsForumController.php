@@ -36,6 +36,8 @@ class LmsForumController extends Controller
 
     public function store(Request $request, Pengampu $pengampu)
     {
+        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
         $this->authorizePengampu($pengampu);
 
         $data = $this->validated($request, $pengampu->id);
@@ -91,6 +93,8 @@ class LmsForumController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsForumDiskusi $diskusi)
     {
+        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
         $this->authorizePengampu($pengampu);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
 
@@ -157,6 +161,8 @@ class LmsForumController extends Controller
 
     private function authorizePost(Pengampu $pengampu, LmsForumDiskusi $diskusi): void
     {
+        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
         $this->authorizePengampu($pengampu);
 
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);

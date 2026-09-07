@@ -14,6 +14,11 @@
             <span style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
                 {{ $pengampu->mataKuliah->kode ?? 'MK' }} &middot; Kelas {{ $pengampu->kelas ?? '-' }}
             </span>
+            @if(Auth::user()->isAdmin())
+                <span style="background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(4px); padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">
+                    👁️ Read-Only (Admin)
+                </span>
+            @endif
             <span style="font-size: 0.8rem; opacity: 0.9;">{{ $pengampu->label_semester }} {{ $pengampu->tahunAkademik?->tahun ? '· TA ' . $pengampu->tahunAkademik->tahun : '' }}</span>
         </div>
         <h1 style="font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem; line-height: 1.2;">
@@ -118,6 +123,7 @@
                     </div>
 
                     {{-- Form Buat Pengumuman Baru --}}
+                    @if(!Auth::user()->isAdmin())
                     <div x-data="{ openPengumuman: false }" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                         <div @click="openPengumuman = !openPengumuman" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
                             <div style="width: 2rem; height: 2rem; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">
@@ -142,6 +148,7 @@
                             </div>
                         </form>
                     </div>
+                    @endif
 
                     {{-- List Pengumuman Aktif --}}
                     @forelse($pengampu->lmsPengumumans as $pengumuman)
@@ -153,13 +160,15 @@
                                         {{ $pengumuman->created_at->format('d M, H:i') }}
                                     </div>
                                 </div>
-                                <div style="display: flex; gap: 0.25rem;">
-                                    <a href="{{ route('lms.pengumuman.edit', [$pengampu->id, $pengumuman->id]) }}" class="btn btn-secondary btn-xs" style="padding: 0.15rem 0.35rem; font-size: 0.65rem;">Edit</a>
-                                    <form action="{{ route('lms.pengumuman.destroy', [$pengampu->id, $pengumuman->id]) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?');" style="margin: 0;">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-xs" style="padding: 0.15rem 0.35rem; font-size: 0.65rem;">Hapus</button>
-                                    </form>
-                                </div>
+                                @if(!Auth::user()->isAdmin())
+                                    <div style="display: flex; gap: 0.25rem;">
+                                        <a href="{{ route('lms.pengumuman.edit', [$pengampu->id, $pengumuman->id]) }}" class="btn btn-secondary btn-xs" style="padding: 0.15rem 0.35rem; font-size: 0.65rem;">Edit</a>
+                                        <form action="{{ route('lms.pengumuman.destroy', [$pengampu->id, $pengumuman->id]) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?');" style="margin: 0;">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-xs" style="padding: 0.15rem 0.35rem; font-size: 0.65rem;">Hapus</button>
+                                        </form>
+                                    </div>
+                                @endif
                             </div>
                             <div style="font-size: 0.8rem; color: #334155; margin-top: 0.5rem; line-height: 1.5; white-space: pre-wrap;">{!! linkify($pengumuman->isi) !!}</div>
                         </div>
@@ -177,6 +186,7 @@
                     </h3>
 
                     {{-- Form Kirim Pesan Forum Baru --}}
+                    @if(!Auth::user()->isAdmin())
                     <form action="{{ route('lms.forum.store', $pengampu->id) }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 1.5rem; background: #f8fafc; padding: 1rem; border-radius: 10px; border: 1px solid #e2e8f0;">
                         @csrf
                         <textarea name="pesan" class="form-textarea" rows="2" placeholder="Tulis pesan atau pertanyaan di forum..." required style="background: #fff;"></textarea>
@@ -185,6 +195,7 @@
                             <button type="submit" class="btn btn-primary btn-sm">Kirim Diskusi</button>
                         </div>
                     </form>
+                    @endif
 
                     {{-- List Thread Diskusi --}}
                     @forelse($pengampu->lmsForumDiskusis as $post)
@@ -400,7 +411,7 @@
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     Salin Link
                                 </button>
-                                @if($item->obj->canBeModified())
+                                @if(!Auth::user()->isAdmin() && $item->obj->canBeModified())
                                     <a href="{{ $item->edit_url }}" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                                         <span>Perbarui di RPS</span>
@@ -474,6 +485,7 @@
                 <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem;">Rekap Nilai Perkuliahan</h2>
                 <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Rekap nilai tugas, input komponen nilai (Quiz/UTS/UAS), dan kalkulasi nilai akhir.</p>
             </div>
+            @if(!Auth::user()->isAdmin())
             <form action="{{ route('lms.tugas.sync', $pengampu->id) }}" method="POST" style="margin: 0;">
                 @csrf
                 <button type="submit" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
@@ -481,6 +493,7 @@
                     Hitung Ulang Nilai
                 </button>
             </form>
+            @endif
         </div>
 
         {{-- CARD SIMULASI & BEDAH FORMULA REAL-TIME --}}
@@ -1065,7 +1078,7 @@
         </div>
 
         {{-- Form Input Nilai Komponen --}}
-        @if($pengampu->mahasiswas->isNotEmpty())
+        @if(!Auth::user()->isAdmin() && $pengampu->mahasiswas->isNotEmpty())
             <div class="card" style="margin-top: 1.5rem; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.03); overflow: hidden;">
                 <div style="padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #1e293b;">
                     Input Nilai Komponen (Quiz / UTS / UAS / Praktikum / Project)
