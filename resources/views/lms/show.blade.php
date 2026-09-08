@@ -961,34 +961,6 @@
                         </div>
                     </div>
 
-                    {{-- Kolom 3: Tabel Konversi Abjad Mutu --}}
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
-                        <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            3. Standar Abjad &amp; Bobot Mutu (KRS/KHS)
-                        </div>
-                        <div style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 0.73rem; text-align: center;">
-                                <thead>
-                                    <tr style="background: #e2e8f0; color: #334155;">
-                                        <th style="padding: 0.25rem 0.4rem; border: 1px solid #cbd5e1;">Rentang</th>
-                                        <th style="padding: 0.25rem 0.4rem; border: 1px solid #cbd5e1;">Huruf</th>
-                                        <th style="padding: 0.25rem 0.4rem; border: 1px solid #cbd5e1;">Bobot</th>
-                                        <th style="padding: 0.25rem 0.4rem; border: 1px solid #cbd5e1;">Predikat</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td style="border: 1px solid #e2e8f0; padding: 0.2rem;">&ge; 80.00</td><td style="border: 1px solid #e2e8f0; font-weight: 700; color: #059669;">A</td><td style="border: 1px solid #e2e8f0;">4.00</td><td style="border: 1px solid #e2e8f0; text-align: left; padding-left: 0.4rem;">Sangat Baik</td></tr>
-                                    <tr><td style="border: 1px solid #e2e8f0; padding: 0.2rem;">75.00 - 79.99</td><td style="border: 1px solid #e2e8f0; font-weight: 700; color: #2563eb;">B+</td><td style="border: 1px solid #e2e8f0;">3.50</td><td style="border: 1px solid #e2e8f0; text-align: left; padding-left: 0.4rem;">Antara A &amp; B</td></tr>
-                                    <tr><td style="border: 1px solid #e2e8f0; padding: 0.2rem;">70.00 - 74.99</td><td style="border: 1px solid #e2e8f0; font-weight: 700; color: #2563eb;">B</td><td style="border: 1px solid #e2e8f0;">3.00</td><td style="border: 1px solid #e2e8f0; text-align: left; padding-left: 0.4rem;">Baik</td></tr>
-                                    <tr><td style="border: 1px solid #e2e8f0; padding: 0.2rem;">65.00 - 69.99</td><td style="border: 1px solid #e2e8f0; font-weight: 700; color: #ca8a04;">C+</td><td style="border: 1px solid #e2e8f0;">2.50</td><td style="border: 1px solid #e2e8f0; text-align: left; padding-left: 0.4rem;">Antara B &amp; C</td></tr>
-                                    <tr><td style="border: 1px solid #e2e8f0; padding: 0.2rem;">60.00 - 64.99</td><td style="border: 1px solid #e2e8f0; font-weight: 700; color: #ca8a04;">C</td><td style="border: 1px solid #e2e8f0;">2.00</td><td style="border: 1px solid #e2e8f0; text-align: left; padding-left: 0.4rem;">Cukup (Lulus)</td></tr>
-                                    <tr><td style="border: 1px solid #e2e8f0; padding: 0.2rem;">50.00 - 59.99</td><td style="border: 1px solid #e2e8f0; font-weight: 700; color: #ea580c;">D</td><td style="border: 1px solid #e2e8f0;">1.00</td><td style="border: 1px solid #e2e8f0; text-align: left; padding-left: 0.4rem;">Kurang (Remedi)</td></tr>
-                                    <tr><td style="border: 1px solid #e2e8f0; padding: 0.2rem;">&lt; 50.00</td><td style="border: 1px solid #e2e8f0; font-weight: 700; color: #dc2626;">E</td><td style="border: 1px solid #e2e8f0;">0.00</td><td style="border: 1px solid #e2e8f0; text-align: left; padding-left: 0.4rem;">Tidak Lulus</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1011,7 +983,6 @@
                             @endif
                         @endforeach
                         <th style="text-align: center; font-weight: 700; background: #f8fafc;">Nilai Angka</th>
-                        <th style="text-align: center; font-weight: 700; background: #f8fafc;">Huruf Mutu</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1055,31 +1026,10 @@
                             <td style="text-align: center; font-weight: 700; background: #f8fafc;">
                                 {{ $nilaiAkhir !== null ? number_format($nilaiAkhir, 2) : '-' }}
                             </td>
-                            <td style="text-align: center; background: #f8fafc;">
-                                @if($nilaiAkhir !== null)
-                                    @php
-                                        $huruf = konversiNilaiHuruf($nilaiAkhir);
-                                        $bobotM = konversiBobotMutu($nilaiAkhir);
-                                        $badgeStyle = match($huruf) {
-                                            'A' => 'background: #ecfdf5; color: #059669; border-color: #a7f3d0;',
-                                            'B+', 'B' => 'background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;',
-                                            'C+', 'C' => 'background: #fefce8; color: #a16207; border-color: #fde047;',
-                                            'D' => 'background: #fff7ed; color: #c2410c; border-color: #fdba74;',
-                                            default => 'background: #fef2f2; color: #b91c1c; border-color: #fecaca;',
-                                        };
-                                    @endphp
-                                    <span style="{{ $badgeStyle }} border-width: 1px; border-style: solid; padding: 0.15rem 0.55rem; border-radius: 6px; font-weight: 700; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                        <span>{{ $huruf }}</span>
-                                        <span style="font-size: 0.7rem; opacity: 0.85;">({{ number_format($bobotM, 2) }})</span>
-                                    </span>
-                                @else
-                                    <span style="color: #cbd5e1;">-</span>
-                                @endif
-                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ 6 + $tugasList->count() + collect($bobot)->except('tugas')->filter()->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
+                            <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter()->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -1130,8 +1080,15 @@
                             </tbody>
                         </table>
                     </div>
-                    <div style="padding: 1rem 1.25rem; border-top: 1px solid #e2e8f0; text-align: right; background: #f8fafc;">
-                        <button type="submit" class="btn btn-success">Simpan Nilai Komponen</button>
+                    <div style="padding: 1rem 1.25rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; flex-wrap: wrap; gap: 0.75rem;">
+                        <a href="{{ route('assessment.index', ['pengampu_id' => $pengampu->id]) }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Lihat Asesmen OBE Kelas
+                        </a>
+                        <button type="submit" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; padding: 0.5rem 1.25rem;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            Simpan &amp; Kirim ke Asesmen OBE
+                        </button>
                     </div>
                 </form>
             </div>

@@ -345,7 +345,7 @@ class LmsScopingFileTest extends TestCase
             ->get(route('mahasiswa.lms.show', $data['pengampu']->id))
             ->assertOk();
 
-        $response->assertSee('Rekap Nilai');
+        $response->assertSee('Nilai &amp; Catatan Tugas Saya', false);
         $response->assertSee('85');
     }
 }

@@ -321,7 +321,36 @@ class LmsTugasController extends Controller
             $service->simpanNilaiMahasiswa($pengampu, $mahasiswa);
         }
 
-        return back()->with('toast_success', 'Nilai komponen berhasil disimpan.');
+        // Sinkronisasi otomatis ke Modul Asesmen OBE
+        $assessment = \App\Models\Assessment::firstOrCreate(
+            ['pengampu_id' => $pengampu->id],
+            ['status' => \App\Models\Assessment::STATUS_DINILAI, 'created_by' => Auth::id()]
+        );
+        $assessment->update(['status' => \App\Models\Assessment::STATUS_DINILAI]);
+
+        $calc = app(\App\Services\AssessmentCalculationService::class);
+        $config = $calc->cpmkConfigForMataKuliah($pengampu->mataKuliah);
+
+        if ($config->isNotEmpty()) {
+            foreach ($pengampu->mahasiswas as $mahasiswa) {
+                $nilaiAkhir = $service->hitungNilaiAkhir($pengampu, $mahasiswa);
+                if ($nilaiAkhir !== null) {
+                    foreach ($config as $cpmkId => $meta) {
+                        $skorCpmk = round(($nilaiAkhir / 100) * $meta['bobot'], 2);
+                        \App\Models\AssessmentScore::updateOrCreate(
+                            [
+                                'assessment_id' => $assessment->id,
+                                'mahasiswa_id' => $mahasiswa->id,
+                                'cpmk_id' => $cpmkId,
+                            ],
+                            ['nilai' => $skorCpmk]
+                        );
+                    }
+                }
+            }
+        }
+
+        return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
     }
 
     public function hitungUlangNilai(Pengampu $pengampu)
