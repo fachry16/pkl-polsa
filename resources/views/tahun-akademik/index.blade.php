@@ -93,6 +93,12 @@
                            Cek Mahasiswa
 
                     </a>
+                    <a href="{{ route('assessment.index', ['tahun_akademik_id' => $ta->id]) }}"
+                       class="btn btn-sm btn-secondary">
+
+                        Assessment OBE
+
+                    </a>
                     @unless(auth()->user()->isDirektur())
                     <a href="{{ route('tahun-akademik.edit', $ta->id) }}"
                        class="btn btn-warning btn-sm">

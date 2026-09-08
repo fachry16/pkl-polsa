@@ -71,6 +71,11 @@ class Pengampu extends Model
         return $this->hasMany(LmsSesiAbsensi::class);
     }
 
+    public function assessment()
+    {
+        return $this->hasOne(Assessment::class);
+    }
+
     public function rpsPertemuans()
     {
         return $this->mataKuliah?->rps?->pertemuans()->orderBy('minggu')->get() ?? collect();

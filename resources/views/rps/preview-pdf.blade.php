@@ -54,6 +54,7 @@
     {{-- COVER --}}
     <div class="rps-cover">
         <div class="rps-cover-institution">
+            <img src="{{ asset('images/logo-kampus.png') }}" alt="Logo Kampus" class="rps-cover-logo">
             <div class="rps-cover-institution-name">POLITEKNIK SAWUNGGALIH AJI</div>
         </div>
         <h1 class="rps-cover-title">RENCANA PEMBELAJARAN SEMESTER (RPS)</h1>
@@ -167,31 +168,6 @@
                 <tbody>
                     <tr>
                         <td class="rps-pengesahan-col">
-                            <div class="rps-pengesahan-role">Dosen Pengembang RPS</div>
-                            @if($rps->status === 'Disetujui')
-                            <div class="rps-approved-stamp">
-                                <div class="rps-approved-check">✓</div>
-                            </div>
-                            <div class="rps-approved-text">Disetujui</div>
-                            @if($rps->dosen_pengembang_rps)
-                            <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps }}</div>
-                            @endif
-                            @if($rps->tanggal_disetujui)
-                            <div class="rps-approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
-                            @endif
-                            @else
-                            <div class="rps-pengesahan-space"></div>
-                            <div class="rps-pengesahan-sign">(Tanda tangan)</div>
-                            <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps ?? '-' }}</div>
-                            @endif
-                        </td>
-                        <td class="rps-pengesahan-col">
-                            <div class="rps-pengesahan-role">Koordinator RMK</div>
-                            <div class="rps-pengesahan-space"></div>
-                            <div class="rps-pengesahan-sign">(Jika ada)</div>
-                            <div class="rps-pengesahan-name">{{ $rps->koordinator_rmk ?? '-' }}</div>
-                        </td>
-                        <td class="rps-pengesahan-col">
                             <div class="rps-pengesahan-role">Ketua Program Studi</div>
                             @if($rps->status === 'Disetujui')
                             <div class="rps-approved-stamp">
@@ -208,6 +184,25 @@
                             <div class="rps-pengesahan-space"></div>
                             <div class="rps-pengesahan-sign">(Tanda tangan)</div>
                             <div class="rps-pengesahan-name">{{ $rps->ketua_prodi ?? '-' }}</div>
+                            @endif
+                        </td>
+                        <td class="rps-pengesahan-col">
+                            <div class="rps-pengesahan-role">Dosen Pengembang RPS</div>
+                            @if($rps->status === 'Disetujui')
+                            <div class="rps-approved-stamp">
+                                <div class="rps-approved-check">✓</div>
+                            </div>
+                            <div class="rps-approved-text">Disetujui</div>
+                            @if($rps->dosen_pengembang_rps)
+                            <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps }}</div>
+                            @endif
+                            @if($rps->tanggal_disetujui)
+                            <div class="rps-approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
+                            @endif
+                            @else
+                            <div class="rps-pengesahan-space"></div>
+                            <div class="rps-pengesahan-sign">(Tanda tangan)</div>
+                            <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps ?? '-' }}</div>
                             @endif
                         </td>
                     </tr>
@@ -398,22 +393,14 @@
             <table class="rps-data-table rps-schedule-table">
                 <thead>
                     <tr>
-                        <th class="rps-th" style="width: 55px;">Minggu ke-</th>
+                        <th class="rps-th">Minggu ke-</th>
                         <th class="rps-th">Sub-CPMK</th>
-                        <th class="rps-th" colspan="2">Penilaian</th>
-                        <th class="rps-th" colspan="2">Metode Pembelajaran (Estimasi Waktu)</th>
-                        <th class="rps-th">Materi Pembelajaran</th>
-                        <th class="rps-th" style="width: 60px;">Bobot (%)</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th></th>
                         <th class="rps-th">Indikator</th>
                         <th class="rps-th">Teknik &amp; Kriteria</th>
                         <th class="rps-th">Daring (Online)</th>
                         <th class="rps-th">Luring (Offline)</th>
-                        <th></th>
-                        <th></th>
+                        <th class="rps-th">Materi Pembelajaran</th>
+                        <th class="rps-th">Bobot (%)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -450,14 +437,14 @@
             <table class="rps-data-table rps-schedule-table" style="min-width: 1100px;">
                 <thead>
                     <tr>
-                        <th class="rps-th" style="width: 80px;">Minggu Ke / Topik</th>
-                        <th class="rps-th">Nama Tugas</th>
-                        <th class="rps-th" style="width: 120px;">Sub-CPMK</th>
-                        <th class="rps-th" style="width: 150px;">Penugasan</th>
-                        <th class="rps-th">Ruang Lingkup</th>
-                        <th class="rps-th">Cara Pengerjaan</th>
-                        <th class="rps-th" style="width: 110px;">Batas Waktu</th>
-                        <th class="rps-th">Luaran Tugas yang Dihasilkan</th>
+                        <th class="rps-th" style="width: 10%;">Minggu Ke / Topik</th>
+                        <th class="rps-th" style="width: 14%;">Nama Tugas</th>
+                        <th class="rps-th" style="width: 10%;">Sub-CPMK</th>
+                        <th class="rps-th" style="width: 14%;">Penugasan</th>
+                        <th class="rps-th" style="width: 14%;">Ruang Lingkup</th>
+                        <th class="rps-th" style="width: 14%;">Cara Pengerjaan</th>
+                        <th class="rps-th" style="width: 12%;">Batas Waktu</th>
+                        <th class="rps-th" style="width: 12%;">Luaran Tugas</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -492,19 +479,12 @@
             <table class="rps-data-table">
                 <thead>
                     <tr>
-                        <th class="rps-th">Bentuk Evaluasi</th>
-                        <th class="rps-th">Sub-CPMK</th>
-                        <th class="rps-th" colspan="2">Instrumen Penilaian</th>
-                        <th class="rps-th">Tagihan (Bukti)</th>
-                        <th class="rps-th" style="width: 70px;">Bobot (%)</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th class="rps-th">Formatif</th>
-                        <th class="rps-th">Sumatif</th>
-                        <th></th>
-                        <th></th>
+                        <th class="rps-th" style="width: 18%;">Bentuk Evaluasi</th>
+                        <th class="rps-th" style="width: 14%;">Sub-CPMK</th>
+                        <th class="rps-th" style="width: 16%;">Instrumen Formatif</th>
+                        <th class="rps-th" style="width: 16%;">Instrumen Sumatif</th>
+                        <th class="rps-th" style="width: 26%;">Tagihan (Bukti)</th>
+                        <th class="rps-th" style="width: 10%;">Bobot (%)</th>
                     </tr>
                 </thead>
                 <tbody>

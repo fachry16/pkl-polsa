@@ -70,8 +70,14 @@ class LmsController extends Controller
         $user = Auth::user();
         $dosen = $user->dosen;
 
-        if (! $user->isAdmin()) {
-            abort_if(! $dosen || $pengampu->dosen_id !== $dosen->id, 403);
+        $isAdmin = $user->isAdmin();
+        $isOwner = $dosen && $pengampu->dosen_id === $dosen->id;
+        $isKaprodiProdi = $user->isKaprodi()
+            && $dosen
+            && (int) $dosen->program_studi_id === (int) ($pengampu->mataKuliah->kurikulum->program_studi_id ?? null);
+
+        if (! $isAdmin && ! $isOwner && ! $isKaprodiProdi) {
+            abort(403);
         }
 
         $pengampu->load([
@@ -109,6 +115,18 @@ class LmsController extends Controller
             ->groupBy('mahasiswa_id');
         $bobot = app(\App\Services\PenilaianService::class)->bobotKomponen($pengampu);
 
+        $assessment = \App\Models\Assessment::where('pengampu_id', $pengampu->id)->first();
+        $pengampu->setRelation('assessment', $assessment);
+
+        $assessmentSummary = null;
+        if ($assessment) {
+            $assessment->load('pengampu.mataKuliah');
+            $assessmentSummary = app(\App\Services\AssessmentCalculationService::class)->mkSummary(
+                $assessment,
+                $pengampu->mahasiswas()->orderBy('nim')->get()
+            );
+        }
+
         return view('lms.show', compact(
             'pengampu',
             'materiCount',
@@ -118,7 +136,8 @@ class LmsController extends Controller
             'sesis',
             'tugasList',
             'nilaiByMhs',
-            'bobot'
+            'bobot',
+            'assessmentSummary'
         ));
     }
 }

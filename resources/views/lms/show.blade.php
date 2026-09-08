@@ -74,6 +74,12 @@
             Rekap Nilai
         </button>
 
+        <button type="button" @click="tab = 'assessment_obe'; history.replaceState(null, null, '?tab=assessment_obe')" 
+            class="btn btn-secondary btn-sm"
+            :style="tab === 'assessment_obe' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
+            Assessment CPMK
+        </button>
+
         <a href="{{ route('lms.index') }}" class="btn btn-secondary btn-sm" style="margin-left: auto;">
             Kembali ke Daftar Kelas
         </a>
@@ -1127,6 +1133,35 @@
                 </form>
             </div>
         @endif
+    </div>
+
+    {{-- TAB 6: ASSESSMENT CPMK --}}
+    <div x-show="tab === 'assessment_obe'">
+        <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap;">
+                <h2 style="font-size: 1.05rem; font-weight: 800; color: #1e293b; margin: 0;">
+                    Assessment CPMK
+                </h2>
+                @if($pengampu->assessment && $assessmentSummary)
+                    <a href="{{ route('assessment.rekap', ['mata_kuliah_id' => $pengampu->mata_kuliah_id, 'tahun_akademik_id' => $pengampu->tahun_akademik_id]) }}" class="btn btn-secondary btn-sm">Rekap</a>
+                    <a href="{{ route('assessment.export', ['mata_kuliah_id' => $pengampu->mata_kuliah_id, 'tahun_akademik_id' => $pengampu->tahun_akademik_id, 'format' => 'print']) }}" class="btn btn-secondary btn-sm">Export</a>
+                @endif
+            </div>
+
+            @if($pengampu->assessment && $assessmentSummary)
+                @include('assessment._cpmk-grid', ['selected' => $pengampu, 'summary' => $assessmentSummary, 'filters' => []])
+            @else
+                <div class="card" style="padding: 1.5rem; text-align: center; color: #64748b;">
+                    Assessment CPMK untuk kelas ini belum dibuat.
+                    <div style="margin-top: 0.75rem;">
+                        <form action="{{ route('lms.assessment', $pengampu->id) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">Mulai Assessment CPMK</button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        </div>
     </div>
 </div>
 

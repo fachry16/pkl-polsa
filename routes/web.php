@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\BahanKajianController;
 use App\Http\Controllers\BahanKajianMataKuliahController;
 use App\Http\Controllers\CplBkMkController;
@@ -252,6 +253,45 @@ Route::middleware(['auth'])->group(function () {
         'khs/cetak/{mahasiswa}/pdf',
         [KhsController::class, 'cetakPdf']
     )->where(['mahasiswa' => '[0-9]+'])->name('khs.cetak-pdf');
+});
+
+/* Assessment OBE — capaian CPMK, MK, dan CPL */
+Route::middleware(['auth'])->group(function () {
+
+    Route::get(
+        'assessment',
+        [AssessmentController::class, 'index']
+    )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.index');
+
+    Route::get(
+        'assessment/rekap',
+        [AssessmentController::class, 'rekap']
+    )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.rekap');
+
+    Route::get(
+        'assessment/export',
+        [AssessmentController::class, 'export']
+    )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.export');
+
+    Route::post(
+        'assessment',
+        [AssessmentController::class, 'store']
+    )->middleware('role:admin,kaprodi,dosen')->name('assessment.store');
+
+    Route::patch(
+        'assessment/{assessment}/finalize',
+        [AssessmentController::class, 'finalize']
+    )->middleware('role:admin,kaprodi')->name('assessment.finalize');
+
+    Route::delete(
+        'assessment/{assessment}/reset',
+        [AssessmentController::class, 'reset']
+    )->middleware('role:admin,kaprodi')->name('assessment.reset');
+
+    Route::delete(
+        'assessment/{assessment}',
+        [AssessmentController::class, 'destroy']
+    )->middleware('role:admin,kaprodi')->name('assessment.destroy');
 });
 
 /* KRS — Admin + Kaprodi (mutations) */
@@ -821,6 +861,8 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::get('/file/{model}/{id}', [LmsFileController::class, 'show'])->name('file');
 
     Route::get('/{pengampu}', [LmsController::class, 'show'])->name('show');
+
+    Route::post('/{pengampu}/assessment', [AssessmentController::class, 'mulaiDariKelas'])->name('assessment');
 
     Route::get('/{pengampu}/materi', [LmsMateriController::class, 'index'])->name('materi.index');
     Route::post('/{pengampu}/materi', [LmsMateriController::class, 'store'])->name('materi.store');

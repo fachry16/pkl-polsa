@@ -4,51 +4,70 @@
     <meta charset="utf-8">
     <title>RPS - {{ $rps->mataKuliah->nama }}</title>
     <style>
+        /* ===== Page setup (A4 landscape) ===== */
         @page {
-            margin: 2cm 1.8cm;
-            size: A4 portrait;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            size: A4 landscape;
+            margin-top: 16mm;
+            margin-right: 13mm;
+            margin-bottom: 16mm;
+            margin-left: 13mm;
         }
 
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 10px;
+            font-size: 10.5px;
             color: #1e293b;
             line-height: 1.5;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body, p, h1, h2, h3, h4, h5, h6, ol, ul, table {
+            margin: 0;
+            padding: 0;
         }
 
         .text-center { text-align: center; }
         .text-left { text-align: left; }
         .font-semibold { font-weight: 600; }
 
-        /* Cover */
+        /* ===== Cover / Header ===== */
         .cover {
             text-align: center;
-            padding: 40px 20px 30px;
-            border-bottom: 3px double #1e293b;
-            margin-bottom: 20px;
+            padding: 30px 20px 24px;
+            border-bottom: 2.5pt solid #1e293b;
+            margin-bottom: 16px;
+            page-break-after: always;
+        }
+
+        .cover-logo {
+            display: block;
+            margin: 0 auto 10px;
+            width: 70px;
+            height: auto;
         }
 
         .cover-institution {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 3px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            color: #475569;
-            margin-bottom: 30px;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .cover-address {
+            font-size: 8.5px;
+            color: #64748b;
+            margin-bottom: 16px;
         }
 
         .cover-title {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin: 0 0 20px;
+            margin: 12px 0 16px;
             color: #0f172a;
         }
 
@@ -56,10 +75,12 @@
             font-size: 9px;
             color: #64748b;
             margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .cover-subject-name {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             color: #1e293b;
             margin-bottom: 4px;
@@ -68,7 +89,7 @@
         .cover-subject-code {
             font-size: 10px;
             color: #64748b;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .cover-oleh {
@@ -77,22 +98,23 @@
         }
 
         .cover-penyusun {
-            font-size: 10px;
-            font-weight: 600;
-            color: #475569;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #334155;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .cover-penyusun-name {
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
             color: #1e293b;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            text-decoration: underline;
         }
 
         .cover-prodi {
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 600;
             color: #334155;
             margin-bottom: 6px;
@@ -101,230 +123,268 @@
         .cover-location {
             font-size: 10px;
             color: #475569;
-            margin-top: 14px;
+            margin-top: 12px;
         }
 
-        .cover-info {
-            width: 350px;
-            margin: 0 auto;
-            text-align: left;
-        }
-
-        .cover-info-row {
-            display: table;
-            width: 100%;
-            padding: 4px 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 10px;
-        }
-
-        .cover-info-label {
-            display: table-cell;
-            width: 140px;
-            font-weight: 600;
-            color: #94a3b8;
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            vertical-align: top;
-        }
-
-        .cover-info-value {
-            display: table-cell;
-            color: #1e293b;
-            font-weight: 500;
-            font-size: 10px;
-        }
-
-        /* Section */
+        /* ===== Section ===== */
         .section {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .section-title {
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 700;
-            color: #1e293b;
-            margin: 0 0 8px;
+            color: #0f172a;
+            margin: 14px 0 8px;
             padding-bottom: 4px;
-            border-bottom: 2px solid #1e293b;
+            border-bottom: 1.5px solid #1e293b;
+            page-break-after: avoid;
         }
 
+        .section:first-child .section-title { margin-top: 0; }
+
         .note-text {
-            font-size: 8px;
+            font-size: 8.5px;
             color: #64748b;
-            margin: 0 0 8px;
             line-height: 1.5;
         }
 
-        /* Info table (key-value) */
-        .info-table {
+        .note-info {
+            margin: 6px 0 0;
+            padding: 6px 10px;
+            border-left: 3px solid #94a3b8;
+            background: #f8fafc;
+            font-size: 8.5px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        /* ===== Tables: base ===== */
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 6px;
+            table-layout: fixed;
+        }
+
+        th, td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        thead { display: table-header-group; }
+
+        /* ===== Info table (Informasi Umum) ===== */
+        .info-table {
+            margin: 0 0 6px;
         }
 
         .info-table td {
-            padding: 5px 8px;
+            padding: 6px 10px;
             border: 1px solid #cbd5e1;
             vertical-align: top;
-            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .info-table tr {
+            page-break-inside: avoid;
         }
 
         .info-table .label-cell {
-            width: 200px;
-            font-weight: 600;
-            background: #f8fafc;
+            width: 24%;
+            font-weight: 700;
+            background: #f1f5f9;
             color: #334155;
-            white-space: nowrap;
+            font-size: 10px;
         }
 
         .info-table .value-cell {
             color: #1e293b;
+            font-size: 10.5px;
         }
 
-        /* Pengesahan / signature block */
+        /* ===== Pengesahan ===== */
         .pengesahan {
             margin-top: 14px;
+            page-break-inside: avoid;
         }
 
         .pengesahan-title {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 700;
-            color: #1e293b;
+            color: #0f172a;
             margin-bottom: 8px;
+            padding-bottom: 3px;
+            border-bottom: 1.5px solid #1e293b;
             text-align: center;
         }
 
         .pengesahan-table {
-            width: 100%;
-            border-collapse: collapse;
+            width: 70%;
+            margin: 0 auto;
         }
 
         .pengesahan-table td {
-            width: 33.33%;
+            width: 50%;
             padding: 10px 8px;
             border: 1px solid #cbd5e1;
             text-align: center;
             vertical-align: middle;
+            page-break-inside: avoid;
         }
 
         .pengesahan-role {
-            font-size: 10px;
-            font-weight: 600;
-            color: #334155;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
 
         .pengesahan-space {
-            height: 40px;
+            height: 34px;
         }
 
         .pengesahan-sign {
-            font-size: 8px;
+            font-size: 8.5px;
             color: #94a3b8;
             margin-bottom: 4px;
         }
 
         .pengesahan-name {
-            font-size: 10px;
-            font-weight: 600;
+            font-size: 10.5px;
+            font-weight: 700;
             color: #1e293b;
+            margin-top: 2px;
+            text-decoration: underline;
+        }
+
+        .pengesahan-extra {
+            font-size: 8.5px;
+            color: #64748b;
+            margin-top: 4px;
         }
 
         .approved-stamp {
             display: inline-block;
-            margin: 4px auto;
+            margin: 2px auto 4px;
         }
 
         .approved-check {
-            width: 36px;
-            height: 36px;
+            width: 30px;
+            height: 30px;
             margin: 0 auto;
             border-radius: 50%;
             background: #dcfce7;
-            border: 2px solid #16a34a;
+            border: 1.5px solid #16a34a;
             color: #16a34a;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            line-height: 32px;
+            line-height: 26px;
             text-align: center;
         }
 
         .approved-text {
-            font-size: 8px;
+            font-size: 8.5px;
             font-weight: 700;
             color: #16a34a;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 4px;
         }
 
         .approved-date {
-            font-size: 8px;
+            font-size: 8.5px;
             color: #16a34a;
             margin-top: 2px;
         }
 
-        /* Data tables */
+        /* ===== Generic data table (CPL, CPMK, Sub-CPMK, Bahan Kajian, Evaluasi) ===== */
         .data-table {
-            width: 100%;
-            border-collapse: collapse;
+            margin: 0 0 6px;
+            font-size: 10px;
         }
 
         .data-table th,
         .data-table td {
             border: 1px solid #cbd5e1;
-            padding: 5px 8px;
+            padding: 6px 9px;
             vertical-align: top;
-            font-size: 9px;
+            line-height: 1.5;
         }
 
         .data-table th {
-            background: #f1f5f9;
+            background: #334155;
+            color: #ffffff;
             font-weight: 600;
-            color: #334155;
             text-align: left;
-            font-size: 9px;
+            font-size: 9.5px;
         }
 
         .data-table td {
             color: #1e293b;
         }
 
-        /* Schedule table */
+        .data-table tr {
+            page-break-inside: avoid;
+        }
+
+        .data-table tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        /* ===== Schedule table (Rencana Pembelajaran & Tugas) ===== */
         .schedule-table {
-            width: 100%;
-            border-collapse: collapse;
+            margin: 0 0 6px;
+            font-size: 9px;
         }
 
         .schedule-table th,
         .schedule-table td {
             border: 1px solid #cbd5e1;
-            padding: 4px 6px;
+            padding: 5px 7px;
             vertical-align: top;
-            font-size: 8px;
+            line-height: 1.45;
         }
 
         .schedule-table th {
-            background: #f1f5f9;
+            background: #334155;
+            color: #ffffff;
             font-weight: 600;
-            color: #334155;
-            text-align: left;
+            text-align: center;
+            font-size: 9px;
         }
 
-        /* Korelasi table */
+        .schedule-table td {
+            color: #1e293b;
+        }
+
+        .schedule-table tr {
+            page-break-inside: avoid;
+        }
+
+        .schedule-table tr:nth-child(even) td {
+            background: #fbfcfd;
+        }
+
+        /* ===== Korelasi table ===== */
         .korelasi-table {
-            width: 100%;
-            border-collapse: collapse;
+            margin: 0 0 6px;
+            font-size: 9px;
         }
 
         .korelasi-table th,
         .korelasi-table td {
             border: 1px solid #cbd5e1;
-            padding: 4px 6px;
+            padding: 5px 7px;
             vertical-align: middle;
-            font-size: 8px;
             text-align: center;
+            line-height: 1.45;
+        }
+
+        .korelasi-table th {
+            background: #334155;
+            color: #fff;
+            font-weight: 600;
         }
 
         .korelasi-table th:first-child,
@@ -333,73 +393,93 @@
             font-weight: 600;
         }
 
-        .korelasi-table th {
-            background: #f1f5f9;
+        .korelasi-table tr {
+            page-break-inside: avoid;
         }
 
-        /* Daftar pustaka */
+        /* ===== Daftar pustaka ===== */
         .daftar-pustaka {
-            padding-left: 18px;
-            font-size: 9px;
+            padding-left: 20px;
+            font-size: 10px;
+            line-height: 1.6;
         }
 
         .daftar-pustaka li {
             margin-bottom: 3px;
         }
 
-        /* Total row */
+        /* ===== Total row (Evaluasi) ===== */
         .total-row td {
-            background: #f1f5f9;
-            font-weight: 600;
-            border-top: 2px solid #94a3b8;
+            background: #eef2f7 !important;
+            font-weight: 700;
+            border-top: 1.5px solid #64748b;
         }
 
-        /* Empty state */
+        /* ===== Empty state ===== */
         .empty-state {
-            color: #94a3b8;
+            color: #64748b;
             font-style: italic;
             font-size: 10px;
+            padding: 4px 0;
         }
 
-        /* Approval */
+        /* ===== Approval (bottom) ===== */
         .approval-box {
-            margin-top: 20px;
-            padding: 10px 12px;
-            border: 1px solid #a7f3d0;
-            background: #ecfdf5;
-            border-radius: 4px;
-            font-size: 9px;
+            margin-top: 16px;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            font-size: 9.5px;
+            page-break-inside: avoid;
         }
 
         .approval-label {
-            font-weight: 600;
-            color: #065f46;
+            font-weight: 700;
+            color: #334155;
             text-transform: uppercase;
-            font-size: 8px;
+            font-size: 8.5px;
             letter-spacing: 0.5px;
             margin-bottom: 2px;
         }
 
         .approval-name {
             font-size: 11px;
-            font-weight: 600;
-            color: #065f46;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .approval-date {
             font-size: 9px;
-            color: #047857;
+            color: #64748b;
             margin-top: 1px;
         }
 
-        /* Footer */
+        /* ===== Footer ===== */
         .footer {
-            margin-top: 30px;
+            margin-top: 16px;
             text-align: center;
             font-size: 8px;
             color: #94a3b8;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 10px;
+            border-top: 0.5pt solid #e2e8f0;
+            padding-top: 8px;
+        }
+
+        /* Running header / footer (repeated on every page by DomPdf) */
+        #run-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 7.5pt;
+            color: #64748b;
+            padding: 2pt 0;
+        }
+
+        .pn:after { content: counter(page); }
+
+        #run-footer .dash {
+            color: #94a3b8;
         }
 
         .page-break {
@@ -408,6 +488,11 @@
     </style>
 </head>
 <body>
+
+    {{-- Running footer: repeated on every page by DomPdf --}}
+    <div id="run-footer">
+        POLITEKNIK SAWUNGGALIH AJI <span class="dash">•</span> RENCANA PEMBELAJARAN SEMESTER (RPS) <span class="dash">•</span> Halaman <span class="pn"></span> dari {{ $pageTotal ?? '' }}
+    </div>
 
     @php
         $bulanMap = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -433,10 +518,18 @@
             array_map('trim', explode("\n", (string) $rps->daftar_pustaka)),
             fn ($item) => $item !== ''
         ));
+
+        $logoPath = public_path('images/logo-kampus.jpg');
+        $logoDataUri = \Illuminate\Support\Facades\File::exists($logoPath)
+            ? 'data:image/jpeg;base64,'.base64_encode(\Illuminate\Support\Facades\File::get($logoPath))
+            : null;
     @endphp
 
     {{-- COVER --}}
     <div class="cover">
+        @if($logoDataUri)
+        <img src="{{ $logoDataUri }}" alt="Logo" class="cover-logo">
+        @endif
         <div class="cover-institution">POLITEKNIK SAWUNGGALIH AJI</div>
         <div class="cover-title">RENCANA PEMBELAJARAN SEMESTER (RPS)</div>
         <div class="cover-subject-label">Mata Kuliah</div>
@@ -509,31 +602,6 @@
             <table class="pengesahan-table">
                 <tr>
                     <td>
-                        <div class="pengesahan-role">Dosen Pengembang RPS</div>
-                        @if($rps->status === 'Disetujui')
-                        <div class="approved-stamp">
-                            <div class="approved-check">✓</div>
-                        </div>
-                        <div class="approved-text">Disetujui</div>
-                        @if($rps->dosen_pengembang_rps)
-                        <div class="pengesahan-name">{{ $rps->dosen_pengembang_rps }}</div>
-                        @endif
-                        @if($rps->tanggal_disetujui)
-                        <div class="approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
-                        @endif
-                        @else
-                        <div class="pengesahan-space"></div>
-                        <div class="pengesahan-sign">(Tanda tangan)</div>
-                        <div class="pengesahan-name">{{ $rps->dosen_pengembang_rps ?? '-' }}</div>
-                        @endif
-                    </td>
-                    <td>
-                        <div class="pengesahan-role">Koordinator RMK</div>
-                        <div class="pengesahan-space"></div>
-                        <div class="pengesahan-sign">(Jika ada)</div>
-                        <div class="pengesahan-name">{{ $rps->koordinator_rmk ?? '-' }}</div>
-                    </td>
-                    <td>
                         <div class="pengesahan-role">Ketua Program Studi</div>
                         @if($rps->status === 'Disetujui')
                         <div class="approved-stamp">
@@ -550,6 +618,25 @@
                         <div class="pengesahan-space"></div>
                         <div class="pengesahan-sign">(Tanda tangan)</div>
                         <div class="pengesahan-name">{{ $rps->ketua_prodi ?? '-' }}</div>
+                        @endif
+                    </td>
+                    <td>
+                        <div class="pengesahan-role">Dosen Pengembang RPS</div>
+                        @if($rps->status === 'Disetujui')
+                        <div class="approved-stamp">
+                            <div class="approved-check">✓</div>
+                        </div>
+                        <div class="approved-text">Disetujui</div>
+                        @if($rps->dosen_pengembang_rps)
+                        <div class="pengesahan-name">{{ $rps->dosen_pengembang_rps }}</div>
+                        @endif
+                        @if($rps->tanggal_disetujui)
+                        <div class="approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
+                        @endif
+                        @else
+                        <div class="pengesahan-space"></div>
+                        <div class="pengesahan-sign">(Tanda tangan)</div>
+                        <div class="pengesahan-name">{{ $rps->dosen_pengembang_rps ?? '-' }}</div>
                         @endif
                     </td>
                 </tr>
@@ -722,28 +809,20 @@
     </div>
 
     {{-- SECTION 8: RENCANA PEMBELAJARAN --}}
-    <div class="section">
+    <div class="section page-break">
         <div class="section-title">3. Rencana Pembelajaran</div>
         @if($rps->pertemuans->count())
         <table class="schedule-table">
             <thead>
                 <tr>
-                    <th style="width: 40px;">Minggu ke-</th>
-                    <th>Sub-CPMK</th>
-                    <th colspan="2">Penilaian</th>
-                    <th colspan="2">Metode Pembelajaran (Estimasi Waktu)</th>
-                    <th>Materi Pembelajaran</th>
-                    <th style="width: 40px;">Bobot (%)</th>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th>Indikator</th>
-                    <th>Teknik &amp; Kriteria</th>
-                    <th>Daring (Online)</th>
-                    <th>Luring (Offline)</th>
-                    <th></th>
-                    <th></th>
+                    <th style="width: 5%;">Minggu ke-</th>
+                    <th style="width: 12%;">Sub-CPMK</th>
+                    <th style="width: 13%;">Indikator</th>
+                    <th style="width: 13%;">Teknik &amp; Kriteria</th>
+                    <th style="width: 12%;">Daring (Online)</th>
+                    <th style="width: 12%;">Luring (Offline)</th>
+                    <th style="width: 28%;">Materi Pembelajaran</th>
+                    <th style="width: 5%;">Bobot (%)</th>
                 </tr>
             </thead>
             <tbody>
@@ -772,20 +851,20 @@
     </div>
 
     {{-- SECTION 9: RANCANGAN TUGAS DAN LATIHAN --}}
-    <div class="section">
+    <div class="section page-break">
         <div class="section-title">4. Rancangan Tugas dan Latihan</div>
         @if($rps->tugas->count())
         <table class="schedule-table">
             <thead>
                 <tr>
-                    <th style="width: 55px;">Minggu Ke / Topik</th>
-                    <th>Nama Tugas</th>
-                    <th style="width: 90px;">Sub-CPMK</th>
-                    <th style="width: 110px;">Penugasan</th>
-                    <th>Ruang Lingkup</th>
-                    <th>Cara Pengerjaan</th>
-                    <th style="width: 80px;">Batas Waktu</th>
-                    <th>Luaran Tugas yang Dihasilkan</th>
+                    <th style="width: 10%;">Minggu Ke / Topik</th>
+                    <th style="width: 14%;">Nama Tugas</th>
+                    <th style="width: 10%;">Sub-CPMK</th>
+                    <th style="width: 14%;">Penugasan</th>
+                    <th style="width: 14%;">Ruang Lingkup</th>
+                    <th style="width: 14%;">Cara Pengerjaan</th>
+                    <th style="width: 12%;">Batas Waktu</th>
+                    <th style="width: 12%;">Luaran Tugas</th>
                 </tr>
             </thead>
             <tbody>
@@ -818,19 +897,12 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Bentuk Evaluasi</th>
-                    <th>Sub-CPMK</th>
-                    <th colspan="2">Instrumen Penilaian</th>
-                    <th>Tagihan (Bukti)</th>
-                    <th style="width: 60px;">Bobot (%)</th>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th>Formatif</th>
-                    <th>Sumatif</th>
-                    <th></th>
-                    <th></th>
+                    <th style="width: 18%;">Bentuk Evaluasi</th>
+                    <th style="width: 14%;">Sub-CPMK</th>
+                    <th style="width: 16%;">Instrumen Formatif</th>
+                    <th style="width: 16%;">Instrumen Sumatif</th>
+                    <th style="width: 26%;">Tagihan (Bukti)</th>
+                    <th style="width: 10%;">Bobot (%)</th>
                 </tr>
             </thead>
             <tbody>
@@ -875,7 +947,7 @@
     @endif
 
     <div class="footer">
-        Dokumen ini diekstrak dari PIKOBE Polsa pada {{ now()->format('d/m/Y H:i') }}
+        Dokumen ini diekstrak dari EDUVA Polsa pada {{ now()->format('d/m/Y H:i') }}
     </div>
 
 </body>

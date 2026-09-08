@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PIKOBE Polsa</title>
+        <title>EDUVA Polsa</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>
             html { scroll-behavior: smooth; }
@@ -414,7 +414,7 @@
                     <path d="M16 24L26 18V22L16 28L6 22V18L16 24Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
                     <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#4f46e5" opacity="0.3"/>
                 </svg>
-                PIKOBE Polsa
+                EDUVA Polsa
             </div>
             <div class="nav-links">
                 <a href="#beranda">Beranda</a>
@@ -434,7 +434,7 @@
         <section id="beranda" class="landing-hero">
             <div class="hero-inner">
                 <div class="hero-text">
-                    <h1>Selamat Datang di<br><span class="highlight">PIKOBE</span> Polsa</h1>
+                    <h1>Selamat Datang di<br><span class="highlight">EDUVA</span> Polsa</h1>
                     <p>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS) — Platform digital untuk mengelola kurikulum, RPS, dan perkuliahan berbasis OBE secara terintegrasi di lingkungan Politeknik Sawunggalih Aji.</p>
                     @if (Route::has('login'))
                         <a href="{{ route('login') }}" class="btn">Masuk ke Sistem</a>
@@ -671,7 +671,7 @@
         </section>
 
         <footer class="landing-footer">
-            &copy; {{ date('Y') }} PIKOBE Polsa — Politeknik Sawunggalih Aji. All rights reserved.
+            &copy; {{ date('Y') }} EDUVA Polsa — Politeknik Sawunggalih Aji. All rights reserved.
         </footer>
 
         <script>

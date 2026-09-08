@@ -6,7 +6,7 @@
         </div>
         <div>
             <div style="font-size: 0.72rem; color: #a7f3d0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dashboard Eksekutif &amp; Tata Kelola</div>
-            <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">Politeknik Sawunggalih Aji (POLSA) Purworejo</div>
+            <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">Politeknik Sawunggalih Aji (POLSA)</div>
             <div style="font-size: 0.8rem; color: #d1fae5; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <span>Direktur: <strong>{{ auth()->user()->name }}</strong></span>
                 <span>&bull;</span>
@@ -136,7 +136,7 @@
     </div>
 </div>
 
-{{-- Baris 3: Rekapitulasi per Program Studi POLSA Purworejo --}}
+{{-- Baris 3: Rekapitulasi per Program Studi POLSA --}}
 <div class="card">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -144,7 +144,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
             </div>
             <div>
-                <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Rekapitulasi Program Studi POLSA Purworejo</div>
+                <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Rekapitulasi Program Studi POLSA</div>
                 <div style="font-size: 0.75rem; color: #64748b;">Distribusi dosen, mahasiswa, dan kesiapan kurikulum per program studi</div>
             </div>
         </div>

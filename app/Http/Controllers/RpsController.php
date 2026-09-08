@@ -288,6 +288,9 @@ class RpsController extends Controller
 
         if (request()->has('download')) {
             $pdf = Pdf::loadView('rps.pdf', compact('rps'));
+            $pageTotal = $this->countPdfPages($pdf->output());
+
+            $pdf = Pdf::loadView('rps.pdf', compact('rps', 'pageTotal'));
 
             $filename = 'RPS-'.$rps->mataKuliah->kode.'-'.$rps->mataKuliah->nama.'.pdf';
 
@@ -295,5 +298,15 @@ class RpsController extends Controller
         }
 
         return view('rps.preview-pdf', compact('rps'));
+    }
+
+    /**
+     * Count the number of pages in a rendered PDF by inspecting its object map.
+     * A page object uses "/Type /Page"; the root catalog uses "/Type /Pages".
+     */
+    protected function countPdfPages(string $pdfOutput): int
+    {
+        return substr_count($pdfOutput, '/Type /Page')
+            - substr_count($pdfOutput, '/Type /Pages');
     }
 }

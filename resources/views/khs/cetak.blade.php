@@ -104,7 +104,7 @@
             </svg>
         </div>
         <div class="krs-kop-text">
-            <div class="krs-institusi">PIKOBE - Politeknik Sawunggalih Aji</div>
+            <div class="krs-institusi">EDUVA - Politeknik Sawunggalih Aji</div>
             <div class="krs-alamat">Jl. W.R. Supratman No. 5 Kutoarjo, Purworejo, Jawa Tengah</div>
             <div class="krs-judul">KARTU HASIL STUDI (KHS)</div>
             <div class="krs-semester">

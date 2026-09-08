@@ -166,7 +166,7 @@
                     <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#4f46e5" opacity="0.3"/>
                 </svg>
             </div>
-            <h2>PIKOBE Polsa</h2>
+            <h2>EDUVA Polsa</h2>
             <p>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS) — Politeknik Sawunggalih Aji</p>
         </div>
 

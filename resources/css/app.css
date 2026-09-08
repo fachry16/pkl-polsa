@@ -1905,6 +1905,13 @@ table.data-table td .table-sub {
     border-bottom: 3px double #1e293b;
 }
 
+.rps-cover-logo {
+    display: block;
+    margin: 0 auto 0.75rem;
+    width: 80px;
+    height: auto;
+}
+
 .rps-cover-institution {
     margin-bottom: 1.5rem;
 }
@@ -2181,7 +2188,7 @@ table.rps-schedule-table {
 }
 
 .rps-pengesahan-table td {
-    width: 33.33%;
+    width: 50%;
     padding: 0.75rem;
     border: 1px solid #cbd5e1;
     text-align: center;
@@ -2573,8 +2580,39 @@ table.rps-korelasi-table {
         width: 100% !important;
     }
 
+    .rps-document {
+        max-width: 100% !important;
+        border: none !important;
+        border-radius: 0 !important;
+    }
+
+    .rps-table-wrap,
+    .rps-table-wide {
+        overflow: visible !important;
+    }
+
+    .rps-document table.rps-data-table,
+    .rps-document table.rps-schedule-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .rps-document table.rps-data-table th,
+    .rps-document table.rps-data-table td,
+    .rps-document table.rps-schedule-table th,
+    .rps-document table.rps-schedule-table td {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .rps-section,
+    .rps-document .rps-cover {
+        page-break-inside: auto;
+    }
+
     @page {
-        size: A4 portrait;
-        margin: 1.2cm 1.5cm 1.5cm 1.5cm;
+        size: A4 landscape;
+        margin: 1.2cm 1.2cm 1.5cm 1.2cm;
     }
 }

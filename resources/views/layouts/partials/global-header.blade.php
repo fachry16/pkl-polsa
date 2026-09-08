@@ -36,7 +36,7 @@
                         POLITEKNIK SAWUNGGALIH AJI
                     </a>
                     <span class="campus-badge">
-                        POLSA PURWOREJO
+                        POLSA
                     </span>
                 </div>
                 <div class="campus-subtitle">
