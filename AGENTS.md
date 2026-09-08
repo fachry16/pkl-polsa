@@ -1,5 +1,12 @@
 # Eduva — Agent Guide & Code Standards
 
+## Plan & Confirm First Rule (MANDATORY FOR ALL TASKS)
+- **NEVER EXECUTE IMMEDIATELY**: Do NOT start editing code, running migrations, or executing complex commands directly when given a task or request.
+- **Analyze & Propose First**:
+  1. Analyze the requirement, codebase, and impact.
+  2. Present a clear, concise design/plan proposal to the USER.
+  3. **Wait for explicit USER confirmation** before executing any code changes or file modifications.
+
 ## Anti-AI Slop & Ponytail Rule (MANDATORY FOR AGENT)
 - **Ponytail Active Always**: Enforce the Ponytail methodology on EVERY task.
   - **YAGNI First**: Ask if code needs to exist at all before writing. No speculative features, interfaces with one implementation, or unused boilerplate.
