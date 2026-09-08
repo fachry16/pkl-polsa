@@ -15,8 +15,8 @@
                 {{ $pengampu->mataKuliah->kode ?? 'MK' }} &middot; Kelas {{ $pengampu->kelas ?? '-' }}
             </span>
             @if(Auth::user()->isAdmin())
-                <span style="background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(4px); padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">
-                    👁️ Read-Only (Admin)
+                <span style="background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(4px); padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Read-Only (Admin)
                 </span>
             @endif
             <span style="font-size: 0.8rem; opacity: 0.9;">{{ $pengampu->label_semester }} {{ $pengampu->tahunAkademik?->tahun ? '· TA ' . $pengampu->tahunAkademik->tahun : '' }}</span>
@@ -56,8 +56,9 @@
             :style="tab === 'tugas_kelas' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
             Tugas Kelas ({{ $materiCount + $tugasCount }})
             @if($drafTugasCount > 0)
-                <span style="background: #dc2626; color: #ffffff; font-size: 0.65rem; font-weight: 700; padding: 0.12rem 0.45rem; border-radius: 999px; margin-left: 0.35rem; display: inline-flex; align-items: center; justify-content: center;">
-                    🔴 {{ $drafTugasCount }} Draf Perlu Konfirmasi
+                <span style="background: #dc2626; color: #ffffff; font-size: 0.65rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; margin-left: 0.35rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #ffffff;"></span>
+                    {{ $drafTugasCount }} Draf Perlu Konfirmasi
                 </span>
             @endif
         </button>
@@ -304,8 +305,9 @@
                 <a href="{{ route('lms.tugas.index', $pengampu->id) }}" class="btn btn-secondary btn-sm" style="position: relative;">
                     Tugas LMS
                     @if($drafTugasCount > 0)
-                        <span style="background: #dc2626; color: #ffffff; font-size: 0.65rem; font-weight: 700; padding: 0.12rem 0.45rem; border-radius: 999px; margin-left: 0.35rem; display: inline-flex; align-items: center; justify-content: center;">
-                            🔴 {{ $drafTugasCount }} Draf
+                        <span style="background: #dc2626; color: #ffffff; font-size: 0.65rem; font-weight: 700; padding: 0.12rem 0.45rem; border-radius: 999px; margin-left: 0.35rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: #ffffff;"></span>
+                            {{ $drafTugasCount }} Draf
                         </span>
                     @endif
                 </a>
@@ -315,7 +317,8 @@
         @if($drafTugasCount > 0)
             <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.85rem 1.25rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span>🔴 <strong>Konfirmasi Tugas:</strong> Terdapat <strong>{{ $drafTugasCount }} draf tugas</strong> hasil pengiriman dari RPS yang perlu dikonfirmasi / ditugaskan.</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span><strong>Konfirmasi Tugas:</strong> Terdapat <strong>{{ $drafTugasCount }} draf tugas</strong> hasil pengiriman dari RPS yang perlu dikonfirmasi / ditugaskan.</span>
                 </div>
                 <a href="{{ route('lms.tugas.index', $pengampu->id) }}" class="btn btn-danger btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; white-space: nowrap;">
                     Konfirmasi Draf &rarr;

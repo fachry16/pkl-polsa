@@ -8,6 +8,11 @@
   - **No Prose Slop**: Code first, followed by at most 2-3 concise lines. Do not add redundant code comments that restate what the code clearly does.
   - **No Swallowed Exceptions**: Never mask runtime errors or return dummy fallback arrays to hide broken code logic.
 
+## UI & Design Standards (NO EMOJI SLOP)
+- **STRICTLY NO EMOJIS IN UI**: Never use Unicode emojis (e.g., `👁️`, `🔴`, `🏛️`, `📚`, `✏️`, `⚠️`, `📌`, `🔴`) in buttons, badge pills, table columns, navigation headers, or card elements. Emojis look amateurish and are a major marker of AI slop.
+- **Use Clean SVG Icons Only**: Always use crisp, precise inline SVG icons (`width="14-18" height="14-18" fill="none" stroke="currentColor" stroke-width="2"`).
+- **Professional Component Styling**: Use clean badge pills with soft background fills, subtle border borders (`border-red-200`, `border-blue-200`), clear typography, and consistent spacing.
+
 ## Tech Stack
 - **Framework**: Laravel 12, PHP 8.2+
 - **Frontend**: Blade Templates + Alpine.js, Tailwind CSS (v3), Vite
