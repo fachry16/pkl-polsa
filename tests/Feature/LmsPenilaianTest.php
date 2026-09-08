@@ -427,7 +427,7 @@ class LmsPenilaianTest extends TestCase
             ->get(route('lms.tugas.rekap', $data['pengampu']->id));
 
         $response->assertOk();
-        $response->assertSee('Panduan Formula Penilaian &amp; Konversi Abjad Nilai Mutu', false);
-        $response->assertSee('Huruf Mutu');
+        $response->assertSee('Panduan Formula Penilaian &amp; Bobot Nilai (OBE)', false);
+        $response->assertSee('Nilai Angka');
     }
 }

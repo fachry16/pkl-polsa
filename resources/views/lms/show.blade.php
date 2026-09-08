@@ -704,19 +704,14 @@
                         <div style="font-size: 0.72rem; color: #64748b;" x-text="student.totalBobotAktif < 100 ? `${student.totalBobotAktif}% bobot RPS sudah terisi, ${100 - student.totalBobotAktif}% belum dinilai.` : 'Semua komponen penilaian RPS telah lengkap.'"></div>
                     </div>
 
-                    {{-- Kartu Hasil Nilai & Huruf --}}
+                    {{-- Kartu Hasil Nilai Akhir --}}
                     <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.9rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
                         <div>
-                            <div style="font-size: 0.72rem; color: #166534; font-weight: 600; text-transform: uppercase;">Hasil Nilai Akhir</div>
+                            <div style="font-size: 0.72rem; color: #166534; font-weight: 600; text-transform: uppercase;">Hasil Nilai Akhir (OBE)</div>
                             <div style="display: flex; align-items: baseline; gap: 0.4rem; margin-top: 0.15rem;">
                                 <span style="font-size: 1.65rem; font-weight: 800; color: #15803d; line-height: 1;" x-text="student.nilaiAkhir !== null ? student.nilaiAkhir : '-'"></span>
                                 <span style="font-size: 0.8rem; color: #166534; font-weight: 600;">/ 100</span>
                             </div>
-                            <div style="font-size: 0.72rem; color: #15803d; margin-top: 0.2rem;" x-text="student.predikat"></div>
-                        </div>
-                        <div style="text-align: right;">
-                            <span style="background: #15803d; color: #fff; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 800; font-size: 1.15rem; display: inline-block; box-shadow: 0 2px 4px rgba(21, 128, 61, 0.2);" x-text="student.huruf"></span>
-                            <div style="font-size: 0.7rem; color: #166534; font-weight: 600; margin-top: 0.25rem;" x-text="`Bobot ${student.bobotMutu}`"></div>
                         </div>
                     </div>
                 </div>
@@ -881,21 +876,12 @@
                                 </span>
                             </div>
                         </div>
-
-                        {{-- Langkah 5: Abjad Mutu --}}
-                        <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
-                            <strong style="color: #1e293b;">Langkah 5: Konversi ke Abjad Huruf Mutu &amp; Bobot KHS</strong>
-                            <div style="color: #64748b; font-size: 0.75rem; margin-top: 0.15rem;">Cocokkan nilai akhir ke tabel konversi standar akademik:</div>
-                            <div style="margin-top: 0.35rem; font-size: 0.8rem; color: #1e293b;">
-                                Nilai <strong x-text="student.nilaiAkhir"></strong> dikonversi menjadi <strong style="color: #15803d; font-size: 0.95rem;" x-text="`Grade ${student.huruf}`"></strong> dengan Bobot Mutu <strong x-text="student.bobotMutu"></strong> (<span style="color: #475569;" x-text="student.predikat"></span>).
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- Panel Informasi Formula Penilaian & Konversi Abjad --}}
+        {{-- Panel Informasi Formula Penilaian --}}
         <div x-data="{ openGuide: true }" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
             <div @click="openGuide = !openGuide" style="padding: 0.9rem 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -903,8 +889,8 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                     </span>
                     <div>
-                        <strong style="font-size: 0.88rem; color: #1e293b;">Panduan Formula Penilaian &amp; Konversi Abjad Nilai Mutu (KRS/KHS)</strong>
-                        <div style="font-size: 0.72rem; color: #64748b;">Klik untuk melihat/sembunyikan penjelasan rumus OBE, bobot RPS, dan standar abjad</div>
+                        <strong style="font-size: 0.88rem; color: #1e293b;">Panduan Formula Penilaian &amp; Bobot Nilai (OBE)</strong>
+                        <div style="font-size: 0.72rem; color: #64748b;">Klik untuk melihat/sembunyikan penjelasan rumus OBE dan bobot RPS</div>
                     </div>
                 </div>
                 <svg :style="openGuide ? 'transform: rotate(180deg)' : ''" style="transition: transform 0.2s; color: #64748b;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
