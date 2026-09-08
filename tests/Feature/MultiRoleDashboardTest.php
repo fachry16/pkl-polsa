@@ -129,7 +129,7 @@ class MultiRoleDashboardTest extends TestCase
         $response->assertSee('Mengajar (Dosen)');
         // Direktur section
         $response->assertSee('Dashboard Eksekutif &amp; Tata Kelola', false);
-        $response->assertSee('Rekapitulasi Program Studi POLSA Purworejo');
+        $response->assertSee('Rekapitulasi Program Studi POLSA');
     }
 
     public function test_halaman_dashboard_direktur_route(): void
@@ -162,6 +162,6 @@ class MultiRoleDashboardTest extends TestCase
         $response->assertSee('Direktur (Eksekutif)');
         $response->assertSee('Mengajar (Dosen)');
         $response->assertSee('Dashboard Eksekutif &amp; Tata Kelola', false);
-        $response->assertSee('Rekapitulasi Program Studi POLSA Purworejo');
+        $response->assertSee('Rekapitulasi Program Studi POLSA');
     }
 }
