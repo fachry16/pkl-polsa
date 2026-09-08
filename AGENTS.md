@@ -8,6 +8,10 @@
   - **No Prose Slop**: Code first, followed by at most 2-3 concise lines. Do not add redundant code comments that restate what the code clearly does.
   - **No Swallowed Exceptions**: Never mask runtime errors or return dummy fallback arrays to hide broken code logic.
 
+## Git Branching Strategy (STRICT RULE)
+- **NEVER COMMIT DIRECTLY TO MAIN**: All feature additions, refactoring, and bug fixes MUST be executed on a dedicated feature branch (e.g. `feature/<nama-fitur>` or `<task-name>`).
+- Always push feature branches to `origin` so work can be reviewed via Pull Request before merging to `main`.
+
 ## UI & Design Standards (NO EMOJI SLOP)
 - **STRICTLY NO EMOJIS IN UI**: Never use Unicode emojis (e.g., `👁️`, `🔴`, `🏛️`, `📚`, `✏️`, `⚠️`, `📌`, `🔴`) in buttons, badge pills, table columns, navigation headers, or card elements. Emojis look amateurish and are a major marker of AI slop.
 - **Use Clean SVG Icons Only**: Always use crisp, precise inline SVG icons (`width="14-18" height="14-18" fill="none" stroke="currentColor" stroke-width="2"`).
