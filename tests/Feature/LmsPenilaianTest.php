@@ -188,6 +188,11 @@ class LmsPenilaianTest extends TestCase
             'komponen' => 'tugas',
             'nilai' => 85.00,
         ]);
+
+        $this->assertDatabaseHas('assessments', [
+            'pengampu_id' => $pengampu->id,
+            'status' => 'dinilai',
+        ]);
     }
 
     public function test_penilaian_submission_menyimpan_nilai_akhir(): void

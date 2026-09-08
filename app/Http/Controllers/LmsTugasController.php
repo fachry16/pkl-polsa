@@ -321,7 +321,25 @@ class LmsTugasController extends Controller
             $service->simpanNilaiMahasiswa($pengampu, $mahasiswa);
         }
 
-        // Sinkronisasi otomatis ke Modul Asesmen OBE
+        $this->syncToAssessment($pengampu, $service);
+
+        return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
+    }
+
+    public function hitungUlangNilai(Pengampu $pengampu)
+    {
+        $this->authorizeWrite($pengampu);
+
+        $service = app(PenilaianService::class);
+        $service->simpanNilaiKelas($pengampu);
+
+        $this->syncToAssessment($pengampu, $service);
+
+        return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
+    }
+
+    private function syncToAssessment(Pengampu $pengampu, PenilaianService $service): void
+    {
         $assessment = \App\Models\Assessment::firstOrCreate(
             ['pengampu_id' => $pengampu->id],
             ['status' => \App\Models\Assessment::STATUS_DINILAI, 'created_by' => Auth::id()]
@@ -349,17 +367,6 @@ class LmsTugasController extends Controller
                 }
             }
         }
-
-        return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
-    }
-
-    public function hitungUlangNilai(Pengampu $pengampu)
-    {
-        $this->authorizeWrite($pengampu);
-
-        app(PenilaianService::class)->simpanNilaiKelas($pengampu);
-
-        return back()->with('toast_success', 'Nilai seluruh mahasiswa berhasil dihitung ulang.');
     }
 
     private function pertemuanMilikKelas(Pengampu $pengampu): Closure
