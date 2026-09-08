@@ -39,6 +39,22 @@
 
     <div class="form-group">
 
+        <label class="form-label">Kategori Komponen Penilaian</label>
+
+        <select name="kategori_komponen" class="form-select w-full" required style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+            <option value="tugas" {{ old('kategori_komponen', $tugas->kategori_komponen ?? 'tugas') === 'tugas' ? 'selected' : '' }}>Tugas (TTi / TTk)</option>
+            <option value="quiz" {{ old('kategori_komponen', $tugas->kategori_komponen) === 'quiz' ? 'selected' : '' }}>Kuis / Quiz</option>
+            <option value="uts" {{ old('kategori_komponen', $tugas->kategori_komponen) === 'uts' ? 'selected' : '' }}>UTS (Ujian Tengah Semester)</option>
+            <option value="uas" {{ old('kategori_komponen', $tugas->kategori_komponen) === 'uas' ? 'selected' : '' }}>UAS (Ujian Akhir Semester)</option>
+            <option value="praktikum" {{ old('kategori_komponen', $tugas->kategori_komponen) === 'praktikum' ? 'selected' : '' }}>Praktikum / Responsif</option>
+            <option value="project" {{ old('kategori_komponen', $tugas->kategori_komponen) === 'project' ? 'selected' : '' }}>Project (Tugas Akhir / Project Base)</option>
+        </select>
+        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Kategori ini digunakan oleh LMS untuk menghitung bobot nilai akhir.</div>
+
+    </div>
+
+    <div class="form-group">
+
         <label class="form-label">Sub-CPMK</label>
 
         <input type="text"

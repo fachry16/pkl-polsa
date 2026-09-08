@@ -43,7 +43,10 @@
                 </td>
 
                 <td class="text-sm">
-                    {{ $item->nama_tugas }}
+                    <div style="font-weight: 600;">{{ $item->nama_tugas }}</div>
+                    <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">
+                        {{ $item->kategori_komponen ?? 'tugas' }}
+                    </span>
                 </td>
 
                 <td class="text-sm">

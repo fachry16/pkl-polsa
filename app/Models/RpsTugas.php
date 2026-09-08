@@ -10,6 +10,7 @@ class RpsTugas extends Model
         'rps_id',
         'minggu_topik',
         'nama_tugas',
+        'kategori_komponen',
         'sub_cpmk',
         'penugasan',
         'ruang_lingkup',

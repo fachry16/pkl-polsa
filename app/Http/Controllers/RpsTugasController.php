@@ -54,6 +54,7 @@ class RpsTugasController extends Controller
         $request->validate([
             'minggu_topik' => 'required|string|max:255',
             'nama_tugas' => 'required|string|max:255',
+            'kategori_komponen' => 'nullable|string|in:tugas,quiz,uts,uas,praktikum,project',
             'sub_cpmk' => 'nullable|string|max:255',
             'penugasan' => 'nullable|string|max:255',
             'ruang_lingkup' => 'nullable|string',
@@ -69,6 +70,7 @@ class RpsTugasController extends Controller
             'rps_id' => $rps->id,
             'minggu_topik' => $request->minggu_topik,
             'nama_tugas' => $request->nama_tugas,
+            'kategori_komponen' => $request->kategori_komponen ?? 'tugas',
             'sub_cpmk' => $request->sub_cpmk,
             'penugasan' => $request->penugasan,
             'ruang_lingkup' => $request->ruang_lingkup,
@@ -110,6 +112,7 @@ class RpsTugasController extends Controller
         $request->validate([
             'minggu_topik' => 'required|string|max:255',
             'nama_tugas' => 'required|string|max:255',
+            'kategori_komponen' => 'nullable|string|in:tugas,quiz,uts,uas,praktikum,project',
             'sub_cpmk' => 'nullable|string|max:255',
             'penugasan' => 'nullable|string|max:255',
             'ruang_lingkup' => 'nullable|string',
@@ -124,6 +127,7 @@ class RpsTugasController extends Controller
         $data = [
             'minggu_topik' => $request->minggu_topik,
             'nama_tugas' => $request->nama_tugas,
+            'kategori_komponen' => $request->kategori_komponen ?? 'tugas',
             'sub_cpmk' => $request->sub_cpmk,
             'penugasan' => $request->penugasan,
             'ruang_lingkup' => $request->ruang_lingkup,
