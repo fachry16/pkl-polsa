@@ -29,7 +29,7 @@ class AssessmentController extends Controller
         $this->authorizeAssessmentRead();
 
         $filters = $this->filters($request);
-        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik'])->get();
+        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik', 'pengampu.mahasiswas'])->get();
 
         $kpis = $this->dashboardKpis($assessments);
 
@@ -173,7 +173,7 @@ class AssessmentController extends Controller
         $this->authorizeAssessmentRead();
 
         $filters = $this->filters($request);
-        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik'])->get();
+        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik', 'pengampu.mahasiswas'])->get();
 
         $drop = $this->filterDropdowns($filters);
 
@@ -194,7 +194,7 @@ class AssessmentController extends Controller
         $this->authorizeAssessmentRead();
 
         $filters = $this->filters($request);
-        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik'])->get();
+        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik', 'pengampu.mahasiswas'])->get();
         $rekap = $assessments->isEmpty() ? null : $this->calc->rekap($assessments);
 
         $format = $request->query('format', 'print');
@@ -378,7 +378,11 @@ class AssessmentController extends Controller
     {
         $scores = $assessments->flatMap->scores;
 
-        $mahasiswaCount = $scores->pluck('mahasiswa_id')->unique()->count();
+        $mahasiswaCount = $assessments->flatMap(function ($a) {
+            $scoreIds = $a->scores->pluck('mahasiswa_id');
+            $pengampuIds = $a->pengampu ? $a->pengampu->mahasiswas->pluck('id') : collect();
+            return $scoreIds->concat($pengampuIds);
+        })->unique()->filter()->count();
         $mkCount = $assessments->pluck('pengampu.mata_kuliah_id')->unique()->count();
         $cpmkScored = $scores->filter(fn ($s) => is_numeric($s->nilai))->count();
         $cpls = Cpl::query()->count();

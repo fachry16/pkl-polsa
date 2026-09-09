@@ -18,13 +18,14 @@
      x-show="show"
      x-transition:enter.duration.100ms
      x-transition:leave.duration.100ms
-     x-init="setTimeout(() => show = false, 5000)"
      class="toast toast-{{ $type }}"
      role="alert"
+     style="position: relative;"
      @if($id) :id="$id" @endif>
+    <span style="position: absolute; top: -4px; left: -4px; width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35); z-index: 10;" title="Notifikasi Baru"></span>
     <span class="toast-icon">{!! $icon !!}</span>
     <span class="toast-text">{{ $message }}</span>
-    <button type="button" @click="show = false" class="toast-close">
+    <button type="button" @click="show = false" class="toast-close" title="Tutup Notifikasi">
         <svg class="toast-svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
     </button>
 </div>
