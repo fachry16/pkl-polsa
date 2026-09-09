@@ -321,16 +321,66 @@ class LmsTugasController extends Controller
             $service->simpanNilaiMahasiswa($pengampu, $mahasiswa);
         }
 
-        return back()->with('toast_success', 'Nilai komponen berhasil disimpan.');
+        $synced = $this->syncToAssessment($pengampu, $service);
+
+        if (! $synced) {
+            return back()->with('toast_success', 'Nilai LMS berhasil disimpan. Catatan: Bobot CPMK di RPS belum dikonfigurasi, silakan lengkapi RPS agar nilai terkirim ke Asesmen OBE.');
+        }
+
+        return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
     }
 
     public function hitungUlangNilai(Pengampu $pengampu)
     {
         $this->authorizeWrite($pengampu);
 
-        app(PenilaianService::class)->simpanNilaiKelas($pengampu);
+        $service = app(PenilaianService::class);
+        $service->simpanNilaiKelas($pengampu);
 
-        return back()->with('toast_success', 'Nilai seluruh mahasiswa berhasil dihitung ulang.');
+        $synced = $this->syncToAssessment($pengampu, $service);
+
+        if (! $synced) {
+            return back()->with('toast_success', 'Nilai LMS berhasil dihitung ulang. Catatan: Bobot CPMK di RPS belum dikonfigurasi, silakan lengkapi RPS agar nilai terkirim ke Asesmen OBE.');
+        }
+
+        return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
+    }
+
+    private function syncToAssessment(Pengampu $pengampu, PenilaianService $service): bool
+    {
+        $assessment = \App\Models\Assessment::firstOrCreate(
+            ['pengampu_id' => $pengampu->id],
+            ['status' => \App\Models\Assessment::STATUS_DRAFT, 'created_by' => Auth::id()]
+        );
+
+        $calc = app(\App\Services\AssessmentCalculationService::class);
+        $config = $calc->cpmkConfigForMataKuliah($pengampu->mataKuliah);
+
+        $scoredCount = 0;
+        if ($config->isNotEmpty()) {
+            foreach ($pengampu->mahasiswas as $mahasiswa) {
+                $nilaiAkhir = $service->hitungNilaiAkhir($pengampu, $mahasiswa);
+                if ($nilaiAkhir !== null) {
+                    foreach ($config as $cpmkId => $meta) {
+                        $skorCpmk = round(($nilaiAkhir / 100) * $meta['bobot'], 2);
+                        \App\Models\AssessmentScore::updateOrCreate(
+                            [
+                                'assessment_id' => $assessment->id,
+                                'mahasiswa_id' => $mahasiswa->id,
+                                'cpmk_id' => $cpmkId,
+                            ],
+                            ['nilai' => $skorCpmk]
+                        );
+                        $scoredCount++;
+                    }
+                }
+            }
+        }
+
+        $status = $scoredCount > 0 ? \App\Models\Assessment::STATUS_DINILAI : \App\Models\Assessment::STATUS_DRAFT;
+        $assessment->update(['status' => $status]);
+
+        return $scoredCount > 0;
     }
 
     private function pertemuanMilikKelas(Pengampu $pengampu): Closure

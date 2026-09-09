@@ -1,5 +1,12 @@
 # Eduva — Agent Guide & Code Standards
 
+## Plan & Confirm First Rule (MANDATORY FOR ALL TASKS)
+- **NEVER EXECUTE IMMEDIATELY**: Do NOT start editing code, running migrations, or executing complex commands directly when given a task or request.
+- **Analyze & Propose First**:
+  1. Analyze the requirement, codebase, and impact.
+  2. Present a clear, concise design/plan proposal to the USER.
+  3. **Wait for explicit USER confirmation** before executing any code changes or file modifications.
+
 ## Anti-AI Slop & Ponytail Rule (MANDATORY FOR AGENT)
 - **Ponytail Active Always**: Enforce the Ponytail methodology on EVERY task.
   - **YAGNI First**: Ask if code needs to exist at all before writing. No speculative features, interfaces with one implementation, or unused boilerplate.
@@ -7,6 +14,10 @@
   - **Shortest Working Diff**: Fix root causes cleanly at the single source of truth. Avoid symptom patching across multiple callers.
   - **No Prose Slop**: Code first, followed by at most 2-3 concise lines. Do not add redundant code comments that restate what the code clearly does.
   - **No Swallowed Exceptions**: Never mask runtime errors or return dummy fallback arrays to hide broken code logic.
+
+## Git Branching Strategy (STRICT RULE)
+- **NEVER COMMIT DIRECTLY TO MAIN**: All feature additions, refactoring, and bug fixes MUST be executed on a dedicated feature branch (e.g. `feature/<nama-fitur>` or `<task-name>`).
+- Always push feature branches to `origin` so work can be reviewed via Pull Request before merging to `main`.
 
 ## UI & Design Standards (NO EMOJI SLOP)
 - **STRICTLY NO EMOJIS IN UI**: Never use Unicode emojis (e.g., `👁️`, `🔴`, `🏛️`, `📚`, `✏️`, `⚠️`, `📌`, `🔴`) in buttons, badge pills, table columns, navigation headers, or card elements. Emojis look amateurish and are a major marker of AI slop.

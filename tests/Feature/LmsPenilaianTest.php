@@ -176,6 +176,26 @@ class LmsPenilaianTest extends TestCase
             'dikumpulkan_pada' => now(),
         ]);
 
+        $cpl = \App\Models\Cpl::create([
+            'kode_cpl' => 'CPL-01',
+            'deskripsi' => 'Tes CPL',
+            'program_studi_id' => $pengampu->mataKuliah->kurikulum->program_studi_id,
+            'kurikulum_id' => $pengampu->mataKuliah->kurikulum_id,
+        ]);
+        $cpmk = \App\Models\Cpmk::create([
+            'kode_cpmk' => 'CPMK-01',
+            'deskripsi' => 'Tes CPMK',
+            'cpl_id' => $cpl->id,
+            'kurikulum_id' => $pengampu->mataKuliah->kurikulum_id,
+        ]);
+        \App\Models\RumusanNilaiAkhirMk::create([
+            'kurikulum_id' => $pengampu->mataKuliah->kurikulum_id,
+            'mata_kuliah_id' => $pengampu->mata_kuliah_id,
+            'cpmk_id' => $cpmk->id,
+            'cpl_id' => $cpl->id,
+            'skor_maks' => 100,
+        ]);
+
         $this->actingAs($data['dosen']->user)
             ->post(route('lms.tugas.sync', $pengampu->id))
             ->assertSessionHas('toast_success');
@@ -187,6 +207,11 @@ class LmsPenilaianTest extends TestCase
             'mahasiswa_id' => $data['mahasiswa']->id,
             'komponen' => 'tugas',
             'nilai' => 85.00,
+        ]);
+
+        $this->assertDatabaseHas('assessments', [
+            'pengampu_id' => $pengampu->id,
+            'status' => 'dinilai',
         ]);
     }
 
@@ -427,7 +452,7 @@ class LmsPenilaianTest extends TestCase
             ->get(route('lms.tugas.rekap', $data['pengampu']->id));
 
         $response->assertOk();
-        $response->assertSee('Panduan Formula Penilaian &amp; Konversi Abjad Nilai Mutu', false);
-        $response->assertSee('Huruf Mutu');
+        $response->assertSee('Rekap Nilai Perkuliahan &amp; LMS', false);
+        $response->assertSee('Nilai Angka');
     }
 }

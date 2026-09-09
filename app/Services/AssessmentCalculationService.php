@@ -208,10 +208,15 @@ class AssessmentCalculationService
     {
         $assessments = $assessments->values();
 
-        // Gabungkan mahasiswa yang muncul di semua assessment terpilih.
+        // Gabungkan mahasiswa yang muncul di semua assessment terpilih (baik dari skor maupun kelas pengampu).
         $mahasiswaIds = $assessments
-            ->flatMap(fn ($a) => $a->scores->pluck('mahasiswa_id'))
+            ->flatMap(function ($a) {
+                $scoreIds = $a->scores->pluck('mahasiswa_id');
+                $pengampuIds = $a->pengampu ? $a->pengampu->mahasiswas->pluck('id') : collect();
+                return $scoreIds->concat($pengampuIds);
+            })
             ->unique()
+            ->filter()
             ->values();
 
         $mahasiswas = \App\Models\Mahasiswa::whereIn('id', $mahasiswaIds)

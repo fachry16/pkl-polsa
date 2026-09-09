@@ -465,103 +465,63 @@
     {{-- Tab: Nilai --}}
     <div x-show="tab === 'nilai'">
         <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem;">
-            <h3 style="font-size: 0.9rem; font-weight: 600; margin: 0 0 0.75rem; color: #1e293b;">Rekap Nilai</h3>
+            <h3 style="font-size: 0.95rem; font-weight: 700; margin: 0 0 1rem; color: #1e293b;">Nilai &amp; Catatan Tugas Saya</h3>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Komponen</th>
-                            <th style="text-align: center;">Bobot</th>
+                            <th>Judul Tugas</th>
+                            <th style="text-align: center;">Tenggat Waktu</th>
+                            <th style="text-align: center;">Status Pengumpulan</th>
                             <th style="text-align: center;">Nilai</th>
-                            <th style="text-align: center;">Kontribusi</th>
+                            <th>Catatan Dosen</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($bobot as $komponen => $persen)
-                            @if($persen > 0)
-                                @php
-                                    $nilaiKomponen = $nilaiByKomponen->get($komponen)?->nilai;
-                                    $kontribusi = $nilaiKomponen !== null ? round($nilaiKomponen * $persen / 100, 2) : null;
-                                @endphp
-                                <tr>
-                                    <td style="text-transform: capitalize;">{{ $komponen }}</td>
-                                    <td style="text-align: center;">{{ $persen }}%</td>
-                                    <td style="text-align: center;">{{ $nilaiKomponen !== null ? number_format($nilaiKomponen, 2) : '-' }}</td>
-                                    <td style="text-align: center;">{{ $kontribusi !== null ? number_format($kontribusi, 2) : '-' }}</td>
-                                </tr>
-                            @endif
-                        @endforeach
+                        @forelse($pengampu->lmsTugas->where('is_active', true) as $tugas)
+                            @php
+                                $sub = $tugas->submissions->where('mahasiswa_id', Auth::user()->mahasiswa?->id)->first();
+                            @endphp
+                            <tr>
+                                <td style="font-weight: 600;">
+                                    <a href="{{ route('mahasiswa.lms.tugas.show', [$pengampu->id, $tugas->id]) }}" style="color: #1e293b; text-decoration: none;">
+                                        {{ $tugas->judul }}
+                                    </a>
+                                </td>
+                                <td style="text-align: center; font-size: 0.8rem; color: #64748b;">
+                                    {{ $tugas->deadline ? $tugas->deadline->format('d M Y, H:i') : '-' }}
+                                </td>
+                                <td style="text-align: center;">
+                                    @if($sub)
+                                        <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                            Sudah Dikirim
+                                        </span>
+                                    @else
+                                        <span style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.75rem;">
+                                            Belum Mengirim
+                                        </span>
+                                    @endif
+                                </td>
+                                <td style="text-align: center; font-weight: 700; font-size: 0.95rem;">
+                                    @if($sub && $sub->nilai !== null)
+                                        <span style="color: #059669;">{{ number_format($sub->nilai, 2) }}</span>
+                                    @else
+                                        <span style="color: #94a3b8; font-weight: 400; font-size: 0.85rem;">-</span>
+                                    @endif
+                                </td>
+                                <td style="font-size: 0.85rem; color: #475569;">
+                                    {{ $sub?->catatan_dosen ?? '-' }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                    Belum ada tugas yang diberikan di kelas ini.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
-                    <tfoot>
-                        @php
-                            $nilaiAkhir = $nilaiByKomponen->get('akhir')?->nilai;
-                            $hurufAkhir = konversiNilaiHuruf($nilaiAkhir);
-                            $bobotAkhir = konversiBobotMutu($nilaiAkhir);
-                            $predikatAkhir = predikatNilai($nilaiAkhir);
-                            $badgeStyle = match($hurufAkhir) {
-                                'A' => 'background: #ecfdf5; color: #059669; border-color: #a7f3d0;',
-                                'B+', 'B' => 'background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;',
-                                'C+', 'C' => 'background: #fefce8; color: #a16207; border-color: #fde047;',
-                                'D' => 'background: #fff7ed; color: #c2410c; border-color: #fdba74;',
-                                default => 'background: #fef2f2; color: #b91c1c; border-color: #fecaca;',
-                            };
-                        @endphp
-                        <tr style="background: #f8fafc;">
-                            <td colspan="2" style="text-align: right; font-weight: 700; color: #1e293b;">Nilai Akhir (Skala 100)</td>
-                            <td style="text-align: center; font-weight: 800; font-size: 1rem; color: #1e293b;">
-                                {{ $nilaiAkhir !== null ? number_format($nilaiAkhir, 2) : '-' }}
-                            </td>
-                            <td style="text-align: center;">
-                                @if($nilaiAkhir !== null)
-                                    <span style="{{ $badgeStyle }} border-width: 1px; border-style: solid; padding: 0.2rem 0.65rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                        <span>Nilai {{ $hurufAkhir }}</span>
-                                        <span style="font-size: 0.72rem; opacity: 0.85;">({{ number_format($bobotAkhir, 2) }})</span>
-                                    </span>
-                                    <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">{{ $predikatAkhir }}</div>
-                                @else
-                                    <span style="color: #94a3b8; font-size: 0.75rem;">Belum Terkalkulasi</span>
-                                @endif
-                            </td>
-                        </tr>
-                    </tfoot>
                 </table>
-            </div>
-
-            {{-- Penjelasan Transparansi Perhitungan Nilai Mahasiswa --}}
-            <div x-data="{ showDetail: false }" style="margin-top: 1.25rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
-                <button type="button" @click="showDetail = !showDetail" style="background: none; border: none; padding: 0; font-size: 0.8rem; font-weight: 600; color: #2563eb; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                    <span x-text="showDetail ? 'Sembunyikan Informasi Perhitungan Nilai & Skala Abjad' : 'Lihat Cara Perhitungan Nilai & Standar Abjad (KHS)'"></span>
-                </button>
-
-                <div x-show="showDetail" style="margin-top: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; font-size: 0.78rem; color: #475569; line-height: 1.6;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-                        <div>
-                            <strong style="color: #1e293b; display: block; margin-bottom: 0.25rem;">Cara Perhitungan Nilai:</strong>
-                            <p style="margin: 0 0 0.35rem;">
-                                Nilai akhir dihitung berdasarkan <strong>Rata-Rata Tertimbang</strong> bobot RPS mata kuliah ini.
-                            </p>
-                            <p style="margin: 0 0 0.35rem;">
-                                <code>Nilai Akhir = &Sigma;(Nilai Komponen &times; Bobot RPS) &divide; &Sigma;Bobot Terisi</code>
-                            </p>
-                            <p style="margin: 0; font-size: 0.74rem; color: #64748b;">
-                                <em>Catatan:</em> Presensi kehadiran 16 sesi digunakan sebagai rekam jejak kedisiplinan dan monitoring kelas. Nilai keaktifan dan sikap dinilai dosen pada komponen kuis/tugas partisipatif.
-                            </p>
-                        </div>
-                        <div>
-                            <strong style="color: #1e293b; display: block; margin-bottom: 0.25rem;">Standar Konversi Abjad &amp; Bobot Mutu:</strong>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; font-size: 0.74rem;">
-                                <div>&bull; &ge; 80.00 : <strong>A (4.00)</strong></div>
-                                <div>&bull; 75.00 - 79.99 : <strong>B+ (3.50)</strong></div>
-                                <div>&bull; 70.00 - 74.99 : <strong>B (3.00)</strong></div>
-                                <div>&bull; 65.00 - 69.99 : <strong>C+ (2.50)</strong></div>
-                                <div>&bull; 60.00 - 64.99 : <strong>C (2.00)</strong></div>
-                                <div>&bull; 50.00 - 59.99 : <strong>D (1.00)</strong></div>
-                                <div style="grid-column: span 2;">&bull; &lt; 50.00 : <strong style="color: #dc2626;">E (0.00)</strong></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

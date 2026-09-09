@@ -225,4 +225,27 @@
 </script>
 @endpush
 
+@else
+<div class="card" style="padding: 1.5rem; margin-bottom: 1.25rem; border-left: 4px solid #f59e0b; background: #fffbeb;">
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+        <svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <div>
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #92400e; margin: 0 0 0.4rem 0;">
+                Rumusan Bobot CPMK Belum Dikonfigurasi di Kurikulum
+            </h3>
+            <p style="font-size: 0.85rem; color: #b45309; margin: 0 0 0.75rem 0; line-height: 1.5;">
+                Mata kuliah <strong>{{ $selected->mataKuliah->nama ?? 'ini' }}</strong> belum memiliki Rumusan Nilai Akhir / Bobot CPMK. Agar nilai mahasiswa di LMS dapat dipetakan ke Asesmen OBE secara otomatis, silakan ikuti langkah-langkah berikut:
+            </p>
+            <ol style="font-size: 0.82rem; color: #78350f; margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                <li>Buka menu <strong>Kurikulum</strong> &rarr; pilih Kurikulum aktif &rarr; klik menu <strong>Rumusan Nilai Akhir MK</strong>.</li>
+                <li>Klik tombol <strong>+ Tambah Rumusan Nilai Akhir MK</strong> untuk memetakan Mata Kuliah, CPMK, CPL, dan Bobot/Skor Maks.</li>
+                <li>Kembali ke halaman <strong>Kelas LMS (Rekap Nilai)</strong> lalu klik tombol <strong>Simpan & Kirim ke Asesmen OBE</strong>.</li>
+            </ol>
+        </div>
+    </div>
+</div>
 @endif

@@ -10,6 +10,7 @@ use App\Http\Controllers\CplPlController;
 use App\Http\Controllers\CpmkController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DosenController;
+use App\Http\Controllers\GoogleDriveSettingController;
 use App\Http\Controllers\KhsController;
 use App\Http\Controllers\KrsController;
 use App\Http\Controllers\KurikulumController;
@@ -74,6 +75,16 @@ Route::middleware(['auth'])->group(function () {
 
 /* Master Data (Admin only) */
 Route::middleware(['auth', 'role:admin'])->group(function () {
+
+    Route::get(
+        'admin/setting/gdrive',
+        [GoogleDriveSettingController::class, 'index']
+    )->name('admin.setting.gdrive');
+
+    Route::post(
+        'admin/setting/gdrive',
+        [GoogleDriveSettingController::class, 'update']
+    )->name('admin.setting.gdrive.update');
 
     Route::get(
         'tahun-akademik',

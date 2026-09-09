@@ -153,6 +153,29 @@
 
 @else
 
+<div class="card" style="padding: 1.5rem; margin-bottom: 1.25rem; border-left: 4px solid #3b82f6; background: #eff6ff;">
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <div>
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e40af; margin: 0 0 0.4rem 0;">
+                Panduan Asesmen OBE & Rekap CPMK
+            </h3>
+            <p style="font-size: 0.85rem; color: #1d4ed8; margin: 0 0 0.75rem 0; line-height: 1.5;">
+                Belum ada data nilai Asesmen OBE untuk filter yang dipilih. Agar nilai mahasiswa muncul pada Rekap Asesmen OBE, silakan pastikan alur berikut:
+            </p>
+            <ol style="font-size: 0.82rem; color: #1e3a8a; margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                <li><strong>Kurikulum</strong>: Buka menu <strong>Kurikulum</strong> &rarr; pilih Kurikulum aktif &rarr; klik menu <strong>Rumusan Nilai Akhir MK</strong> untuk mengisi bobot CPMK ke CPL per Mata Kuliah.</li>
+                <li><strong>Nilai LMS Kelas</strong>: Dosen menginput nilai tugas / UTS / UAS di LMS Kelas.</li>
+                <li><strong>Sinkronisasi</strong>: Dosen mengklik tombol <strong>"Simpan & Kirim ke Asesmen OBE"</strong> pada tab Rekap Nilai di LMS Kelas.</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
 <div class="card" style="padding: 2rem; text-align: center; color: #64748b;">
     Belum ada data assessment untuk filter ini. Data diinput oleh dosen melalui halaman Kelas.
     <div style="margin-top: 1rem;">
