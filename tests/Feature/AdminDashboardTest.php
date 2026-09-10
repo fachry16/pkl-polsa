@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Dosen;
-use App\Models\Mahasiswa;
 use App\Models\ProgramStudi;
 use App\Models\TahunAkademik;
 use App\Models\User;

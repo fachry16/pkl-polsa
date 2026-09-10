@@ -65,7 +65,8 @@
                         <input type="checkbox"
                                name="cpl[{{ $cpl->id }}][]"
                                value="{{ $pl->id }}"
-                               {{ $cpl->profilLulusans->contains($pl->id) ? 'checked' : '' }}>
+                               {{ $cpl->profilLulusans->contains($pl->id) ? 'checked' : '' }}
+                               {{ (auth()->user()->isAdmin() || auth()->user()->isKaprodi()) ? '' : 'disabled' }}>
 
                     </td>
 
@@ -81,7 +82,7 @@
 
     </div>
 
-    @if(auth()->user()->role !== 'dosen')
+    @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
     <button type="submit"
             class="btn btn-primary mt-5">
 

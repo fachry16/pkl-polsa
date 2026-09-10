@@ -4,11 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Dosen;
 use App\Models\Kurikulum;
-use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
-use App\Models\Rps;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

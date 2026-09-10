@@ -49,7 +49,7 @@ class RoleController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
-            'kode' => 'required|string|max:50|alpha_dash|unique:roles,kode,' . $role->id,
+            'kode' => 'required|string|max:50|alpha_dash|unique:roles,kode,'.$role->id,
             'deskripsi' => 'nullable|string|max:255',
         ]);
 

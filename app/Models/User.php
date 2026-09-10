@@ -3,10 +3,22 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\ForumDiskusiBaru;
+use App\Notifications\KrsBaruAdmin;
+use App\Notifications\KurikulumBaruAdmin;
+use App\Notifications\MateriBaru;
+use App\Notifications\NilaiDiberikan;
+use App\Notifications\PengumumanBaru;
+use App\Notifications\RpsDiajukan;
+use App\Notifications\RpsDirevisi;
+use App\Notifications\RpsDisetujui;
+use App\Notifications\SubmissionBaru;
+use App\Notifications\TugasBaru;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -149,9 +161,10 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute(): ?string
     {
-        if ($this->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
-            return \Illuminate\Support\Facades\Storage::url($this->avatar);
+        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
+            return Storage::url($this->avatar);
         }
+
         return null;
     }
 
@@ -164,12 +177,12 @@ class User extends Authenticatable
     {
         return $this->unreadNotifications()
             ->whereIn('type', [
-                \App\Notifications\MateriBaru::class,
-                \App\Notifications\TugasBaru::class,
-                \App\Notifications\PengumumanBaru::class,
-                \App\Notifications\NilaiDiberikan::class,
-                \App\Notifications\SubmissionBaru::class,
-                \App\Notifications\ForumDiskusiBaru::class,
+                MateriBaru::class,
+                TugasBaru::class,
+                PengumumanBaru::class,
+                NilaiDiberikan::class,
+                SubmissionBaru::class,
+                ForumDiskusiBaru::class,
             ])
             ->count();
     }
@@ -178,9 +191,9 @@ class User extends Authenticatable
     {
         return $this->unreadNotifications()
             ->whereIn('type', [
-                \App\Notifications\RpsDiajukan::class,
-                \App\Notifications\RpsDisetujui::class,
-                \App\Notifications\RpsDirevisi::class,
+                RpsDiajukan::class,
+                RpsDisetujui::class,
+                RpsDirevisi::class,
             ])
             ->count();
     }
@@ -188,14 +201,14 @@ class User extends Authenticatable
     public function getUnreadKrsCountAttribute(): int
     {
         return $this->unreadNotifications()
-            ->where('type', \App\Notifications\KrsBaruAdmin::class)
+            ->where('type', KrsBaruAdmin::class)
             ->count();
     }
 
     public function getUnreadKurikulumCountAttribute(): int
     {
         return $this->unreadNotifications()
-            ->where('type', \App\Notifications\KurikulumBaruAdmin::class)
+            ->where('type', KurikulumBaruAdmin::class)
             ->count();
     }
 }

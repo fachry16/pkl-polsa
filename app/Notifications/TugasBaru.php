@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Models\LmsTugas;
 use App\Models\Pengampu;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 class TugasBaru extends Notification

@@ -6,7 +6,7 @@
     Data Bahan Kajian
 </h1>
 
-@if(auth()->user()->role !== 'dosen')
+@if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
 <div class="mb-5">
 
     <a href="{{ route('kurikulum.bahan-kajian.create', $kurikulum->id) }}"
@@ -62,7 +62,7 @@
                 <td>
 
                     <div class="flex gap-2">
-                        @if(auth()->user()->role !== 'dosen')
+                        @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                         <a href="{{ route('kurikulum.bahan-kajian.edit', [$kurikulum->id, $bahanKajian->id]) }}"
                            class="btn btn-warning btn-sm">
 

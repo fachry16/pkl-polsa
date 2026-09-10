@@ -16,7 +16,7 @@ class BahanKajianController extends Controller
      */
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $bahanKajians = $kurikulum->bahanKajians()->latest()->paginate(10);
 
         return view('bahan-kajian.index', compact('kurikulum', 'bahanKajians'));

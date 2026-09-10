@@ -76,6 +76,11 @@ class Pengampu extends Model
         return $this->hasOne(Assessment::class);
     }
 
+    public function instrumenCpmk()
+    {
+        return $this->hasMany(LmsInstrumenCpmk::class);
+    }
+
     public function rpsPertemuans()
     {
         return $this->mataKuliah?->rps?->pertemuans()->orderBy('minggu')->get() ?? collect();
@@ -112,14 +117,14 @@ class Pengampu extends Model
         $semAkademik = $this->semester_akademik ?: $this->tahunAkademik?->semester;
 
         if ($semTingkat && $semAkademik) {
-            return "Semester {$semTingkat} (" . ucfirst($semAkademik) . ")";
+            return "Semester {$semTingkat} (".ucfirst($semAkademik).')';
         } elseif ($semTingkat) {
             return "Semester {$semTingkat}";
         } elseif ($semAkademik) {
-            return "Semester " . ucfirst($semAkademik);
+            return 'Semester '.ucfirst($semAkademik);
         }
 
-        return "Semester -";
+        return 'Semester -';
     }
 
     public function getLabelKelasAttribute(): string

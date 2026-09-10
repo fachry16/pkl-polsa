@@ -53,6 +53,10 @@ class DashboardController extends Controller
         $persenKehadiran = 100;
         $totalPresensi = 0;
         $totalHadir = 0;
+
+        $direkturKurikulums = collect();
+        $direkturTahunAkademiks = collect();
+        $direkturDosens = collect();
         $statKelas = 0;
         $statTugasAktif = 0;
         $statBelumDikumpul = 0;
@@ -424,6 +428,19 @@ class DashboardController extends Controller
             $pengampuIds = Pengampu::where('tahun_akademik_id', $tahunAkademik->id)->pluck('id');
 
             $statKelas = $pengampuIds->count();
+
+            $direkturKurikulums = Kurikulum::with(['programStudi', 'mataKuliahs'])
+                ->orderByDesc('created_at')
+                ->get();
+
+            $direkturTahunAkademiks = TahunAkademik::withCount('pengampus', 'semesterMahasiswas')
+                ->orderByDesc('tahun')
+                ->orderByDesc('semester')
+                ->get();
+
+            $direkturDosens = Dosen::with(['user', 'programStudi'])
+                ->orderBy('nidn')
+                ->get();
         }
 
         if (Auth::user()->isMahasiswa()) {
@@ -437,54 +454,54 @@ class DashboardController extends Controller
 
                 if ($tahunAkademik) {
                     $kelasSaya = $mahasiswa->pengampus()
-                    ->where('tahun_akademik_id', $tahunAkademik->id)
-                    ->with(['mataKuliah.kurikulum', 'dosen.user', 'tahunAkademik'])
-                    ->withCount(['lmsMateris', 'lmsTugas'])
-                    ->get();
+                        ->where('tahun_akademik_id', $tahunAkademik->id)
+                        ->with(['mataKuliah.kurikulum', 'dosen.user', 'tahunAkademik'])
+                        ->withCount(['lmsMateris', 'lmsTugas'])
+                        ->get();
 
-                $pengampuIds = $kelasSaya->pluck('id');
+                    $pengampuIds = $kelasSaya->pluck('id');
 
-                $idTugasDikumpul = LmsSubmission::where('mahasiswa_id', $mahasiswa->id)->pluck('lms_tugas_id');
+                    $idTugasDikumpul = LmsSubmission::where('mahasiswa_id', $mahasiswa->id)->pluck('lms_tugas_id');
 
-                $totalSksSemester = $kelasSaya->sum(function ($k) {
-                    return ($k->mataKuliah->sks_teori ?? 0) + ($k->mataKuliah->sks_praktikum ?? 0);
-                });
+                    $totalSksSemester = $kelasSaya->sum(function ($k) {
+                        return ($k->mataKuliah->sks_teori ?? 0) + ($k->mataKuliah->sks_praktikum ?? 0);
+                    });
 
-                $statTugasSelesai = $idTugasDikumpul->count();
+                    $statTugasSelesai = $idTugasDikumpul->count();
 
-                $totalPresensi = LmsAbsensi::where('mahasiswa_id', $mahasiswa->id)->count();
-                $totalHadir = LmsAbsensi::where('mahasiswa_id', $mahasiswa->id)->where('status', 'hadir')->count();
-                $persenKehadiran = $totalPresensi > 0 ? round(($totalHadir / $totalPresensi) * 100) : 100;
+                    $totalPresensi = LmsAbsensi::where('mahasiswa_id', $mahasiswa->id)->count();
+                    $totalHadir = LmsAbsensi::where('mahasiswa_id', $mahasiswa->id)->where('status', 'hadir')->count();
+                    $persenKehadiran = $totalPresensi > 0 ? round(($totalHadir / $totalPresensi) * 100) : 100;
 
-                $tugasMendekati = LmsTugas::whereIn('pengampu_id', $pengampuIds)
-                    ->whereNotIn('id', $idTugasDikumpul)
-                    ->where('deadline', '>=', now())
-                    ->where('deadline', '<=', now()->addDays(7))
-                    ->with('pengampu.mataKuliah')
-                    ->orderBy('deadline')
-                    ->get();
+                    $tugasMendekati = LmsTugas::whereIn('pengampu_id', $pengampuIds)
+                        ->whereNotIn('id', $idTugasDikumpul)
+                        ->where('deadline', '>=', now())
+                        ->where('deadline', '<=', now()->addDays(7))
+                        ->with('pengampu.mataKuliah')
+                        ->orderBy('deadline')
+                        ->get();
 
-                $materiBaru = LmsMateri::whereIn('pengampu_id', $pengampuIds)
-                    ->where('created_at', '>=', now()->subDays(7))
-                    ->with('pengampu.mataKuliah')
-                    ->latest()
-                    ->limit(5)
-                    ->get();
+                    $materiBaru = LmsMateri::whereIn('pengampu_id', $pengampuIds)
+                        ->where('created_at', '>=', now()->subDays(7))
+                        ->with('pengampu.mataKuliah')
+                        ->latest()
+                        ->limit(5)
+                        ->get();
 
-                $forumTerbaru = LmsForumDiskusi::whereIn('pengampu_id', $pengampuIds)
-                    ->where('created_at', '>=', now()->subDays(7))
-                    ->with(['user', 'pengampu.mataKuliah'])
-                    ->latest()
-                    ->limit(10)
-                    ->get();
+                    $forumTerbaru = LmsForumDiskusi::whereIn('pengampu_id', $pengampuIds)
+                        ->where('created_at', '>=', now()->subDays(7))
+                        ->with(['user', 'pengampu.mataKuliah'])
+                        ->latest()
+                        ->limit(10)
+                        ->get();
 
-                $statKelas = $kelasSaya->count();
-                $statTugasAktif = LmsTugas::whereIn('pengampu_id', $pengampuIds)
-                    ->where('deadline', '>=', now())
-                    ->count();
-                $statBelumDikumpul = LmsTugas::whereIn('pengampu_id', $pengampuIds)
-                    ->whereNotIn('id', $idTugasDikumpul)
-                    ->count();
+                    $statKelas = $kelasSaya->count();
+                    $statTugasAktif = LmsTugas::whereIn('pengampu_id', $pengampuIds)
+                        ->where('deadline', '>=', now())
+                        ->count();
+                    $statBelumDikumpul = LmsTugas::whereIn('pengampu_id', $pengampuIds)
+                        ->whereNotIn('id', $idTugasDikumpul)
+                        ->count();
                 }
             }
         }
@@ -543,7 +560,10 @@ class DashboardController extends Controller
             'kaprodiRpsStats',
             'rombelKosongProdi',
             'kurikulumProdi',
-            'semesterAktif'
+            'semesterAktif',
+            'direkturKurikulums',
+            'direkturTahunAkademiks',
+            'direkturDosens'
         );
 
         return view('dashboard', $data);

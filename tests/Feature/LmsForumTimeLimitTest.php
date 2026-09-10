@@ -195,7 +195,7 @@ class LmsForumTimeLimitTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function test_dosen_tidak_dapat_menghapus_pesan_mahasiswa(): void
+    public function test_dosen_dapat_menghapus_pesan_mahasiswa(): void
     {
         $data = $this->buatData();
 
@@ -207,9 +207,9 @@ class LmsForumTimeLimitTest extends TestCase
 
         $this->actingAs($data['userDosen'])
             ->delete(route('lms.forum.destroy', [$data['pengampu']->id, $diskusi->id]))
-            ->assertForbidden();
+            ->assertRedirect();
 
-        $this->assertDatabaseHas('lms_forum_diskusis', ['id' => $diskusi->id]);
+        $this->assertDatabaseMissing('lms_forum_diskusis', ['id' => $diskusi->id]);
     }
 
     public function test_dosen_dapat_menghapus_pesan_sendiri_dalam_30_menit(): void

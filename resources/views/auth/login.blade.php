@@ -142,6 +142,30 @@
         box-shadow: 0 0 0 3px rgba(79,70,229,0.08);
     }
 
+    .password-wrap {
+        position: relative;
+    }
+
+    .password-wrap .form-input {
+        padding-right: 2.5rem;
+    }
+
+    .toggle-pw {
+        position: absolute;
+        right: 0.6rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+        padding: 0.2rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .toggle-pw:hover { color: #4f46e5; }
+
     .login-form-wrap .form-error {
         color: #dc2626;
         font-size: 0.78rem;
@@ -188,7 +212,12 @@
 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input id="password" class="form-input" type="password" name="password" required autocomplete="current-password" placeholder="Masukkan password">
+                    <div class="password-wrap">
+                        <input id="password" class="form-input" type="password" name="password" required autocomplete="current-password" placeholder="Masukkan password">
+                        <button type="button" class="toggle-pw" id="togglePw">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
                     @error('password')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
 
@@ -222,5 +251,15 @@
             </div>
         </div>
     </div>
+    <script>
+        document.getElementById('togglePw').addEventListener('click', function() {
+            const pw = document.getElementById('password');
+            const show = pw.type === 'password';
+            pw.type = show ? 'text' : 'password';
+            this.innerHTML = show
+                ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+                : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+        });
+    </script>
 </body>
 </html>

@@ -10,6 +10,8 @@
     Rekap nilai CPMK, nilai mata kuliah, dan capaian CPL per mahasiswa.
 </p>
 
+@include('assessment._nav', ['current' => 'rekap'])
+
 @include('assessment._filters', ['filters' => $filters, 'drop' => $drop])
 
 @if(! empty($rekap))

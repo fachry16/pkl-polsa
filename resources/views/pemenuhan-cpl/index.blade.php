@@ -70,7 +70,8 @@
                                 <input type="checkbox"
                                        name="mapping[{{ $key }}]"
                                        value="1"
-                                       {{ isset($checked[$key]) ? 'checked' : '' }}>
+                                       {{ isset($checked[$key]) ? 'checked' : '' }}
+                                       {{ (auth()->user()->isAdmin() || auth()->user()->isKaprodi()) ? '' : 'disabled' }}>
 
                             </td>
 
@@ -86,7 +87,7 @@
 
     </div>
 
-    @if(auth()->user()->role !== 'dosen')
+    @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
     <div class="flex gap-2 mt-5">
 
         <button class="btn btn-success">

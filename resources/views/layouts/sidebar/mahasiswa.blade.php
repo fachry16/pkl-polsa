@@ -7,7 +7,7 @@
                 <path d="M16 24L26 18V22L16 28L6 22V18L16 24Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
                 <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#4f46e5" opacity="0.3"/>
             </svg>
-            <span class="sidebar-brand">EDUVA</span>
+            <span class="sidebar-brand">EDUVA | POLSA</span>
             @include('layouts.partials.notification-bell')
         </div>
     </div>

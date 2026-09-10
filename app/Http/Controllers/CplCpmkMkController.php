@@ -16,7 +16,7 @@ class CplCpmkMkController extends Controller
      */
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
         $cpmks = $kurikulum->cpmks()->orderBy('kode_cpmk')->get();
         $checked = DB::table('cpl_cpmk_semesters')->where('kurikulum_id', $kurikulum->id)->get()->mapWithKeys(function ($item) {

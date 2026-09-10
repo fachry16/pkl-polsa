@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Dosen;
 use App\Models\Kurikulum;
+use App\Models\LmsTugas;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
@@ -200,7 +201,7 @@ class RpsDrivenLmsTest extends TestCase
             'is_active' => false,
         ]);
 
-        $lmsTugas = \App\Models\LmsTugas::where('pengampu_id', $pengampu->id)->first();
+        $lmsTugas = LmsTugas::where('pengampu_id', $pengampu->id)->first();
         $this->assertNotNull($lmsTugas);
         $this->assertFalse($lmsTugas->is_active);
 
@@ -293,7 +294,7 @@ class RpsDrivenLmsTest extends TestCase
         // Upload ke LMS
         $this->actingAs($userDosen)->post(route('rps.tugas.upload-ke-lms', [$rps->id, $rpsTugas->id]));
 
-        $lmsTugas = \App\Models\LmsTugas::where('pengampu_id', $pengampu->id)->first();
+        $lmsTugas = LmsTugas::where('pengampu_id', $pengampu->id)->first();
         $this->assertEquals('Tugas 3: Unit Testing', $lmsTugas->judul);
         $this->assertEquals($rpsTugas->id, $lmsTugas->rps_tugas_id);
 

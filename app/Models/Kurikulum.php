@@ -66,4 +66,9 @@ class Kurikulum extends Model
     {
         return $this->hasMany(RumusanNilaiAkhirCpl::class);
     }
+
+    public function evaluasiKurikulums()
+    {
+        return $this->hasMany(EvaluasiKurikulum::class);
+    }
 }

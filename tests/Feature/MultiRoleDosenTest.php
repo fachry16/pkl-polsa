@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Dosen;
 use App\Models\ProgramStudi;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -150,7 +151,7 @@ class MultiRoleDosenTest extends TestCase
         $admin = $this->createAdmin();
         $prodi = $this->createProdi();
 
-        \App\Models\Role::create([
+        Role::create([
             'nama' => 'Kaprodi TRPL',
             'kode' => 'kaprodi_trpl',
             'deskripsi' => 'Ketua Program Studi TRPL',

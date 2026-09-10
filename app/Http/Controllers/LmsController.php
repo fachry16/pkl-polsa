@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assessment;
+use App\Models\LmsNilaiMahasiswa;
 use App\Models\Pengampu;
 use App\Models\TahunAkademik;
+use App\Services\AssessmentCalculationService;
+use App\Services\PenilaianService;
 use Illuminate\Support\Facades\Auth;
 
 class LmsController extends Controller
@@ -109,19 +113,19 @@ class LmsController extends Controller
             ->keyBy('rps_pertemuan_id');
 
         $tugasList = $pengampu->lmsTugas()->with('submissions')->get();
-        $nilaiByMhs = \App\Models\LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
+        $nilaiByMhs = LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
             ->whereIn('mahasiswa_id', $pengampu->mahasiswas->pluck('id'))
             ->get()
             ->groupBy('mahasiswa_id');
-        $bobot = app(\App\Services\PenilaianService::class)->bobotKomponen($pengampu);
+        $bobot = app(PenilaianService::class)->bobotKomponen($pengampu);
 
-        $assessment = \App\Models\Assessment::where('pengampu_id', $pengampu->id)->first();
+        $assessment = Assessment::where('pengampu_id', $pengampu->id)->first();
         $pengampu->setRelation('assessment', $assessment);
 
         $assessmentSummary = null;
         if ($assessment) {
             $assessment->load('pengampu.mataKuliah');
-            $assessmentSummary = app(\App\Services\AssessmentCalculationService::class)->mkSummary(
+            $assessmentSummary = app(AssessmentCalculationService::class)->mkSummary(
                 $assessment,
                 $pengampu->mahasiswas()->orderBy('nim')->get()
             );

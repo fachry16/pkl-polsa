@@ -44,4 +44,3 @@ class LmsForumDiskusi extends Model
         return $this->isWithinTimeLimit(30);
     }
 }
-

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Assessment;
+use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use App\Models\RumusanNilaiAkhirMk;
 use Illuminate\Support\Collection;
@@ -202,7 +203,7 @@ class AssessmentCalculationService
     /**
      * Rekap terstruktur: mahasiswa -> MK (cpmk + nilai MK) -> CPL (nilai + capaian).
      *
-     * @param Collection<int, Assessment> $assessments
+     * @param  Collection<int, Assessment>  $assessments
      */
     public function rekap(Collection $assessments): array
     {
@@ -213,13 +214,14 @@ class AssessmentCalculationService
             ->flatMap(function ($a) {
                 $scoreIds = $a->scores->pluck('mahasiswa_id');
                 $pengampuIds = $a->pengampu ? $a->pengampu->mahasiswas->pluck('id') : collect();
+
                 return $scoreIds->concat($pengampuIds);
             })
             ->unique()
             ->filter()
             ->values();
 
-        $mahasiswas = \App\Models\Mahasiswa::whereIn('id', $mahasiswaIds)
+        $mahasiswas = Mahasiswa::whereIn('id', $mahasiswaIds)
             ->orderBy('nim')
             ->get();
 

@@ -8,6 +8,7 @@ use App\Models\LmsMateriMahasiswa;
 use App\Models\LmsNilaiMahasiswa;
 use App\Models\LmsSesiAbsensi;
 use App\Models\LmsSubmission;
+use App\Models\LmsTopikKomentar;
 use App\Models\LmsTugas;
 use App\Models\Pengampu;
 use App\Models\TahunAkademik;
@@ -125,14 +126,14 @@ class LmsMahasiswaController extends Controller
             ->where('mahasiswa_id', $mahasiswa->id)
             ->first();
 
-        $komentarsKelas = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+        $komentarsKelas = LmsTopikKomentar::where('tipe_topik', 'tugas')
             ->where('topik_id', $tugas->id)
             ->where('is_private', false)
             ->with('user')
             ->oldest()
             ->get();
 
-        $komentarsPribadi = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+        $komentarsPribadi = LmsTopikKomentar::where('tipe_topik', 'tugas')
             ->where('topik_id', $tugas->id)
             ->where('is_private', true)
             ->where('mahasiswa_id', $mahasiswa->id)
@@ -154,7 +155,7 @@ class LmsMahasiswaController extends Controller
         $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
         $isSelesai = $materi->dibacaOleh($mahasiswa);
 
-        $komentarsKelas = \App\Models\LmsTopikKomentar::where('tipe_topik', 'materi')
+        $komentarsKelas = LmsTopikKomentar::where('tipe_topik', 'materi')
             ->where('topik_id', $materi->id)
             ->where('is_private', false)
             ->with('user')
@@ -283,6 +284,10 @@ class LmsMahasiswaController extends Controller
 
         abort_if($existing?->nilai !== null, 403, 'Tidak dapat mengumpulkan: tugas sudah dinilai.');
 
+        if ($tugas->deadline && $tugas->deadline->isPast()) {
+            return back()->with('toast_error', 'Batas waktu tugas sudah lewat. Tugas tidak dapat dikumpulkan.');
+        }
+
         $maxKb = ($tugas->batas_upload_mb ?: 50) * 1024;
 
         $request->validate([
@@ -331,6 +336,10 @@ class LmsMahasiswaController extends Controller
 
         abort_if(! $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists(), 403);
         abort_if($submission->nilai !== null, 403, 'Tidak dapat memperbarui: tugas sudah dinilai.');
+
+        if ($tugas->deadline && $tugas->deadline->isPast()) {
+            return back()->with('toast_error', 'Batas waktu tugas sudah lewat. Tugas tidak dapat diperbarui.');
+        }
 
         $maxKb = ($tugas->batas_upload_mb ?: 50) * 1024;
 

@@ -196,3 +196,187 @@
         </table>
     </div>
 </div>
+
+{{-- Baris 4: Monitoring Kurikulum --}}
+<div class="card" style="margin-top: 1.5rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M8 7h8"/><path d="M8 11h6"/></svg>
+            </div>
+            <div>
+                <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Monitoring Semua Kurikulum</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Daftar seluruh kurikulum di setiap program studi</div>
+            </div>
+        </div>
+        <span style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturKurikulums->count() }} Kurikulum</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; text-align: left;">
+                    <th style="padding: 0.75rem 1rem;">No</th>
+                    <th style="padding: 0.75rem 0.75rem;">Program Studi</th>
+                    <th style="padding: 0.75rem 0.75rem;">Nama Kurikulum</th>
+                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Tahun Berlaku</th>
+                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Beban Studi (SKS)</th>
+                    <th style="padding: 0.75rem 0.75rem;">Deskripsi</th>
+                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($direkturKurikulums as $i => $k)
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
+                        <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $k->programStudi->nama_prodi ?? '-' }}</td>
+                        <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $k->nama_kurikulum }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $k->tahun_berlaku }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #4f46e5;">{{ $k->beban_studi ?? '-' }}</td>
+                        <td style="padding: 0.75rem 0.75rem; color: #64748b; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $k->deskripsi ?? '-' }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center;">
+                            @if(($k->status ?? '') === 'Aktif' || ($k->status ?? '') === 'aktif')
+                                <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
+                            @elseif(($k->status ?? '') === 'Draft' || ($k->status ?? '') === 'draft')
+                                <span style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Draft</span>
+                            @else
+                                <span style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">{{ $k->status ?? '-' }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data kurikulum.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{-- Baris 5: Monitoring Tahun Akademik --}}
+<div class="card" style="margin-top: 1.5rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: #e0f2fe; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+                <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Monitoring Tahun Akademik</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Riwayat dan status seluruh tahun akademik</div>
+            </div>
+        </div>
+        <span style="background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturTahunAkademiks->count() }} Semester</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; text-align: left;">
+                    <th style="padding: 0.75rem 1rem;">No</th>
+                    <th style="padding: 0.75rem 0.75rem;">Tahun</th>
+                    <th style="padding: 0.75rem 0.75rem;">Semester</th>
+                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Total Kelas (Rombel)</th>
+                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Total Mahasiswa</th>
+                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($direkturTahunAkademiks as $i => $ta)
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
+                        <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $ta->tahun }}</td>
+                        <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $ta->semester }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #4f46e5;">{{ $ta->pengampus_count }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #0369a1;">{{ $ta->semesterMahasiswas_count }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center;">
+                            @if($ta->is_active)
+                                <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
+                            @else
+                                <span style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Selesai</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data tahun akademik.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{-- Baris 6: Monitoring Data Dosen --}}
+<div class="card" style="margin-top: 1.5rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+                <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Monitoring Data Dosen</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Daftar seluruh dosen beserta program studi dan jabatan</div>
+            </div>
+        </div>
+        <span style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturDosens->count() }} Dosen</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; text-align: left;">
+                    <th style="padding: 0.75rem 1rem;">No</th>
+                    <th style="padding: 0.75rem 0.75rem;">Nama</th>
+                    <th style="padding: 0.75rem 0.75rem;">NIDN</th>
+                    <th style="padding: 0.75rem 0.75rem;">Program Studi</th>
+                    <th style="padding: 0.75rem 0.75rem;">Jabatan / Role</th>
+                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Akun</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($direkturDosens as $i => $dsn)
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
+                        <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $dsn->user->name ?? '-' }}</td>
+                        <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $dsn->nidn }}</td>
+                        <td style="padding: 0.75rem 0.75rem; color: #475569;">{{ $dsn->programStudi->nama_prodi ?? '-' }}</td>
+                        <td style="padding: 0.75rem 0.75rem;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                                @php
+                                    $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
+                                    $roles = $dsn->user ? $dsn->user->getRolesList() : ['dosen'];
+                                @endphp
+                                @foreach($roles as $r)
+                                    @php
+                                        $roleName = $roleMap->get($r) ?? ucfirst(str_replace('_', ' ', $r));
+                                    @endphp
+                                    @if($r === 'admin')
+                                        <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">Admin</span>
+                                    @elseif($r === 'direktur' || str_starts_with($r, 'direktur'))
+                                        <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">{{ $roleName }}</span>
+                                    @elseif($r === 'kaprodi' || str_starts_with($r, 'kaprodi'))
+                                        <span style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">{{ $roleName }}</span>
+                                    @else
+                                        <span style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">{{ $roleName }}</span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center;">
+                            @if($dsn->user)
+                                <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
+                            @else
+                                <span style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Belum</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data dosen.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>

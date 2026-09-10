@@ -53,6 +53,34 @@ class LmsTopikKomentarController extends Controller
         return back()->with('toast_success', 'Komentar berhasil dikirim.');
     }
 
+    public function update(Request $request, Pengampu $pengampu, LmsTopikKomentar $komentar)
+    {
+        $user = Auth::user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+
+        $dosen = $user->dosen;
+        $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
+
+        if ($isDosen) {
+            $validated = $request->validate([
+                'pesan' => 'required|string|max:5000',
+            ]);
+            $komentar->update($validated);
+
+            return back()->with('toast_success', 'Komentar berhasil diperbarui.');
+        }
+
+        abort_unless($komentar->user_id === $user->id, 403);
+        abort_unless($komentar->isWithinTimeLimit(15), 403, 'Batas waktu 15 menit untuk mengubah komentar telah berakhir.');
+
+        $validated = $request->validate([
+            'pesan' => 'required|string|max:5000',
+        ]);
+        $komentar->update($validated);
+
+        return back()->with('toast_success', 'Komentar berhasil diperbarui.');
+    }
+
     public function destroy(Pengampu $pengampu, LmsTopikKomentar $komentar)
     {
         $user = Auth::user();
@@ -63,6 +91,7 @@ class LmsTopikKomentarController extends Controller
 
         if ($isDosen) {
             $komentar->delete();
+
             return back()->with('toast_success', 'Komentar berhasil dihapus.');
         }
 

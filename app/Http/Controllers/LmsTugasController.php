@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assessment;
+use App\Models\AssessmentScore;
+use App\Models\LmsInstrumenCpmk;
 use App\Models\LmsNilaiMahasiswa;
 use App\Models\LmsSubmission;
+use App\Models\LmsTopikKomentar;
 use App\Models\LmsTugas;
 use App\Models\Pengampu;
 use App\Models\RpsPertemuan;
 use App\Notifications\NilaiDiberikan;
 use App\Notifications\TugasBaru;
 use App\Rules\LmsFileMime;
+use App\Services\AssessmentCalculationService;
 use App\Services\PenilaianService;
 use Closure;
 use Illuminate\Http\Request;
@@ -122,14 +127,14 @@ class LmsTugasController extends Controller
         $mahasiswas = $pengampu->mahasiswas()->orderBy('nim')->paginate(20);
         $submissions = $tugas->submissions()->with('mahasiswa')->get()->keyBy('mahasiswa_id');
 
-        $komentarsKelas = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+        $komentarsKelas = LmsTopikKomentar::where('tipe_topik', 'tugas')
             ->where('topik_id', $tugas->id)
             ->where('is_private', false)
             ->with('user')
             ->oldest()
             ->get();
 
-        $komentarsPribadi = \App\Models\LmsTopikKomentar::where('tipe_topik', 'tugas')
+        $komentarsPribadi = LmsTopikKomentar::where('tipe_topik', 'tugas')
             ->where('topik_id', $tugas->id)
             ->where('is_private', true)
             ->with(['user', 'mahasiswa.user'])
@@ -272,7 +277,12 @@ class LmsTugasController extends Controller
 
         $bobot = app(PenilaianService::class)->bobotKomponen($pengampu);
 
-        return view('lms.tugas.rekap', compact('pengampu', 'mahasiswas', 'tugasList', 'nilaiByMhs', 'bobot'));
+        $instrumenCpmk = $pengampu->instrumenCpmk()->with('cpmk')->get();
+
+        $calc = app(AssessmentCalculationService::class);
+        $cpmkConfig = $calc->cpmkConfigForMataKuliah($pengampu->mataKuliah);
+
+        return view('lms.tugas.rekap', compact('pengampu', 'mahasiswas', 'tugasList', 'nilaiByMhs', 'bobot', 'instrumenCpmk', 'cpmkConfig'));
     }
 
     public function simpanKomponen(Request $request, Pengampu $pengampu)
@@ -346,24 +356,87 @@ class LmsTugasController extends Controller
         return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
     }
 
-    private function syncToAssessment(Pengampu $pengampu, PenilaianService $service): bool
+    public function simpanInstrumenCpmk(Request $request, Pengampu $pengampu)
     {
-        $assessment = \App\Models\Assessment::firstOrCreate(
-            ['pengampu_id' => $pengampu->id],
-            ['status' => \App\Models\Assessment::STATUS_DRAFT, 'created_by' => Auth::id()]
+        $this->authorizeWrite($pengampu);
+
+        $request->validate([
+            'cpmk_id' => 'required|exists:cpmks,id',
+            'komponen' => 'required|in:tugas,quiz,uts,uas,praktikum,project',
+            'bobot_kontribusi' => 'required|numeric|min:0|max:100',
+        ]);
+
+        LmsInstrumenCpmk::updateOrCreate(
+            [
+                'pengampu_id' => $pengampu->id,
+                'cpmk_id' => $request->cpmk_id,
+                'komponen' => $request->komponen,
+            ],
+            ['bobot_kontribusi' => $request->bobot_kontribusi]
         );
 
-        $calc = app(\App\Services\AssessmentCalculationService::class);
+        return back()->with('toast_success', 'Pemetaan instrumen → CPMK berhasil disimpan.');
+    }
+
+    public function hapusInstrumenCpmk(Pengampu $pengampu, LmsInstrumenCpmk $instrumen)
+    {
+        $this->authorizeWrite($pengampu);
+        abort_if($instrumen->pengampu_id !== $pengampu->id, 404);
+
+        $instrumen->delete();
+
+        return back()->with('toast_success', 'Pemetaan instrumen → CPMK berhasil dihapus.');
+    }
+
+    private function syncToAssessment(Pengampu $pengampu, PenilaianService $service): bool
+    {
+        $assessment = Assessment::firstOrCreate(
+            ['pengampu_id' => $pengampu->id],
+            ['status' => Assessment::STATUS_DRAFT, 'created_by' => Auth::id()]
+        );
+
+        $calc = app(AssessmentCalculationService::class);
         $config = $calc->cpmkConfigForMataKuliah($pengampu->mataKuliah);
+
+        $instrumenMap = LmsInstrumenCpmk::where('pengampu_id', $pengampu->id)
+            ->get()
+            ->groupBy('cpmk_id');
 
         $scoredCount = 0;
         if ($config->isNotEmpty()) {
             foreach ($pengampu->mahasiswas as $mahasiswa) {
-                $nilaiAkhir = $service->hitungNilaiAkhir($pengampu, $mahasiswa);
-                if ($nilaiAkhir !== null) {
-                    foreach ($config as $cpmkId => $meta) {
-                        $skorCpmk = round(($nilaiAkhir / 100) * $meta['bobot'], 2);
-                        \App\Models\AssessmentScore::updateOrCreate(
+                $nilaiByKomponen = LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
+                    ->where('mahasiswa_id', $mahasiswa->id)
+                    ->pluck('nilai', 'komponen');
+
+                foreach ($config as $cpmkId => $meta) {
+                    $instrumens = $instrumenMap->get($cpmkId);
+
+                    if ($instrumens && $instrumens->isNotEmpty()) {
+                        $totalBobot = $instrumens->sum('bobot_kontribusi');
+                        $weightedSum = 0;
+                        $hasValue = false;
+
+                        foreach ($instrumens as $instrumen) {
+                            $nilai = $nilaiByKomponen->get($instrumen->komponen);
+                            if ($nilai !== null) {
+                                $weightedSum += ($nilai / 100) * $instrumen->bobot_kontribusi;
+                                $hasValue = true;
+                            }
+                        }
+
+                        $skorCpmk = $hasValue && $totalBobot > 0
+                            ? round(($weightedSum / $totalBobot) * $meta['bobot'], 2)
+                            : null;
+                    } else {
+                        $nilaiAkhir = $service->hitungNilaiAkhir($pengampu, $mahasiswa);
+                        $skorCpmk = $nilaiAkhir !== null
+                            ? round(($nilaiAkhir / 100) * $meta['bobot'], 2)
+                            : null;
+                    }
+
+                    if ($skorCpmk !== null) {
+                        AssessmentScore::updateOrCreate(
                             [
                                 'assessment_id' => $assessment->id,
                                 'mahasiswa_id' => $mahasiswa->id,
@@ -377,7 +450,7 @@ class LmsTugasController extends Controller
             }
         }
 
-        $status = $scoredCount > 0 ? \App\Models\Assessment::STATUS_DINILAI : \App\Models\Assessment::STATUS_DRAFT;
+        $status = $scoredCount > 0 ? Assessment::STATUS_DINILAI : Assessment::STATUS_DRAFT;
         $assessment->update(['status' => $status]);
 
         return $scoredCount > 0;

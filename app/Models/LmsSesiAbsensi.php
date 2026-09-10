@@ -10,10 +10,12 @@ class LmsSesiAbsensi extends Model
         'pengampu_id',
         'rps_pertemuan_id',
         'tanggal_aktual',
+        'waktu_buka',
     ];
 
     protected $casts = [
         'tanggal_aktual' => 'date',
+        'waktu_buka' => 'datetime',
     ];
 
     public function pengampu()
@@ -33,6 +35,11 @@ class LmsSesiAbsensi extends Model
 
     public function canEdit(): bool
     {
-        return true;
+        $nextSession = self::where('pengampu_id', $this->pengampu_id)
+            ->where('id', '!=', $this->id)
+            ->where('tanggal_aktual', '>', $this->tanggal_aktual)
+            ->exists();
+
+        return ! $nextSession;
     }
 }

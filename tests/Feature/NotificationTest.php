@@ -14,8 +14,12 @@ use App\Models\RpsPenilaian;
 use App\Models\RpsPertemuan;
 use App\Models\TahunAkademik;
 use App\Models\User;
+use App\Notifications\KrsBaruAdmin;
+use App\Notifications\KurikulumBaruAdmin;
 use App\Notifications\MateriBaru;
 use App\Notifications\RpsDiajukan;
+use App\Notifications\RpsDirevisi;
+use App\Notifications\RpsDisetujui;
 use App\Notifications\SubmissionBaru;
 use App\Notifications\TugasBaru;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -270,7 +274,7 @@ class NotificationTest extends TestCase
             ->patch(route('rps.setujui', $rps->id))
             ->assertSessionHas('success');
 
-        Notification::assertSentTo($data['userDosen'], \App\Notifications\RpsDisetujui::class);
+        Notification::assertSentTo($data['userDosen'], RpsDisetujui::class);
     }
 
     public function test_kaprodi_revisi_rps_mengirim_notif_ke_dosen(): void
@@ -306,7 +310,7 @@ class NotificationTest extends TestCase
             ])
             ->assertSessionHas('success');
 
-        Notification::assertSentTo($data['userDosen'], \App\Notifications\RpsDirevisi::class);
+        Notification::assertSentTo($data['userDosen'], RpsDirevisi::class);
     }
 
     public function test_mahasiswa_buka_kelas_lms_otomatis_tandai_notif_terbaca(): void
@@ -369,7 +373,7 @@ class NotificationTest extends TestCase
             ])
             ->assertSessionHas('success');
 
-        Notification::assertSentTo($admin, \App\Notifications\KrsBaruAdmin::class);
+        Notification::assertSentTo($admin, KrsBaruAdmin::class);
     }
 
     public function test_buat_kurikulum_mengirim_notif_ke_admin(): void
@@ -410,6 +414,6 @@ class NotificationTest extends TestCase
             ])
             ->assertSessionHas('success');
 
-        Notification::assertSentTo($admin, \App\Notifications\KurikulumBaruAdmin::class);
+        Notification::assertSentTo($admin, KurikulumBaruAdmin::class);
     }
 }

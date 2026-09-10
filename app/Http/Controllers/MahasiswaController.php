@@ -225,11 +225,13 @@ class MahasiswaController extends Controller
 
             if ($nim === '' || $nama === '' || $kodeProdi === '' || $angkatan === '') {
                 $skipped[] = "Baris {$rowNum}: Data tidak lengkap (nim, nama, kode_prodi, dan angkatan wajib diisi).";
+
                 continue;
             }
 
             if (! preg_match('/^\d{4}$/', $angkatan)) {
                 $skipped[] = "Baris {$rowNum}: Tahun angkatan ({$angkatan}) harus 4 digit angka.";
+
                 continue;
             }
 
@@ -239,12 +241,14 @@ class MahasiswaController extends Controller
 
             if (Mahasiswa::where('nim', $nim)->exists()) {
                 $skipped[] = "Baris {$rowNum}: NIM {$nim} sudah terdaftar.";
+
                 continue;
             }
 
             $emailMhs = $this->emailUntukNim($nim);
             if (User::where('email', $emailMhs)->exists()) {
                 $skipped[] = "Baris {$rowNum}: Akun email login {$emailMhs} sudah terdaftar.";
+
                 continue;
             }
 
@@ -253,6 +257,7 @@ class MahasiswaController extends Controller
                 $prodi = ProgramStudi::whereRaw('UPPER(nama_prodi) = ?', [$kodeProdi])->first();
                 if (! $prodi) {
                     $skipped[] = "Baris {$rowNum}: Kode program studi '{$kodeProdi}' tidak ditemukan.";
+
                     continue;
                 }
             }
@@ -288,7 +293,8 @@ class MahasiswaController extends Controller
 
         $msg = "Berhasil mengimpor {$imported} data mahasiswa.";
         if (! empty($skipped)) {
-            $msg .= ' ' . count($skipped) . ' baris dilewati.';
+            $msg .= ' '.count($skipped).' baris dilewati.';
+
             return back()->with('success', $msg)->with('import_warnings', $skipped);
         }
 

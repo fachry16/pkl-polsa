@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+
 class UserController extends Controller
 {
     public function index()
@@ -83,7 +85,7 @@ class UserController extends Controller
             $jabatan = 'Dosen';
             foreach ($roles as $r) {
                 if ($r !== 'dosen' && $r !== 'admin' && $r !== 'mahasiswa') {
-                    $roleModel = \App\Models\Role::where('kode', $r)->first();
+                    $roleModel = Role::where('kode', $r)->first();
                     $jabatan = $roleModel ? $roleModel->nama : ucfirst($r);
                     break;
                 }

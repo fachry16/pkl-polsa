@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\AuthorizesRps;
 use App\Models\Dosen;
 use App\Models\MataKuliah;
 use App\Models\Rps;
+use App\Models\User;
 use App\Notifications\RpsDiajukan;
 use App\Notifications\RpsDirevisi;
 use App\Notifications\RpsDisetujui;
@@ -254,7 +255,7 @@ class RpsController extends Controller
             }
         }
 
-        $adminUsers = \App\Models\User::where('role', 'admin')->orWhereJsonContains('roles', 'admin')->get();
+        $adminUsers = User::where('role', 'admin')->orWhereJsonContains('roles', 'admin')->get();
         foreach ($adminUsers as $admin) {
             if ($admin->id !== auth()->id()) {
                 $admin->notify(new RpsDisetujui($rps, $penyetuju));

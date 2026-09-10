@@ -47,4 +47,3 @@ class LmsMateri extends Model
         return $this->created_at ? $this->created_at->addHours(24)->isFuture() : false;
     }
 }
-

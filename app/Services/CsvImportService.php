@@ -52,6 +52,7 @@ class CsvImportService
         $firstLine = fgets($handle);
         if ($firstLine === false) {
             fclose($handle);
+
             return [];
         }
 

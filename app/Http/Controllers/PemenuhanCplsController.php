@@ -16,7 +16,7 @@ class PemenuhanCplsController extends Controller
      */
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $cpls = $kurikulum->cpls()
             ->orderBy('kode_cpl')
             ->get();

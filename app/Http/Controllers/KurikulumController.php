@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
 use App\Models\ProgramStudi;
+use App\Models\User;
+use App\Notifications\KurikulumBaruAdmin;
 use Illuminate\Http\Request;
 
 class KurikulumController extends Controller
@@ -39,7 +41,7 @@ class KurikulumController extends Controller
 
         if ($user->isAdmin()) {
             $user->unreadNotifications()
-                ->where('type', \App\Notifications\KurikulumBaruAdmin::class)
+                ->where('type', KurikulumBaruAdmin::class)
                 ->where('data->url', route('program-studi.kurikulum', $programStudi->id))
                 ->update(['read_at' => now()]);
         }
@@ -93,10 +95,10 @@ class KurikulumController extends Controller
         ]);
 
         $pembuat = auth()->user()->name ?? 'User';
-        $adminUsers = \App\Models\User::where('role', 'admin')->orWhereJsonContains('roles', 'admin')->get();
+        $adminUsers = User::where('role', 'admin')->orWhereJsonContains('roles', 'admin')->get();
         foreach ($adminUsers as $admin) {
             if ($admin->id !== auth()->id()) {
-                $admin->notify(new \App\Notifications\KurikulumBaruAdmin($kurikulum, $pembuat));
+                $admin->notify(new KurikulumBaruAdmin($kurikulum, $pembuat));
             }
         }
 
@@ -209,7 +211,7 @@ class KurikulumController extends Controller
     {
         $this->authorizeKurikulumRead($kurikulum);
 
-        if ($kurikulum->status === 'Arsip') {
+        if ($kurikulum->status === 'Arsip' && ! auth()->user()->isDirektur()) {
             return back()->with(
                 'error',
                 'Kurikulum harus diaktifkan terlebih dahulu.'

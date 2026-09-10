@@ -194,11 +194,17 @@
         </div>
     </a>
 
+
 </div>
 
 <div class="mt-4">
-    <a href="{{ route('program-studi.kurikulum', $kurikulum->program_studi_id) }}"
-       class="btn btn-secondary">Kembali</a>
+    @if(auth()->user()->isDirektur())
+        <a href="{{ route('monitoring.kurikulum') }}"
+           class="btn btn-secondary">Kembali</a>
+    @else
+        <a href="{{ route('program-studi.kurikulum', $kurikulum->program_studi_id) }}"
+           class="btn btn-secondary">Kembali</a>
+    @endif
 </div>
 
 @endsection

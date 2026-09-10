@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Dosen;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\CsvImportService;
 use Illuminate\Http\Request;
@@ -76,7 +77,7 @@ class DosenController extends Controller
         $jabatan = 'Dosen';
         foreach ($roles as $r) {
             if ($r !== 'dosen' && $r !== 'admin' && $r !== 'mahasiswa') {
-                $roleModel = \App\Models\Role::where('kode', $r)->first();
+                $roleModel = Role::where('kode', $r)->first();
                 $jabatan = $roleModel ? $roleModel->nama : ucfirst($r);
                 break;
             }
@@ -172,7 +173,7 @@ class DosenController extends Controller
         $jabatan = 'Dosen';
         foreach ($roles as $r) {
             if ($r !== 'dosen' && $r !== 'admin' && $r !== 'mahasiswa') {
-                $roleModel = \App\Models\Role::where('kode', $r)->first();
+                $roleModel = Role::where('kode', $r)->first();
                 $jabatan = $roleModel ? $roleModel->nama : ucfirst($r);
                 break;
             }
@@ -261,21 +262,25 @@ class DosenController extends Controller
 
             if ($nama === '' || $nidn === '' || $email === '' || $kodeProdi === '') {
                 $skipped[] = "Baris {$rowNum}: Data tidak lengkap (nama, nidn, email, dan kode_prodi wajib diisi).";
+
                 continue;
             }
 
             if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $skipped[] = "Baris {$rowNum}: Format email ({$email}) tidak valid.";
+
                 continue;
             }
 
             if (Dosen::where('nidn', $nidn)->exists()) {
                 $skipped[] = "Baris {$rowNum}: NIDN {$nidn} sudah terdaftar.";
+
                 continue;
             }
 
             if (User::where('email', $email)->exists()) {
                 $skipped[] = "Baris {$rowNum}: Email {$email} sudah digunakan akun lain.";
+
                 continue;
             }
 
@@ -284,6 +289,7 @@ class DosenController extends Controller
                 $prodi = ProgramStudi::whereRaw('UPPER(nama_prodi) = ?', [$kodeProdi])->first();
                 if (! $prodi) {
                     $skipped[] = "Baris {$rowNum}: Kode program studi '{$kodeProdi}' tidak ditemukan.";
+
                     continue;
                 }
             }
@@ -309,7 +315,8 @@ class DosenController extends Controller
 
         $msg = "Berhasil mengimpor {$imported} data dosen.";
         if (! empty($skipped)) {
-            $msg .= ' ' . count($skipped) . ' baris dilewati.';
+            $msg .= ' '.count($skipped).' baris dilewati.';
+
             return back()->with('success', $msg)->with('import_warnings', $skipped);
         }
 

@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Models\LmsPengumuman;
 use App\Models\Pengampu;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 class PengumumanBaru extends Notification

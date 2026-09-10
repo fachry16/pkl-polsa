@@ -12,6 +12,7 @@ use App\Models\ProgramStudi;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class LmsPengumumanTest extends TestCase
@@ -172,7 +173,7 @@ class LmsPengumumanTest extends TestCase
     public function test_dosen_ditolak_mengedit_pengumuman_setelah_30_menit(): void
     {
         $data = $this->buatData();
-        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 2, 10, 0, 0));
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 0, 0));
 
         $pengumuman = LmsPengumuman::create([
             'pengampu_id' => $data['pengampu']->id,
@@ -182,7 +183,7 @@ class LmsPengumumanTest extends TestCase
         ]);
 
         // Maju 35 menit
-        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 2, 10, 35, 0));
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 35, 0));
 
         $this->actingAs($data['userDosen'])
             ->get(route('lms.pengumuman.edit', [$data['pengampu']->id, $pengumuman->id]))
@@ -197,13 +198,13 @@ class LmsPengumumanTest extends TestCase
             ->assertRedirect(route('lms.pengumuman.index', $data['pengampu']->id))
             ->assertSessionHas('toast_error');
 
-        \Illuminate\Support\Carbon::setTestNow();
+        Carbon::setTestNow();
     }
 
     public function test_dosen_ditolak_menghapus_pengumuman_setelah_24_jam(): void
     {
         $data = $this->buatData();
-        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 2, 10, 0, 0));
+        Carbon::setTestNow(Carbon::create(2026, 9, 2, 10, 0, 0));
 
         $pengumuman = LmsPengumuman::create([
             'pengampu_id' => $data['pengampu']->id,
@@ -213,7 +214,7 @@ class LmsPengumumanTest extends TestCase
         ]);
 
         // Maju 25 jam
-        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::create(2026, 9, 3, 11, 0, 0));
+        Carbon::setTestNow(Carbon::create(2026, 9, 3, 11, 0, 0));
 
         $this->actingAs($data['userDosen'])
             ->delete(route('lms.pengumuman.destroy', [$data['pengampu']->id, $pengumuman->id]))
@@ -221,7 +222,7 @@ class LmsPengumumanTest extends TestCase
 
         $this->assertDatabaseHas('lms_pengumumans', ['id' => $pengumuman->id]);
 
-        \Illuminate\Support\Carbon::setTestNow();
+        Carbon::setTestNow();
     }
 
     public function test_dosen_lain_tidak_dapat_mengelola_pengumuman(): void

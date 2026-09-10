@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Assessment extends Model
 {
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_DINILAI = 'dinilai';
+
     public const STATUS_FINAL = 'final';
 
     protected $fillable = [

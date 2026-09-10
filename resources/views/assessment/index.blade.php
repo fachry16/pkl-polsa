@@ -10,6 +10,8 @@
     Pemantauan capaian CPMK, nilai mata kuliah, dan capaian CPL mahasiswa. Input nilai dilakukan oleh dosen melalui halaman Kelas.
 </p>
 
+@include('assessment._nav', ['current' => 'monitoring'])
+
 @if(session('success'))
 <div class="alert alert-success mb-3">
     {{ session('success') }}

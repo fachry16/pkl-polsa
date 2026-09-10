@@ -7,24 +7,20 @@ use App\Models\LmsTugas;
 use App\Models\Pengampu;
 use App\Models\Rps;
 use App\Models\RpsTugas;
-use App\Notifications\TugasBaru;
 use App\Rules\LmsFileMime;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class RpsTugasController extends Controller
 {
     use AuthorizesRps;
 
-    /**
-     * Menampilkan daftar rancangan tugas dan latihan.
-     */
     public function index(Rps $rps)
     {
         $this->authorizeRpsModel($rps);
 
         $tugas = $rps->tugas()
+            ->withCount('lmsTugas')
             ->orderBy('minggu_topik')
             ->paginate(16);
 
@@ -34,9 +30,6 @@ class RpsTugasController extends Controller
         return view('rps-tugas.index', compact('rps', 'tugas', 'pertemuans', 'pengampuKelas'));
     }
 
-    /**
-     * Form tambah rancangan tugas.
-     */
     public function create(Rps $rps)
     {
         $this->authorizeRpsModel($rps);
@@ -44,9 +37,6 @@ class RpsTugasController extends Controller
         return view('rps-tugas.create', compact('rps'));
     }
 
-    /**
-     * Simpan rancangan tugas.
-     */
     public function store(Request $request, Rps $rps)
     {
         $this->authorizeRpsModel($rps);
@@ -85,16 +75,14 @@ class RpsTugasController extends Controller
             $data['file_soal'] = $request->file('file')->store('lms/tugas', 'public');
         }
 
-        RpsTugas::create($data);
+        $tugas = RpsTugas::create($data);
+        $synced = $this->syncToPengampu($rps, $tugas);
 
         return redirect()
             ->route('rps.tugas.index', $rps->id)
-            ->with('success', 'Rancangan tugas berhasil ditambahkan.');
+            ->with('success', "Rancangan tugas berhasil ditambahkan & tersinkron ke {$synced} kelas LMS.");
     }
 
-    /**
-     * Form edit.
-     */
     public function edit(Rps $rps, RpsTugas $tugas)
     {
         $this->authorizeRpsModel($rps);
@@ -102,9 +90,6 @@ class RpsTugasController extends Controller
         return view('rps-tugas.edit', compact('rps', 'tugas'));
     }
 
-    /**
-     * Update rancangan tugas.
-     */
     public function update(Request $request, Rps $rps, RpsTugas $tugas)
     {
         $this->authorizeRpsModel($rps);
@@ -148,25 +133,10 @@ class RpsTugasController extends Controller
         $oldTitle = $tugas->getOriginal('nama_tugas');
         $tugas->update($data);
 
-        $instruksiArr = [];
-        if ($tugas->penugasan) {
-            $instruksiArr[] = "Penugasan: " . $tugas->penugasan;
-        }
-        if ($tugas->ruang_lingkup) {
-            $instruksiArr[] = "Ruang Lingkup: " . $tugas->ruang_lingkup;
-        }
-        if ($tugas->cara_pengerjaan) {
-            $instruksiArr[] = "Cara Pengerjaan: " . $tugas->cara_pengerjaan;
-        }
-        if ($tugas->luaran_tugas) {
-            $instruksiArr[] = "Luaran Tugas: " . $tugas->luaran_tugas;
-        }
-
-        $instruksiText = implode("\n\n", $instruksiArr) ?: ($tugas->nama_tugas ?? 'Tugas RPS');
+        $instruksiText = $this->buildInstruksi($tugas);
         $deadline = $tugas->deadline ?? now()->addDays(7);
         $bobot = $tugas->bobot_nilai ?? 100;
 
-        // Auto-update seluruh LMS Tugas yang terhubung dengan RPS Tugas ini
         LmsTugas::where('rps_tugas_id', $tugas->id)
             ->orWhere(function ($query) use ($oldTitle, $rps) {
                 $query->whereNull('rps_tugas_id')
@@ -184,17 +154,18 @@ class RpsTugasController extends Controller
                 'bobot_nilai' => $bobot,
             ]);
 
+        $synced = $this->syncToPengampu($rps, $tugas);
+
         return redirect()
             ->route('rps.tugas.index', $rps->id)
-            ->with('success', 'Rancangan tugas berhasil diperbarui.');
+            ->with('success', "Rancangan tugas berhasil diperbarui & tersinkron ke {$synced} kelas LMS.");
     }
 
-    /**
-     * Hapus rancangan tugas.
-     */
     public function destroy(Rps $rps, RpsTugas $tugas)
     {
         $this->authorizeRpsModel($rps);
+
+        LmsTugas::where('rps_tugas_id', $tugas->id)->update(['is_active' => false]);
 
         if ($tugas->file_soal) {
             Storage::disk('public')->delete($tugas->file_soal);
@@ -204,59 +175,51 @@ class RpsTugasController extends Controller
 
         return redirect()
             ->route('rps.tugas.index', $rps->id)
-            ->with('success', 'Rancangan tugas berhasil dihapus.');
+            ->with('success', 'Rancangan tugas berhasil dihapus & tugas LMS terkait dinonaktifkan.');
     }
 
-    /**
-     * Upload / Konfirmasi rancangan tugas dari RPS ke seluruh kelas LMS sebagai Draf.
-     */
     public function uploadKeLms(Request $request, Rps $rps, RpsTugas $tugas)
     {
         $this->authorizeRpsModel($rps);
 
-        $pengampuKelas = $this->pengampuKelas($rps);
+        $synced = $this->syncToPengampu($rps, $tugas);
 
-        if ($pengampuKelas->isEmpty()) {
+        if ($synced === 0) {
             return redirect()
                 ->route('rps.tugas.index', $rps->id)
-                ->with('error', 'Belum ada kelas LMS (pengampu) yang Anda ampu untuk mata kuliah ini.');
+                ->with('success', 'Tugas RPS sudah pernah diunggah ke seluruh kelas LMS.');
         }
 
-        $mingguNo = null;
-        if ($tugas->minggu_topik && preg_match('/\d+/', $tugas->minggu_topik, $matches)) {
-            $mingguNo = (int) $matches[0];
+        return redirect()
+            ->route('rps.tugas.index', $rps->id)
+            ->with('success', "Rancangan tugas berhasil diunggah ke {$synced} kelas LMS sebagai Draf. Silakan klik \"Tugaskan\" pada kelas LMS untuk mengaktifkan tugas.");
+    }
+
+    protected function pengampuKelas(Rps $rps)
+    {
+        return Pengampu::where('mata_kuliah_id', $rps->mata_kuliah_id)
+            ->with(['tahunAkademik', 'dosen.user'])
+            ->orderBy('kelas')
+            ->get();
+    }
+
+    private function syncToPengampu(Rps $rps, RpsTugas $tugas): int
+    {
+        $pengampus = $this->pengampuKelas($rps);
+
+        if ($pengampus->isEmpty()) {
+            return 0;
         }
 
-        $pertemuan = $mingguNo
-            ? $rps->pertemuans()->where('minggu', $mingguNo)->first()
-            : null;
-
-        $instruksiArr = [];
-        if ($tugas->penugasan) {
-            $instruksiArr[] = "Penugasan: " . $tugas->penugasan;
-        }
-        if ($tugas->ruang_lingkup) {
-            $instruksiArr[] = "Ruang Lingkup: " . $tugas->ruang_lingkup;
-        }
-        if ($tugas->cara_pengerjaan) {
-            $instruksiArr[] = "Cara Pengerjaan: " . $tugas->cara_pengerjaan;
-        }
-        if ($tugas->luaran_tugas) {
-            $instruksiArr[] = "Luaran Tugas: " . $tugas->luaran_tugas;
-        }
-
-        $instruksiText = implode("\n\n", $instruksiArr) ?: ($tugas->nama_tugas ?? 'Tugas RPS');
+        $pertemuan = $this->resolvePertemuan($rps, $tugas);
+        $instruksiText = $this->buildInstruksi($tugas);
         $deadline = $tugas->deadline ?? now()->addDays(7);
         $bobot = $tugas->bobot_nilai ?? 100;
-
         $createdCount = 0;
 
-        foreach ($pengampuKelas as $pengampu) {
+        foreach ($pengampus as $pengampu) {
             $sudahAda = LmsTugas::where('pengampu_id', $pengampu->id)
-                ->where(function ($q) use ($tugas) {
-                    $q->where('rps_tugas_id', $tugas->id)
-                        ->orWhere('judul', $tugas->nama_tugas);
-                })
+                ->where('rps_tugas_id', $tugas->id)
                 ->exists();
 
             if (! $sudahAda) {
@@ -275,32 +238,34 @@ class RpsTugasController extends Controller
             }
         }
 
-        if ($createdCount === 0) {
-            return redirect()
-                ->route('rps.tugas.index', $rps->id)
-                ->with('success', 'Tugas RPS sudah pernah diunggah ke seluruh kelas LMS.');
-        }
-
-        return redirect()
-            ->route('rps.tugas.index', $rps->id)
-            ->with('success', "Rancangan tugas berhasil diunggah ke {$createdCount} kelas LMS sebagai Draf. Silakan klik \"Tugaskan\" pada kelas LMS untuk mengaktifkan tugas.");
+        return $createdCount;
     }
 
-    /**
-     * Daftar kelas (pengampu) milik dosen saat ini untuk mata kuliah RPS.
-     */
-    protected function pengampuKelas(Rps $rps)
+    private function resolvePertemuan(Rps $rps, RpsTugas $tugas)
     {
-        $dosen = Auth::user()->dosen;
-
-        $query = Pengampu::where('mata_kuliah_id', $rps->mata_kuliah_id);
-
-        if ($dosen && ! Auth::user()->isAdmin()) {
-            $query->where('dosen_id', $dosen->id);
+        if (! $tugas->minggu_topik || ! preg_match('/\d+/', $tugas->minggu_topik, $matches)) {
+            return null;
         }
 
-        return $query->with(['tahunAkademik'])
-            ->orderBy('kelas')
-            ->get();
+        return $rps->pertemuans()->where('minggu', (int) $matches[0])->first();
+    }
+
+    private function buildInstruksi(RpsTugas $tugas): string
+    {
+        $parts = [];
+        if ($tugas->penugasan) {
+            $parts[] = 'Penugasan: '.$tugas->penugasan;
+        }
+        if ($tugas->ruang_lingkup) {
+            $parts[] = 'Ruang Lingkup: '.$tugas->ruang_lingkup;
+        }
+        if ($tugas->cara_pengerjaan) {
+            $parts[] = 'Cara Pengerjaan: '.$tugas->cara_pengerjaan;
+        }
+        if ($tugas->luaran_tugas) {
+            $parts[] = 'Luaran Tugas: '.$tugas->luaran_tugas;
+        }
+
+        return implode("\n\n", $parts) ?: ($tugas->nama_tugas ?? 'Tugas RPS');
     }
 }

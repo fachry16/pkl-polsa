@@ -6,20 +6,23 @@ use App\Models\Assessment;
 use App\Models\AssessmentScore;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\EvaluasiKurikulum;
 use App\Models\Kurikulum;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\TahunAkademik;
 use App\Services\AssessmentCalculationService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class AssessmentController extends Controller
 {
     public function __construct(
         private AssessmentCalculationService $calc
-    ) {
-    }
+    ) {}
 
     /**
      * Dashboard ringkas Assessment OBE.
@@ -95,6 +98,7 @@ class AssessmentController extends Controller
                         ->where('mahasiswa_id', $mahasiswaId)
                         ->where('cpmk_id', $cpmkId)
                         ->delete();
+
                     continue;
                 }
 
@@ -187,6 +191,79 @@ class AssessmentController extends Controller
     }
 
     /**
+     * Evaluasi kurikulum: capaian CPL lintas MK, kontribusi MK per CPL, identifikasi CPMK lemah.
+     */
+    public function evaluasiKurikulum(Request $request)
+    {
+        $this->authorizeAssessmentRead();
+
+        $filters = $this->filters($request);
+        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik', 'pengampu.mahasiswas'])->get();
+        $drop = $this->filterDropdowns($filters);
+
+        if ($assessments->isEmpty()) {
+            return view('assessment.evaluasi-kurikulum', compact('filters', 'drop'))->with('evaluasi', null);
+        }
+
+        $cplSummary = $this->calc->cplSummary($assessments);
+        $mkSummaries = $assessments->map(fn ($a) => [
+            'assessment' => $a,
+            'mata_kuliah' => $a->pengampu->mataKuliah,
+            'summary' => $this->calc->mkSummary($a, $a->pengampu->mahasiswas),
+        ]);
+
+        $mkCplContribution = $this->buildMkCplContribution($mkSummaries, $cplSummary);
+        $cpmkLemah = $this->buildCpmkLemah($mkSummaries);
+
+        $capaianValues = collect($cplSummary)->pluck('avg_capaian')->filter(fn ($v) => $v !== null);
+        $evaluasi = [
+            'cpl_summary' => $cplSummary,
+            'mk_summaries' => $mkSummaries,
+            'mk_cpl_contribution' => $mkCplContribution,
+            'cpmk_lemah' => $cpmkLemah,
+            'mk_terassess' => $mkSummaries->count(),
+            'rata_rata_kurikulum' => $capaianValues->isEmpty() ? null : $capaianValues->avg(),
+            'cpl_tercapai' => collect($cplSummary)->filter(fn ($r) => ($r['avg_capaian'] ?? 0) >= 70)->count(),
+            'cpl_belum' => collect($cplSummary)->filter(fn ($r) => ($r['avg_capaian'] ?? 0) < 70 || $r['avg_capaian'] === null)->count(),
+            'total_cpl' => count($cplSummary),
+        ];
+
+        return view('assessment.evaluasi-kurikulum', compact('filters', 'drop', 'evaluasi'));
+    }
+
+    /**
+     * Daftar evaluasi kurikulum (CRUD) dalam konteks assessment.
+     */
+    public function evaluasiList(Request $request)
+    {
+        $this->authorizeAssessmentRead();
+
+        $filters = $this->filters($request);
+        $drop = $this->filterDropdowns($filters);
+
+        $query = EvaluasiKurikulum::query()
+            ->with(['kurikulum.programStudi', 'tahunAkademik', 'creator'])
+            ->orderByDesc('created_at');
+
+        if ($filters['kurikulum_id']) {
+            $query->where('kurikulum_id', $filters['kurikulum_id']);
+        } elseif ($filters['program_studi_id']) {
+            $query->whereHas('kurikulum', fn ($q) => $q->where('program_studi_id', $filters['program_studi_id']));
+        }
+
+        $user = auth()->user();
+        if (! $user->isAdmin() && ! $user->isDirektur()) {
+            if ($user->isKaprodi()) {
+                $query->whereHas('kurikulum', fn ($q) => $q->where('program_studi_id', $user->dosen?->program_studi_id));
+            }
+        }
+
+        $evaluasis = $query->get();
+
+        return view('assessment.evaluasi-list', compact('filters', 'drop', 'evaluasis'));
+    }
+
+    /**
      * Export rekap (excel / pdf / print).
      */
     public function export(Request $request)
@@ -205,7 +282,8 @@ class AssessmentController extends Controller
         }
 
         if ($format === 'pdf') {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('assessment.export', compact('rekap', 'title', 'filters'));
+            $pdf = Pdf::loadView('assessment.export', compact('rekap', 'title', 'filters'));
+
             return $pdf->download('rekap-asesmen-obe'.now()->format('YmdHis').'.pdf');
         }
 
@@ -215,7 +293,7 @@ class AssessmentController extends Controller
     /**
      * Kumpulan assessment sesuai filter & hak akses.
      */
-    protected function scopedAssessments(array $filters, array $with = []): \Illuminate\Database\Eloquent\Builder
+    protected function scopedAssessments(array $filters, array $with = []): Builder
     {
         $user = auth()->user();
 
@@ -260,7 +338,7 @@ class AssessmentController extends Controller
     /**
      * Kumpulan pengampu sesuai filter & hak akses.
      */
-    protected function scopedPengampus(array $filters): \Illuminate\Database\Eloquent\Builder
+    protected function scopedPengampus(array $filters): Builder
     {
         $user = auth()->user();
 
@@ -337,12 +415,13 @@ class AssessmentController extends Controller
         return compact('tahunAkademiks', 'programStudis', 'kurikulums', 'mataKuliahs', 'kelasList', 'semesters');
     }
 
-    protected function scoreRules(\Illuminate\Support\Collection $config): array
+    protected function scoreRules(Collection $config): array
     {
         $rules = [];
         foreach ($config as $cpmkId => $meta) {
             $rules["scores.*.$cpmkId"] = 'nullable|numeric|min:0|max:'.$meta['bobot'];
         }
+
         return $rules;
     }
 
@@ -368,19 +447,21 @@ class AssessmentController extends Controller
 
         if ($user->isKaprodi()) {
             abort_unless((int) $user->dosen?->program_studi_id === (int) ($pengampu->mataKuliah->kurikulum->program_studi_id ?? 0), 403);
+
             return;
         }
 
         abort_unless((int) $user->dosen?->id === (int) $pengampu->dosen_id, 403);
     }
 
-    protected function dashboardKpis(\Illuminate\Support\Collection $assessments): array
+    protected function dashboardKpis(Collection $assessments): array
     {
         $scores = $assessments->flatMap->scores;
 
         $mahasiswaCount = $assessments->flatMap(function ($a) {
             $scoreIds = $a->scores->pluck('mahasiswa_id');
             $pengampuIds = $a->pengampu ? $a->pengampu->mahasiswas->pluck('id') : collect();
+
             return $scoreIds->concat($pengampuIds);
         })->unique()->filter()->count();
         $mkCount = $assessments->pluck('pengampu.mata_kuliah_id')->unique()->count();
@@ -417,14 +498,114 @@ class AssessmentController extends Controller
                     continue;
                 }
                 $c = ($nilai / $maxMk) * 100;
-                if ($c < 60) { $distribusi['<60']++; }
-                elseif ($c < 70) { $distribusi['60-69']++; }
-                elseif ($c < 80) { $distribusi['70-79']++; }
-                else { $distribusi['80-100']++; }
+                if ($c < 60) {
+                    $distribusi['<60']++;
+                } elseif ($c < 70) {
+                    $distribusi['60-69']++;
+                } elseif ($c < 80) {
+                    $distribusi['70-79']++;
+                } else {
+                    $distribusi['80-100']++;
+                }
             }
         }
 
         return compact('mahasiswaCount', 'mkCount', 'cpmkScored', 'cpls', 'avgCpl', 'tertinggi', 'terendah', 'distribusi', 'cplCapaian');
+    }
+
+    /**
+     * Kontribusi rata-rata capaian per MK ke CPL-nya.
+     */
+    protected function buildMkCplContribution(Collection $mkSummaries, array $cplSummary): array
+    {
+        $result = [];
+
+        foreach ($mkSummaries as $item) {
+            $summary = $item['summary'];
+            $mk = $item['mata_kuliah'];
+
+            $rows = $summary['rows'];
+            $totalMahasiswa = count($rows);
+            if ($totalMahasiswa === 0) {
+                continue;
+            }
+
+            $perCpl = [];
+            foreach ($summary['config'] as $cpmkId => $meta) {
+                $cplId = $meta['cpl']->id;
+                $capaianValues = collect($rows)
+                    ->map(fn ($r) => $r['scores'][$cpmkId]['nilai'] ?? null)
+                    ->filter(fn ($v) => $v !== null)
+                    ->values();
+
+                $avgNilai = $capaianValues->isEmpty() ? null : $capaianValues->avg();
+                $bobot = $meta['bobot'];
+                $perCpl[$cplId] = [
+                    'cpl_kode' => $meta['cpl']->kode_cpl,
+                    'cpmk_kode' => $meta['cpmk']->kode_cpmk,
+                    'bobot' => $bobot,
+                    'avg_nilai' => $avgNilai,
+                    'capaian' => $bobot > 0 && $avgNilai !== null ? ($avgNilai / $bobot) * 100 : null,
+                ];
+            }
+
+            $maxMk = (float) $summary['max'];
+            $avgCapaian = collect($rows)->pluck('capaian')->filter(fn ($v) => $v !== null)->avg();
+
+            $result[] = [
+                'mata_kuliah' => $mk,
+                'max_mk' => $maxMk,
+                'avg_capaian' => $avgCapaian,
+                'per_cpl' => $perCpl,
+            ];
+        }
+
+        usort($result, fn ($a, $b) => ($a['avg_capaian'] ?? 0) <=> ($b['avg_capaian'] ?? 0));
+
+        return $result;
+    }
+
+    /**
+     * CPMK-CPMK yang capaian avg-nya di bawah threshold.
+     */
+    protected function buildCpmkLemah(Collection $mkSummaries, float $threshold = 70): array
+    {
+        $cpmkData = [];
+
+        foreach ($mkSummaries as $item) {
+            $summary = $item['summary'];
+            $mk = $item['mata_kuliah'];
+            $rows = $summary['rows'];
+
+            foreach ($summary['config'] as $cpmkId => $meta) {
+                $capaianValues = collect($rows)
+                    ->map(fn ($r) => $r['scores'][$cpmkId]['nilai'] ?? null)
+                    ->filter(fn ($v) => $v !== null);
+
+                if ($capaianValues->isEmpty()) {
+                    continue;
+                }
+
+                $avg = $capaianValues->avg();
+                $bobot = $meta['bobot'];
+                $capaian = $bobot > 0 ? ($avg / $bobot) * 100 : null;
+
+                if ($capaian !== null && $capaian < $threshold) {
+                    $cpmkData[] = [
+                        'mata_kuliah' => $mk,
+                        'cpmk' => $meta['cpmk'],
+                        'cpl' => $meta['cpl'],
+                        'bobot' => $bobot,
+                        'avg_nilai' => $avg,
+                        'capaian' => $capaian,
+                    ];
+                }
+            }
+        }
+
+        usort($cpmkData, fn ($a, $b) => $a['capaian'] <=> $b['capaian']);
+
+        return $cpmkData;
     }
 
     protected function exportExcel(?array $rekap, string $title)

@@ -12,7 +12,7 @@ class BahanKajianMataKuliahController extends Controller
 
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $mataKuliahs = $kurikulum->mataKuliahs()
             ->orderBy('kode')
             ->orderBy('nama')

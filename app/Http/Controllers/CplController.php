@@ -16,7 +16,7 @@ class CplController extends Controller
      */
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $cpls = $kurikulum->cpls()->latest()->paginate(10);
 
         return view('cpl.index', compact('kurikulum', 'cpls'));

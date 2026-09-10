@@ -6,7 +6,7 @@
     Profil Lulusan
 </h1>
 
-@if(auth()->user()->role !== 'dosen')
+@if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
 <div class="mb-5">
 
     <a href="{{ route(
@@ -56,7 +56,7 @@
             <td>
 
                     <div class="flex gap-2">
-                        @if(auth()->user()->role !== 'dosen')
+                        @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                         <a href="{{ route('kurikulum.profil-lulusan.edit', [$kurikulum->id, $pl->id]) }}"
                            class="btn btn-warning btn-sm">
 

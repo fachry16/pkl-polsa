@@ -10,8 +10,8 @@ use App\Http\Controllers\CplPlController;
 use App\Http\Controllers\CpmkController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DosenController;
+use App\Http\Controllers\EvaluasiKurikulumController;
 use App\Http\Controllers\GoogleDriveSettingController;
-use App\Http\Controllers\KhsController;
 use App\Http\Controllers\KrsController;
 use App\Http\Controllers\KurikulumController;
 use App\Http\Controllers\LmsAbsensiController;
@@ -21,17 +21,20 @@ use App\Http\Controllers\LmsForumController;
 use App\Http\Controllers\LmsMahasiswaController;
 use App\Http\Controllers\LmsMateriController;
 use App\Http\Controllers\LmsPengumumanController;
+use App\Http\Controllers\LmsTopikKomentarController;
 use App\Http\Controllers\LmsTugasController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\MahasiswaTahunAkademikController;
 use App\Http\Controllers\MataKuliahController;
 use App\Http\Controllers\MetodeBobotPenilaianController;
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PemenuhanCplsController;
 use App\Http\Controllers\PengampuController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilLulusanController;
 use App\Http\Controllers\ProgramStudiController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RpsBentukEvaluasiController;
 use App\Http\Controllers\RpsController;
 use App\Http\Controllers\RpsPenilaianController;
@@ -73,6 +76,20 @@ Route::middleware(['auth'])->group(function () {
     )->name('dosen.self.riwayat');
 });
 
+/* Tahun Akademik — Admin + Kaprodi + Direktur (read-only index) */
+Route::middleware(['auth', 'role:admin,kaprodi,direktur'])->group(function () {
+
+    Route::get(
+        'tahun-akademik',
+        [TahunAkademikController::class, 'index']
+    )->name('tahun-akademik.index');
+
+    Route::get(
+        'tahun-akademik/{tahunAkademik}/mahasiswa',
+        [MahasiswaTahunAkademikController::class, 'index']
+    )->name('tahun-akademik.mahasiswa.index');
+});
+
 /* Master Data (Admin only) */
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
@@ -85,16 +102,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         'admin/setting/gdrive',
         [GoogleDriveSettingController::class, 'update']
     )->name('admin.setting.gdrive.update');
-
-    Route::get(
-        'tahun-akademik',
-        [TahunAkademikController::class, 'index']
-    )->name('tahun-akademik.index');
-
-    Route::get(
-        'tahun-akademik/{tahunAkademik}/mahasiswa',
-        [MahasiswaTahunAkademikController::class, 'index']
-    )->name('tahun-akademik.mahasiswa.index');
 
     Route::get(
         'program-studi',
@@ -176,7 +183,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     )->name('pengampu.kelas.mahasiswa.destroy');
 
     Route::resource('users', UserController::class);
-    Route::resource('roles', \App\Http\Controllers\RoleController::class);
+    Route::resource('roles', RoleController::class);
 });
 
 /* KRS — Admin, Kaprodi */
@@ -218,54 +225,6 @@ Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
     )->name('krs.mahasiswa-options');
 });
 
-/* KHS — Admin, Kaprodi, Direktur, Mahasiswa */
-Route::middleware(['auth'])->group(function () {
-    Route::get(
-        'khs',
-        [KhsController::class, 'index']
-    )->middleware('role:admin,kaprodi,direktur')->name('khs.index');
-
-    Route::post(
-        'khs/approve-all',
-        [KhsController::class, 'approveAll']
-    )->middleware('role:admin,kaprodi')->name('khs.approve-all');
-
-    Route::post(
-        'khs/{mahasiswa}/{tahunAkademik}/approve',
-        [KhsController::class, 'approve']
-    )->middleware('role:admin,kaprodi')->name('khs.approve');
-
-    Route::post(
-        'khs/{mahasiswa}/{tahunAkademik}/unapprove',
-        [KhsController::class, 'unapprove']
-    )->middleware('role:admin,kaprodi')->name('khs.unapprove');
-
-    Route::get(
-        'khs/cetak/pilih-mahasiswa',
-        [KhsController::class, 'cetakPilih']
-    )->middleware('role:admin,kaprodi,direktur')->name('khs.cetak-pilih');
-
-    Route::post(
-        'khs/cetak/pilih-mahasiswa',
-        [KhsController::class, 'pilihMahasiswa']
-    )->middleware('role:admin,kaprodi,direktur')->name('khs.pilih-mahasiswa');
-
-    Route::get(
-        'khs/self',
-        [KhsController::class, 'self']
-    )->name('khs.self');
-
-    Route::get(
-        'khs/cetak/{mahasiswa}',
-        [KhsController::class, 'cetak']
-    )->where(['mahasiswa' => '[0-9]+'])->name('khs.cetak');
-
-    Route::get(
-        'khs/cetak/{mahasiswa}/pdf',
-        [KhsController::class, 'cetakPdf']
-    )->where(['mahasiswa' => '[0-9]+'])->name('khs.cetak-pdf');
-});
-
 /* Assessment OBE — capaian CPMK, MK, dan CPL */
 Route::middleware(['auth'])->group(function () {
 
@@ -283,6 +242,16 @@ Route::middleware(['auth'])->group(function () {
         'assessment/export',
         [AssessmentController::class, 'export']
     )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.export');
+
+    Route::get(
+        'assessment/evaluasi-kurikulum',
+        [AssessmentController::class, 'evaluasiKurikulum']
+    )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.evaluasi-kurikulum');
+
+    Route::get(
+        'assessment/evaluasi',
+        [AssessmentController::class, 'evaluasiList']
+    )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.evaluasi');
 
     Route::post(
         'assessment',
@@ -357,6 +326,72 @@ Route::middleware(['auth'])->group(function () {
         [MataKuliahController::class, 'struktur']
     )->name('kurikulum.struktur');
 
+    /* Kurikulum — read-only index (semua yang login, termasuk Direktur monitoring) */
+    Route::get(
+        'kurikulum/{kurikulum}/cpl',
+        [CplController::class, 'index']
+    )->name('kurikulum.cpl.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/cpmk',
+        [CpmkController::class, 'index']
+    )->name('kurikulum.cpmk.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/bahan-kajian',
+        [BahanKajianController::class, 'index']
+    )->name('kurikulum.bahan-kajian.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/profil-lulusan',
+        [ProfilLulusanController::class, 'index']
+    )->name('kurikulum.profil-lulusan.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/cpl-pl',
+        [CplPlController::class, 'index']
+    )->name('kurikulum.cpl-pl.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/bk-mk',
+        [BahanKajianMataKuliahController::class, 'index']
+    )->name('kurikulum.bk-mk.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/cpl-bk-mk',
+        [CplBkMkController::class, 'index']
+    )->name('kurikulum.cpl-bk-mk.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/cpl-cpmk-mk',
+        [CplCpmkMkController::class, 'index']
+    )->name('kurikulum.cpl-cpmk-mk.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/pemenuhan-cpl',
+        [PemenuhanCplsController::class, 'index']
+    )->name('kurikulum.pemenuhan-cpl.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/mata-kuliah',
+        [MataKuliahController::class, 'index']
+    )->name('kurikulum.mata-kuliah.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/metode-bobot-penilaian',
+        [MetodeBobotPenilaianController::class, 'index']
+    )->name('kurikulum.metode-bobot-penilaian.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk',
+        [RumusanNilaiAkhirMkController::class, 'index']
+    )->name('kurikulum.rumusan-nilai-akhir-mk.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl',
+        [RumusanNilaiAkhirCplController::class, 'index']
+    )->name('kurikulum.rumusan-nilai-akhir-cpl.index');
+
     /* Kurikulum management — Admin + Kaprodi */
     Route::middleware(['role:admin,kaprodi'])->group(function () {
 
@@ -398,11 +433,6 @@ Route::middleware(['auth'])->group(function () {
 
         /* CPL */
         Route::get(
-            'kurikulum/{kurikulum}/cpl',
-            [CplController::class, 'index']
-        )->name('kurikulum.cpl.index');
-
-        Route::get(
             'kurikulum/{kurikulum}/cpl/create',
             [CplController::class, 'create']
         )->name('kurikulum.cpl.create');
@@ -428,11 +458,6 @@ Route::middleware(['auth'])->group(function () {
         )->name('kurikulum.cpl.destroy');
 
         /* CPMK */
-        Route::get(
-            'kurikulum/{kurikulum}/cpmk',
-            [CpmkController::class, 'index']
-        )->name('kurikulum.cpmk.index');
-
         Route::get(
             'kurikulum/{kurikulum}/cpmk/create',
             [CpmkController::class, 'create']
@@ -460,11 +485,6 @@ Route::middleware(['auth'])->group(function () {
 
         /* Bahan Kajian */
         Route::get(
-            'kurikulum/{kurikulum}/bahan-kajian',
-            [BahanKajianController::class, 'index']
-        )->name('kurikulum.bahan-kajian.index');
-
-        Route::get(
             'kurikulum/{kurikulum}/bahan-kajian/create',
             [BahanKajianController::class, 'create']
         )->name('kurikulum.bahan-kajian.create');
@@ -491,11 +511,6 @@ Route::middleware(['auth'])->group(function () {
 
         /* Profil Lulusan */
         Route::get(
-            'kurikulum/{kurikulum}/profil-lulusan',
-            [ProfilLulusanController::class, 'index']
-        )->name('kurikulum.profil-lulusan.index');
-
-        Route::get(
             'kurikulum/{kurikulum}/profil-lulusan/create',
             [ProfilLulusanController::class, 'create']
         )->name('kurikulum.profil-lulusan.create');
@@ -521,21 +536,11 @@ Route::middleware(['auth'])->group(function () {
         )->name('kurikulum.profil-lulusan.destroy');
 
         /* Matriks Mapping */
-        Route::get(
-            'kurikulum/{kurikulum}/cpl-pl',
-            [CplPlController::class, 'index']
-        )->name('kurikulum.cpl-pl.index');
-
         Route::match(
             ['PUT', 'POST'],
             'kurikulum/{kurikulum}/cpl-pl',
             [CplPlController::class, 'update']
         )->name('kurikulum.cpl-pl.update');
-
-        Route::get(
-            'kurikulum/{kurikulum}/bk-mk',
-            [BahanKajianMataKuliahController::class, 'index']
-        )->name('kurikulum.bk-mk.index');
 
         Route::match(
             ['PUT', 'POST'],
@@ -543,40 +548,20 @@ Route::middleware(['auth'])->group(function () {
             [BahanKajianMataKuliahController::class, 'update']
         )->name('kurikulum.bk-mk.update');
 
-        Route::get(
-            'kurikulum/{kurikulum}/cpl-bk-mk',
-            [CplBkMkController::class, 'index']
-        )->name('kurikulum.cpl-bk-mk.index');
-
         Route::post(
             'kurikulum/{kurikulum}/cpl-bk-mk',
             [CplBkMkController::class, 'store']
         )->name('kurikulum.cpl-bk-mk.store');
-
-        Route::get(
-            'kurikulum/{kurikulum}/cpl-cpmk-mk',
-            [CplCpmkMkController::class, 'index']
-        )->name('kurikulum.cpl-cpmk-mk.index');
 
         Route::post(
             'kurikulum/{kurikulum}/cpl-cpmk-mk',
             [CplCpmkMkController::class, 'store']
         )->name('kurikulum.cpl-cpmk-mk.store');
 
-        Route::get(
-            'kurikulum/{kurikulum}/pemenuhan-cpl',
-            [PemenuhanCplsController::class, 'index']
-        )->name('kurikulum.pemenuhan-cpl.index');
-
         Route::post(
             'kurikulum/{kurikulum}/pemenuhan-cpl',
             [PemenuhanCplsController::class, 'store']
         )->name('kurikulum.pemenuhan-cpl.store');
-
-        Route::get(
-            'kurikulum/{kurikulum}/mata-kuliah',
-            [MataKuliahController::class, 'index']
-        )->name('kurikulum.mata-kuliah.index');
 
         Route::get(
             'kurikulum/{kurikulum}/mata-kuliah/create',
@@ -605,11 +590,6 @@ Route::middleware(['auth'])->group(function () {
 
         /* Metode dan Bobot Penilaian */
         Route::get(
-            'kurikulum/{kurikulum}/metode-bobot-penilaian',
-            [MetodeBobotPenilaianController::class, 'index']
-        )->name('kurikulum.metode-bobot-penilaian.index');
-
-        Route::get(
             'kurikulum/{kurikulum}/metode-bobot-penilaian/create',
             [MetodeBobotPenilaianController::class, 'create']
         )->name('kurikulum.metode-bobot-penilaian.create');
@@ -635,11 +615,6 @@ Route::middleware(['auth'])->group(function () {
         )->name('kurikulum.metode-bobot-penilaian.destroy');
 
         /* Rumusan Nilai Akhir MK */
-        Route::get(
-            'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk',
-            [RumusanNilaiAkhirMkController::class, 'index']
-        )->name('kurikulum.rumusan-nilai-akhir-mk.index');
-
         Route::get(
             'kurikulum/{kurikulum}/rumusan-nilai-akhir-mk/create',
             [RumusanNilaiAkhirMkController::class, 'create']
@@ -667,11 +642,6 @@ Route::middleware(['auth'])->group(function () {
 
         /* Rumusan Nilai Akhir CPL */
         Route::get(
-            'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl',
-            [RumusanNilaiAkhirCplController::class, 'index']
-        )->name('kurikulum.rumusan-nilai-akhir-cpl.index');
-
-        Route::get(
             'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl/create',
             [RumusanNilaiAkhirCplController::class, 'create']
         )->name('kurikulum.rumusan-nilai-akhir-cpl.create');
@@ -695,6 +665,36 @@ Route::middleware(['auth'])->group(function () {
             'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl/{rumusanNilaiAkhirCpl}',
             [RumusanNilaiAkhirCplController::class, 'destroy']
         )->name('kurikulum.rumusan-nilai-akhir-cpl.destroy');
+
+        Route::get(
+            'kurikulum/{kurikulum}/evaluasi',
+            [EvaluasiKurikulumController::class, 'index']
+        )->name('kurikulum.evaluasi-kurikulum.index');
+
+        Route::get(
+            'kurikulum/{kurikulum}/evaluasi/create',
+            [EvaluasiKurikulumController::class, 'create']
+        )->name('kurikulum.evaluasi-kurikulum.create');
+
+        Route::post(
+            'kurikulum/{kurikulum}/evaluasi',
+            [EvaluasiKurikulumController::class, 'store']
+        )->name('kurikulum.evaluasi-kurikulum.store');
+
+        Route::get(
+            'kurikulum/{kurikulum}/evaluasi/{evaluasiKurikulum}/edit',
+            [EvaluasiKurikulumController::class, 'edit']
+        )->name('kurikulum.evaluasi-kurikulum.edit');
+
+        Route::put(
+            'kurikulum/{kurikulum}/evaluasi/{evaluasiKurikulum}',
+            [EvaluasiKurikulumController::class, 'update']
+        )->name('kurikulum.evaluasi-kurikulum.update');
+
+        Route::delete(
+            'kurikulum/{kurikulum}/evaluasi/{evaluasiKurikulum}',
+            [EvaluasiKurikulumController::class, 'destroy']
+        )->name('kurikulum.evaluasi-kurikulum.destroy');
 
     });
 
@@ -860,6 +860,26 @@ Route::middleware(['auth', 'role:direktur'])->group(function () {
         '/dashboard-direktur',
         [DashboardController::class, 'index']
     )->name('dashboard-direktur');
+
+    Route::get(
+        'monitoring/mahasiswa',
+        [MonitoringController::class, 'mahasiswa']
+    )->name('monitoring.mahasiswa');
+
+    Route::get(
+        'monitoring/dosen',
+        [MonitoringController::class, 'dosen']
+    )->name('monitoring.dosen');
+
+    Route::get(
+        'monitoring/kurikulum',
+        [MonitoringController::class, 'kurikulum']
+    )->name('monitoring.kurikulum');
+
+    Route::get(
+        'monitoring/kurikulum/{kurikulum}',
+        fn (string $kurikulum) => redirect()->route('kurikulum.detail', $kurikulum)
+    )->name('monitoring.kurikulum.show-legacy');
 });
 
 /* LMS */
@@ -890,8 +910,9 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::delete('/{pengampu}/tugas/{tugas}', [LmsTugasController::class, 'destroy'])->name('tugas.destroy');
     Route::post('/{pengampu}/tugas/{tugas}/tugaskan', [LmsTugasController::class, 'tugaskan'])->name('tugas.tugaskan');
 
-    Route::post('/{pengampu}/topik-komentar', [\App\Http\Controllers\LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
-    Route::delete('/{pengampu}/topik-komentar/{komentar}', [\App\Http\Controllers\LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
+    Route::post('/{pengampu}/topik-komentar', [LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
+    Route::patch('/{pengampu}/topik-komentar/{komentar}', [LmsTopikKomentarController::class, 'update'])->name('topik.komentar.update');
+    Route::delete('/{pengampu}/topik-komentar/{komentar}', [LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
 
     Route::patch('/submission/{submission}/nilai', [LmsTugasController::class, 'nilai'])->name('submission.nilai');
 
@@ -910,6 +931,8 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::get('/{pengampu}/rekap-nilai', [LmsTugasController::class, 'rekap'])->name('tugas.rekap');
     Route::post('/{pengampu}/rekap-nilai/komponen', [LmsTugasController::class, 'simpanKomponen'])->name('tugas.komponen');
     Route::post('/{pengampu}/hitung-ulang-nilai', [LmsTugasController::class, 'hitungUlangNilai'])->name('tugas.sync');
+    Route::post('/{pengampu}/instrumen-cpmk', [LmsTugasController::class, 'simpanInstrumenCpmk'])->name('tugas.instrumen-cpmk');
+    Route::delete('/{pengampu}/instrumen-cpmk/{instrumen}', [LmsTugasController::class, 'hapusInstrumenCpmk'])->name('tugas.instrumen-cpmk.hapus');
 
     Route::get('/{pengampu}/absensi', [LmsAbsensiController::class, 'index'])->name('absensi.index');
     Route::post('/{pengampu}/absensi', [LmsAbsensiController::class, 'bukaSesi'])->name('absensi.buka');
@@ -923,8 +946,9 @@ Route::middleware(['auth'])->prefix('mahasiswa')->name('mahasiswa.lms.')->group(
     Route::get('/kelas/{pengampu}', [LmsMahasiswaController::class, 'show'])->name('show');
     Route::get('/kelas/{pengampu}/materi/{materi}', [LmsMahasiswaController::class, 'showMateri'])->name('materi.show');
     Route::get('/kelas/{pengampu}/tugas/{tugas}', [LmsMahasiswaController::class, 'showTugas'])->name('tugas.show');
-    Route::post('/kelas/{pengampu}/topik-komentar', [\App\Http\Controllers\LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
-    Route::delete('/kelas/{pengampu}/topik-komentar/{komentar}', [\App\Http\Controllers\LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
+    Route::post('/kelas/{pengampu}/topik-komentar', [LmsTopikKomentarController::class, 'store'])->name('topik.komentar.store');
+    Route::patch('/kelas/{pengampu}/topik-komentar/{komentar}', [LmsTopikKomentarController::class, 'update'])->name('topik.komentar.update');
+    Route::delete('/kelas/{pengampu}/topik-komentar/{komentar}', [LmsTopikKomentarController::class, 'destroy'])->name('topik.komentar.destroy');
     Route::post('/kelas/{pengampu}/forum', [LmsMahasiswaController::class, 'storeForum'])->name('forum.store');
     Route::patch('/kelas/{pengampu}/forum/{diskusi}', [LmsMahasiswaController::class, 'updateForum'])->name('forum.update');
     Route::delete('/kelas/{pengampu}/forum/{diskusi}', [LmsMahasiswaController::class, 'destroyForum'])->name('forum.destroy');

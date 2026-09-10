@@ -13,7 +13,7 @@ class CpmkController extends Controller
 
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $cpmks = $kurikulum->cpmks()->latest()->paginate(10);
 
         return view('cpmk.index', compact('kurikulum', 'cpmks'));

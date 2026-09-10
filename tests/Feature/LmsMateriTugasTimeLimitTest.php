@@ -6,7 +6,6 @@ use App\Models\Dosen;
 use App\Models\Kurikulum;
 use App\Models\LmsMateri;
 use App\Models\LmsTugas;
-use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;

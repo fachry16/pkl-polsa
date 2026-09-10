@@ -7,7 +7,7 @@
                 <path d="M16 24L26 18V22L16 28L6 22V18L16 24Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
                 <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#4f46e5" opacity="0.3"/>
             </svg>
-            <span class="sidebar-brand">EDUVA</span>
+            <span class="sidebar-brand">EDUVA | POLSA</span>
             @include('layouts.partials.notification-bell')
         </div>
     </div>
@@ -33,7 +33,6 @@
                 @endif
             </a>
             <a href="{{ route('krs.index') }}" class="{{ request()->routeIs('krs.*') ? 'active' : '' }}" title="KRS" data-title="KRS"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="nav-text">KRS</span></a>
-            <a href="{{ route('khs.index') }}" class="{{ request()->routeIs('khs.*') ? 'active' : '' }}" title="Validasi KHS" data-title="Validasi KHS"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><span class="nav-text">Validasi KHS</span></a>
         @endif
         @if(auth()->user()->dosen)
             <a href="{{ route('dosen.self.riwayat') }}" class="{{ request()->routeIs('dosen.self.riwayat') ? 'active' : '' }}" title="Riwayat Mengajar &amp; RPS" data-title="Riwayat Mengajar &amp; RPS">

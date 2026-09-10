@@ -30,7 +30,7 @@
                     <td>{{ $matakuliah->nama }}</td>
                     @foreach($bahanKajians as $bahanKajian)
                     <td class="text-center">
-                        <input type="checkbox" name="mataKuliah[{{ $matakuliah->id }}][]" value="{{ $bahanKajian->id }}" {{ $matakuliah->bahanKajians->contains($bahanKajian->id) ? 'checked' : '' }}>
+                        <input type="checkbox" name="mataKuliah[{{ $matakuliah->id }}][]" value="{{ $bahanKajian->id }}" {{ $matakuliah->bahanKajians->contains($bahanKajian->id) ? 'checked' : '' }} {{ (auth()->user()->isAdmin() || auth()->user()->isKaprodi()) ? '' : 'disabled' }}>
                     </td>
                     @endforeach
                 </tr>
@@ -38,7 +38,7 @@
             </tbody>
         </table>
     </div>
-    @if(auth()->user()->role !== 'dosen')
+    @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
     <button type="submit" class="btn btn-primary mt-5">Simpan Matriks</button>
     @endif
 </form>

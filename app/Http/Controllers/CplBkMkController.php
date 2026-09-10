@@ -13,7 +13,7 @@ class CplBkMkController extends Controller
 
     public function index(Request $request, Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get();
         $mataKuliahId = $request->mata_kuliah_id;
         $bahanKajians = $kurikulum->bahanKajians()->orderBy('kode_bk')->get();

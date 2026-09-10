@@ -104,7 +104,6 @@ class MasterDataAccessTest extends TestCase
     {
         $direktur = $this->createDirektur();
 
-        $this->actingAs($direktur)->get(route('tahun-akademik.index'))->assertForbidden();
         $this->actingAs($direktur)->get(route('program-studi.index'))->assertForbidden();
         $this->actingAs($direktur)->get(route('dosen.index'))->assertForbidden();
         $this->actingAs($direktur)->get(route('mahasiswa.index'))->assertForbidden();
@@ -112,15 +111,28 @@ class MasterDataAccessTest extends TestCase
         $this->actingAs($direktur)->get(route('krs.index'))->assertForbidden();
     }
 
+    public function test_direktur_dapat_mengakses_tahun_akademik(): void
+    {
+        $direktur = $this->createDirektur();
+
+        $this->actingAs($direktur)->get(route('tahun-akademik.index'))->assertOk();
+    }
+
     public function test_kaprodi_ditolak_mengakses_master_data_umum(): void
     {
         $kaprodi = $this->createKaprodi();
 
-        $this->actingAs($kaprodi)->get(route('tahun-akademik.index'))->assertForbidden();
         $this->actingAs($kaprodi)->get(route('program-studi.index'))->assertForbidden();
         $this->actingAs($kaprodi)->get(route('dosen.index'))->assertForbidden();
         $this->actingAs($kaprodi)->get(route('mahasiswa.index'))->assertForbidden();
         $this->actingAs($kaprodi)->get(route('pengampu.index'))->assertForbidden();
+    }
+
+    public function test_kaprodi_dapat_mengakses_tahun_akademik(): void
+    {
+        $kaprodi = $this->createKaprodi();
+
+        $this->actingAs($kaprodi)->get(route('tahun-akademik.index'))->assertOk();
     }
 
     public function test_kaprodi_masih_dapat_mengakses_krs_prodinya(): void

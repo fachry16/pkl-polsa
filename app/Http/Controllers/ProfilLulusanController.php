@@ -16,7 +16,7 @@ class ProfilLulusanController extends Controller
      */
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
         $profilLulusans = $kurikulum->profilLulusans()->latest()->paginate(10);
 
         return view(

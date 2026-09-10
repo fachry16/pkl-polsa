@@ -6,7 +6,7 @@
     Data Tahun Akademik
 </h1>
 
-@unless(auth()->user()->isDirektur())
+@if(auth()->user()->isAdmin())
 <div class="mb-4">
     <a href="{{ route('tahun-akademik.create') }}"
        class="btn btn-primary">
@@ -15,7 +15,7 @@
 
     </a>
 </div>
-@endunless
+@endif
 
 @if(session('success'))
 <div class="alert alert-success mb-3">
@@ -99,7 +99,7 @@
                         Assessment OBE
 
                     </a>
-                    @unless(auth()->user()->isDirektur())
+                    @if(auth()->user()->isAdmin())
                     <a href="{{ route('tahun-akademik.edit', $ta->id) }}"
                        class="btn btn-warning btn-sm">
 
@@ -133,7 +133,7 @@
                     />
 
                     @endif
-                    @endunless
+                    @endif
 
                 </div>
 

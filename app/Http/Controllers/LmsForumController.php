@@ -98,8 +98,12 @@ class LmsForumController extends Controller
         $this->authorizePengampu($pengampu);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
 
-        abort_if($diskusi->user?->isMahasiswa(), 403, 'Dosen tidak dapat menghapus pesan forum yang dikirim oleh mahasiswa.');
-        abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
+        if ($diskusi->user?->isMahasiswa()) {
+            abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan mahasiswa telah berakhir.');
+        } else {
+            abort_unless(Auth::id() === $diskusi->user_id, 403);
+            abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
+        }
 
         foreach ($diskusi->replies as $reply) {
             if ($reply->file_path) {
@@ -172,4 +176,3 @@ class LmsForumController extends Controller
         abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk mengubah pesan telah berakhir.');
     }
 }
-

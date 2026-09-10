@@ -13,7 +13,7 @@ class MataKuliahController extends Controller
 
     public function index(Kurikulum $kurikulum)
     {
-        $this->authorizeKurikulum($kurikulum);
+        $this->authorizeKurikulumRead($kurikulum);
 
         $mataKuliahs = $kurikulum->mataKuliahs()
             ->latest()

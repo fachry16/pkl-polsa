@@ -6,7 +6,6 @@ use App\Models\LmsTugas;
 use App\Models\Mahasiswa;
 use App\Models\Pengampu;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 class SubmissionBaru extends Notification

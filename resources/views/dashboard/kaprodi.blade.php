@@ -175,7 +175,7 @@
                                         Kelas {{ $krs->kelas }} &bull; Dosen: {{ $krs->dosen->user->name ?? '-' }}
                                     </div>
                                 </div>
-                                <a href="{{ route('krs.mahasiswa', $krs->id) }}" class="btn btn-primary btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: #e11d48; border-color: #e11d48;">
+                                <a href="{{ route('krs.show', $krs->id) }}" class="btn btn-primary btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: #e11d48; border-color: #e11d48;">
                                     Plot Mhs
                                 </a>
                             </div>

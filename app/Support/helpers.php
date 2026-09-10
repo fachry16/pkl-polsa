@@ -1,5 +1,7 @@
 <?php
 
+use App\Services\PenilaianService;
+
 if (! function_exists('linkify')) {
     /**
      * Ubah URL http(s) di dalam teks menjadi link yang dapat diklik.
@@ -46,21 +48,20 @@ if (! function_exists('linkify')) {
 if (! function_exists('konversiNilaiHuruf')) {
     function konversiNilaiHuruf(?float $nilai): ?string
     {
-        return \App\Services\PenilaianService::konversiHuruf($nilai);
+        return PenilaianService::konversiHuruf($nilai);
     }
 }
 
 if (! function_exists('konversiBobotMutu')) {
     function konversiBobotMutu(?float $nilai): ?float
     {
-        return \App\Services\PenilaianService::konversiBobotMutu($nilai);
+        return PenilaianService::konversiBobotMutu($nilai);
     }
 }
 
 if (! function_exists('predikatNilai')) {
     function predikatNilai(?float $nilai): ?string
     {
-        return \App\Services\PenilaianService::predikat($nilai);
+        return PenilaianService::predikat($nilai);
     }
 }
-

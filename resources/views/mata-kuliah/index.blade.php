@@ -6,7 +6,7 @@
     Data Mata Kuliah
 </h1>
 
-@if(auth()->user()->role !== 'dosen')
+@if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
 <div class="mb-5 flex gap-2">
 
     <a href="{{ route('kurikulum.mata-kuliah.create', $kurikulum->id) }}"
@@ -82,7 +82,7 @@
                 <td>
 
                     <div class="flex gap-2">
-                        @if(auth()->user()->role !== 'dosen')
+                        @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                         <a href="{{ route('kurikulum.mata-kuliah.edit', [$kurikulum->id, $mataKuliah->id]) }}"
                            class="btn btn-warning btn-sm">
 

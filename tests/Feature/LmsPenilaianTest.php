@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Cpl;
+use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kurikulum;
 use App\Models\LmsSubmission;
@@ -12,6 +14,7 @@ use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\Rps;
 use App\Models\RpsPenilaian;
+use App\Models\RumusanNilaiAkhirMk;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use App\Services\PenilaianService;
@@ -176,19 +179,19 @@ class LmsPenilaianTest extends TestCase
             'dikumpulkan_pada' => now(),
         ]);
 
-        $cpl = \App\Models\Cpl::create([
+        $cpl = Cpl::create([
             'kode_cpl' => 'CPL-01',
             'deskripsi' => 'Tes CPL',
             'program_studi_id' => $pengampu->mataKuliah->kurikulum->program_studi_id,
             'kurikulum_id' => $pengampu->mataKuliah->kurikulum_id,
         ]);
-        $cpmk = \App\Models\Cpmk::create([
+        $cpmk = Cpmk::create([
             'kode_cpmk' => 'CPMK-01',
             'deskripsi' => 'Tes CPMK',
             'cpl_id' => $cpl->id,
             'kurikulum_id' => $pengampu->mataKuliah->kurikulum_id,
         ]);
-        \App\Models\RumusanNilaiAkhirMk::create([
+        RumusanNilaiAkhirMk::create([
             'kurikulum_id' => $pengampu->mataKuliah->kurikulum_id,
             'mata_kuliah_id' => $pengampu->mata_kuliah_id,
             'cpmk_id' => $cpmk->id,
@@ -357,7 +360,7 @@ class LmsPenilaianTest extends TestCase
         $this->assertEquals('Versi awal', $submission->fresh()->catatan_mahasiswa);
     }
 
-    public function test_mahasiswa_dapat_mengumpulkan_setelah_deadline_dengan_label_terlambat(): void
+    public function test_mahasiswa_ditolak_mengumpulkan_setelah_deadline(): void
     {
         $data = $this->buatKelas();
 
@@ -373,11 +376,9 @@ class LmsPenilaianTest extends TestCase
             ->post(route('mahasiswa.lms.tugas.kumpul', $tugas->id), [
                 'catatan_mahasiswa' => 'Kumpul terlambat',
             ])
-            ->assertSessionHas('toast_success');
+            ->assertRedirect();
 
-        $submission = LmsSubmission::where('lms_tugas_id', $tugas->id)->first();
-        $this->assertNotNull($submission);
-        $this->assertTrue($submission->isTerlambat());
+        $this->assertDatabaseMissing('lms_submissions', ['lms_tugas_id' => $tugas->id]);
     }
 
     public function test_dosen_memperbarui_tugas(): void
