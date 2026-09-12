@@ -74,6 +74,11 @@ Route::middleware(['auth'])->group(function () {
         'dosen/self/riwayat',
         [DosenController::class, 'riwayatSelf']
     )->name('dosen.self.riwayat');
+
+    Route::get(
+        'mahasiswa/self',
+        [MahasiswaController::class, 'self']
+    )->name('mahasiswa.self');
 });
 
 /* Tahun Akademik — Admin + Kaprodi + Direktur (read-only index) */
