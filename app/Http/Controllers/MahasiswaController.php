@@ -113,6 +113,20 @@ class MahasiswaController extends Controller
         //
     }
 
+    public function self()
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        if (! $mahasiswa) {
+            return redirect()->route('dashboard')->with('error', 'Data mahasiswa tidak ditemukan.');
+        }
+
+        $mahasiswa->load(['user', 'programStudi', 'semesterMahasiswas.tahunAkademik']);
+        $semesterAktif = $mahasiswa->semesterMahasiswas()->latest()->first();
+
+        return view('mahasiswa.self', compact('mahasiswa', 'semesterAktif'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
