@@ -205,8 +205,10 @@ class RpsController extends Controller
         }
 
         $rpss = Rps::whereIn('status', ['Diajukan', 'Revisi', 'Disetujui'])
-            ->whereHas('mataKuliah.kurikulum', function ($q) use ($user) {
-                $q->where('program_studi_id', $user->dosen->program_studi_id);
+            ->when(! $user->isDirektur() && $user->dosen, function ($query) use ($user) {
+                $query->whereHas('mataKuliah.kurikulum', function ($q) use ($user) {
+                    $q->where('program_studi_id', $user->dosen->program_studi_id);
+                });
             })
             ->with(['mataKuliah', 'disetujuiOleh'])
             ->latest()

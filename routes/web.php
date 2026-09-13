@@ -834,8 +834,8 @@ Route::middleware(['auth'])->group(function () {
     )->name('rps.tugas.upload-ke-lms');
 });
 
-/* Kaprodi */
-Route::middleware(['auth', 'Kaprodi'])->group(function () {
+/* Kaprodi & Direktur — pengajuan RPS */
+Route::middleware(['auth', 'role:kaprodi,direktur'])->group(function () {
 
     Route::get(
         'rps/pengajuan',
