@@ -134,4 +134,16 @@ class LmsAbsensiController extends Controller
 
         return back()->with('toast_success', 'Semua mahasiswa berhasil ditandai Hadir.');
     }
+
+    public function export(Pengampu $pengampu)
+    {
+        $this->authorizeRead($pengampu);
+
+        $pengampu->load('mataKuliah', 'tahunAkademik', 'dosen.user');
+        $mahasiswas = $pengampu->mahasiswas()->orderBy('nim')->get();
+        $pertemuans = $pengampu->rpsPertemuans();
+        $sesis = $pengampu->lmsSesiAbsensis()->with('absensis')->get()->keyBy('rps_pertemuan_id');
+
+        return view('lms.absensi.export', compact('pengampu', 'mahasiswas', 'pertemuans', 'sesis'));
+    }
 }

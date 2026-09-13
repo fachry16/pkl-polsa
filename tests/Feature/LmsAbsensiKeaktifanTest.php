@@ -180,4 +180,54 @@ class LmsAbsensiKeaktifanTest extends TestCase
             'nilai' => 95,
         ]);
     }
+
+    public function test_perhitungan_absensi_menghitung_sakit_dan_izin_setengah_poin()
+    {
+        $pertemuan2 = RpsPertemuan::create([
+            'rps_id' => RpsPertemuan::first()->rps_id,
+            'minggu' => 2,
+            'sub_cpmk' => 'Sub CPMK 2',
+            'materi' => 'Materi Pertemuan 2',
+            'metode' => 'Ceramah',
+            'pengalaman_belajar' => 'Diskusi',
+            'indikator' => 'Paham',
+            'bobot' => '10',
+        ]);
+
+        $sesi1 = LmsSesiAbsensi::create([
+            'pengampu_id' => $this->pengampu->id,
+            'rps_pertemuan_id' => RpsPertemuan::first()->id,
+            'tanggal_aktual' => now()->toDateString(),
+        ]);
+
+        $sesi2 = LmsSesiAbsensi::create([
+            'pengampu_id' => $this->pengampu->id,
+            'rps_pertemuan_id' => $pertemuan2->id,
+            'tanggal_aktual' => now()->addDay()->toDateString(),
+        ]);
+
+        // Sesi 1 = Hadir (1.0 point), Sesi 2 = Sakit (0.5 point) -> Total: 1.5 / 2 = 75%
+        \App\Models\LmsAbsensi::create(['sesi_id' => $sesi1->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'hadir']);
+        \App\Models\LmsAbsensi::create(['sesi_id' => $sesi2->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'sakit']);
+
+        $service = app(\App\Services\PenilaianService::class);
+        $score = $service->hitungAbsensi($this->pengampu, $this->mahasiswa);
+
+        $this->assertEquals(75.0, $score);
+    }
+
+    public function test_dosen_dapat_mengakses_tab_presensi_dan_export_jurnal()
+    {
+        $response = $this->actingAs($this->dosenUser)
+            ->get(route('lms.show', [$this->pengampu->id, 'tab' => 'presensi']));
+
+        $response->assertOk();
+        $response->assertSee('Presensi Sesi Perkuliahan');
+
+        $exportResponse = $this->actingAs($this->dosenUser)
+            ->get(route('lms.absensi.export', $this->pengampu->id));
+
+        $exportResponse->assertOk();
+        $exportResponse->assertSee('JURNAL &amp; REKAPITULASI PRESENSI PERKULIAHAN', false);
+    }
 }

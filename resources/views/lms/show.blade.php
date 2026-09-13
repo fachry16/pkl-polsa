@@ -69,6 +69,12 @@
             Orang ({{ $mahasiswaCount }})
         </button>
 
+        <button type="button" @click="tab = 'presensi'; history.replaceState(null, null, '?tab=presensi')" 
+            class="btn btn-secondary btn-sm"
+            :style="tab === 'presensi' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
+            Presensi ({{ $sesis->count() }}/{{ max(1, $pertemuans->count()) }})
+        </button>
+
         <button type="button" @click="tab = 'rekap_nilai'; history.replaceState(null, null, '?tab=rekap_nilai')" 
             class="btn btn-secondary btn-sm"
             :style="tab === 'rekap_nilai' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
@@ -484,6 +490,93 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    {{-- TAB PRESENSI --}}
+    <div x-show="tab === 'presensi'">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem;">Presensi Sesi Perkuliahan</h2>
+                <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Sesi presensi per pertemuan RPS. Aturan skor: Hadir = 100%, Sakit / Izin = 50%, Alpa = 0%.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <a href="{{ route('lms.absensi.export', $pengampu->id) }}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Cetak Jurnal Presensi
+                </a>
+            </div>
+        </div>
+
+        <div class="table-container" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Minggu</th>
+                        <th>Materi Pembelajaran</th>
+                        <th style="width: 140px;">Tanggal Sesi</th>
+                        <th style="text-align: center; width: 180px;">Ringkasan Kehadiran</th>
+                        <th style="text-align: center; width: 140px;">Status / Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($pertemuans as $pertemuan)
+                        @php
+                            $sesi = $sesis->get($pertemuan->id);
+                            $absensis = $sesi ? $sesi->absensis : collect();
+                            $h = $absensis->where('status', 'hadir')->count();
+                            $s = $absensis->where('status', 'sakit')->count();
+                            $i = $absensis->where('status', 'izin')->count();
+                            $a = $absensis->where('status', 'alpa')->count();
+                        @endphp
+                        <tr>
+                            <td style="font-weight: 700; color: #4f46e5;">P-{{ $pertemuan->minggu }}</td>
+                            <td>
+                                <div style="font-weight: 600; color: #1e293b;">{{ $pertemuan->materi }}</div>
+                                @if($pertemuan->sub_cpmk)
+                                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem;">{{ $pertemuan->sub_cpmk }}</div>
+                                @endif
+                            </td>
+                            <td style="font-size: 0.85rem; color: #475569;">
+                                {{ $sesi ? $sesi->tanggal_aktual->format('d M Y') : '-' }}
+                            </td>
+                            <td style="text-align: center;">
+                                @if($sesi)
+                                    <div style="display: inline-flex; gap: 0.4rem; font-size: 0.75rem; font-weight: 600;">
+                                        <span style="color: #059669;" title="Hadir">{{ $h }} H</span>
+                                        <span style="color: #2563eb;" title="Sakit">{{ $s }} S</span>
+                                        <span style="color: #d97706;" title="Izin">{{ $i }} I</span>
+                                        <span style="color: #dc2626;" title="Alpa">{{ $a }} A</span>
+                                    </div>
+                                @else
+                                    <span style="color: #cbd5e1; font-size: 0.8rem;">Belum Dibuka</span>
+                                @endif
+                            </td>
+                            <td style="text-align: center;">
+                                @if($sesi)
+                                    <a href="{{ route('lms.absensi.show', [$pengampu->id, $sesi->id]) }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                        Kelola Presensi
+                                    </a>
+                                @elseif(!Auth::user()->isAdmin())
+                                    <form action="{{ route('lms.absensi.buka', $pengampu->id) }}" method="POST" style="margin: 0; display: inline;">
+                                        @csrf
+                                        <input type="hidden" name="rps_pertemuan_id" value="{{ $pertemuan->id }}">
+                                        <button type="submit" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                            Buka Sesi
+                                        </button>
+                                    </form>
+                                @else
+                                    <span style="color: #cbd5e1; font-size: 0.8rem;">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: #94a3b8;">Belum ada materi pertemuan di RPS.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 

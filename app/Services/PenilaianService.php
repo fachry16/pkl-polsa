@@ -38,6 +38,7 @@ class PenilaianService
 
     /**
      * Hitung persentase nilai absensi mahasiswa dari log presensi sesi kelas (0 - 100).
+     * Proporsi: Hadir = 100% (1.0 point), Sakit / Izin = 50% (0.5 point), Alpa = 0% (0 point).
      */
     public function hitungAbsensi(Pengampu $pengampu, Mahasiswa $mahasiswa): ?float
     {
@@ -47,12 +48,16 @@ class PenilaianService
         }
 
         $totalSesi = $sesiIds->count();
-        $hadirCount = \App\Models\LmsAbsensi::whereIn('sesi_id', $sesiIds)
+        $absensis = \App\Models\LmsAbsensi::whereIn('sesi_id', $sesiIds)
             ->where('mahasiswa_id', $mahasiswa->id)
-            ->where('status', 'hadir')
-            ->count();
+            ->get();
 
-        return round(($hadirCount / $totalSesi) * 100, 2);
+        $hadirCount = $absensis->where('status', 'hadir')->count();
+        $sakitIzinCount = $absensis->whereIn('status', ['sakit', 'izin'])->count();
+
+        $scorePoints = $hadirCount + (0.5 * $sakitIzinCount);
+
+        return round(($scorePoints / $totalSesi) * 100, 2);
     }
 
     /**
