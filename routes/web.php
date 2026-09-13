@@ -938,6 +938,7 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::post('/{pengampu}/absensi', [LmsAbsensiController::class, 'bukaSesi'])->name('absensi.buka');
     Route::get('/{pengampu}/absensi/sesi/{sesi}', [LmsAbsensiController::class, 'show'])->name('absensi.show');
     Route::post('/{pengampu}/absensi/sesi/{sesi}', [LmsAbsensiController::class, 'simpan'])->name('absensi.store');
+    Route::post('/{pengampu}/absensi/sesi/{sesi}/hadir-semua', [LmsAbsensiController::class, 'hadirSemua'])->name('absensi.hadir-semua');
 });
 
 /* Mahasiswa LMS */

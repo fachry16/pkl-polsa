@@ -9,7 +9,7 @@ use App\Models\Rps;
 
 class PenilaianService
 {
-    public const KOMPONEN = ['tugas', 'quiz', 'uts', 'uas', 'praktikum', 'project'];
+    public const KOMPONEN = ['tugas', 'quiz', 'uts', 'uas', 'praktikum', 'project', 'absensi', 'keaktifan'];
 
     /**
      * Hitung nilai komponen "tugas" seorang mahasiswa di sebuah kelas.
@@ -37,6 +37,25 @@ class PenilaianService
     }
 
     /**
+     * Hitung persentase nilai absensi mahasiswa dari log presensi sesi kelas (0 - 100).
+     */
+    public function hitungAbsensi(Pengampu $pengampu, Mahasiswa $mahasiswa): ?float
+    {
+        $sesiIds = \App\Models\LmsSesiAbsensi::where('pengampu_id', $pengampu->id)->pluck('id');
+        if ($sesiIds->isEmpty()) {
+            return null;
+        }
+
+        $totalSesi = $sesiIds->count();
+        $hadirCount = \App\Models\LmsAbsensi::whereIn('sesi_id', $sesiIds)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('status', 'hadir')
+            ->count();
+
+        return round(($hadirCount / $totalSesi) * 100, 2);
+    }
+
+    /**
      * Ambil bobot komponen penilaian dari RPS mata kuliah.
      * Bobot diambil dari rps_penilaians (persen, total harus 100).
      */
@@ -51,7 +70,7 @@ class PenilaianService
         }
 
         foreach (self::KOMPONEN as $komponen) {
-            $default[$komponen] = (float) $rps->penilaian->{$komponen};
+            $default[$komponen] = (float) ($rps->penilaian->{$komponen} ?? 0);
         }
 
         return $default;
@@ -77,6 +96,10 @@ class PenilaianService
                     ->where('mahasiswa_id', $mahasiswa->id)
                     ->where('komponen', $komponen)
                     ->value('nilai');
+
+                if ($komponen === 'absensi' && $nilai === null) {
+                    $nilai = $this->hitungAbsensi($pengampu, $mahasiswa);
+                }
             }
 
             if ($nilai !== null) {
@@ -108,6 +131,19 @@ class PenilaianService
     public function simpanNilaiMahasiswa(Pengampu $pengampu, Mahasiswa $mahasiswa): void
     {
         $this->updateKomponen($pengampu, $mahasiswa, 'tugas', $this->hitungTugas($pengampu, $mahasiswa));
+
+        $storedAbsensi = LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('komponen', 'absensi')
+            ->value('nilai');
+
+        if ($storedAbsensi === null) {
+            $calcAbsensi = $this->hitungAbsensi($pengampu, $mahasiswa);
+            if ($calcAbsensi !== null) {
+                $this->updateKomponen($pengampu, $mahasiswa, 'absensi', $calcAbsensi);
+            }
+        }
+
         $this->updateKomponen($pengampu, $mahasiswa, 'akhir', $this->hitungNilaiAkhir($pengampu, $mahasiswa));
     }
 

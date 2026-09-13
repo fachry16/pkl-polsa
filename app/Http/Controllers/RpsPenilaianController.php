@@ -44,9 +44,11 @@ class RpsPenilaianController extends Controller
             'uas' => 'required|numeric|min:0|max:100',
             'praktikum' => 'required|numeric|min:0|max:100',
             'project' => 'required|numeric|min:0|max:100',
+            'absensi' => 'required|numeric|min:0|max:100',
+            'keaktifan' => 'required|numeric|min:0|max:100',
         ]);
 
-        $total = (float) $request->tugas + (float) $request->quiz + (float) $request->uts + (float) $request->uas + (float) $request->praktikum + (float) $request->project;
+        $total = (float) $request->tugas + (float) $request->quiz + (float) $request->uts + (float) $request->uas + (float) $request->praktikum + (float) $request->project + (float) $request->absensi + (float) $request->keaktifan;
 
         if ($total != 100) {
             return back()->withInput()->with('error', "Total bobot penilaian harus tepat 100% (saat ini $total%).");
@@ -61,6 +63,8 @@ class RpsPenilaianController extends Controller
                 'uas' => $request->uas,
                 'praktikum' => $request->praktikum,
                 'project' => $request->project,
+                'absensi' => $request->absensi,
+                'keaktifan' => $request->keaktifan,
             ]
         );
 

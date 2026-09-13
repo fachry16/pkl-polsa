@@ -9,8 +9,17 @@
     </span>
 </div>
 
-<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
     <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'presensi']) }}" class="btn btn-secondary btn-sm">Kembali ke Presensi</a>
+    @if($editable && !$mahasiswas->isEmpty())
+        <form action="{{ route('lms.absensi.hadir-semua', [$pengampu->id, $sesi->id]) }}" method="POST" style="margin: 0;">
+            @csrf
+            <button type="submit" class="btn btn-success btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Hadirkan Semua Mahasiswa
+            </button>
+        </form>
+    @endif
 </div>
 
 @if(! $editable)

@@ -113,4 +113,25 @@ class LmsAbsensiController extends Controller
 
         return back()->with('toast_success', 'Presensi berhasil disimpan.');
     }
+
+    public function hadirSemua(Request $request, Pengampu $pengampu, LmsSesiAbsensi $sesi)
+    {
+        $this->authorizeWrite($pengampu);
+        abort_if($sesi->pengampu_id !== $pengampu->id, 404);
+
+        if (! $sesi->canEdit()) {
+            return back()->with('toast_error', 'Sesi presensi terkunci karena sesi berikutnya sudah dibuka.');
+        }
+
+        $mahasiswaIds = $pengampu->mahasiswas()->pluck('mahasiswas.id');
+
+        foreach ($mahasiswaIds as $mahasiswaId) {
+            LmsAbsensi::updateOrCreate(
+                ['sesi_id' => $sesi->id, 'mahasiswa_id' => $mahasiswaId],
+                ['status' => 'hadir']
+            );
+        }
+
+        return back()->with('toast_success', 'Semua mahasiswa berhasil ditandai Hadir.');
+    }
 }

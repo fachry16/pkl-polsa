@@ -296,10 +296,12 @@ class LmsTugasController extends Controller
             'nilai.*.uas' => 'nullable|numeric|min:0|max:100',
             'nilai.*.praktikum' => 'nullable|numeric|min:0|max:100',
             'nilai.*.project' => 'nullable|numeric|min:0|max:100',
+            'nilai.*.absensi' => 'nullable|numeric|min:0|max:100',
+            'nilai.*.keaktifan' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $service = app(PenilaianService::class);
-        $komponenLain = ['quiz', 'uts', 'uas', 'praktikum', 'project'];
+        $komponenLain = ['quiz', 'uts', 'uas', 'praktikum', 'project', 'absensi', 'keaktifan'];
 
         foreach ($request->input('nilai', []) as $mahasiswaId => $nilaiKomponen) {
             $mahasiswa = $pengampu->mahasiswas()->find($mahasiswaId);

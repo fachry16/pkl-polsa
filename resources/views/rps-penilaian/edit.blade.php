@@ -15,7 +15,7 @@
     @csrf
     @method('PUT')
 
-    @foreach(['tugas','quiz','uts','uas','praktikum','project'] as $item)
+    @foreach(['tugas','quiz','uts','uas','praktikum','project','absensi','keaktifan'] as $item)
 
     <div class="form-group">
 
@@ -43,7 +43,7 @@
     <div class="form-group">
         <label class="form-label font-bold">Total</label>
         <p id="total-penilaian" class="text-lg font-bold">
-            {{ old('tugas', $penilaian->tugas) + old('quiz', $penilaian->quiz) + old('uts', $penilaian->uts) + old('uas', $penilaian->uas) + old('praktikum', $penilaian->praktikum) + old('project', $penilaian->project) }}%
+            {{ old('tugas', $penilaian->tugas) + old('quiz', $penilaian->quiz) + old('uts', $penilaian->uts) + old('uas', $penilaian->uas) + old('praktikum', $penilaian->praktikum) + old('project', $penilaian->project) + old('absensi', $penilaian->absensi) + old('keaktifan', $penilaian->keaktifan) }}%
         </p>
         <p class="text-sm">Total harus tepat <strong>100%</strong>.</p>
     </div>

@@ -68,6 +68,16 @@
             <td>{{ $penilaian->project }}%</td>
         </tr>
 
+        <tr>
+            <td>Absensi</td>
+            <td>{{ $penilaian->absensi }}%</td>
+        </tr>
+
+        <tr>
+            <td>Keaktifan</td>
+            <td>{{ $penilaian->keaktifan }}%</td>
+        </tr>
+
         <tr class="font-bold">
             <td>Total</td>
             <td>
@@ -76,7 +86,9 @@
                    $penilaian->uts +
                    $penilaian->uas +
                    $penilaian->praktikum +
-                   $penilaian->project }}%
+                   $penilaian->project +
+                   $penilaian->absensi +
+                   $penilaian->keaktifan }}%
             </td>
         </tr>
 

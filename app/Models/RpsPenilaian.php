@@ -14,6 +14,8 @@ class RpsPenilaian extends Model
         'uas',
         'praktikum',
         'project',
+        'absensi',
+        'keaktifan',
     ];
 
     public function rps()

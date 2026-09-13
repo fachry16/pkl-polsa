@@ -14,7 +14,7 @@
 
     @csrf
 
-    @foreach(['tugas','quiz','uts','uas','praktikum','project'] as $item)
+    @foreach(['tugas','quiz','uts','uas','praktikum','project','absensi','keaktifan'] as $item)
 
     <div class="form-group">
 

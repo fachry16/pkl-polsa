@@ -19,6 +19,10 @@
     </div>
 </div>
 
+@if(!Auth::user()->isAdmin())
+<form action="{{ route('lms.tugas.komponen', $pengampu->id) }}" method="POST">
+    @csrf
+@endif
 <div class="table-container" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
     <table class="data-table">
         <thead>
@@ -31,7 +35,7 @@
                 @endforeach
                 <th style="text-align: center; font-weight: 700;">Nilai Tugas</th>
                 @foreach($bobot as $komponen => $persen)
-                    @if($komponen !== 'tugas' && $persen > 0)
+                    @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
                         <th style="text-align: center; font-size: 0.7rem;">{{ ucfirst($komponen) }}<br><small style="color:#94a3b8;">({{ $persen }}%)</small></th>
                     @endif
                 @endforeach
@@ -67,12 +71,19 @@
                         {{ $nilaiTugas !== null ? number_format($nilaiTugas, 2) : '-' }}
                     </td>
                     @foreach($bobot as $komponen => $persen)
-                        @if($komponen !== 'tugas' && $persen > 0)
+                        @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
                             @php
                                 $nilaiKomponen = $nilaiByMhs->get($mahasiswa->id)?->firstWhere('komponen', $komponen)?->nilai;
+                                if ($komponen === 'absensi' && $nilaiKomponen === null) {
+                                    $nilaiKomponen = app(App\Services\PenilaianService::class)->hitungAbsensi($pengampu, $mahasiswa);
+                                }
                             @endphp
                             <td style="text-align: center;">
-                                {{ $nilaiKomponen !== null ? number_format($nilaiKomponen, 2) : '-' }}
+                                @if(!Auth::user()->isAdmin())
+                                    <input type="number" name="nilai[{{ $mahasiswa->id }}][{{ $komponen }}]" value="{{ $nilaiKomponen !== null ? $nilaiKomponen : '' }}" min="0" max="100" step="0.01" placeholder="-" style="width: 65px; text-align: center; padding: 0.2rem; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.8rem;">
+                                @else
+                                    {{ $nilaiKomponen !== null ? number_format($nilaiKomponen, 2) : '-' }}
+                                @endif
                             </td>
                         @endif
                     @endforeach
@@ -88,6 +99,16 @@
         </tbody>
     </table>
 </div>
+
+@if(!Auth::user()->isAdmin())
+<div style="margin-top: 1rem; text-align: right;">
+    <button type="submit" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; padding: 0.5rem 1.25rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Simpan Component &amp; Kirim ke Asesmen OBE
+    </button>
+</div>
+</form>
+@endif
 
 @if($cpmkConfig->isNotEmpty() && !Auth::user()->isAdmin())
 <div style="margin-top: 1.25rem; padding: 1rem 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
@@ -114,7 +135,7 @@
                     <input type="hidden" name="cpmk_id" value="{{ $cpmkId }}">
                     <select name="komponen" required style="font-size: 0.75rem; padding: 0.2rem 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;">
                         <option value="">Komponen</option>
-                        @foreach(['tugas','quiz','uts','uas','praktikum','project'] as $k)
+                        @foreach(['tugas','quiz','uts','uas','praktikum','project','absensi','keaktifan'] as $k)
                             <option value="{{ $k }}">{{ ucfirst($k) }}</option>
                         @endforeach
                     </select>
@@ -132,15 +153,6 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         Lihat Asesmen OBE Kelas
     </a>
-    @if(!Auth::user()->isAdmin())
-    <form action="{{ route('lms.tugas.sync', $pengampu->id) }}" method="POST" style="margin: 0;">
-        @csrf
-        <button type="submit" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; padding: 0.5rem 1.25rem;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Simpan &amp; Kirim ke Asesmen OBE
-        </button>
-    </form>
-    @endif
 </div>
 
 @endsection
