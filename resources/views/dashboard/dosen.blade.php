@@ -120,7 +120,7 @@
                                 <span style="font-size: 0.72rem; font-weight: 700; background: #fee2e2; color: #dc2626; padding: 0.15rem 0.5rem; border-radius: 4px;">
                                     {{ $tugas->belum_dinilai_count }} Blm Dinilai
                                 </span>
-                                <a href="{{ route('lms.tugas.detail', [$tugas->pengampu_id, $tugas->id]) }}" class="btn btn-primary btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
+                                <a href="{{ route('lms.tugas.show', [$tugas->pengampu_id, $tugas->id]) }}" class="btn btn-primary btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
                                     Nilai
                                 </a>
                             </div>
