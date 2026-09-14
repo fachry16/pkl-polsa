@@ -14,11 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             ProgramStudiSeeder::class,
-        ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            DemoPresentationSeeder::class,
         ]);
     }
 }
