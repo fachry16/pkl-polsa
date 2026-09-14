@@ -46,10 +46,15 @@ class GoogleDriveSettingController extends Controller
             ? $persistent['client_email']
             : (string) env('GOOGLE_DRIVE_CLIENT_EMAIL', '');
 
+        $impersonateEmail = ! empty($persistent['impersonate_email'])
+            ? $persistent['impersonate_email']
+            : (string) env('GOOGLE_DRIVE_IMPERSONATE_EMAIL', '');
+
         $status = [
             'enabled' => $enabled,
             'folder_id' => $folderId,
             'client_email' => $clientEmail,
+            'impersonate_email' => $impersonateEmail,
             'has_json' => File::exists($jsonPath),
         ];
 
@@ -63,6 +68,7 @@ class GoogleDriveSettingController extends Controller
         $validated = $request->validate([
             'folder_id' => 'nullable|string',
             'client_email' => 'nullable|email',
+            'impersonate_email' => 'nullable|email',
             'credentials_json' => 'nullable|file|mimes:json,txt',
             'credentials_text' => 'nullable|string',
             'enabled' => 'nullable|boolean',
@@ -86,6 +92,10 @@ class GoogleDriveSettingController extends Controller
             ? trim($validated['client_email'])
             : ($existing['client_email'] ?? trim((string) env('GOOGLE_DRIVE_CLIENT_EMAIL', '')));
 
+        $impersonateEmail = ! empty($validated['impersonate_email'])
+            ? trim($validated['impersonate_email'])
+            : ($existing['impersonate_email'] ?? trim((string) env('GOOGLE_DRIVE_IMPERSONATE_EMAIL', '')));
+
         // Tangani file JSON jika diunggah
         if ($request->hasFile('credentials_json')) {
             $request->file('credentials_json')->move($dir, 'service-account.json');
@@ -97,6 +107,7 @@ class GoogleDriveSettingController extends Controller
             'enabled' => $enabledBool,
             'folder_id' => $folderId,
             'client_email' => $clientEmail,
+            'impersonate_email' => $impersonateEmail,
             'updated_at' => now()->toIso8601String(),
         ];
 
@@ -106,6 +117,7 @@ class GoogleDriveSettingController extends Controller
             'GOOGLE_DRIVE_ENABLED' => $enabledStr,
             'GOOGLE_DRIVE_FOLDER_ID' => $folderId,
             'GOOGLE_DRIVE_CLIENT_EMAIL' => $clientEmail,
+            'GOOGLE_DRIVE_IMPERSONATE_EMAIL' => $impersonateEmail,
         ]);
 
         return back()->with('toast_success', 'Pengaturan Google Drive berhasil diperbarui dan tersimpan secara permanen.');

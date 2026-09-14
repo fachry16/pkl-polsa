@@ -186,6 +186,13 @@ class GoogleDriveService
             if (! $uploadResponse->successful()) {
                 $err = $uploadResponse->json()['error']['message'] ?? $uploadResponse->body();
 
+                if (str_contains($err, 'Service Accounts do not have storage quota')) {
+                    return [
+                        'success' => false,
+                        'message' => 'Google melarang Service Account mengunggah berkas ke Folder Google Drive pribadi (@gmail.com) karena Service Account tidak memiliki kuota (0 MB). Solusi: Gunakan Folder di Drive Bersama (Shared Drive Google Workspace) atau isi Email Delegasi (Impersonate).',
+                    ];
+                }
+
                 return [
                     'success' => false,
                     'message' => "Gagal mengunggah file uji coba ke folder: {$err}. Pastikan Service Account memiliki izin 'Editor' pada folder GDrive.",
@@ -215,6 +222,21 @@ class GoogleDriveService
         }
     }
 
+    private function getImpersonateEmail(): ?string
+    {
+        $configPath = storage_path('app/google-drive/config.json');
+        if (File::exists($configPath)) {
+            $config = json_decode(File::get($configPath), true) ?? [];
+            if (! empty($config['impersonate_email'])) {
+                return trim($config['impersonate_email']);
+            }
+        }
+
+        $envEmail = env('GOOGLE_DRIVE_IMPERSONATE_EMAIL');
+
+        return ! empty($envEmail) ? trim($envEmail) : null;
+    }
+
     private function base64UrlEncode(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
@@ -234,13 +256,21 @@ class GoogleDriveService
 
             $header = $this->base64UrlEncode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
             $now = time();
-            $payload = $this->base64UrlEncode(json_encode([
+
+            $payloadData = [
                 'iss' => $credentials['client_email'],
                 'scope' => 'https://www.googleapis.com/auth/drive',
                 'aud' => 'https://oauth2.googleapis.com/token',
                 'exp' => $now + 3600,
                 'iat' => $now,
-            ]));
+            ];
+
+            $impersonateEmail = $this->getImpersonateEmail();
+            if ($impersonateEmail) {
+                $payloadData['sub'] = $impersonateEmail;
+            }
+
+            $payload = $this->base64UrlEncode(json_encode($payloadData));
 
             $signatureInput = $header.'.'.$payload;
             $privateKey = $credentials['private_key'];

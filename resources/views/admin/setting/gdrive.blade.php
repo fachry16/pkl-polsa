@@ -85,6 +85,14 @@
                         Pastikan email ini diberikan hak akses <strong>Editor</strong> pada folder Google Drive kampus.
                     </div>
                 </div>
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; color: #334155;">Email Delegasi Impersonate (Opsional)</label>
+                    <input type="email" name="impersonate_email" class="form-control" value="{{ old('impersonate_email', $status['impersonate_email'] ?? '') }}" placeholder="admin@domain-kampus.ac.id">
+                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.35rem;">
+                        Diisi jika menggunakan Domain-Wide Delegation Google Workspace (bukan Drive Bersama).
+                    </div>
+                </div>
             </div>
 
             <div style="margin-bottom: 1.5rem;">
@@ -199,9 +207,18 @@
                 <!-- TAB 3: FOLDER & SHARING -->
                 <div x-show="activeTab === 'drive'">
                     <h4 style="font-weight: 700; color: #1e293b; margin-top: 0;">Langkah 2: Menyiapkan Folder di Google Drive Kampus</h4>
+                    
+                    <div style="background: #fffbebfb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.82rem; color: #92400e;">
+                        <strong style="display: block; font-weight: 700; margin-bottom: 0.25rem;">Penting Mengenai Kuota Google Drive (Service Account 0 MB):</strong>
+                        Google menetapkan bahwa Service Account tidak memiliki kuota penyimpanan (0 MB). Jika folder dibuat di akun Google Drive pribadi (<code>@gmail.com</code>), Google akan menolak unggahan dengan pesan <em>"Service Accounts do not have storage quota"</em>.
+                        <div style="margin-top: 0.35rem;">
+                            <strong>Solusi:</strong> Buat folder di <strong>Drive Bersama (Shared Drive)</strong> pada Google Workspace Kampus, ATAU aktifkan <em>Domain-Wide Delegation</em> di Google Workspace Admin dan isi field <em>Email Delegasi Impersonate</em> di form ini.
+                        </div>
+                    </div>
+
                     <ol style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.6rem;">
                         <li>Buka Google Drive instansi/kampus Anda (<a href="https://drive.google.com" target="_blank" style="color: #2563eb; text-decoration: underline;">drive.google.com</a>).</li>
-                        <li>Buat folder baru sebagai induk penyimpanan (misal: <code>Eduva_LMS_Storage</code>).</li>
+                        <li>Buat folder baru di <strong>Drive Bersama (Shared Drive)</strong> sebagai induk penyimpanan (misal: <code>Eduva_LMS_Storage</code>).</li>
                         <li>Klik kanan folder tersebut lalu pilih <strong>Bagikan / Share</strong>.</li>
                         <li>Salin <strong>Email Service Account</strong> (contoh: <code>eduva-drive-bot@project-id.iam.gserviceaccount.com</code>) lalu paste ke kotak bagikan.</li>
                         <li>Pastikan perannya diset sebagai <strong>Editor</strong>, uncheck "Send notification", lalu klik <strong>Share</strong>.</li>
