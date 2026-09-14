@@ -89,7 +89,7 @@ class GoogleDriveService
                 'parents' => [$folderId],
             ];
 
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'Authorization' => 'Bearer '.$accessToken,
             ])->attach(
                 'metadata', json_encode($metadata), 'metadata.json', ['Content-Type' => 'application/json; charset=UTF-8']
@@ -101,7 +101,7 @@ class GoogleDriveService
                 $fileData = $response->json();
                 $driveFileId = $fileData['id'] ?? null;
                 if ($driveFileId) {
-                    Http::withHeaders([
+                    Http::withoutVerifying()->withHeaders([
                         'Authorization' => 'Bearer '.$accessToken,
                     ])->post("https://www.googleapis.com/drive/v3/files/{$driveFileId}/permissions?supportsAllDrives=true", [
                         'role' => 'reader',
@@ -157,7 +157,7 @@ class GoogleDriveService
                 ];
             }
 
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'Authorization' => 'Bearer '.$accessToken,
             ])->get("https://www.googleapis.com/drive/v3/files/{$folderId}?fields=id,name,mimeType&supportsAllDrives=true");
 
@@ -175,7 +175,7 @@ class GoogleDriveService
                 'parents' => [$folderId],
             ];
 
-            $uploadResponse = Http::withHeaders([
+            $uploadResponse = Http::withoutVerifying()->withHeaders([
                 'Authorization' => 'Bearer '.$accessToken,
             ])->attach(
                 'metadata', json_encode($metadata), 'metadata.json', ['Content-Type' => 'application/json; charset=UTF-8']
@@ -196,7 +196,7 @@ class GoogleDriveService
             $testFileId = $fileData['id'] ?? null;
 
             if ($testFileId) {
-                Http::withHeaders([
+                Http::withoutVerifying()->withHeaders([
                     'Authorization' => 'Bearer '.$accessToken,
                 ])->delete("https://www.googleapis.com/drive/v3/files/{$testFileId}?supportsAllDrives=true");
             }
@@ -254,7 +254,7 @@ class GoogleDriveService
 
             $jwt = $signatureInput.'.'.$this->base64UrlEncode($signature);
 
-            $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+            $response = Http::withoutVerifying()->asForm()->post('https://oauth2.googleapis.com/token', [
                 'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'assertion' => $jwt,
             ]);
