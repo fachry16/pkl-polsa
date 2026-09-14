@@ -106,4 +106,14 @@ class GoogleDriveAdminSettingTest extends TestCase
         $this->assertEquals('bot@project.iam.gserviceaccount.com', $config['client_email']);
         $this->assertTrue($config['enabled']);
     }
+
+    public function test_admin_dapat_menjalankan_tes_koneksi_gdrive(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->post(route('admin.setting.gdrive.test'));
+
+        $response->assertRedirect();
+        $this->assertTrue(session()->has('toast_success') || session()->has('toast_error'));
+    }
 }

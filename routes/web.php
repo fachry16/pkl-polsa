@@ -103,6 +103,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         [GoogleDriveSettingController::class, 'update']
     )->name('admin.setting.gdrive.update');
 
+    Route::post(
+        'admin/setting/gdrive/test',
+        [GoogleDriveSettingController::class, 'testConnection']
+    )->name('admin.setting.gdrive.test');
+
     Route::get(
         'program-studi',
         [ProgramStudiController::class, 'index']

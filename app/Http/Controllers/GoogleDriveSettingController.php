@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -131,5 +132,18 @@ class GoogleDriveSettingController extends Controller
         }
 
         File::put($envFile, $content);
+    }
+
+    public function testConnection(GoogleDriveService $driveService)
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
+        $result = $driveService->testConnection();
+
+        if ($result['success']) {
+            return back()->with('toast_success', $result['message']);
+        }
+
+        return back()->with('toast_error', $result['message']);
     }
 }
