@@ -351,11 +351,16 @@ class LmsTugasController extends Controller
 
         $synced = $this->syncToAssessment($pengampu, $service);
 
-        if (! $synced) {
-            return back()->with('toast_success', 'Nilai LMS berhasil dihitung ulang. Catatan: Bobot CPMK di RPS belum dikonfigurasi, silakan lengkapi RPS agar nilai terkirim ke Asesmen OBE.');
+        $message = $synced
+            ? 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.'
+            : 'Nilai LMS berhasil dihitung ulang. Catatan: Bobot CPMK di RPS belum dikonfigurasi, silakan lengkapi RPS agar nilai terkirim ke Asesmen OBE.';
+
+        $referer = request()->headers->get('referer');
+        if ($referer && ! str_contains($referer, 'hitung-ulang-nilai')) {
+            return back()->with('toast_success', $message);
         }
 
-        return back()->with('toast_success', 'Penilaian kelas berhasil disimpan & dikirim ke Modul Asesmen OBE.');
+        return redirect()->route('lms.show', ['pengampu' => $pengampu->id, 'tab' => 'rekap_nilai'])->with('toast_success', $message);
     }
 
     public function simpanInstrumenCpmk(Request $request, Pengampu $pengampu)

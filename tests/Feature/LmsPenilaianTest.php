@@ -218,6 +218,17 @@ class LmsPenilaianTest extends TestCase
         ]);
     }
 
+    public function test_hitung_ulang_nilai_mendukung_method_get_dan_post(): void
+    {
+        $data = $this->buatKelas();
+        $pengampu = $data['pengampu'];
+
+        $this->actingAs($data['dosen']->user)
+            ->get(route('lms.tugas.sync', $pengampu->id))
+            ->assertRedirect(route('lms.show', ['pengampu' => $pengampu->id, 'tab' => 'rekap_nilai']))
+            ->assertSessionHas('toast_success');
+    }
+
     public function test_penilaian_submission_menyimpan_nilai_akhir(): void
     {
         $data = $this->buatKelas();

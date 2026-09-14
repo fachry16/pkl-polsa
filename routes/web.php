@@ -930,7 +930,7 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
 
     Route::get('/{pengampu}/rekap-nilai', [LmsTugasController::class, 'rekap'])->name('tugas.rekap');
     Route::post('/{pengampu}/rekap-nilai/komponen', [LmsTugasController::class, 'simpanKomponen'])->name('tugas.komponen');
-    Route::post('/{pengampu}/hitung-ulang-nilai', [LmsTugasController::class, 'hitungUlangNilai'])->name('tugas.sync');
+    Route::match(['get', 'post'], '/{pengampu}/hitung-ulang-nilai', [LmsTugasController::class, 'hitungUlangNilai'])->name('tugas.sync');
     Route::post('/{pengampu}/instrumen-cpmk', [LmsTugasController::class, 'simpanInstrumenCpmk'])->name('tugas.instrumen-cpmk');
     Route::delete('/{pengampu}/instrumen-cpmk/{instrumen}', [LmsTugasController::class, 'hapusInstrumenCpmk'])->name('tugas.instrumen-cpmk.hapus');
 
