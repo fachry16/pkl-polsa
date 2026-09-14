@@ -7,16 +7,48 @@ use Illuminate\Support\Facades\File;
 
 class GoogleDriveSettingController extends Controller
 {
+    private function getConfigPath(): string
+    {
+        return storage_path('app/google-drive/config.json');
+    }
+
+    private function getPersistentConfig(): array
+    {
+        $path = $this->getConfigPath();
+        if (File::exists($path)) {
+            $content = File::get($path);
+            $decoded = json_decode($content, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        return [];
+    }
+
     public function index()
     {
         abort_unless(auth()->user()->isAdmin(), 403);
 
         $jsonPath = storage_path('app/google-drive/service-account.json');
+        $persistent = $this->getPersistentConfig();
+
+        $enabled = isset($persistent['enabled'])
+            ? filter_var($persistent['enabled'], FILTER_VALIDATE_BOOLEAN)
+            : filter_var(env('GOOGLE_DRIVE_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
+
+        $folderId = ! empty($persistent['folder_id'])
+            ? $persistent['folder_id']
+            : (string) env('GOOGLE_DRIVE_FOLDER_ID', '');
+
+        $clientEmail = ! empty($persistent['client_email'])
+            ? $persistent['client_email']
+            : (string) env('GOOGLE_DRIVE_CLIENT_EMAIL', '');
 
         $status = [
-            'enabled' => filter_var(env('GOOGLE_DRIVE_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
-            'folder_id' => env('GOOGLE_DRIVE_FOLDER_ID', ''),
-            'client_email' => env('GOOGLE_DRIVE_CLIENT_EMAIL', ''),
+            'enabled' => $enabled,
+            'folder_id' => $folderId,
+            'client_email' => $clientEmail,
             'has_json' => File::exists($jsonPath),
         ];
 
@@ -35,32 +67,47 @@ class GoogleDriveSettingController extends Controller
             'enabled' => 'nullable|boolean',
         ]);
 
-        $enabled = $request->has('enabled') ? 'true' : 'false';
-        $folderId = trim($validated['folder_id'] ?? '');
-        $clientEmail = trim($validated['client_email'] ?? '');
+        $dir = storage_path('app/google-drive');
+        if (! File::exists($dir)) {
+            File::makeDirectory($dir, 0755, true, true);
+        }
+
+        $existing = $this->getPersistentConfig();
+
+        $enabledBool = $request->has('enabled') && (bool) $request->input('enabled');
+        $enabledStr = $enabledBool ? 'true' : 'false';
+
+        $folderId = ! empty($validated['folder_id'])
+            ? trim($validated['folder_id'])
+            : ($existing['folder_id'] ?? trim((string) env('GOOGLE_DRIVE_FOLDER_ID', '')));
+
+        $clientEmail = ! empty($validated['client_email'])
+            ? trim($validated['client_email'])
+            : ($existing['client_email'] ?? trim((string) env('GOOGLE_DRIVE_CLIENT_EMAIL', '')));
 
         // Tangani file JSON jika diunggah
         if ($request->hasFile('credentials_json')) {
-            $dir = storage_path('app/google-drive');
-            if (! File::exists($dir)) {
-                File::makeDirectory($dir, 0755, true, true);
-            }
             $request->file('credentials_json')->move($dir, 'service-account.json');
         } elseif (! empty($validated['credentials_text'])) {
-            $dir = storage_path('app/google-drive');
-            if (! File::exists($dir)) {
-                File::makeDirectory($dir, 0755, true, true);
-            }
             File::put($dir.'/service-account.json', $validated['credentials_text']);
         }
 
+        $configData = [
+            'enabled' => $enabledBool,
+            'folder_id' => $folderId,
+            'client_email' => $clientEmail,
+            'updated_at' => now()->toIso8601String(),
+        ];
+
+        File::put($this->getConfigPath(), json_encode($configData, JSON_PRETTY_PRINT));
+
         $this->updateEnv([
-            'GOOGLE_DRIVE_ENABLED' => $enabled,
+            'GOOGLE_DRIVE_ENABLED' => $enabledStr,
             'GOOGLE_DRIVE_FOLDER_ID' => $folderId,
             'GOOGLE_DRIVE_CLIENT_EMAIL' => $clientEmail,
         ]);
 
-        return back()->with('toast_success', 'Pengaturan Google Drive berhasil diperbarui.');
+        return back()->with('toast_success', 'Pengaturan Google Drive berhasil diperbarui dan tersimpan secara permanen.');
     }
 
     private function updateEnv(array $data): void

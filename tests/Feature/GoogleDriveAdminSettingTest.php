@@ -49,5 +49,11 @@ class GoogleDriveAdminSettingTest extends TestCase
         $response->assertSessionHas('toast_success');
 
         $this->assertTrue(File::exists(storage_path('app/google-drive/service-account.json')));
+        $this->assertTrue(File::exists(storage_path('app/google-drive/config.json')));
+
+        $config = json_decode(File::get(storage_path('app/google-drive/config.json')), true);
+        $this->assertEquals('folder-12345', $config['folder_id']);
+        $this->assertEquals('bot@project.iam.gserviceaccount.com', $config['client_email']);
+        $this->assertTrue($config['enabled']);
     }
 }
