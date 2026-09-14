@@ -261,7 +261,7 @@ class CrudSmokeTest extends TestCase
             'email' => 'userbaru@test.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'role' => 'dosen',
+            'role' => 'admin',
         ])->assertRedirect();
 
         $user = User::where('email', 'userbaru@test.com')->first();

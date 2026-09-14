@@ -34,7 +34,7 @@ class MultiRoleDosenTest extends TestCase
         ]);
     }
 
-    public function test_admin_dapat_membuat_user_dengan_banyak_role_di_manajemen_user(): void
+    public function test_manajemen_user_menolak_pembuatan_role_akademik_tanpa_master_data(): void
     {
         $admin = $this->createAdmin();
 
@@ -45,14 +45,8 @@ class MultiRoleDosenTest extends TestCase
             'roles' => ['dosen', 'direktur'],
         ]);
 
-        $response->assertRedirect(route('users.index'));
-        $this->assertDatabaseHas('users', ['email' => 'dosen_direktur@test.dev']);
-
-        $user = User::where('email', 'dosen_direktur@test.dev')->first();
-        $this->assertTrue($user->isDosen());
-        $this->assertTrue($user->isDirektur());
-        $this->assertTrue($user->hasRole('dosen'));
-        $this->assertTrue($user->hasRole('direktur'));
+        $response->assertSessionHasErrors(['roles']);
+        $this->assertDatabaseMissing('users', ['email' => 'dosen_direktur@test.dev']);
     }
 
     public function test_admin_dapat_membuat_dosen_dengan_role_kaprodi_atau_direktur_di_manajemen_dosen(): void

@@ -31,10 +31,17 @@ class UserController extends Controller
             'role' => 'nullable|string|max:50',
         ]);
 
-        $roles = $request->roles ?? ($request->role ? (array) $request->role : ['dosen']);
+        $roles = $request->roles ?? ($request->role ? (array) $request->role : ['admin']);
         $roles = array_values(array_unique(array_map('strtolower', $roles)));
 
-        $primaryRole = in_array('admin', $roles) ? 'admin' : (in_array('dosen', $roles) ? 'dosen' : (in_array('direktur', $roles) ? 'direktur' : $roles[0]));
+        $academicRoles = array_intersect(['dosen', 'direktur', 'kaprodi', 'mahasiswa'], $roles);
+        if (! empty($academicRoles)) {
+            return back()->withErrors([
+                'roles' => 'Role Dosen, Direktur, Kaprodi, dan Mahasiswa tidak dapat dibuat langsung dari Manajemen User. Silakan tambahkan user melalui menu Master Data Dosen atau Master Data Mahasiswa agar NIDN/NIM dan profil akademik terkonfigurasi dengan benar.',
+            ])->withInput();
+        }
+
+        $primaryRole = in_array('admin', $roles) ? 'admin' : $roles[0];
 
         User::create([
             'name' => $request->name,
@@ -64,6 +71,19 @@ class UserController extends Controller
 
         $roles = $request->roles ?? ($request->role ? (array) $request->role : $user->getRolesList());
         $roles = array_values(array_unique(array_map('strtolower', $roles)));
+
+        $dosenRoles = array_intersect(['dosen', 'direktur', 'kaprodi'], $roles);
+        if (! empty($dosenRoles) && ! $user->dosen) {
+            return back()->withErrors([
+                'roles' => 'User ini belum terdaftar di Master Data Dosen. Silakan daftarkan NIDN dosen terlebih dahulu pada menu Master Data Dosen sebelum memberikan role Dosen/Direktur/Kaprodi.',
+            ])->withInput();
+        }
+
+        if (in_array('mahasiswa', $roles) && ! $user->mahasiswa) {
+            return back()->withErrors([
+                'roles' => 'User ini belum terdaftar di Master Data Mahasiswa. Silakan daftarkan NIM mahasiswa terlebih dahulu pada menu Master Data Mahasiswa sebelum memberikan role Mahasiswa.',
+            ])->withInput();
+        }
 
         $primaryRole = in_array('admin', $roles) ? 'admin' : (in_array('dosen', $roles) ? 'dosen' : (in_array('direktur', $roles) ? 'direktur' : $roles[0]));
 
