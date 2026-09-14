@@ -309,7 +309,8 @@ class LmsMahasiswaController extends Controller
                 Storage::disk('public')->delete($existing->file_jawaban);
             }
 
-            $data['file_jawaban'] = $request->file('file_jawaban')->store('lms/submissions', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions');
         }
 
         LmsSubmission::updateOrCreate(
@@ -363,7 +364,8 @@ class LmsMahasiswaController extends Controller
                 Storage::disk('public')->delete($submission->file_jawaban);
             }
 
-            $data['file_jawaban'] = $request->file('file_jawaban')->store('lms/submissions', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions');
         } elseif ($request->boolean('hapus_file_jawaban') && $submission->file_jawaban) {
             Storage::disk('public')->delete($submission->file_jawaban);
             $data['file_jawaban'] = null;

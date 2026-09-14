@@ -82,7 +82,8 @@ class LmsTugasController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $data['file_lampiran'] = $request->file('file')->store('lms/tugas', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 
         $tugas = LmsTugas::create($data);
@@ -196,7 +197,8 @@ class LmsTugasController extends Controller
                 Storage::disk('public')->delete($tugas->file_lampiran);
             }
 
-            $data['file_lampiran'] = $request->file('file')->store('lms/tugas', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 
         $tugas->update($data);

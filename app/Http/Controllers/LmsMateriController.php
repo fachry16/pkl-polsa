@@ -67,7 +67,8 @@ class LmsMateriController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $data['file_path'] = $request->file('file')->store('lms/materi', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi');
         }
 
         $materi = LmsMateri::create($data);
@@ -137,7 +138,8 @@ class LmsMateriController extends Controller
                 Storage::disk('public')->delete($materi->file_path);
             }
 
-            $data['file_path'] = $request->file('file')->store('lms/materi', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi');
         }
 
         $materi->update($data);

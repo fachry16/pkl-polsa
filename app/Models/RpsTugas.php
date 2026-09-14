@@ -13,6 +13,7 @@ class RpsTugas extends Model
         'kategori_komponen',
         'sub_cpmk',
         'penugasan',
+        'deskripsi',
         'ruang_lingkup',
         'cara_pengerjaan',
         'batas_waktu',

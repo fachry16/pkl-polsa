@@ -47,6 +47,7 @@ class RpsTugasController extends Controller
             'kategori_komponen' => 'nullable|string|in:tugas,quiz,uts,uas,praktikum,project',
             'sub_cpmk' => 'nullable|string|max:255',
             'penugasan' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
             'ruang_lingkup' => 'nullable|string',
             'cara_pengerjaan' => 'nullable|string',
             'batas_waktu' => 'nullable|string|max:255',
@@ -63,6 +64,7 @@ class RpsTugasController extends Controller
             'kategori_komponen' => $request->kategori_komponen ?? 'tugas',
             'sub_cpmk' => $request->sub_cpmk,
             'penugasan' => $request->penugasan,
+            'deskripsi' => $request->deskripsi,
             'ruang_lingkup' => $request->ruang_lingkup,
             'cara_pengerjaan' => $request->cara_pengerjaan,
             'batas_waktu' => $request->batas_waktu,
@@ -72,7 +74,8 @@ class RpsTugasController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $data['file_soal'] = $request->file('file')->store('lms/tugas', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 
         $tugas = RpsTugas::create($data);
@@ -100,6 +103,7 @@ class RpsTugasController extends Controller
             'kategori_komponen' => 'nullable|string|in:tugas,quiz,uts,uas,praktikum,project',
             'sub_cpmk' => 'nullable|string|max:255',
             'penugasan' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
             'ruang_lingkup' => 'nullable|string',
             'cara_pengerjaan' => 'nullable|string',
             'batas_waktu' => 'nullable|string|max:255',
@@ -115,6 +119,7 @@ class RpsTugasController extends Controller
             'kategori_komponen' => $request->kategori_komponen ?? 'tugas',
             'sub_cpmk' => $request->sub_cpmk,
             'penugasan' => $request->penugasan,
+            'deskripsi' => $request->deskripsi,
             'ruang_lingkup' => $request->ruang_lingkup,
             'cara_pengerjaan' => $request->cara_pengerjaan,
             'batas_waktu' => $request->batas_waktu,
@@ -127,7 +132,8 @@ class RpsTugasController extends Controller
             if ($tugas->file_soal) {
                 Storage::disk('public')->delete($tugas->file_soal);
             }
-            $data['file_soal'] = $request->file('file')->store('lms/tugas', 'public');
+            $driveService = app(\App\Services\GoogleDriveService::class);
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 
         $oldTitle = $tugas->getOriginal('nama_tugas');
@@ -253,6 +259,9 @@ class RpsTugasController extends Controller
     private function buildInstruksi(RpsTugas $tugas): string
     {
         $parts = [];
+        if ($tugas->deskripsi) {
+            $parts[] = 'Deskripsi: '.$tugas->deskripsi;
+        }
         if ($tugas->penugasan) {
             $parts[] = 'Penugasan: '.$tugas->penugasan;
         }

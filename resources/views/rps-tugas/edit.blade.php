@@ -79,6 +79,17 @@
 
     <div class="form-group">
 
+        <label class="form-label">Deskripsi Tugas</label>
+
+        <textarea name="deskripsi"
+                  class="form-textarea w-full"
+                  rows="4"
+                  placeholder="Isi deskripsi rincian instruksi tugas di sini...">{{ old('deskripsi', $tugas->deskripsi) }}</textarea>
+
+    </div>
+
+    <div class="form-group">
+
         <label class="form-label">Ruang Lingkup</label>
 
         <textarea name="ruang_lingkup"
