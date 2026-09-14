@@ -12,6 +12,56 @@ class GoogleDriveAdminSettingTest extends TestCase
 {
     use RefreshDatabase;
 
+    private ?string $originalConfig = null;
+
+    private ?string $originalServiceAccount = null;
+
+    private ?string $originalEnv = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $configPath = storage_path('app/google-drive/config.json');
+        $jsonPath = storage_path('app/google-drive/service-account.json');
+        $envPath = base_path('.env');
+
+        if (File::exists($configPath)) {
+            $this->originalConfig = File::get($configPath);
+        }
+        if (File::exists($jsonPath)) {
+            $this->originalServiceAccount = File::get($jsonPath);
+        }
+        if (File::exists($envPath)) {
+            $this->originalEnv = File::get($envPath);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        $configPath = storage_path('app/google-drive/config.json');
+        $jsonPath = storage_path('app/google-drive/service-account.json');
+        $envPath = base_path('.env');
+
+        if ($this->originalConfig !== null) {
+            File::put($configPath, $this->originalConfig);
+        } else {
+            File::delete($configPath);
+        }
+
+        if ($this->originalServiceAccount !== null) {
+            File::put($jsonPath, $this->originalServiceAccount);
+        } else {
+            File::delete($jsonPath);
+        }
+
+        if ($this->originalEnv !== null) {
+            File::put($envPath, $this->originalEnv);
+        }
+
+        parent::tearDown();
+    }
+
     public function test_admin_dapat_mengakses_halaman_pengaturan_gdrive(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
