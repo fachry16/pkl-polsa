@@ -35,6 +35,31 @@
             <td>{{ $rps->deskripsi_mata_kuliah }}</td>
         </tr>
 
+        <tr>
+            <td class="font-semibold">Rumpun MK (RMK)</td>
+            <td>{{ $rps->rumpun_mk }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">MK yang Menjadi Prasyarat</td>
+            <td>{{ $rps->mk_prasyarat }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">Menjadi Prasyarat untuk MK</td>
+            <td>{{ $rps->prasyarat_untuk }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">Integrasi Antar MK</td>
+            <td>{{ $rps->integrasi_antar_mk }}</td>
+        </tr>
+
+        <tr>
+            <td class="font-semibold">Tautan Kelas Daring</td>
+            <td>{{ $rps->tautan_daring }}</td>
+        </tr>
+
     </table>
 
     <div class="btn-group mt-5">
