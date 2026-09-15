@@ -5,11 +5,76 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\BahanKajian;
 use App\Models\Kurikulum;
+use App\Services\CsvImportService;
 use Illuminate\Http\Request;
 
 class BahanKajianController extends Controller
 {
     use AuthorizesKurikulum;
+
+    public function downloadTemplate(CsvImportService $csvService)
+    {
+        $headers = ['kode_bk', 'nama_bk', 'referensi'];
+        $samples = [
+            ['BK01', 'Algoritma dan Pemrograman', 'Tanenbaum, A.S. (2015). Structured Computer Organization.'],
+            ['BK02', 'Rekayasa Perangkat Lunak', 'Sommerville, I. (2016). Software Engineering.'],
+        ];
+
+        return $csvService->downloadTemplate('template_import_bahan_kajian.csv', $headers, $samples);
+    }
+
+    public function import(Request $request, Kurikulum $kurikulum, CsvImportService $csvService)
+    {
+        $this->authorizeKurikulum($kurikulum);
+        $request->validate([
+            'file' => 'required|file|max:5120',
+        ]);
+
+        $rows = $csvService->parseCsv($request->file('file')->getRealPath());
+
+        if (empty($rows)) {
+            return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
+        }
+
+        $imported = 0;
+        $skipped = [];
+        $existing = $kurikulum->bahanKajians()->pluck('kode_bk')->map(fn ($k) => strtoupper(trim($k)))->all();
+
+        foreach ($rows as $row) {
+            $rowNum = $row['_row_number'] ?? '?';
+            $kode = strtoupper(trim($row['kode_bk'] ?? ''));
+            $nama = trim($row['nama_bk'] ?? '');
+            $referensi = trim($row['referensi'] ?? '');
+
+            if ($kode === '' || $nama === '') {
+                $skipped[] = "Baris {$rowNum}: kode_bk dan nama_bk wajib diisi.";
+
+                continue;
+            }
+
+            if (in_array($kode, $existing)) {
+                $skipped[] = "Baris {$rowNum}: Kode BK {$kode} sudah terdaftar pada kurikulum ini.";
+
+                continue;
+            }
+
+            BahanKajian::create([
+                'kurikulum_id' => $kurikulum->id,
+                'kode_bk' => $kode,
+                'nama_bk' => $nama,
+                'referensi' => $referensi,
+            ]);
+            $existing[] = $kode;
+            $imported++;
+        }
+
+        $msg = "Berhasil mengimpor {$imported} data Bahan Kajian.";
+        if (! empty($skipped)) {
+            return back()->with('success', $msg.' '.count($skipped).' baris dilewati.')->with('import_warnings', $skipped);
+        }
+
+        return back()->with('success', $msg);
+    }
 
     /**
      * Display a listing of the resource.

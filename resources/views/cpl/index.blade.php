@@ -7,7 +7,7 @@
 </h1>
 
 @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
-<div class="mb-5">
+<div class="mb-5" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
 
     <a href="{{ route('kurikulum.cpl.create', $kurikulum->id) }}"
        class="btn btn-primary">
@@ -16,10 +16,31 @@
 
     </a>
 
+    <x-import-modal
+        title="Import Data CPL"
+        :template-url="route('kurikulum.cpl.template-import', $kurikulum->id)"
+        :action-url="route('kurikulum.cpl.import', $kurikulum->id)"
+        :columns="[
+            ['name' => 'kode_cpl', 'desc' => 'Kode CPL unik.'],
+            ['name' => 'deskripsi', 'desc' => 'Deskripsi capaian pembelajaran.'],
+        ]"
+    />
+
 </div>
 @endif
 
 <x-alert type="success" :message="session('success')" />
+
+@if(session('import_warnings'))
+    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.8rem; color: #92400e;">
+        <div style="font-weight: 700; margin-bottom: 0.35rem;">Catatan Baris yang Dilewati:</div>
+        <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.5;">
+            @foreach(session('import_warnings') as $warn)
+                <li>{{ $warn }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 <div class="table-container">
 

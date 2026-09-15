@@ -468,6 +468,16 @@ Route::middleware(['auth'])->group(function () {
             [CplController::class, 'destroy']
         )->name('kurikulum.cpl.destroy');
 
+        Route::get(
+            'kurikulum/{kurikulum}/cpl/template-import',
+            [CplController::class, 'downloadTemplate']
+        )->name('kurikulum.cpl.template-import');
+
+        Route::post(
+            'kurikulum/{kurikulum}/cpl/import',
+            [CplController::class, 'import']
+        )->name('kurikulum.cpl.import');
+
         /* CPMK */
         Route::get(
             'kurikulum/{kurikulum}/cpmk/create',
@@ -493,6 +503,16 @@ Route::middleware(['auth'])->group(function () {
             'kurikulum/{kurikulum}/cpmk/{cpmk}',
             [CpmkController::class, 'destroy']
         )->name('kurikulum.cpmk.destroy');
+
+        Route::get(
+            'kurikulum/{kurikulum}/cpmk/template-import',
+            [CpmkController::class, 'downloadTemplate']
+        )->name('kurikulum.cpmk.template-import');
+
+        Route::post(
+            'kurikulum/{kurikulum}/cpmk/import',
+            [CpmkController::class, 'import']
+        )->name('kurikulum.cpmk.import');
 
         /* Bahan Kajian */
         Route::get(
@@ -520,6 +540,16 @@ Route::middleware(['auth'])->group(function () {
             [BahanKajianController::class, 'destroy']
         )->name('kurikulum.bahan-kajian.destroy');
 
+        Route::get(
+            'kurikulum/{kurikulum}/bahan-kajian/template-import',
+            [BahanKajianController::class, 'downloadTemplate']
+        )->name('kurikulum.bahan-kajian.template-import');
+
+        Route::post(
+            'kurikulum/{kurikulum}/bahan-kajian/import',
+            [BahanKajianController::class, 'import']
+        )->name('kurikulum.bahan-kajian.import');
+
         /* Profil Lulusan */
         Route::get(
             'kurikulum/{kurikulum}/profil-lulusan/create',
@@ -545,6 +575,16 @@ Route::middleware(['auth'])->group(function () {
             'kurikulum/{kurikulum}/profil-lulusan/{profilLulusan}',
             [ProfilLulusanController::class, 'destroy']
         )->name('kurikulum.profil-lulusan.destroy');
+
+        Route::get(
+            'kurikulum/{kurikulum}/profil-lulusan/template-import',
+            [ProfilLulusanController::class, 'downloadTemplate']
+        )->name('kurikulum.profil-lulusan.template-import');
+
+        Route::post(
+            'kurikulum/{kurikulum}/profil-lulusan/import',
+            [ProfilLulusanController::class, 'import']
+        )->name('kurikulum.profil-lulusan.import');
 
         /* Matriks Mapping */
         Route::match(
@@ -604,6 +644,16 @@ Route::middleware(['auth'])->group(function () {
             'kurikulum/{kurikulum}/mata-kuliah/{mataKuliah}',
             [MataKuliahController::class, 'destroy']
         )->name('kurikulum.mata-kuliah.destroy');
+
+        Route::get(
+            'kurikulum/{kurikulum}/mata-kuliah/template-import',
+            [MataKuliahController::class, 'downloadTemplate']
+        )->name('kurikulum.mata-kuliah.template-import');
+
+        Route::post(
+            'kurikulum/{kurikulum}/mata-kuliah/import',
+            [MataKuliahController::class, 'import']
+        )->name('kurikulum.mata-kuliah.import');
 
         /* Metode dan Bobot Penilaian */
         Route::get(

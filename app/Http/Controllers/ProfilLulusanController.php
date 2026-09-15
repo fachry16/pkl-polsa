@@ -5,11 +5,76 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Kurikulum;
 use App\Models\ProfilLulusan;
+use App\Services\CsvImportService;
 use Illuminate\Http\Request;
 
 class ProfilLulusanController extends Controller
 {
     use AuthorizesKurikulum;
+
+    public function downloadTemplate(CsvImportService $csvService)
+    {
+        $headers = ['kode_pl', 'nama_pl', 'profesi'];
+        $samples = [
+            ['PL01', 'Software Engineer', 'Software Engineer, System Analyst'],
+            ['PL02', 'Database Administrator', 'Database Administrator'],
+        ];
+
+        return $csvService->downloadTemplate('template_import_profil_lulusan.csv', $headers, $samples);
+    }
+
+    public function import(Request $request, Kurikulum $kurikulum, CsvImportService $csvService)
+    {
+        $this->authorizeKurikulum($kurikulum);
+        $request->validate([
+            'file' => 'required|file|max:5120',
+        ]);
+
+        $rows = $csvService->parseCsv($request->file('file')->getRealPath());
+
+        if (empty($rows)) {
+            return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
+        }
+
+        $imported = 0;
+        $skipped = [];
+        $existing = $kurikulum->profilLulusans()->pluck('kode_pl')->map(fn ($k) => strtoupper(trim($k)))->all();
+
+        foreach ($rows as $row) {
+            $rowNum = $row['_row_number'] ?? '?';
+            $kode = strtoupper(trim($row['kode_pl'] ?? ''));
+            $nama = trim($row['nama_pl'] ?? '');
+            $profesi = trim($row['profesi'] ?? '');
+
+            if ($kode === '' || $nama === '') {
+                $skipped[] = "Baris {$rowNum}: kode_pl dan nama_pl wajib diisi.";
+
+                continue;
+            }
+
+            if (in_array($kode, $existing)) {
+                $skipped[] = "Baris {$rowNum}: Kode PL {$kode} sudah terdaftar pada kurikulum ini.";
+
+                continue;
+            }
+
+            ProfilLulusan::create([
+                'kurikulum_id' => $kurikulum->id,
+                'kode_pl' => $kode,
+                'nama_pl' => $nama,
+                'profesi' => $profesi,
+            ]);
+            $existing[] = $kode;
+            $imported++;
+        }
+
+        $msg = "Berhasil mengimpor {$imported} data Profil Lulusan.";
+        if (! empty($skipped)) {
+            return back()->with('success', $msg.' '.count($skipped).' baris dilewati.')->with('import_warnings', $skipped);
+        }
+
+        return back()->with('success', $msg);
+    }
 
     /**
      * Display a listing of the resource.
