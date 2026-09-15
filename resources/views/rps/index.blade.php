@@ -117,21 +117,28 @@
 
         @if($rps->status != 'Disetujui')
 
-        <a href="{{ route('mata-kuliah.rps.edit', [$mataKuliah, $rps]) }}"
-           class="btn btn-warning">
-            Edit
-        </a>
+            <a href="{{ route('mata-kuliah.rps.edit', [$mataKuliah, $rps]) }}"
+               class="btn btn-warning">
+                Edit
+            </a>
 
-        <x-confirm
-            action="{{ route('mata-kuliah.rps.destroy', [$mataKuliah, $rps]) }}"
-            method="DELETE"
-            title="Hapus RPS"
-            message="Hapus RPS ini?"
-            sub-message="Semua data pertemuan dan penilaian terkait akan ikut terhapus."
-            buttonText="Hapus"
-            buttonClass="btn btn-danger"
-            confirmText="Ya, Hapus"
-        />
+            <x-confirm
+                action="{{ route('mata-kuliah.rps.destroy', [$mataKuliah, $rps]) }}"
+                method="DELETE"
+                title="Hapus RPS"
+                message="Hapus RPS ini?"
+                sub-message="Semua data pertemuan dan penilaian terkait akan ikut terhapus."
+                buttonText="Hapus"
+                buttonClass="btn btn-danger"
+                confirmText="Ya, Hapus"
+            />
+
+        @else
+
+            <a href="{{ route('mata-kuliah.rps.edit', [$mataKuliah, $rps]) }}"
+               class="btn btn-warning">
+                Edit
+            </a>
 
         @endif
 
