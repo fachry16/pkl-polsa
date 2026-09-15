@@ -208,8 +208,12 @@ class MultiRoleDosenTest extends TestCase
             'jabatan' => 'Direktur',
         ]);
 
+        $this->actingAs($user)->post(route('sidebar.toggle', 'kaprodi'));
+        $this->actingAs($user)->post(route('sidebar.toggle', 'direktur'));
+
         $response = $this->actingAs($user)->get(route('dashboard-direktur'));
         $response->assertOk();
+        $response->assertSee('Mode Tampilan');
         $response->assertSee(route('krs.index'));
         $response->assertSee(route('dashboard-direktur'));
         $response->assertSee(route('dosen.self'));

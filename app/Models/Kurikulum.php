@@ -13,6 +13,7 @@ class Kurikulum extends Model
         'beban_studi',
         'deskripsi',
         'status',
+        'lampiran',
     ];
 
     public function programStudi()

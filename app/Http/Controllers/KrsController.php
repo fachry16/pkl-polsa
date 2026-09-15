@@ -130,6 +130,7 @@ class KrsController extends Controller
         $mahasiswaIds = $krs->mahasiswas->pluck('id');
 
         $semuaMahasiswa = Mahasiswa::with('programStudi')
+            ->where('program_studi_id', $krs->program_studi_id)
             ->whereNotIn('id', $mahasiswaIds)
             ->orderBy('nim')
             ->get();
@@ -141,17 +142,22 @@ class KrsController extends Controller
     {
         $this->authorizeKrs($krs);
 
-        $request->validate([
-            'mahasiswa_id' => 'required|exists:mahasiswas,id',
-        ]);
+        $ids = array_filter((array) $request->mahasiswa_id);
 
-        $krs->mahasiswas()->syncWithoutDetaching($request->mahasiswa_id);
-
-        if ($pengampu = $krs->pengampu) {
-            $pengampu->mahasiswas()->syncWithoutDetaching($request->mahasiswa_id);
+        if (empty($ids)) {
+            return back()->with('error', 'Pilih minimal satu mahasiswa.');
         }
 
-        return back()->with('success', 'Mahasiswa berhasil ditambahkan ke KRS.');
+        $validIds = Mahasiswa::whereIn('id', $ids)->pluck('id')->all();
+        abort_unless(count($validIds) === count($ids), 422);
+
+        $krs->mahasiswas()->syncWithoutDetaching($validIds);
+
+        if ($pengampu = $krs->pengampu) {
+            $pengampu->mahasiswas()->syncWithoutDetaching($ids);
+        }
+
+        return back()->with('success', count($ids).' mahasiswa berhasil ditambahkan ke KRS.');
     }
 
     public function destroyMahasiswa(Krs $krs, Mahasiswa $mahasiswa)

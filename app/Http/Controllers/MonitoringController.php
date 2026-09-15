@@ -2,68 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Dosen;
 use App\Models\Kurikulum;
-use App\Models\Mahasiswa;
+use App\Models\Pengampu;
 use App\Models\ProgramStudi;
-use App\Models\TahunAkademik;
 use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
 {
-    public function mahasiswa(Request $request)
+    public function kelas()
     {
-        $query = Mahasiswa::with(['programStudi', 'semesterMahasiswas.tahunAkademik', 'user']);
+        $kelases = Pengampu::with(['mataKuliah', 'dosen.user', 'tahunAkademik'])
+            ->withCount([
+                'mahasiswas',
+                'lmsMateris',
+                'lmsTugas',
+                'lmsForumDiskusis',
+                'lmsSubmissions as submissions_belum_dinilai' => function ($q) {
+                    $q->whereNull('nilai');
+                },
+            ])
+            ->orderBy('id')
+            ->paginate(12);
 
-        if ($programStudiId = $request->program_studi_id) {
-            $query->where('program_studi_id', $programStudiId);
-        }
-        if ($angkatan = $request->angkatan) {
-            $query->where('angkatan', $angkatan);
-        }
-        if ($status = $request->status) {
-            $query->where('status', $status);
-        }
-        if ($jenisKelas = $request->jenis_kelas) {
-            $query->where('jenis_kelas', $jenisKelas);
-        }
-        if ($tahunAkademikId = $request->tahun_akademik_id) {
-            $query->whereHas('semesterMahasiswas', function ($q) use ($tahunAkademikId) {
-                $q->where('tahun_akademik_id', $tahunAkademikId);
-            });
-        }
-
-        $mahasiswas = $query->orderBy('nim')->paginate(15)->withQueryString();
-
-        $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
-        $angkatans = Mahasiswa::distinct()->orderBy('angkatan')->pluck('angkatan');
-        $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
-
-        return view('monitoring.mahasiswa', compact('mahasiswas', 'programStudis', 'angkatans', 'tahunAkademiks'));
+        return view('monitoring.kelas', compact('kelases'));
     }
 
-    public function dosen(Request $request)
+    public function lms()
     {
-        $query = Dosen::with(['user', 'programStudi']);
+        $user = auth()->user();
+        $dosen = $user->dosen;
 
-        if ($request->program_studi_id) {
-            $query->where('program_studi_id', $request->program_studi_id);
-        }
-        if ($request->jabatan) {
-            $jabatan = strtolower($request->jabatan);
-            $query->where(function ($sub) use ($jabatan) {
-                $sub->whereRaw('LOWER(jabatan) = ?', [$jabatan])
-                    ->orWhereHas('user', function ($uq) use ($jabatan) {
-                        $uq->whereJsonContains('roles', $jabatan);
-                    });
+        $programStudiId = $dosen?->program_studi_id;
+
+        $query = Pengampu::query()
+            ->with(['mataKuliah', 'dosen.user', 'tahunAkademik'])
+            ->withCount([
+                'mahasiswas',
+                'lmsMateris',
+                'lmsTugas',
+                'lmsForumDiskusis',
+                'lmsSubmissions as submissions_belum_dinilai' => function ($q) {
+                    $q->whereNull('nilai');
+                },
+            ]);
+
+        if ($programStudiId) {
+            $query->whereHas('mataKuliah.kurikulum', function ($q) use ($programStudiId) {
+                $q->where('program_studi_id', $programStudiId);
             });
         }
 
-        $dosens = $query->orderBy('nidn')->paginate(15)->withQueryString();
+        $pengampus = $query->orderBy('id')->paginate(12);
 
-        $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
+        $programStudi = $programStudiId ? ProgramStudi::find($programStudiId) : null;
 
-        return view('monitoring.dosen', compact('dosens', 'programStudis'));
+        return view('monitoring.lms', compact('pengampus', 'programStudi'));
     }
 
     public function kurikulum(Request $request)

@@ -35,80 +35,7 @@
             <td>{{ $rps->deskripsi_mata_kuliah }}</td>
         </tr>
 
-        <tr>
-            <td class="font-semibold">Rumpun MK</td>
-            <td>{{ $rps->rumpun_mk ?? '-' }}</td>
-        </tr>
-
-        <tr>
-            <td class="font-semibold">MK Prasyarat</td>
-            <td>{{ $rps->mk_prasyarat ?? '-' }}</td>
-        </tr>
-
-        <tr>
-            <td class="font-semibold">Prasyarat untuk MK</td>
-            <td>{{ $rps->prasyarat_untuk ?? '-' }}</td>
-        </tr>
-
-        <tr>
-            <td class="font-semibold">Integrasi Antar MK</td>
-            <td>{{ $rps->integrasi_antar_mk ?? '-' }}</td>
-        </tr>
-
-        <tr>
-            <td class="font-semibold">Tautan Kelas Daring</td>
-            <td>
-                @if($rps->tautan_daring)
-                    <a href="{{ $rps->tautan_daring }}" target="_blank" rel="noopener">{{ $rps->tautan_daring }}</a>
-                @else
-                    -
-                @endif
-            </td>
-        </tr>
-
-        <tr>
-            <td class="font-semibold">Status</td>
-            <td>
-
-                @if($rps->status == 'Draft')
-                    <span class="badge badge-draft">Draft</span>
-
-                @elseif($rps->status == 'Diajukan')
-                    <span class="badge badge-diajukan">Diajukan</span>
-
-                @elseif($rps->status == 'Revisi')
-                    <span class="badge badge-revisi">Revisi</span>
-
-                @elseif($rps->status == 'Disetujui')
-                    <span class="badge badge-disetujui">Disetujui</span>
-                @endif
-
-            </td>
-        </tr>
-
     </table>
-
-    @if($rps->status == 'Revisi' && $rps->catatan_revisi)
-
-    <div class="revision-box mt-5">
-        <strong>Catatan Revisi dari Kaprodi:</strong>
-        <p class="mt-2">{{ $rps->catatan_revisi }}</p>
-    </div>
-
-    @endif
-
-    @if($rps->status == 'Disetujui' && $rps->disetujuiOleh)
-
-    <div class="approval-box mt-5">
-        <strong>Disetujui oleh:</strong>
-        <p class="mt-1">{{ $rps->disetujuiOleh->name }}
-            @if($rps->tanggal_disetujui)
-                pada {{ $rps->tanggal_disetujui->format('d/m/Y H:i') }}
-            @endif
-        </p>
-    </div>
-
-    @endif
 
     <div class="btn-group mt-5">
 
@@ -122,14 +49,14 @@
             Tugas &amp; Latihan
         </a>
 
-        <a href="{{ route('rps.penilaian.index', $rps) }}"
-           class="btn btn-success">
-            Penilaian
-        </a>
-
         <a href="{{ route('rps.bentuk-evaluasi.index', $rps) }}"
            class="btn btn-success">
             Rancangan Evaluasi
+        </a>
+
+        <a href="{{ route('rps.penilaian.index', $rps) }}"
+           class="btn btn-success">
+            Penilaian
         </a>
 
         @if($rps->status == 'Disetujui')
@@ -143,16 +70,23 @@
 
         @if(in_array($rps->status, ['Draft', 'Revisi']))
 
-        <form action="{{ route('rps.ajukan', $rps) }}" method="POST">
+            @if($kelengkapan['siap'])
+            <form action="{{ route('rps.ajukan', $rps) }}" method="POST">
 
-            @csrf
-            @method('PATCH')
+                @csrf
+                @method('PATCH')
 
-            <button class="btn btn-primary">
+                <button class="btn btn-primary">
+                    {{ $rps->status == 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Kaprodi' }}
+                </button>
+
+            </form>
+            @else
+            <button class="btn btn-primary" disabled
+                    title="Lengkapi seluruh pertemuan (minggu 1-16), tugas & latihan, dan penilaian terlebih dahulu">
                 {{ $rps->status == 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Kaprodi' }}
             </button>
-
-        </form>
+            @endif
 
         @endif
 
@@ -203,7 +137,7 @@
             Kembali ke Riwayat Mengajar &amp; RPS
         </a>
     @else
-        <a href="{{ route('kurikulum.mata-kuliah.index', $mataKuliah->kurikulum_id) }}"
+        <a href="{{ url()->previous() }}"
            class="btn btn-secondary">
             Kembali
         </a>

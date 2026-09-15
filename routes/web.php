@@ -27,6 +27,7 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\MahasiswaTahunAkademikController;
 use App\Http\Controllers\MataKuliahController;
 use App\Http\Controllers\MetodeBobotPenilaianController;
+use App\Http\Controllers\MkCpmkController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PemenuhanCplsController;
@@ -42,6 +43,7 @@ use App\Http\Controllers\RpsPertemuanController;
 use App\Http\Controllers\RpsTugasController;
 use App\Http\Controllers\RumusanNilaiAkhirCplController;
 use App\Http\Controllers\RumusanNilaiAkhirMkController;
+use App\Http\Controllers\SidebarController;
 use App\Http\Controllers\TahunAkademikController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +53,10 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+
+Route::post('/sidebar/toggle/{role}', [SidebarController::class, 'toggle'])
+    ->middleware(['auth'])
+    ->name('sidebar.toggle');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -358,6 +364,11 @@ Route::middleware(['auth'])->group(function () {
     )->name('kurikulum.bk-mk.index');
 
     Route::get(
+        'kurikulum/{kurikulum}/mk-cpmk',
+        [MkCpmkController::class, 'index']
+    )->name('kurikulum.mk-cpmk.index');
+
+    Route::get(
         'kurikulum/{kurikulum}/cpl-bk-mk',
         [CplBkMkController::class, 'index']
     )->name('kurikulum.cpl-bk-mk.index');
@@ -547,6 +558,12 @@ Route::middleware(['auth'])->group(function () {
             'kurikulum/{kurikulum}/bk-mk',
             [BahanKajianMataKuliahController::class, 'update']
         )->name('kurikulum.bk-mk.update');
+
+        Route::match(
+            ['PUT', 'POST'],
+            'kurikulum/{kurikulum}/mk-cpmk',
+            [MkCpmkController::class, 'update']
+        )->name('kurikulum.mk-cpmk.update');
 
         Route::post(
             'kurikulum/{kurikulum}/cpl-bk-mk',
@@ -743,6 +760,16 @@ Route::middleware(['auth'])->group(function () {
         [RpsPertemuanController::class, 'destroy']
     )->name('rps.pertemuan.destroy');
 
+    Route::post(
+        'rps/{rps}/pertemuan/{pertemuan}/upload-materi',
+        [RpsPertemuanController::class, 'uploadMateri']
+    )->name('rps.pertemuan.upload-materi');
+
+    Route::get(
+        'rps/{rps}/pertemuan/{pertemuan}/keaktifan',
+        [RpsPertemuanController::class, 'lihatKeaktifan']
+    )->name('rps.pertemuan.keaktifan');
+
     Route::get(
         'rps/{rps}/penilaian',
         [RpsPenilaianController::class, 'index']
@@ -832,6 +859,11 @@ Route::middleware(['auth'])->group(function () {
         'rps/{rps}/tugas/{tugas}/upload-ke-lms',
         [RpsTugasController::class, 'uploadKeLms']
     )->name('rps.tugas.upload-ke-lms');
+
+    Route::get(
+        'rps/{rps}/tugas/{tugas}/nilai',
+        [RpsTugasController::class, 'lihatNilai']
+    )->name('rps.tugas.nilai');
 });
 
 /* Kaprodi & Direktur — pengajuan RPS */
@@ -851,6 +883,11 @@ Route::middleware(['auth', 'role:kaprodi,direktur'])->group(function () {
         'rps/{rps}/revisi',
         [RpsController::class, 'revisi']
     )->name('rps.revisi');
+
+    Route::get(
+        'monitoring/lms',
+        [MonitoringController::class, 'lms']
+    )->name('monitoring.lms');
 });
 
 /* Direktur */
@@ -862,14 +899,9 @@ Route::middleware(['auth', 'role:direktur'])->group(function () {
     )->name('dashboard-direktur');
 
     Route::get(
-        'monitoring/mahasiswa',
-        [MonitoringController::class, 'mahasiswa']
-    )->name('monitoring.mahasiswa');
-
-    Route::get(
-        'monitoring/dosen',
-        [MonitoringController::class, 'dosen']
-    )->name('monitoring.dosen');
+        'monitoring/kelas',
+        [MonitoringController::class, 'kelas']
+    )->name('monitoring.kelas');
 
     Route::get(
         'monitoring/kurikulum',

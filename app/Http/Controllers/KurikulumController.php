@@ -8,6 +8,7 @@ use App\Models\ProgramStudi;
 use App\Models\User;
 use App\Notifications\KurikulumBaruAdmin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class KurikulumController extends Controller
 {
@@ -81,6 +82,7 @@ class KurikulumController extends Controller
             'tahun_berlaku' => 'required|digits:4',
             'beban_studi' => 'required',
             'deskripsi' => 'required',
+            'lampiran' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
         ]);
 
         $programStudiId = $this->resolveProgramStudiId($request->program_studi_id);
@@ -92,6 +94,9 @@ class KurikulumController extends Controller
             'beban_studi' => $request->beban_studi,
             'deskripsi' => $request->deskripsi,
             'status' => 'Draft',
+            'lampiran' => $request->file('lampiran')
+                ? $request->file('lampiran')->store('kurikulum/lampiran', 'public')
+                : null,
         ]);
 
         $pembuat = auth()->user()->name ?? 'User';
@@ -137,7 +142,15 @@ class KurikulumController extends Controller
             'tahun_berlaku' => 'required|digits:4',
             'beban_studi' => 'required',
             'deskripsi' => 'required',
+            'lampiran' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
         ]);
+
+        if ($request->file('lampiran')) {
+            if ($kurikulum->lampiran) {
+                Storage::disk('public')->delete($kurikulum->lampiran);
+            }
+            $kurikulum->lampiran = $request->file('lampiran')->store('kurikulum/lampiran', 'public');
+        }
 
         $kurikulum->update([
             'program_studi_id' => $this->resolveProgramStudiId($request->program_studi_id),
@@ -145,6 +158,7 @@ class KurikulumController extends Controller
             'tahun_berlaku' => $request->tahun_berlaku,
             'beban_studi' => $request->beban_studi,
             'deskripsi' => $request->deskripsi,
+            'lampiran' => $kurikulum->lampiran,
         ]);
 
         return redirect()
@@ -170,6 +184,10 @@ class KurikulumController extends Controller
         }
 
         $programStudiId = $kurikulum->program_studi_id;
+
+        if ($kurikulum->lampiran) {
+            Storage::disk('public')->delete($kurikulum->lampiran);
+        }
 
         $kurikulum->delete();
 

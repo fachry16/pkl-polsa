@@ -34,7 +34,11 @@ class RpsBentukEvaluasiController extends Controller
     {
         $this->authorizeRpsModel($rps);
 
-        return view('rps-bentuk-evaluasi.create', compact('rps'));
+        $cpmks = $rps->mataKuliah->cpmks()
+            ->orderBy('kode_cpmk')
+            ->get();
+
+        return view('rps-bentuk-evaluasi.create', compact('rps', 'cpmks'));
     }
 
     /**
@@ -60,7 +64,11 @@ class RpsBentukEvaluasiController extends Controller
     {
         $this->authorizeRpsModel($rps);
 
-        return view('rps-bentuk-evaluasi.edit', compact('rps', 'bentukEvaluasi'));
+        $cpmks = $rps->mataKuliah->cpmks()
+            ->orderBy('kode_cpmk')
+            ->get();
+
+        return view('rps-bentuk-evaluasi.edit', compact('rps', 'bentukEvaluasi', 'cpmks'));
     }
 
     /**

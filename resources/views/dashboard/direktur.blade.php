@@ -307,76 +307,87 @@
     </div>
 </div>
 
-{{-- Baris 6: Monitoring Data Dosen --}}
+{{-- Baris 6: Monitoring Kelas --}}
 <div class="card" style="margin-top: 1.5rem;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
             <div style="width: 32px; height: 32px; border-radius: 8px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
             </div>
             <div>
-                <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Monitoring Data Dosen</div>
-                <div style="font-size: 0.75rem; color: #64748b;">Daftar seluruh dosen beserta program studi dan jabatan</div>
+                <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Monitoring Kelas</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Status seluruh kelas di tahun akademik aktif</div>
             </div>
         </div>
-        <span style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturDosens->count() }} Dosen</span>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturKelases->total() }} Kelas</span>
+            <a href="{{ route('monitoring.kelas') }}" style="font-size: 0.75rem; color: #4f46e5; text-decoration: none; font-weight: 600;">Lihat Semua &rarr;</a>
+        </div>
     </div>
 
-    <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-            <thead>
-                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; text-align: left;">
-                    <th style="padding: 0.75rem 1rem;">No</th>
-                    <th style="padding: 0.75rem 0.75rem;">Nama</th>
-                    <th style="padding: 0.75rem 0.75rem;">NIDN</th>
-                    <th style="padding: 0.75rem 0.75rem;">Program Studi</th>
-                    <th style="padding: 0.75rem 0.75rem;">Jabatan / Role</th>
-                    <th style="padding: 0.75rem 0.75rem; text-align: center;">Akun</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($direkturDosens as $i => $dsn)
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
-                        <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $dsn->user->name ?? '-' }}</td>
-                        <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $dsn->nidn }}</td>
-                        <td style="padding: 0.75rem 0.75rem; color: #475569;">{{ $dsn->programStudi->nama_prodi ?? '-' }}</td>
-                        <td style="padding: 0.75rem 0.75rem;">
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
-                                @php
-                                    $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
-                                    $roles = $dsn->user ? $dsn->user->getRolesList() : ['dosen'];
-                                @endphp
-                                @foreach($roles as $r)
-                                    @php
-                                        $roleName = $roleMap->get($r) ?? ucfirst(str_replace('_', ' ', $r));
-                                    @endphp
-                                    @if($r === 'admin')
-                                        <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">Admin</span>
-                                    @elseif($r === 'direktur' || str_starts_with($r, 'direktur'))
-                                        <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">{{ $roleName }}</span>
-                                    @elseif($r === 'kaprodi' || str_starts_with($r, 'kaprodi'))
-                                        <span style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">{{ $roleName }}</span>
-                                    @else
-                                        <span style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 600;">{{ $roleName }}</span>
-                                    @endif
-                                @endforeach
+    @if($direkturKelases->count())
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
+            @foreach($direkturKelases as $kelas)
+                <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; transition: all 0.2s;"
+                     onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(79,70,229,0.08)';"
+                     onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 600; font-size: 0.95rem; color: #0f172a;">
+                                {{ $kelas->mataKuliah->kode ?? '' }} - {{ $kelas->mataKuliah->nama ?? '-' }}
                             </div>
-                        </td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center;">
-                            @if($dsn->user)
-                                <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
-                            @else
-                                <span style="background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Belum</span>
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data dosen.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.15rem;">
+                                {{ $kelas->label_semester }} &middot; Kelas {{ $kelas->kelas ?? '-' }}
+                                <span style="color: #94a3b8;">&middot; {{ $kelas->tahunAkademik?->tahun }} {{ ucfirst($kelas->tahunAkademik?->semester ?? '') }}</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">
+                                {{ $kelas->dosen?->user?->name ?? '-' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; padding: 0.5rem 0; margin-top: 0.75rem; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
+                        <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
+                            <span style="font-weight: 600; color: #0284c7;">{{ $kelas->mahasiswas_count }}</span>
+                            <span>Mahasiswa</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
+                            <span style="font-weight: 600; color: #4f46e5;">{{ $kelas->lms_materis_count }}</span>
+                            <span>Materi</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
+                            <span style="font-weight: 600; color: #059669;">{{ $kelas->lms_tugas_count }}</span>
+                            <span>Tugas</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
+                            <span style="font-weight: 600; color: #818cf8;">{{ $kelas->lms_forum_diskusis_count }}</span>
+                            <span>Diskusi</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
+                            <span style="font-weight: 600; color: #d97706;">{{ $kelas->submissions_belum_dinilai }}</span>
+                            <span>Blm Dinilai</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 0.75rem;">
+                        <a href="{{ route('lms.show', $kelas->id) }}" class="btn btn-primary btn-sm">Buka Kelas</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        <div style="margin-top: 1rem;">
+            {{ $direkturKelases->links() }}
+        </div>
+    @else
+        <div style="text-align: center; padding: 3rem; color: #94a3b8; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+            <p style="font-size: 0.95rem;">Belum ada data kelas.</p>
+        </div>
+    @endif
 </div>
+

@@ -122,6 +122,40 @@
                         </a>
                     @endif
 
+                    @php
+                        $switchKaprodi = auth()->user()->isDosen() && auth()->user()->isKaprodi();
+                        $switchDirektur = auth()->user()->isDosen() && auth()->user()->isDirektur();
+                    @endphp
+
+                    @if($switchKaprodi || $switchDirektur)
+                        <div style="border-top: 1px solid #f1f5f9; margin: 0.35rem 0;"></div>
+                        <div style="padding: 0.5rem 1rem 0.2rem 1rem; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8;">Mode Tampilan</div>
+                        @if($switchKaprodi)
+                            <form method="POST" action="{{ route('sidebar.toggle', 'kaprodi') }}">
+                                @csrf
+                                <button type="submit" class="sidebar-switch-row {{ (bool) session('sidebar_show_kaprodi', false) ? 'on' : '' }}" title="Tampilkan menu Kaprodi di sidebar">
+                                    <span style="display: flex; align-items: center; gap: 0.6rem;">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                                        <span>Menu Kaprodi</span>
+                                    </span>
+                                    <span class="sidebar-switch" aria-hidden="true"><span class="sidebar-switch-knob"></span></span>
+                                </button>
+                            </form>
+                        @endif
+                        @if($switchDirektur)
+                            <form method="POST" action="{{ route('sidebar.toggle', 'direktur') }}">
+                                @csrf
+                                <button type="submit" class="sidebar-switch-row {{ (bool) session('sidebar_show_direktur', false) ? 'on' : '' }}" title="Tampilkan menu Direktur di sidebar">
+                                    <span style="display: flex; align-items: center; gap: 0.6rem;">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                        <span>Menu Direktur</span>
+                                    </span>
+                                    <span class="sidebar-switch" aria-hidden="true"><span class="sidebar-switch-knob"></span></span>
+                                </button>
+                            </form>
+                        @endif
+                    @endif
+
                     <div style="border-top: 1px solid #f1f5f9; margin: 0.35rem 0;"></div>
 
                     <a href="#" onclick="event.preventDefault(); document.getElementById('global-logout-form').submit();" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 1rem; font-size: 0.8rem; color: #dc2626; text-decoration: none; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2';" onmouseout="this.style.background='transparent';">

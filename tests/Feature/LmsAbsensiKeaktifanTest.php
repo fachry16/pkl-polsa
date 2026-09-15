@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Dosen;
+use App\Models\Kurikulum;
+use App\Models\LmsAbsensi;
 use App\Models\LmsSesiAbsensi;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
@@ -13,6 +15,7 @@ use App\Models\RpsPenilaian;
 use App\Models\RpsPertemuan;
 use App\Models\TahunAkademik;
 use App\Models\User;
+use App\Services\PenilaianService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -54,7 +57,7 @@ class LmsAbsensiKeaktifanTest extends TestCase
             'jabatan' => 'Dosen',
         ]);
 
-        $kurikulum = \App\Models\Kurikulum::create([
+        $kurikulum = Kurikulum::create([
             'program_studi_id' => $prodi->id,
             'nama_kurikulum' => 'Kurikulum 2026',
             'tahun_berlaku' => 2026,
@@ -207,10 +210,10 @@ class LmsAbsensiKeaktifanTest extends TestCase
         ]);
 
         // Sesi 1 = Hadir (1.0 point), Sesi 2 = Sakit (0.5 point) -> Total: 1.5 / 2 = 75%
-        \App\Models\LmsAbsensi::create(['sesi_id' => $sesi1->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'hadir']);
-        \App\Models\LmsAbsensi::create(['sesi_id' => $sesi2->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'sakit']);
+        LmsAbsensi::create(['sesi_id' => $sesi1->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'hadir']);
+        LmsAbsensi::create(['sesi_id' => $sesi2->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'sakit']);
 
-        $service = app(\App\Services\PenilaianService::class);
+        $service = app(PenilaianService::class);
         $score = $service->hitungAbsensi($this->pengampu, $this->mahasiswa);
 
         $this->assertEquals(75.0, $score);

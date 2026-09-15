@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\LmsAbsensi;
 use App\Models\LmsNilaiMahasiswa;
+use App\Models\LmsSesiAbsensi;
 use App\Models\Mahasiswa;
 use App\Models\Pengampu;
 use App\Models\Rps;
@@ -42,13 +44,13 @@ class PenilaianService
      */
     public function hitungAbsensi(Pengampu $pengampu, Mahasiswa $mahasiswa): ?float
     {
-        $sesiIds = \App\Models\LmsSesiAbsensi::where('pengampu_id', $pengampu->id)->pluck('id');
+        $sesiIds = LmsSesiAbsensi::where('pengampu_id', $pengampu->id)->pluck('id');
         if ($sesiIds->isEmpty()) {
             return null;
         }
 
         $totalSesi = $sesiIds->count();
-        $absensis = \App\Models\LmsAbsensi::whereIn('sesi_id', $sesiIds)
+        $absensis = LmsAbsensi::whereIn('sesi_id', $sesiIds)
             ->where('mahasiswa_id', $mahasiswa->id)
             ->get();
 

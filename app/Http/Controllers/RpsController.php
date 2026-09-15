@@ -12,7 +12,6 @@ use App\Notifications\RpsDirevisi;
 use App\Notifications\RpsDisetujui;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 
 class RpsController extends Controller
 {
@@ -30,7 +29,9 @@ class RpsController extends Controller
                 ->update(['read_at' => now()]);
         }
 
-        return view('rps.index', compact('mataKuliah', 'rps'));
+        $kelengkapan = $rps?->kelengkapanAjukan();
+
+        return view('rps.index', compact('mataKuliah', 'rps', 'kelengkapan'));
     }
 
     public function create(MataKuliah $mataKuliah)
@@ -165,12 +166,8 @@ class RpsController extends Controller
             return back()->with('error', 'RPS tidak dapat diajukan kembali.');
         }
 
-        if ($rps->pertemuans()->count() == 0) {
-            return back()->with('error', 'Pertemuan belum diisi.');
-        }
-
-        if (! $rps->penilaian) {
-            return back()->with('error', 'Penilaian belum diisi.');
+        if ($rps->kelengkapanAjukan()['siap'] === false) {
+            return back()->with('error', 'RPS belum lengkap: seluruh pertemuan (minggu 1-16), tugas & latihan, dan penilaian harus diisi sebelum diajukan.');
         }
 
         $rps->update([
@@ -285,9 +282,7 @@ class RpsController extends Controller
             'disetujuiOleh',
         ]);
 
-        if (Schema::hasTable('cpmk_mata_kuliah')) {
-            $rps->load('mataKuliah.cpmks');
-        }
+        $rps->load('mataKuliah.cpmks');
 
         if (request()->has('download')) {
             $pdf = Pdf::loadView('rps.pdf', compact('rps'));

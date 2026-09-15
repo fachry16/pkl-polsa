@@ -38,6 +38,7 @@
                 <th>Beban Studi</th>
                 <th>Deskripsi</th>
                 <th>Status</th>
+                <th>Lampiran</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -83,6 +84,20 @@
                         <span class="badge">
                             Arsip
                         </span>
+
+                    @endif
+
+                </td>
+
+                <td>
+
+                    @if($kurikulum->lampiran)
+
+                        <x-file-link :file="$kurikulum->lampiran" :compact="true" />
+
+                    @else
+
+                        -
 
                     @endif
 
@@ -142,7 +157,7 @@
             @empty
 
             <tr>
-                <td colspan="6"
+                <td colspan="7"
                     class="text-center">
 
                     Data kurikulum belum tersedia.
