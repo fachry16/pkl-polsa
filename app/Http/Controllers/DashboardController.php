@@ -25,6 +25,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (request()->routeIs('dashboard-direktur') && Auth::user()->isDosen() && Auth::user()->isDirektur() && ! session('sidebar_show_direktur', false)) {
+            return redirect()->route('dashboard');
+        }
+
         $programStudis = ProgramStudi::all();
         $tahunAkademik = TahunAkademik::where('is_active', true)->first();
         $totalDosen = Dosen::count();

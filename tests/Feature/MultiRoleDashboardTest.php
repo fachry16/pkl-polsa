@@ -76,6 +76,17 @@ class MultiRoleDashboardTest extends TestCase
         $response = $this->actingAs($user)->get(route('dashboard'));
 
         $response->assertOk();
+        // Sebelum switch: dashboard kaprodi terkunci, langsung tampil dashboard dosen
+        $response->assertDontSee('Program Studi (TRPL)');
+        $response->assertDontSee('Pusat Kendali Program Studi');
+        $response->assertSee('Kelas Paket Diampu');
+
+        // Setelah switch: tab kaprodi terbuka & jadi default
+        $this->actingAs($user)->post(route('sidebar.toggle', 'kaprodi'));
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+
+        $response->assertOk();
         // Multi-role tab header
         $response->assertSee('Program Studi (TRPL)');
         $response->assertSee('Mengajar (Dosen)');
@@ -122,7 +133,18 @@ class MultiRoleDashboardTest extends TestCase
         $response = $this->actingAs($user)->get(route('dashboard'));
 
         $response->assertOk();
-        // Multi-role tab header
+        // Sebelum switch: dashboard direktur terkunci, langsung tampil dashboard dosen
+        $response->assertDontSee('Direktur (Eksekutif)');
+        $response->assertSee('Kelas Paket Diampu');
+        $response->assertDontSee('Dashboard Eksekutif &amp; Tata Kelola', false);
+        $response->assertDontSee('Rekapitulasi Program Studi POLSA');
+
+        // Setelah switch: tab direktur terbuka & jadi default
+        $this->actingAs($user)->post(route('sidebar.toggle', 'direktur'));
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+
+        $response->assertOk();
         $response->assertSee('Direktur (Eksekutif)');
         $response->assertSee('Mengajar (Dosen)');
         // Direktur section
