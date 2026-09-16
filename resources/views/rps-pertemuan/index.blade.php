@@ -90,13 +90,6 @@
 
                     <div class="btn-group">
 
-                        <a href="{{ route('rps.pertemuan.keaktifan', [$rps->id, $pertemuan->id]) }}"
-                           class="btn btn-info btn-sm">
-
-                            Lihat
-
-                        </a>
-
                         <a href="{{ route('rps.pertemuan.edit', [$rps->id, $pertemuan->id]) }}"
                            class="btn btn-warning btn-sm">
 

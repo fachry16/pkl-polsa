@@ -231,6 +231,7 @@ class CrudSmokeTest extends TestCase
             'angkatan' => 2024,
             'tahun_akademik_id' => $this->tahunAkademik->id,
             'semester' => 3,
+            'status' => 'Aktif',
         ])->assertRedirect();
 
         $mhs = Mahasiswa::where('nim', '2024099')->first();
@@ -246,8 +247,9 @@ class CrudSmokeTest extends TestCase
             'angkatan' => 2024,
             'tahun_akademik_id' => $this->tahunAkademik->id,
             'semester' => 3,
+            'status' => 'Cuti',
         ])->assertRedirect();
-        $this->assertDatabaseHas('mahasiswas', ['id' => $mhs->id, 'nama' => 'MHS Updated']);
+        $this->assertDatabaseHas('mahasiswas', ['id' => $mhs->id, 'nama' => 'MHS Updated', 'status' => 'Cuti']);
     }
 
     public function test_user_crud(): void
@@ -524,18 +526,6 @@ class CrudSmokeTest extends TestCase
         $this->post(route('kurikulum.rumusan-nilai-akhir-cpl.store', $this->kurikulum), [
             'cpl_id' => $cpl->id,
             'bobot' => 100,
-        ])->assertRedirect();
-    }
-
-    public function test_evaluasi_kurikulum_crud(): void
-    {
-        $this->actingAs($this->kaprodi);
-        $this->get(route('kurikulum.evaluasi-kurikulum.index', $this->kurikulum))->assertOk();
-        $this->get(route('kurikulum.evaluasi-kurikulum.create', $this->kurikulum))->assertOk();
-
-        $this->post(route('kurikulum.evaluasi-kurikulum.store', $this->kurikulum), [
-            'judul' => 'Evaluasi Test',
-            'deskripsi' => 'Deskripsi Evaluasi',
         ])->assertRedirect();
     }
 

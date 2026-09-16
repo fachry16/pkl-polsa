@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesRps;
-use App\Models\LmsMateri;
-use App\Models\LmsMateriMahasiswa;
 use App\Models\Rps;
 use App\Models\RpsPertemuan;
 use App\Rules\LmsFileMime;
@@ -244,50 +242,5 @@ class RpsPertemuanController extends Controller
                 'success',
                 'File materi untuk pertemuan minggu '.$pertemuan->minggu.' berhasil diunggah.'
             );
-    }
-
-    /**
-     * Lihat keaktifan mahasiswa yang melihat materi pertemuan ini.
-     */
-    public function lihatKeaktifan(Rps $rps, RpsPertemuan $pertemuan)
-    {
-        $this->authorizeRpsModel($rps);
-
-        $materis = LmsMateri::where('rps_pertemuan_id', $pertemuan->id)
-            ->with(['pengampu.dosen.user', 'pengampu.tahunAkademik'])
-            ->orderByDesc('created_at')
-            ->get();
-
-        $kelasData = [];
-
-        foreach ($materis->groupBy('pengampu_id') as $pengampuId => $kelasMateris) {
-            $pengampu = $kelasMateris->first()->pengampu;
-
-            if (! $pengampu) {
-                continue;
-            }
-
-            $mahasiswas = $pengampu->mahasiswas()->orderBy('nama')->get();
-            $dibaca = LmsMateriMahasiswa::whereIn('materi_id', $kelasMateris->pluck('id'))
-                ->whereNotNull('dibaca_pada')
-                ->get()
-                ->groupBy('mahasiswa_id')
-                ->map(fn ($items) => $items->max('dibaca_pada'));
-
-            $rows = $mahasiswas->map(fn ($mhs) => [
-                'mahasiswa' => $mhs,
-                'dibaca_pada' => $dibaca->get($mhs->id),
-            ]);
-
-            $kelasData[] = [
-                'pengampu' => $pengampu,
-                'materis' => $kelasMateris->values(),
-                'rows' => $rows,
-                'total' => $rows->count(),
-                'sudah' => $rows->whereNotNull('dibaca_pada')->count(),
-            ];
-        }
-
-        return view('rps-pertemuan.keaktifan', compact('rps', 'pertemuan', 'kelasData'));
     }
 }

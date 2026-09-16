@@ -24,7 +24,6 @@ use App\Http\Controllers\LmsPengumumanController;
 use App\Http\Controllers\LmsTopikKomentarController;
 use App\Http\Controllers\LmsTugasController;
 use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\MahasiswaTahunAkademikController;
 use App\Http\Controllers\MataKuliahController;
 use App\Http\Controllers\MetodeBobotPenilaianController;
 use App\Http\Controllers\MkCpmkController;
@@ -45,6 +44,7 @@ use App\Http\Controllers\RumusanNilaiAkhirCplController;
 use App\Http\Controllers\RumusanNilaiAkhirMkController;
 use App\Http\Controllers\SidebarController;
 use App\Http\Controllers\TahunAkademikController;
+use App\Http\Controllers\TranskripController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -89,11 +89,6 @@ Route::middleware(['auth', 'role:admin,kaprodi,direktur'])->group(function () {
         'tahun-akademik',
         [TahunAkademikController::class, 'index']
     )->name('tahun-akademik.index');
-
-    Route::get(
-        'tahun-akademik/{tahunAkademik}/mahasiswa',
-        [MahasiswaTahunAkademikController::class, 'index']
-    )->name('tahun-akademik.mahasiswa.index');
 });
 
 /* Master Data (Admin only) */
@@ -125,14 +120,48 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     )->name('dosen.riwayat');
 
     Route::get(
+        'pengampu',
+        [PengampuController::class, 'index']
+    )->name('pengampu.index');
+});
+
+/* Monitoring Mahasiswa — Admin + Kaprodi (read-only) */
+Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
+
+    Route::get(
         'mahasiswa',
         [MahasiswaController::class, 'index']
     )->name('mahasiswa.index');
 
     Route::get(
-        'pengampu',
-        [PengampuController::class, 'index']
-    )->name('pengampu.index');
+        'mahasiswa/{mahasiswa}/nilai',
+        [MahasiswaController::class, 'historiNilai']
+    )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.nilai');
+
+    Route::get(
+        'mahasiswa/{mahasiswa}/khs/export',
+        [MahasiswaController::class, 'khsExport']
+    )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.khs.export');
+
+    Route::get(
+        'mahasiswa/{mahasiswa}/aktivitas',
+        [MahasiswaController::class, 'aktivitas']
+    )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.aktivitas');
+
+    Route::get(
+        'mahasiswa/{mahasiswa}/transkrip',
+        [MahasiswaController::class, 'transkrip']
+    )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.transkrip');
+
+    Route::get(
+        'mahasiswa/{mahasiswa}/transkrip/export',
+        [MahasiswaController::class, 'transkripExport']
+    )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.transkrip.export');
+});
+
+/* Transkrip Mahasiswa — Mahasiswa (milik sendiri) */
+Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
+    Route::get('transkrip/saya', [TranskripController::class, 'saya'])->name('transkrip.saya');
 });
 
 /* Admin only (mutations + user management) */
@@ -145,21 +174,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         'tahun-akademik/{tahunAkademik}/aktifkan',
         [TahunAkademikController::class, 'aktifkan']
     )->name('tahun-akademik.aktifkan');
-
-    Route::get(
-        'tahun-akademik/{tahunAkademik}/mahasiswa/create',
-        [MahasiswaTahunAkademikController::class, 'create']
-    )->name('tahun-akademik.mahasiswa.create');
-
-    Route::post(
-        'tahun-akademik/{tahunAkademik}/mahasiswa',
-        [MahasiswaTahunAkademikController::class, 'store']
-    )->name('tahun-akademik.mahasiswa.store');
-
-    Route::delete(
-        'tahun-akademik/{tahunAkademik}/mahasiswa/{mahasiswaTahunAkademik}',
-        [MahasiswaTahunAkademikController::class, 'destroy']
-    )->name('tahun-akademik.mahasiswa.destroy');
 
     Route::resource('program-studi', ProgramStudiController::class)
         ->except(['index']);
@@ -248,16 +262,6 @@ Route::middleware(['auth'])->group(function () {
         'assessment/export',
         [AssessmentController::class, 'export']
     )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.export');
-
-    Route::get(
-        'assessment/evaluasi-kurikulum',
-        [AssessmentController::class, 'evaluasiKurikulum']
-    )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.evaluasi-kurikulum');
-
-    Route::get(
-        'assessment/evaluasi',
-        [AssessmentController::class, 'evaluasiList']
-    )->middleware('role:admin,kaprodi,direktur,dosen')->name('assessment.evaluasi');
 
     Route::post(
         'assessment',
@@ -402,6 +406,11 @@ Route::middleware(['auth'])->group(function () {
         'kurikulum/{kurikulum}/rumusan-nilai-akhir-cpl',
         [RumusanNilaiAkhirCplController::class, 'index']
     )->name('kurikulum.rumusan-nilai-akhir-cpl.index');
+
+    Route::get(
+        'kurikulum/{kurikulum}/evaluasi/analisis',
+        [EvaluasiKurikulumController::class, 'analisis']
+    )->middleware('role:admin,kaprodi,direktur,dosen')->name('kurikulum.evaluasi-kurikulum.analisis');
 
     /* Kurikulum management — Admin + Kaprodi */
     Route::middleware(['role:admin,kaprodi'])->group(function () {
@@ -733,36 +742,6 @@ Route::middleware(['auth'])->group(function () {
             [RumusanNilaiAkhirCplController::class, 'destroy']
         )->name('kurikulum.rumusan-nilai-akhir-cpl.destroy');
 
-        Route::get(
-            'kurikulum/{kurikulum}/evaluasi',
-            [EvaluasiKurikulumController::class, 'index']
-        )->name('kurikulum.evaluasi-kurikulum.index');
-
-        Route::get(
-            'kurikulum/{kurikulum}/evaluasi/create',
-            [EvaluasiKurikulumController::class, 'create']
-        )->name('kurikulum.evaluasi-kurikulum.create');
-
-        Route::post(
-            'kurikulum/{kurikulum}/evaluasi',
-            [EvaluasiKurikulumController::class, 'store']
-        )->name('kurikulum.evaluasi-kurikulum.store');
-
-        Route::get(
-            'kurikulum/{kurikulum}/evaluasi/{evaluasiKurikulum}/edit',
-            [EvaluasiKurikulumController::class, 'edit']
-        )->name('kurikulum.evaluasi-kurikulum.edit');
-
-        Route::put(
-            'kurikulum/{kurikulum}/evaluasi/{evaluasiKurikulum}',
-            [EvaluasiKurikulumController::class, 'update']
-        )->name('kurikulum.evaluasi-kurikulum.update');
-
-        Route::delete(
-            'kurikulum/{kurikulum}/evaluasi/{evaluasiKurikulum}',
-            [EvaluasiKurikulumController::class, 'destroy']
-        )->name('kurikulum.evaluasi-kurikulum.destroy');
-
     });
 
     Route::resource(
@@ -814,11 +793,6 @@ Route::middleware(['auth'])->group(function () {
         'rps/{rps}/pertemuan/{pertemuan}/upload-materi',
         [RpsPertemuanController::class, 'uploadMateri']
     )->name('rps.pertemuan.upload-materi');
-
-    Route::get(
-        'rps/{rps}/pertemuan/{pertemuan}/keaktifan',
-        [RpsPertemuanController::class, 'lihatKeaktifan']
-    )->name('rps.pertemuan.keaktifan');
 
     Route::get(
         'rps/{rps}/penilaian',

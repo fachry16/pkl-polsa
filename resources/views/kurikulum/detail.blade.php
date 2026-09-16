@@ -207,6 +207,19 @@
         </div>
     </a>
 
+    <a href="{{ route('kurikulum.evaluasi-kurikulum.analisis', $kurikulum->id) }}"
+       style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem 1rem; border-radius: 12px; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; transition: all 0.1s; text-align: center;"
+       onmouseover="this.style.borderColor='#fba94c';this.style.boxShadow='0 4px 16px rgba(245,158,11,0.08)'"
+       onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #fffbeb; display: flex; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+        </div>
+        <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Evaluasi Kurikulum</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">Analisis & catatan</div>
+        </div>
+    </a>
+
 
 </div>
 

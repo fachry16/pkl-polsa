@@ -11,6 +11,7 @@ class ProgramStudi extends Model
         'nama_prodi',
         'jenjang',
         'akreditasi',
+        'target_capaian',
     ];
 
     public function dosens()

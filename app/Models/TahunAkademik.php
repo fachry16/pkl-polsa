@@ -21,9 +21,4 @@ class TahunAkademik extends Model
     {
         return $this->hasMany(Pengampu::class);
     }
-
-    public function mahasiswaTahunAkademik()
-    {
-        return $this->hasMany(MahasiswaTahunAkademik::class);
-    }
 }

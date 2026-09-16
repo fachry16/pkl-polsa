@@ -133,7 +133,7 @@ tests/        # Unit + Feature (saat ini masih template Breeze)
 
 ### 4.3 TahunAkademik (`tahun_akademiks`)
 - `tahun`, `semester` (Ganjil/Genap), `is_active` (hanya 1 aktif)
-- Relasi: `hasMany(SemesterMahasiswa)`, `hasMany(Pengampu)`, `hasMany(MahasiswaTahunAkademik)`
+- Relasi: `hasMany(SemesterMahasiswa)`, `hasMany(Pengampu)`
 
 ### 4.4 Dosen (`dosens`)
 - `user_id` (FK), `program_studi_id` (FK), `nidn` (unique), `jabatan` (contoh: `kaprodi`, `dosen`)
@@ -195,10 +195,6 @@ tests/        # Unit + Feature (saat ini masih template Breeze)
 
 ### 4.17 SemesterMahasiswa (`semester_mahasiswas`)
 - `mahasiswa_id`, `tahun_akademik_id`, `semester`, `status`
-
-### 4.18 MahasiswaTahunAkademik (`mahasiswa_tahun_akademiks`)
-- `mahasiswa_id`, `tahun_akademik_id`, `semester`, `status`
-- Digunakan admin untuk mendaftarkan mahasiswa ke tahun akademik
 
 ### 4.19 LmsMateri (`lms_materis`) — **LMS**
 - `pengampu_id` (FK), `rps_pertemuan_id` (FK, nullable), `judul`, `deskripsi`, `file_path`, `link_external`
@@ -267,7 +263,7 @@ $middleware->alias([
 - `profile.*` (auth)
 
 ### 6.2 Read-only bersama (Admin + Direktur + Kaprodi)
-- `tahun-akademik.index`, `program-studi.index`, `dosen.index`, `dosen.riwayat`, `mahasiswa.index`, `pengampu.index`, `tahun-akademik.mahasiswa.index`
+- `tahun-akademik.index`, `program-studi.index`, `dosen.index`, `dosen.riwayat`, `mahasiswa.index`, `pengampu.index`
 
 ### 6.3 Admin only
 - `tahun-akademik` (CRUD, except index + `aktifkan`), `program-studi`, `dosen`, `mahasiswa`, `pengampu` (store/destroy), `users` (full CRUD)

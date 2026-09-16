@@ -87,12 +87,6 @@
 
                 <div class="btn-group">
 
-                    <a href="{{ route('tahun-akademik.mahasiswa.index', $ta->id) }}"
-                        class="btn btn-sm btn-secondary">
-
-                           Cek Mahasiswa
-
-                    </a>
                     <a href="{{ route('assessment.index', ['tahun_akademik_id' => $ta->id]) }}"
                        class="btn btn-sm btn-secondary">
 

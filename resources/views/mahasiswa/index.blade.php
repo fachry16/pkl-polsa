@@ -7,7 +7,7 @@
     </h1>
 
 <div x-data="{ showImportModal: false }">
-    @unless(auth()->user()->isDirektur())
+    @if(auth()->user()->isAdmin())
     <div class="mb-4" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
         <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">
             + Tambah Mahasiswa
@@ -102,7 +102,7 @@
 
         </div>
     </div>
-    @endunless
+    @endif
 </div>
 
 <x-alert type="success" :message="session('success')" />
@@ -120,6 +120,7 @@
 @endif
 
 <form method="GET" class="filter-card">
+    @if(auth()->user()->isAdmin())
     <div class="filter-group">
         <label class="filter-label">Program Studi</label>
         <select name="program_studi_id" class="form-select filter-select">
@@ -131,6 +132,7 @@
             @endforeach
         </select>
     </div>
+    @endif
 
     <div class="filter-group">
         <label class="filter-label">Angkatan</label>
@@ -150,6 +152,16 @@
             <option value="">Semua</option>
             <option value="Reguler" {{ request('jenis_kelas') == 'Reguler' ? 'selected' : '' }}>Reguler (Kelas A)</option>
             <option value="Karyawan" {{ request('jenis_kelas') == 'Karyawan' ? 'selected' : '' }}>Karyawan (Kelas B)</option>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label class="filter-label">Status</label>
+        <select name="status" class="form-select filter-select">
+            <option value="">Semua</option>
+            @foreach(['Aktif', 'DO', 'Cuti', 'Lulus', 'Non Aktif'] as $statusOption)
+                <option value="{{ $statusOption }}" {{ request('status') == $statusOption ? 'selected' : '' }}>{{ $statusOption }}</option>
+            @endforeach
         </select>
     </div>
 
@@ -186,6 +198,7 @@
                 <th>Angkatan</th>
                 <th>Semester</th>
                 <th>Tahun Akademik</th>
+                <th>Status</th>
                 <th>Akun</th>
                 <th>Aksi</th>
             </tr>
@@ -240,6 +253,23 @@
                 </td>
 
                 <td>
+                    @php
+                        $statusWarna = [
+                            'Aktif' => ['#d1fae5', '#059669'],
+                            'Cuti' => ['#fef3c7', '#b45309'],
+                            'Lulus' => ['#dbeafe', '#1d4ed8'],
+                            'DO' => ['#fee2e2', '#dc2626'],
+                            'Non Aktif' => ['#f1f5f9', '#64748b'],
+                        ];
+                        $bg = $statusWarna[$mahasiswa->status ?? 'Aktif'][0] ?? '#f1f5f9';
+                        $fg = $statusWarna[$mahasiswa->status ?? 'Aktif'][1] ?? '#475569';
+                    @endphp
+                    <span style="background: {{ $bg }}; color: {{ $fg }}; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700;">
+                        {{ $mahasiswa->status ?? 'Aktif' }}
+                    </span>
+                </td>
+
+                <td>
                     @if($mahasiswa->user)
                         <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
                         <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 0.15rem;">{{ $mahasiswa->user->email }}</div>
@@ -251,7 +281,11 @@
                 <td>
 
                     <div class="btn-group">
-                        @unless(auth()->user()->isDirektur())
+                        <a href="{{ route('mahasiswa.nilai', $mahasiswa->id) }}"
+                           class="btn btn-info btn-sm">
+                            Lihat Detail
+                        </a>
+                        @if(auth()->user()->isAdmin())
                         <a href="{{ route('mahasiswa.edit', $mahasiswa->id) }}"
                            class="btn btn-warning btn-sm">
 
@@ -268,7 +302,7 @@
                             buttonText="Hapus"
                             confirmText="Ya, Hapus"
                         />
-                        @endunless
+                        @endif
                     </div>
 
                 </td>
@@ -279,7 +313,7 @@
 
             <tr>
 
-                <td colspan="9"
+                <td colspan="10"
                     class="text-center">
 
                     Data mahasiswa belum tersedia.

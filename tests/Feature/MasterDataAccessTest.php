@@ -124,8 +124,14 @@ class MasterDataAccessTest extends TestCase
 
         $this->actingAs($kaprodi)->get(route('program-studi.index'))->assertForbidden();
         $this->actingAs($kaprodi)->get(route('dosen.index'))->assertForbidden();
-        $this->actingAs($kaprodi)->get(route('mahasiswa.index'))->assertForbidden();
         $this->actingAs($kaprodi)->get(route('pengampu.index'))->assertForbidden();
+    }
+
+    public function test_kaprodi_dapat_mengakses_monitoring_mahasiswa(): void
+    {
+        $kaprodi = $this->createKaprodi();
+
+        $this->actingAs($kaprodi)->get(route('mahasiswa.index'))->assertOk();
     }
 
     public function test_kaprodi_dapat_mengakses_tahun_akademik(): void
