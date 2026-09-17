@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rps extends Model
 {
+    public const JUMLAH_PERTEMUAN = 16;
+
     protected $fillable = [
         'mata_kuliah_id',
         'kode_rps',
@@ -64,5 +66,28 @@ class Rps extends Model
     public function disetujuiOleh()
     {
         return $this->belongsTo(User::class, 'disetujui_oleh');
+    }
+
+    public function mingguKosong(): array
+    {
+        $terisi = $this->pertemuans()->pluck('minggu');
+
+        return array_values(array_diff(range(1, self::JUMLAH_PERTEMUAN), $terisi->all()));
+    }
+
+    public function kelengkapanAjukan(): array
+    {
+        $mingguKosong = $this->mingguKosong();
+        $tugasLengkap = $this->tugas()->count() > 0;
+        $penilaianLengkap = (bool) $this->penilaian;
+
+        return [
+            'pertemuan' => $this->pertemuans()->count(),
+            'tugas' => $this->tugas()->count(),
+            'minggu_kosong' => $mingguKosong,
+            'tugas_lengkap' => $tugasLengkap,
+            'penilaian_lengkap' => $penilaianLengkap,
+            'siap' => empty($mingguKosong) && $tugasLengkap && $penilaianLengkap,
+        ];
     }
 }

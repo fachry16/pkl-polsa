@@ -7,7 +7,7 @@
 </h1>
 
 <p class="page-subtitle" style="color: #64748b;">
-    Rekap nilai CPMK, nilai mata kuliah, dan capaian CPL per mahasiswa.
+    Rekap nilai CPMK, nilai mata kuliah, dan capaian CPL per mahasiswa. Target capaian: <strong>{{ $target }}%</strong>.
 </p>
 
 @include('assessment._nav', ['current' => 'rekap'])
@@ -27,6 +27,7 @@
     $minWidth = 320 + $rekap['mata_kuliahs']->sum(fn ($mks) => $mks['config']->count() * 58 + 130) + count($rekap['cpls']) * 130;
 @endphp
 
+{{-- Lapis 1: Rekap per mahasiswa --}}
 <div class="card" style="margin-bottom: 1.25rem; overflow: hidden;">
 
     <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 0.9rem 1.25rem; border-bottom: 1px solid #e2e8f0;">
@@ -99,7 +100,7 @@
                             <td style="text-align: right; font-weight: 800; color: #1e293b;">
                                 @if($row)
                                     {{ number_format($row['nilai'], 2) }}
-                                    <div style="font-weight: 500; font-size: 0.72rem; color: {{ ($row['capaian'] ?? 0) >= 70 ? '#059669' : (($row['capaian'] ?? 0) >= 60 ? '#d97706' : '#dc2626') }};">
+                                    <div style="font-weight: 500; font-size: 0.72rem; color: {{ ($row['capaian'] ?? 0) >= $target ? '#059669' : (($row['capaian'] ?? 0) >= $target - 10 ? '#d97706' : '#dc2626') }};">
                                         {{ $row['capaian'] !== null ? round($row['capaian']) . '%' : '—' }}
                                     </div>
                                 @else
@@ -113,7 +114,7 @@
                             <td style="text-align: right;">
                                 {{ $ps && $ps['dinilai'] ? number_format($ps['nilai'], 2) : '—' }}
                             </td>
-                            <td style="text-align: right; font-weight: 700; color: {{ ($ps['capaian'] ?? 0) >= 70 ? '#059669' : (($ps['capaian'] ?? 0) >= 60 ? '#d97706' : '#dc2626') }};">
+                            <td style="text-align: right; font-weight: 700; color: {{ ($ps['capaian'] ?? 0) >= $target ? '#059669' : (($ps['capaian'] ?? 0) >= $target - 10 ? '#d97706' : '#dc2626') }};">
                                 {{ $ps && $ps['dinilai'] && $ps['capaian'] !== null ? round($ps['capaian']) . '%' : '—' }}
                             </td>
                         @endforeach
@@ -152,6 +153,165 @@
     </div>
 
 </div>
+
+{{-- Lapis 2: Rekapitulasi CPMK per MK --}}
+@if(! empty($cpmkRecaps))
+@foreach($cpmkRecaps as $mkRecap)
+<div class="card" style="overflow: hidden; margin-bottom: 1.25rem;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0.9rem 1.25rem; border-bottom: 1px solid #e2e8f0;">
+        <h2 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">
+            Rekap CPMK &mdash; {{ $mkRecap['mata_kuliah']->kode }} {{ $mkRecap['mata_kuliah']->nama }}
+        </h2>
+        <span style="font-size: 0.8rem; color: #64748b;">Target {{ $target }}%</span>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="data-table" style="min-width: 950px;">
+            <thead>
+                <tr>
+                    <th>CPMK</th>
+                    <th>CPL</th>
+                    <th style="text-align: right;">Bobot</th>
+                    <th style="text-align: right;">Rata-rata</th>
+                    <th style="text-align: center;">Tercapai</th>
+                    <th style="text-align: right;">% Mahasiswa Tercapai</th>
+                    <th style="text-align: center;">Status</th>
+                    <th style="text-align: center;">Min &mdash; Max</th>
+                    <th style="text-align: right;">Std Dev</th>
+                    <th>Keterangan Tindak Lanjut</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($mkRecap['recaps'] as $c)
+                    @php
+                        $isOk = $c['status'] === 'Tercapai';
+                        $isNull = $c['status'] === 'Belum Dinilai';
+                    @endphp
+                    <tr>
+                        <td>
+                            <span style="font-weight: 700; color: #1e293b;">{{ $c['cpmk']->kode_cpmk }}</span>
+                        </td>
+                        <td style="font-weight: 600;">{{ $c['cpl']->kode_cpl ?? '—' }}</td>
+                        <td style="text-align: right;">{{ $c['bobot'] }}</td>
+                        <td style="text-align: right; font-weight: 800; color: {{ $isOk ? '#059669' : ($isNull ? '#94a3b8' : '#dc2626') }};">
+                            {{ $c['stats']['rata'] !== null ? $c['stats']['rata'] . '%' : '—' }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ $c['tercapai'] }} <span style="color: #94a3b8;">/ {{ $c['stats']['jumlah'] }}</span>
+                        </td>
+                        <td style="text-align: right;">{{ $c['persen_tercapai'] }}%</td>
+                        <td style="text-align: center;">
+                            @if($isNull)
+                                <span style="background: #f1f5f9; color: #94a3b8; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">Belum Dinilai</span>
+                            @elseif($isOk)
+                                <span style="background: #d1fae5; color: #059669; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">Tercapai</span>
+                            @else
+                                <span style="background: #fee2e2; color: #dc2626; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">Belum Tercapai</span>
+                            @endif
+                        </td>
+                        <td style="text-align: center; color: #475569; font-size: 0.8rem;">
+                            {{ $c['stats']['terendah'] !== null ? $c['stats']['terendah'] . '% — ' . $c['stats']['tertinggi'] . '%' : '—' }}
+                        </td>
+                        <td style="text-align: right;">{{ $c['stats']['std_dev'] !== null ? $c['stats']['std_dev'] : '—' }}</td>
+                        <td style="font-size: 0.8rem; color: #475569; max-width: 260px;">{{ $c['tindak_lanjut'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endforeach
+@endif
+
+{{-- Lapis 3: Rekapitulasi CPL lintas MK --}}
+@if(! empty($cplRecaps))
+<div class="card" style="overflow: hidden; margin-bottom: 1.25rem;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0.9rem 1.25rem; border-bottom: 1px solid #e2e8f0;">
+        <h2 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">Rekap CPL Lintas Mata Kuliah</h2>
+        <span style="font-size: 0.8rem; color: #64748b;">Target {{ $target }}% &mdash; dihitung dari penjumlahan poin CPMK, bukan rata-rata capaian MK</span>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="data-table" style="min-width: 1100px;">
+            <thead>
+                <tr>
+                    <th>CPL</th>
+                    <th>Deskripsi</th>
+                    <th>MK Pendukung</th>
+                    <th style="text-align: right;">Bobot Maks</th>
+                    <th style="text-align: right;">Rata-rata</th>
+                    <th style="text-align: center;">Tercapai</th>
+                    <th style="text-align: right;">% Mahasiswa Tercapai</th>
+                    <th style="text-align: center;">Status</th>
+                    <th style="text-align: center;">Min &mdash; Max</th>
+                    <th style="text-align: right;">Std Dev</th>
+                    <th>Keterangan Tindak Lanjut</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($cplRecaps as $cpl)
+                    @php
+                        $isOk = $cpl['status'] === 'Tercapai';
+                        $isNull = $cpl['status'] === 'Belum Dinilai';
+                    @endphp
+                    <tr>
+                        <td style="font-weight: 700; color: #1e293b;">{{ $cpl['cpl']->kode_cpl }}</td>
+                        <td style="font-size: 0.8rem; color: #475569; max-width: 260px;">{{ $cpl['cpl']->deskripsi ?? '—' }}</td>
+                        <td>
+                            @foreach($cpl['mk_pendukung'] as $mk)
+                                <span style="display: inline-block; background: #eef2ff; color: #4338ca; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; margin: 2px 4px 2px 0;">
+                                    {{ $mk->kode }}
+                                </span>
+                            @endforeach
+                        </td>
+                        <td style="text-align: right; font-weight: 600;">{{ $cpl['max'] }}</td>
+                        <td style="text-align: right; font-weight: 800; color: {{ $isOk ? '#059669' : ($isNull ? '#94a3b8' : '#dc2626') }};">
+                            {{ $cpl['stats']['rata'] !== null ? $cpl['stats']['rata'] . '%' : '—' }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ $cpl['tercapai'] }} <span style="color: #94a3b8;">/ {{ $cpl['stats']['jumlah'] }}</span>
+                        </td>
+                        <td style="text-align: right;">{{ $cpl['persen_tercapai'] }}%</td>
+                        <td style="text-align: center;">
+                            @if($isNull)
+                                <span style="background: #f1f5f9; color: #94a3b8; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">Belum Dinilai</span>
+                            @elseif($isOk)
+                                <span style="background: #d1fae5; color: #059669; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">Tercapai</span>
+                            @else
+                                <span style="background: #fee2e2; color: #dc2626; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">Belum Tercapai</span>
+                            @endif
+                        </td>
+                        <td style="text-align: center; color: #475569; font-size: 0.8rem;">
+                            {{ $cpl['stats']['terendah'] !== null ? $cpl['stats']['terendah'] . '% — ' . $cpl['stats']['tertinggi'] . '%' : '—' }}
+                        </td>
+                        <td style="text-align: right;">{{ $cpl['stats']['std_dev'] !== null ? $cpl['stats']['std_dev'] : '—' }}</td>
+                        <td style="font-size: 0.8rem; color: #475569; max-width: 280px;">{{ $cpl['tindak_lanjut'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
+{{-- Distribusi Grade --}}
+@if(! empty($distribusi))
+<div class="card" style="overflow: hidden; margin-bottom: 1.25rem;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0.9rem 1.25rem; border-bottom: 1px solid #e2e8f0;">
+        <h2 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">Distribusi Nilai Akhir (Grade)</h2>
+    </div>
+    <div style="padding: 1rem 1.25rem;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+            @foreach(['A', 'AB', 'B', 'BC', 'C', 'D', 'E'] as $huruf)
+                @php $d = $distribusi[$huruf]; @endphp
+                <div style="flex: 1 1 110px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.9rem 1rem; text-align: center;">
+                    <div style="font-size: 1.3rem; font-weight: 800; color: #1e293b;">{{ $huruf }}</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">{{ $d['jumlah'] }} mahasiswa</div>
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #4f46e5;">{{ $d['persen'] }}%</div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+@endif
 
 @else
 

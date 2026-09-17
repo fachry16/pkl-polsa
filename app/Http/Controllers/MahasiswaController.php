@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LmsAbsensi;
+use App\Models\LmsNilaiMahasiswa;
+use App\Models\LmsSesiAbsensi;
+use App\Models\LmsSubmission;
 use App\Models\Mahasiswa;
 use App\Models\ProgramStudi;
 use App\Models\SemesterMahasiswa;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use App\Services\CsvImportService;
+use App\Services\PenilaianService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class MahasiswaController extends Controller
 {
@@ -17,7 +24,13 @@ class MahasiswaController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
         $query = Mahasiswa::with(['programStudi', 'semesterMahasiswas.tahunAkademik', 'user']);
+
+        if ($user->isKaprodi() && ! $user->isAdmin()) {
+            $query->where('program_studi_id', $user->dosen->program_studi_id);
+        }
 
         if ($programStudiId = request('program_studi_id')) {
             $query->where('program_studi_id', $programStudiId);
@@ -37,6 +50,10 @@ class MahasiswaController extends Controller
             $query->where('jenis_kelas', $jenisKelas);
         }
 
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+
         $mahasiswas = $query->latest()->paginate(10);
 
         $programStudis = ProgramStudi::orderBy('nama_prodi')->get();
@@ -44,6 +61,198 @@ class MahasiswaController extends Controller
         $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
 
         return view('mahasiswa.index', compact('mahasiswas', 'programStudis', 'angkatans', 'tahunAkademiks'));
+    }
+
+    /**
+     * Histori nilai per semester: nilai tiap komponen + nilai akhir per MK mahasiswa.
+     */
+    public function historiNilai(Mahasiswa $mahasiswa)
+    {
+        $this->prodiGuard($mahasiswa);
+
+        return view('mahasiswa.nilai', $this->dataKhsMahasiswa($mahasiswa));
+    }
+
+    public function khsExport(Mahasiswa $mahasiswa)
+    {
+        $this->prodiGuard($mahasiswa);
+
+        $data = $this->dataKhsMahasiswa($mahasiswa);
+
+        $pdf = Pdf::loadView('mahasiswa.khs-pdf', $data)->setPaper('a4', 'landscape');
+
+        return $pdf->download('KHS-'.$mahasiswa->nim.'-'.str_replace(' ', '-', $mahasiswa->nama).'.pdf');
+    }
+
+    protected function dataKhsMahasiswa(Mahasiswa $mahasiswa): array
+    {
+        $semesters = [];
+
+        foreach ($this->pengampusTerurut($mahasiswa) as $p) {
+            $nilaiRows = LmsNilaiMahasiswa::where('pengampu_id', $p->id)
+                ->where('mahasiswa_id', $mahasiswa->id)
+                ->get()
+                ->keyBy('komponen');
+
+            $komponen = [];
+            foreach (PenilaianService::KOMPONEN as $k) {
+                $nilai = $nilaiRows->get($k)?->nilai;
+                if ($nilai !== null) {
+                    $komponen[$k] = (float) $nilai;
+                }
+            }
+
+            $akhir = isset($nilaiRows['akhir']) ? (float) $nilaiRows['akhir']->nilai : null;
+
+            $semesters[$this->kunciSemester($p)][] = [
+                'pengampu' => $p,
+                'komponen' => $komponen,
+                'akhir' => $akhir,
+                'huruf' => PenilaianService::konversiHuruf($akhir),
+            ];
+        }
+
+        $this->sortSemester($semesters);
+
+        return compact('mahasiswa', 'semesters');
+    }
+
+    /**
+     * Aktivitas perkuliahan: rekap presensi per MK + jumlah tugas yang dikumpulkan.
+     */
+    public function aktivitas(Mahasiswa $mahasiswa)
+    {
+        $this->prodiGuard($mahasiswa);
+
+        $penilaian = app(PenilaianService::class);
+
+        $rows = [];
+
+        foreach ($this->pengampusTerurut($mahasiswa) as $p) {
+            $sesiIds = LmsSesiAbsensi::where('pengampu_id', $p->id)->pluck('id');
+            $absensis = LmsAbsensi::whereIn('sesi_id', $sesiIds)
+                ->where('mahasiswa_id', $mahasiswa->id)
+                ->get();
+
+            $rows[] = [
+                'pengampu' => $p,
+                'pertemuan' => $sesiIds->count(),
+                'hadir' => $absensis->where('status', 'hadir')->count(),
+                'sakit' => $absensis->where('status', 'sakit')->count(),
+                'izin' => $absensis->where('status', 'izin')->count(),
+                'alpa' => $absensis->where('status', 'alpa')->count(),
+                'persen_absensi' => $penilaian->hitungAbsensi($p, $mahasiswa),
+                'tugas_dikumpulkan' => LmsSubmission::where('mahasiswa_id', $mahasiswa->id)
+                    ->whereHas('lmsTugas', fn ($q) => $q->where('pengampu_id', $p->id))
+                    ->count(),
+            ];
+        }
+
+        return view('mahasiswa.aktivitas', compact('mahasiswa', 'rows'));
+    }
+
+    /**
+     * Transkrip: gabungan seluruh MK (semester 1 s.d. semester berjalan) + IPS per semester + IPK kumulatif.
+     */
+    public function transkrip(Mahasiswa $mahasiswa)
+    {
+        $this->prodiGuard($mahasiswa);
+
+        return view('mahasiswa.transkrip', $this->dataTranskripMahasiswa($mahasiswa));
+    }
+
+    public function transkripExport(Mahasiswa $mahasiswa)
+    {
+        $this->prodiGuard($mahasiswa);
+
+        $data = $this->dataTranskripMahasiswa($mahasiswa);
+
+        $pdf = Pdf::loadView('mahasiswa.transkrip-pdf', $data)->setPaper('a4', 'landscape');
+
+        return $pdf->download('Transkrip-'.$mahasiswa->nim.'-'.str_replace(' ', '-', $mahasiswa->nama).'.pdf');
+    }
+
+    protected function dataTranskripMahasiswa(Mahasiswa $mahasiswa): array
+    {
+        $perSemester = [];
+
+        $akhirRows = LmsNilaiMahasiswa::where('mahasiswa_id', $mahasiswa->id)
+            ->where('komponen', 'akhir')
+            ->with(['pengampu.mataKuliah', 'pengampu.tahunAkademik'])
+            ->get();
+
+        foreach ($akhirRows as $row) {
+            $p = $row->pengampu;
+            $mk = $p?->mataKuliah;
+            if (! $mk) {
+                continue;
+            }
+
+            $perSemester[$this->kunciSemester($p)][] = [
+                'mata_kuliah' => $mk,
+                'sks' => $p->total_sks,
+                'nilai' => (float) $row->nilai,
+                'huruf' => PenilaianService::konversiHuruf((float) $row->nilai),
+                'bobot_mutu' => PenilaianService::konversiBobotMutu((float) $row->nilai),
+            ];
+        }
+
+        $this->sortSemester($perSemester);
+
+        $totalSks = 0;
+        $totalSksMutu = 0;
+
+        foreach ($perSemester as $semester => $rows) {
+            $sksSem = array_sum(array_column($rows, 'sks'));
+            $mutuSem = array_sum(array_map(fn ($r) => $r['sks'] * $r['bobot_mutu'], $rows));
+            $totalSks += $sksSem;
+            $totalSksMutu += $mutuSem;
+
+            $perSemester[$semester] = [
+                'rows' => $rows,
+                'total_sks' => $sksSem,
+                'ips' => $sksSem > 0 ? round($mutuSem / $sksSem, 2) : null,
+            ];
+        }
+
+        $ipk = $totalSks > 0 ? round($totalSksMutu / $totalSks, 2) : null;
+
+        return compact('mahasiswa', 'perSemester', 'ipk', 'totalSks');
+    }
+
+    protected function pengampusTerurut(Mahasiswa $mahasiswa): Collection
+    {
+        return $mahasiswa->pengampus()
+            ->with(['mataKuliah', 'tahunAkademik', 'dosen.user'])
+            ->get()
+            ->sortBy(fn ($p) => ($p->tahunAkademik?->tahun ?? '0').'-'.($p->semester_akademik === 'Genap' ? 2 : 1))
+            ->values();
+    }
+
+    protected function prodiGuard(Mahasiswa $mahasiswa): void
+    {
+        $user = auth()->user();
+
+        if ($user->isKaprodi() && ! $user->isAdmin()) {
+            abort_unless($mahasiswa->program_studi_id === $user->dosen->program_studi_id, 403);
+        }
+    }
+
+    protected function kunciSemester($pengampu): string
+    {
+        return ($pengampu->tahunAkademik?->tahun ?? '-').' '.ucfirst($pengampu->semester_akademik ?? '');
+    }
+
+    protected function sortSemester(array &$rows): void
+    {
+        $urutan = ['Ganjil' => 1, 'Genap' => 2, 'Pendek' => 3];
+
+        uksort($rows, function ($a, $b) use ($urutan) {
+            [$taA, $smA] = array_pad(explode(' ', $a), 2, '');
+            [$taB, $smB] = array_pad(explode(' ', $b), 2, '');
+
+            return [$taA, $urutan[$smA] ?? 9] <=> [$taB, $urutan[$smB] ?? 9];
+        });
     }
 
     /**
@@ -78,6 +287,7 @@ class MahasiswaController extends Controller
             'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
             'semester' => 'required|integer|min:1|max:14',
             'jenis_kelas' => 'nullable|in:Reguler,Karyawan',
+            'status' => 'required|in:Aktif,DO,Cuti,Lulus,Non Aktif',
         ]);
 
         $user = User::create([
@@ -95,6 +305,7 @@ class MahasiswaController extends Controller
             'program_studi_id' => $request->program_studi_id,
             'angkatan' => $request->angkatan,
             'jenis_kelas' => $request->jenis_kelas ?: 'Reguler',
+            'status' => $request->input('status', 'Aktif'),
         ]);
         SemesterMahasiswa::create([
             'mahasiswa_id' => $mahasiswa->id,
@@ -138,6 +349,7 @@ class MahasiswaController extends Controller
             'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
             'semester' => 'required|integer|min:1|max:14',
             'jenis_kelas' => 'nullable|in:Reguler,Karyawan',
+            'status' => 'required|in:Aktif,DO,Cuti,Lulus,Non Aktif',
         ]);
         $mahasiswa->update([
             'nim' => $request->nim,
@@ -145,6 +357,7 @@ class MahasiswaController extends Controller
             'program_studi_id' => $request->program_studi_id,
             'angkatan' => $request->angkatan,
             'jenis_kelas' => $request->jenis_kelas ?: $mahasiswa->jenis_kelas ?: 'Reguler',
+            'status' => $request->input('status', $mahasiswa->status),
         ]);
 
         if ($mahasiswa->user) {

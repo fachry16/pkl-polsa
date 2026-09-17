@@ -35,11 +35,16 @@
 
         <label class="form-label">Sub-CPMK</label>
 
-        <input type="text"
-               name="sub_cpmk"
-               class="form-input w-full"
-               value="{{ old('sub_cpmk', $bentukEvaluasi->sub_cpmk) }}"
-               placeholder="Contoh: Sub-CPMK1-5">
+        <select name="sub_cpmk"
+                class="form-select w-full">
+            <option value="">— Pilih Sub CPMK —</option>
+            @foreach($subCpmks as $subCpmk)
+                <option value="{{ $subCpmk }}"
+                        {{ old('sub_cpmk', $bentukEvaluasi->sub_cpmk) === $subCpmk ? 'selected' : '' }}>
+                    {{ $subCpmk }}
+                </option>
+            @endforeach
+        </select>
 
     </div>
 

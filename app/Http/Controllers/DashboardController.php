@@ -18,12 +18,17 @@ use App\Models\ProgramStudi;
 use App\Models\Rps;
 use App\Models\TahunAkademik;
 use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        if (request()->routeIs('dashboard-direktur') && Auth::user()->isDosen() && Auth::user()->isDirektur() && ! session('sidebar_show_direktur', false)) {
+            return redirect()->route('dashboard');
+        }
+
         $programStudis = ProgramStudi::all();
         $tahunAkademik = TahunAkademik::where('is_active', true)->first();
         $totalDosen = Dosen::count();
@@ -56,7 +61,7 @@ class DashboardController extends Controller
 
         $direkturKurikulums = collect();
         $direkturTahunAkademiks = collect();
-        $direkturDosens = collect();
+        $direkturKelases = new LengthAwarePaginator([], 0, 12);
         $statKelas = 0;
         $statTugasAktif = 0;
         $statBelumDikumpul = 0;
@@ -438,9 +443,18 @@ class DashboardController extends Controller
                 ->orderByDesc('semester')
                 ->get();
 
-            $direkturDosens = Dosen::with(['user', 'programStudi'])
-                ->orderBy('nidn')
-                ->get();
+            $direkturKelases = Pengampu::with(['mataKuliah', 'dosen.user', 'tahunAkademik'])
+                ->withCount([
+                    'mahasiswas',
+                    'lmsMateris',
+                    'lmsTugas',
+                    'lmsForumDiskusis',
+                    'lmsSubmissions as submissions_belum_dinilai' => function ($q) {
+                        $q->whereNull('nilai');
+                    },
+                ])
+                ->orderBy('id')
+                ->paginate(12);
         }
 
         if (Auth::user()->isMahasiswa()) {
@@ -563,7 +577,7 @@ class DashboardController extends Controller
             'semesterAktif',
             'direkturKurikulums',
             'direkturTahunAkademiks',
-            'direkturDosens'
+            'direkturKelases'
         );
 
         return view('dashboard', $data);

@@ -7,10 +7,13 @@
 </h1>
 
 <p class="page-subtitle" style="color: #64748b;">
+    {{ $kurikulum->nama_kurikulum }} &mdash; {{ $kurikulum->programStudi->nama_prodi }}.
     Analisis capaian CPL, kontribusi mata kuliah, dan identifikasi CPMK yang perlu perbaikan.
 </p>
 
-@include('assessment._nav', ['current' => 'evaluasi'])
+<div class="mb-3 btn-group">
+    <a href="{{ route('kurikulum.detail', $kurikulum->id) }}" class="btn btn-secondary">Kembali</a>
+</div>
 
 @if(session('success'))
 <div class="alert alert-success mb-3">
@@ -20,12 +23,42 @@
 
 <x-alert type="error" :message="session('error')" />
 
-@include('assessment._filters', ['filters' => $filters, 'drop' => $drop])
+<form method="GET" action="{{ request()->url() }}" class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="filter-ta">Tahun Akademik</label>
+            <select name="tahun_akademik_id" id="filter-ta" class="form-select" onchange="this.form.submit()">
+                <option value="">Semua</option>
+                @foreach($drop['tahunAkademiks'] as $ta)
+                    <option value="{{ $ta->id }}" {{ ($filters['tahun_akademik_id'] ?? null) == $ta->id ? 'selected' : '' }}>
+                        {{ $ta->tahun }} — {{ ucfirst($ta->semester) }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="filter-mk">Mata Kuliah</label>
+            <select name="mata_kuliah_id" id="filter-mk" class="form-select" onchange="this.form.submit()">
+                <option value="">Semua</option>
+                @foreach($drop['mataKuliahs'] as $mk)
+                    <option value="{{ $mk->id }}" {{ ($filters['mata_kuliah_id'] ?? null) == $mk->id ? 'selected' : '' }}>
+                        {{ $mk->kode }} — {{ $mk->nama }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 0;">Terapkan Filter</button>
+
+        <a href="{{ request()->url() }}" class="btn btn-secondary" style="margin-bottom: 0;">Reset</a>
+    </div>
+</form>
 
 @if(! empty($evaluasi))
 
 @php
-    $threshold = 70;
+    $threshold = $target;
 @endphp
 
 {{-- KPI Cards --}}
@@ -296,7 +329,7 @@
                 Belum ada data assessment untuk kurikulum ini. Evaluasi kurikulum membutuhkan data nilai CPMK dari minimal satu assessment yang sudah diisi.
             </p>
             <ol style="font-size: 0.82rem; color: #1e3a8a; margin: 0; padding-left: 1.2rem; line-height: 1.6;">
-                <li>Pilih program studi dan kurikulum pada filter di atas.</li>
+                <li>Pilih tahun akademik dan mata kuliah pada filter di atas untuk mempersempit cakupan.</li>
                 <li>Pastikan sudah ada assessment dengan data nilai CPMK.</li>
                 <li>Data akan otomatis ditampilkan setelah dipilih.</li>
             </ol>

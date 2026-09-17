@@ -135,15 +135,16 @@ class AssessmentCalculationService
         // Kumpulkan seluruh relasi CPMK-CPL lintas MK yang terpilih.
         $configRows = RumusanNilaiAkhirMk::query()
             ->whereIn('mata_kuliah_id', $mataKuliahIds)
-            ->with(['cpl', 'cpmk'])
+            ->with(['cpl', 'cpmk', 'mataKuliah'])
             ->get();
 
-        // Per CPL: cpmk_id -> ['cpl', 'cpmk', 'bobot']
+        // Per CPL: cpmk_id -> ['cpl', 'cpmk', 'mata_kuliah', 'bobot']
         $byCpl = [];
         foreach ($configRows as $row) {
             $byCpl[$row->cpl_id][$row->cpmk_id] = [
                 'cpl' => $row->cpl,
                 'cpmk' => $row->cpmk,
+                'mata_kuliah' => $row->mataKuliah,
                 'bobot' => (float) $row->skor_maks,
             ];
         }
@@ -244,5 +245,213 @@ class AssessmentCalculationService
         }
 
         return $capaians->avg();
+    }
+
+    /**
+     * Statistik per kolom capaian: rata-rata, tertinggi, terendah, standar deviasi (populasi).
+     *
+     * @param  Collection<int, float>  $values
+     * @return array{rata: ?float, tertinggi: ?float, terendah: ?float, std_dev: ?float, jumlah: int}
+     */
+    public function statsOf(Collection $values): array
+    {
+        $clean = $values->filter(fn ($v) => $v !== null)
+            ->values()
+            ->map(fn ($v) => (float) $v);
+
+        if ($clean->isEmpty()) {
+            return ['rata' => null, 'tertinggi' => null, 'terendah' => null, 'std_dev' => null, 'jumlah' => 0];
+        }
+
+        $mean = $clean->avg();
+        $stdDev = $clean->count() === 1
+            ? 0.0
+            : sqrt($clean->map(fn ($v) => ($v - $mean) ** 2)->avg());
+
+        return [
+            'rata' => round($mean, 2),
+            'tertinggi' => round($clean->max(), 2),
+            'terendah' => round($clean->min(), 2),
+            'std_dev' => round($stdDev, 2),
+            'jumlah' => $clean->count(),
+        ];
+    }
+
+    /**
+     * Konversi capaian (0-100) ke huruf mutu sesuai standar prodi.
+     * A >= 85 | AB >= 80 | B >= 70 | BC >= 65 | C >= 60 | D >= 55 | E < 55.
+     */
+    public function gradeOf(?float $capaian): string
+    {
+        if ($capaian === null) {
+            return '—';
+        }
+
+        return match (true) {
+            $capaian >= 85 => 'A',
+            $capaian >= 80 => 'AB',
+            $capaian >= 70 => 'B',
+            $capaian >= 65 => 'BC',
+            $capaian >= 60 => 'C',
+            $capaian >= 55 => 'D',
+            default => 'E',
+        };
+    }
+
+    /**
+     * Distribusi huruf mutu seluruh mahasiswa×MK berdasarkan capaian MK.
+     *
+     * @return array<string, array{jumlah: int, persen: float}> keyed by huruf (A, AB, B, BC, C, D, E)
+     */
+    public function distribusiGrade(Collection $mkSummaries): array
+    {
+        $grades = ['A' => 0, 'AB' => 0, 'B' => 0, 'BC' => 0, 'C' => 0, 'D' => 0, 'E' => 0];
+        $totalRow = 0;
+
+        foreach ($mkSummaries as $mks) {
+            foreach ($mks['rows'] as $row) {
+                if ($row['capaian'] === null) {
+                    continue;
+                }
+                $grades[$this->gradeOf($row['capaian'])]++;
+                $totalRow++;
+            }
+        }
+
+        return collect($grades)
+            ->map(fn ($jumlah) => [
+                'jumlah' => $jumlah,
+                'persen' => $totalRow > 0 ? round(($jumlah / $totalRow) * 100, 1) : 0.0,
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Rekapitulasi CPMK per MK (tingkat kelas).
+     *
+     * Untuk setiap CPMK: capaian per mahasiswa = (nilai / bobot_maks) × 100;
+     * lalu statistik kelas, jumlah/% tercapai, status, dan keterangan tindak lanjut.
+     *
+     * @return array<int, array> daftar per MK -> per CPMK
+     */
+    public function cpmkRecap(Collection $mkSummaries, float $target): array
+    {
+        $recaps = [];
+
+        foreach ($mkSummaries as $mks) {
+            $mkRecaps = [];
+
+            foreach ($mks['config'] as $cpmkId => $meta) {
+                $bobot = $meta['bobot'];
+                $capaians = [];
+
+                foreach ($mks['rows'] as $row) {
+                    $nilai = $row['scores'][$cpmkId]['nilai'] ?? null;
+
+                    if ($nilai === null || $bobot <= 0) {
+                        continue;
+                    }
+
+                    $capaians[] = ($nilai / $bobot) * 100;
+                }
+
+                $capaians = collect($capaians);
+                $stats = $this->statsOf($capaians);
+                $tercapai = $capaians->filter(fn ($c) => $c >= $target)->count();
+
+                $mkRecaps[] = [
+                    'cpmk' => $meta['cpmk'],
+                    'cpl' => $meta['cpl'],
+                    'bobot' => $bobot,
+                    'target' => $target,
+                    'stats' => $stats,
+                    'tercapai' => $tercapai,
+                    'persen_tercapai' => $stats['jumlah'] > 0 ? round(($tercapai / $stats['jumlah']) * 100, 1) : 0.0,
+                    'status' => $this->recapStatus($stats['rata'], $target),
+                    'tindak_lanjut' => $this->tindakLanjut($stats['rata'], $target),
+                ];
+            }
+
+            $recaps[] = [
+                'mata_kuliah' => $mks['mata_kuliah'],
+                'max' => $mks['max'],
+                'recaps' => $mkRecaps,
+            ];
+        }
+
+        return $recaps;
+    }
+
+    /**
+     * Rekapitulasi CPL lintas MK (tingkat kelas).
+     *
+     * CPL dihitung dari CAPAIAN PER MAHASISWA hasil cplSummary (bukan rata-rata capaian MK),
+     * termasuk daftar MK pendukung dan total bobot maksimum CPL.
+     *
+     * @return array<int, array> daftar per CPL
+     */
+    public function cplRecap(array $cplSummary, float $target): array
+    {
+        $recaps = [];
+
+        foreach ($cplSummary as $cplId => $row) {
+            $capaians = collect($row['per_student'])->pluck('capaian');
+            $stats = $this->statsOf($capaians);
+            $tercapai = $capaians->filter(fn ($c) => $c !== null && $c >= $target)->count();
+
+            $mkPendukung = collect($row['cpmks'])
+                ->pluck('mata_kuliah')
+                ->unique('id')
+                ->values();
+
+            $recaps[] = [
+                'cpl' => $row['cpl'],
+                'mk_pendukung' => $mkPendukung,
+                'cpmks' => $row['cpmks'],
+                'max' => $row['max'],
+                'target' => $target,
+                'stats' => $stats,
+                'tercapai' => $tercapai,
+                'persen_tercapai' => $stats['jumlah'] > 0 ? round(($tercapai / $stats['jumlah']) * 100, 1) : 0.0,
+                'status' => $this->recapStatus($stats['rata'], $target),
+                'tindak_lanjut' => $this->tindakLanjut($stats['rata'], $target),
+            ];
+        }
+
+        return $recaps;
+    }
+
+    /**
+     * Status tercapai/belum berdasarkan rata-rata kelas vs target.
+     */
+    protected function recapStatus(?float $rata, float $target): string
+    {
+        if ($rata === null) {
+            return 'Belum Dinilai';
+        }
+
+        return $rata >= $target ? 'Tercapai' : 'Belum Tercapai';
+    }
+
+    /**
+     * Keterangan tindak lanjut otomatis bila belum tercapai.
+     */
+    protected function tindakLanjut(?float $rata, float $target): string
+    {
+        if ($rata === null) {
+            return 'Belum ada data penilaian untuk diukur.';
+        }
+
+        if ($rata >= $target) {
+            return 'Pertahankan capaian; siapkan pengayaan bagi mahasiswa yang sanggup melampaui target.';
+        }
+
+        $selisih = round($target - $rata, 1);
+
+        if ($rata < $target * 0.5) {
+            return "Rata-rata kelas {$rata}% jauh di bawah target {$target}% (selisih {$selisih}%). Lakukan remedial menyeluruh, revisi metode ajar, dan evaluasi kesesuaian soal/materi.";
+        }
+
+        return "Rata-rata kelas {$rata}% di bawah target {$target}% (selisih {$selisih}%). Berikan remedial/pengayaan pada mahasiswa yang belum mencapai CPMK/CPL terkait dan tinjau metode ajar.";
     }
 }

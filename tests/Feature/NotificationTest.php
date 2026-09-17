@@ -12,6 +12,7 @@ use App\Models\ProgramStudi;
 use App\Models\Rps;
 use App\Models\RpsPenilaian;
 use App\Models\RpsPertemuan;
+use App\Models\RpsTugas;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use App\Notifications\KrsBaruAdmin;
@@ -189,15 +190,25 @@ class NotificationTest extends TestCase
             'status' => 'Draft',
         ]);
 
-        RpsPertemuan::create([
+        foreach (range(1, Rps::JUMLAH_PERTEMUAN) as $minggu) {
+            RpsPertemuan::create([
+                'rps_id' => $rps->id,
+                'minggu' => $minggu,
+                'sub_cpmk' => 'Memahami',
+                'materi' => 'Materi minggu '.$minggu,
+                'metode' => 'Ceramah',
+                'pengalaman_belajar' => 'Diskusi',
+                'indikator' => 'Tepat',
+                'bobot' => '5',
+            ]);
+        }
+
+        RpsTugas::create([
             'rps_id' => $rps->id,
-            'minggu' => 1,
+            'minggu_topik' => 'Minggu 1',
+            'nama_tugas' => 'Tugas 1',
+            'kategori_komponen' => 'tugas',
             'sub_cpmk' => 'Memahami',
-            'materi' => 'Pengantar',
-            'metode' => 'Ceramah',
-            'pengalaman_belajar' => 'Diskusi',
-            'indikator' => 'Tepat',
-            'bobot' => '5',
         ]);
 
         RpsPenilaian::create([

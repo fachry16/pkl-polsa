@@ -42,12 +42,14 @@
         </div>
         @if(auth()->user()->isAdmin())
             @include('layouts.sidebar.admin')
+        @elseif(auth()->user()->isMahasiswa())
+            @include('layouts.sidebar.mahasiswa')
+        @elseif(auth()->user()->isDosen())
+            @include('layouts.sidebar.dosen')
         @elseif(auth()->user()->isDirektur())
             @include('layouts.sidebar.direktur')
         @elseif(auth()->user()->isKaprodi())
             @include('layouts.sidebar.kaprodi')
-        @elseif(auth()->user()->isMahasiswa())
-            @include('layouts.sidebar.mahasiswa')
         @else
             @include('layouts.sidebar.dosen')
         @endif

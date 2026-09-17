@@ -9,7 +9,8 @@
 <div class="card">
 
     <form action="{{ route('kurikulum.update', $kurikulum->id) }}"
-          method="POST">
+          method="POST"
+          enctype="multipart/form-data">
 
         @csrf
         @method('PUT')
@@ -85,6 +86,22 @@
         <div class="form-group">
             <label class="form-label">Deskripsi</label>
             <textarea name="deskripsi" rows="5" class="form-textarea">{{ old('deskripsi', $kurikulum->deskripsi) }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Lampiran / Bukti</label>
+            @if($kurikulum->lampiran)
+            <div class="mb-2">
+                <x-file-link :file="$kurikulum->lampiran" />
+            </div>
+            @endif
+            <input type="file"
+                   name="lampiran"
+                   class="form-input">
+            <p class="text-sm text-gray-500">PDF atau dokumen kantor (doc, docx, xls, xlsx), maksimal 10 MB.</p>
+            @error('lampiran')
+            <p class="form-error">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="btn-group">

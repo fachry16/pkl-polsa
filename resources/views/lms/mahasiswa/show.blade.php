@@ -52,7 +52,7 @@
         <button type="button" @click="tab = 'orang'; history.replaceState(null, null, '?tab=orang')" 
             class="btn btn-secondary btn-sm"
             :style="tab === 'orang' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
-            Orang ({{ $pengampu->mahasiswas->count() }})
+            Mahasiswa ({{ $pengampu->mahasiswas->count() }})
         </button>
 
         <button type="button" @click="tab = 'nilai'; history.replaceState(null, null, '?tab=nilai')" 

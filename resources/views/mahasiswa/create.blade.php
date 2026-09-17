@@ -95,6 +95,22 @@
         </div>
 
         <div class="form-group">
+            <label class="form-label">
+                Status
+            </label>
+            <select name="status" class="form-select">
+                @foreach(['Aktif', 'Cuti', 'DO', 'Lulus', 'Non Aktif'] as $st)
+                    <option value="{{ $st }}" {{ old('status', 'Aktif') === $st ? 'selected' : '' }}>
+                        {{ $st }}
+                    </option>
+                @endforeach
+            </select>
+            @error('status')
+                <p class="form-error">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="form-group">
 
             <label class="form-label">
                 Tahun Akademik

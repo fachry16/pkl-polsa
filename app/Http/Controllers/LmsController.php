@@ -76,11 +76,12 @@ class LmsController extends Controller
 
         $isAdmin = $user->isAdmin();
         $isOwner = $dosen && $pengampu->dosen_id === $dosen->id;
+        $isDirektur = $user->isDirektur();
         $isKaprodiProdi = $user->isKaprodi()
             && $dosen
             && (int) $dosen->program_studi_id === (int) ($pengampu->mataKuliah->kurikulum->program_studi_id ?? null);
 
-        if (! $isAdmin && ! $isOwner && ! $isKaprodiProdi) {
+        if (! $isAdmin && ! $isOwner && ! $isDirektur && ! $isKaprodiProdi) {
             abort(403);
         }
 

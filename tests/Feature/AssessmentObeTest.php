@@ -598,4 +598,51 @@ class AssessmentObeTest extends TestCase
             ->assertSee('CPMK022')
             ->assertSee('CPMK031');
     }
+
+    public function test_rekap_menampilkan_tiga_lapis_laporan_dengan_target_default(): void
+    {
+        $d = $this->buatDataDasar();
+        $this->buatAssessmentMk2($d);
+        $this->buatAssessmentMk3($d);
+
+        $html = $this->actingAs($d['kaprodiUser'])
+            ->get(route('assessment.rekap'))
+            ->assertOk()
+            ->getContent();
+
+        // Target default dari prodi = 75.
+        $this->assertStringContainsString('Target capaian: <strong>75%</strong>', $html);
+
+        // Lapis 2: rekap CPMK per MK + rata-rata kelas CPMK021 (20/30=66,7% & 27/30=90% => 78,33%).
+        $this->assertStringContainsString('Rekap CPMK', $html);
+        $this->assertStringContainsString('CPMK021', $html);
+        $this->assertStringContainsString('78.33%', $html);
+
+        // Lapis 3: rekap CPL lintas MK dari penjumlahan poin (CPL02 = 83/110 = 75,45% & 101/110 => 83,64%).
+        $this->assertStringContainsString('Rekap CPL Lintas Mata Kuliah', $html);
+        $this->assertStringContainsString('83.64%', $html);
+
+        // Distribusi grade: mhs1 (B, AB) + mhs3 (A, A) => A=2, AB=1, B=1.
+        $this->assertStringContainsString('Distribusi Nilai Akhir (Grade)', $html);
+        $this->assertStringContainsString('2 mahasiswa', $html);
+    }
+
+    public function test_rekap_menggunakan_target_capaian_program_studi(): void
+    {
+        $d = $this->buatDataDasar();
+        $this->buatAssessmentMk2($d);
+        $this->buatAssessmentMk3($d);
+
+        $d['prodi']->update(['target_capaian' => 80]);
+
+        $html = $this->actingAs($d['kaprodiUser'])
+            ->get(route('assessment.rekap', ['program_studi_id' => $d['prodi']->id]))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('Target capaian: <strong>80%</strong>', $html);
+
+        // CPMK021 rata-rata 78,33% < target 80% => Belum Tercapai.
+        $this->assertStringContainsString('Belum Tercapai', $html);
+    }
 }

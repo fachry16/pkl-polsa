@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('evaluasi_kurikulums', function (Blueprint $table) {
-            $table->dropColumn('status');
+        Schema::table('program_studis', function (Blueprint $table) {
+            $table->decimal('target_capaian', 5, 2)->default(75)->after('akreditasi');
         });
     }
 
     public function down(): void
     {
-        Schema::table('evaluasi_kurikulums', function (Blueprint $table) {
-            $table->enum('status', ['draft', 'final'])->default('draft');
+        Schema::table('program_studis', function (Blueprint $table) {
+            $table->dropColumn('target_capaian');
         });
     }
 };

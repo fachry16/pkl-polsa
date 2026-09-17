@@ -13,6 +13,7 @@ class Kurikulum extends Model
         'beban_studi',
         'deskripsi',
         'status',
+        'lampiran',
     ];
 
     public function programStudi()
@@ -65,10 +66,5 @@ class Kurikulum extends Model
     public function rumusanNilaiAkhirCpls()
     {
         return $this->hasMany(RumusanNilaiAkhirCpl::class);
-    }
-
-    public function evaluasiKurikulums()
-    {
-        return $this->hasMany(EvaluasiKurikulum::class);
     }
 }

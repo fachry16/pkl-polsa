@@ -106,7 +106,7 @@
     </div>
 
     @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
-    <div class="krs-sidebar">
+    <div class="krs-sidebar" x-data="krsSidebar()">
 
         <h3 style="margin: 0 0 0.75rem; font-size: 1rem; font-weight: 600;">
             Tambah Mahasiswa
@@ -114,47 +114,71 @@
         </h3>
 
         <p style="font-size: 0.75rem; color: #6b7280; margin: 0 0 0.75rem;">
-            Data mahasiswa diambil dari menu <strong>Mahasiswa</strong>.
+            Data mahasiswa dari prodi <strong>{{ $krs->programStudi->kode_prodi ?? '' }}</strong>.
         </p>
 
+        {{-- Filter --}}
+        <div style="display: flex; gap: 0.4rem; margin-bottom: 0.5rem;">
+            <select id="filterKelas" class="krs-search" style="width: 50%; margin-bottom: 0;" x-model="filterKelas" x-on:change="applyFilter()">
+                <option value="">Semua Kelas</option>
+                <option value="Reguler">Reguler</option>
+                <option value="Karyawan">Karyawan</option>
+            </select>
+            <select id="filterAngkatan" class="krs-search" style="width: 50%; margin-bottom: 0;" x-model="filterAngkatan" x-on:change="applyFilter()">
+                <option value="">Semua Angkatan</option>
+                @foreach($semuaMahasiswa->pluck('angkatan')->unique()->sort()->values() as $a)
+                    <option value="{{ $a }}">{{ $a }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <input type="text" id="cariMahasiswa" placeholder="Cari NIM atau Nama..."
-               class="krs-search">
+               class="krs-search" x-model="search" x-on:input="applyFilter()">
 
-        <div class="krs-mahasiswa-list">
+        <form method="POST" action="{{ route('krs.mahasiswa.store', $krs->id) }}" id="bulkAddForm">
+            @csrf
 
-            @forelse($semuaMahasiswa as $mahasiswa)
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 0.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #374151; cursor: pointer; user-select: none;">
+                    <input type="checkbox" x-model="selectAll" x-on:change="toggleAll()" style="accent-color: #4f46e5;">
+                    <span>Pilih Semua (<span x-text="visibleCount"></span>)</span>
+                </label>
+                <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.72rem;" x-show="selectedIds.length > 0" x-text="'Tambah (' + selectedIds.length + ')'"></button>
+            </div>
 
-                <div class="krs-mahasiswa-item" data-nim="{{ $mahasiswa->nim }}" data-nama="{{ strtolower($mahasiswa->nama) }}">
-                    <div style="flex: 1; min-width: 0;">
-                        <div class="krs-mahasiswa-nama">
-                            {{ $mahasiswa->nim }} - {{ $mahasiswa->nama }}
-                        </div>
-                        <div class="krs-mahasiswa-info" style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.15rem;">
-                            <span>{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</span>
-                            <span>&bull;</span>
-                            <span>Angkatan {{ $mahasiswa->angkatan }}</span>
-                            <span>&bull;</span>
-                            <span style="font-weight: 600; color: {{ ($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan' ? '#d97706' : '#2563eb' }};">
-                                {{ $mahasiswa->jenis_kelas ?? 'Reguler' }}
-                            </span>
+            <div class="krs-mahasiswa-list">
+                @forelse($semuaMahasiswa as $mahasiswa)
+                    <div class="krs-mahasiswa-item"
+                         data-nim="{{ $mahasiswa->nim }}"
+                         data-nama="{{ strtolower($mahasiswa->nama) }}"
+                         data-kelas="{{ $mahasiswa->jenis_kelas ?? 'Reguler' }}"
+                         data-angkatan="{{ $mahasiswa->angkatan }}">
+                        <input type="checkbox"
+                               name="mahasiswa_id[]"
+                               value="{{ $mahasiswa->id }}"
+                               x-model="selectedIds"
+                               style="accent-color: #4f46e5; flex-shrink: 0; width: 15px; height: 15px;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="krs-mahasiswa-nama">
+                                {{ $mahasiswa->nim }} - {{ $mahasiswa->nama }}
+                            </div>
+                            <div class="krs-mahasiswa-info" style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.15rem;">
+                                <span>Angk. {{ $mahasiswa->angkatan }}</span>
+                                <span>&bull;</span>
+                                <span style="font-weight: 600; color: {{ ($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan' ? '#d97706' : '#2563eb' }};">
+                                    {{ $mahasiswa->jenis_kelas ?? 'Reguler' }}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    <form action="{{ route('krs.mahasiswa.store', $krs->id) }}" method="POST" style="margin: 0; flex-shrink: 0;">
-                        @csrf
-                        <input type="hidden" name="mahasiswa_id" value="{{ $mahasiswa->id }}">
-                        <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; white-space: nowrap;">Tambah</button>
-                    </form>
-                </div>
+                @empty
+                    <p style="text-align: center; color: #6b7280; font-size: 0.8rem; padding: 1rem 0;">
+                        Semua mahasiswa sudah terdaftar.
+                    </p>
+                @endforelse
+            </div>
 
-            @empty
-
-                <p style="text-align: center; color: #6b7280; font-size: 0.8rem; padding: 1rem 0;">
-                    Semua mahasiswa sudah terdaftar.
-                </p>
-
-            @endforelse
-
-        </div>
+        </form>
 
     </div>
     @endif
@@ -163,13 +187,58 @@
 
 @push('scripts')
 <script>
-    document.getElementById('cariMahasiswa')?.addEventListener('input', function () {
-        const q = this.value.toLowerCase();
-        document.querySelectorAll('.krs-mahasiswa-item').forEach(el => {
-            const match = el.dataset.nim.toLowerCase().includes(q) || el.dataset.nama.includes(q);
-            el.style.display = match ? '' : 'none';
-        });
-    });
+window.krsSidebar = function () {
+    return {
+        filterKelas: '',
+        filterAngkatan: '',
+        search: '',
+        selectAll: false,
+        selectedIds: [],
+        visibleCount: 0,
+
+        init() {
+            this.applyFilter();
+        },
+
+        applyFilter() {
+            const q = this.search.toLowerCase();
+            const items = document.querySelectorAll('.krs-mahasiswa-item');
+            let count = 0;
+            items.forEach(el => {
+                const matchSearch = !q || el.dataset.nim.toLowerCase().includes(q) || el.dataset.nama.includes(q);
+                const matchKelas = !this.filterKelas || el.dataset.kelas === this.filterKelas;
+                const matchAngkatan = !this.filterAngkatan || el.dataset.angkatan === this.filterAngkatan;
+                const visible = matchSearch && matchKelas && matchAngkatan;
+                el.style.display = visible ? '' : 'none';
+                if (visible) count++;
+            });
+            this.visibleCount = count;
+            const allVisible = this.getAllVisibleIds();
+            this.selectAll = allVisible.length > 0 && allVisible.every(id => this.selectedIds.includes(id));
+        },
+
+        getAllVisibleIds() {
+            const ids = [];
+            document.querySelectorAll('.krs-mahasiswa-item').forEach(el => {
+                if (el.style.display !== 'none') {
+                    ids.push(el.querySelector('input[type="checkbox"]').value);
+                }
+            });
+            return ids;
+        },
+
+        toggleAll() {
+            const allVisible = this.getAllVisibleIds();
+            if (this.selectAll) {
+                allVisible.forEach(id => {
+                    if (!this.selectedIds.includes(id)) this.selectedIds.push(id);
+                });
+            } else {
+                this.selectedIds = this.selectedIds.filter(id => !allVisible.includes(id));
+            }
+        }
+    };
+};
 </script>
 @endpush
 

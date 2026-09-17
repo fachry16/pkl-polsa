@@ -9,7 +9,8 @@
 <div class="card">
 
     <form action="{{ route('kurikulum.store') }}"
-          method="POST">
+          method="POST"
+          enctype="multipart/form-data">
 
         @csrf
 
@@ -88,6 +89,16 @@
             <label class="form-label">Deskripsi</label>
             <textarea name="deskripsi" rows="5" class="form-textarea">{{ old('deskripsi') }}</textarea>
         </div>
+        <div class="form-group">
+            <label class="form-label">Lampiran / Bukti</label>
+            <input type="file"
+                   name="lampiran"
+                   class="form-input">
+            <p class="text-sm text-gray-500">PDF atau dokumen kantor (doc, docx, xls, xlsx), maksimal 10 MB.</p>
+            @error('lampiran')
+            <p class="form-error">{{ $message }}</p>
+            @enderror
+        </div>
 
         <div class="btn-group">
 
@@ -98,7 +109,7 @@
 
             </button>
 
-            <a href="{{ route('kurikulum.index') }}"
+            <a href="{{ url()->previous() }}"
                class="btn btn-secondary">
 
                 Kembali

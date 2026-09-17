@@ -42,13 +42,13 @@
                 <span class="menu-badge">{{ $unreadLms > 99 ? '99+' : $unreadLms }}</span>
             @endif
         </a>
-        <a href="{{ route('monitoring.mahasiswa') }}" class="{{ request()->routeIs('monitoring.mahasiswa') ? 'active' : '' }}" title="Monitoring Mahasiswa" data-title="Monitoring Mahasiswa">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span class="nav-text">Monitoring Mahasiswa</span>
+<a href="{{ route('monitoring.kelas') }}" class="{{ request()->routeIs('monitoring.kelas') ? 'active' : '' }}" title="Monitoring Kelas" data-title="Monitoring Kelas">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <span class="nav-text">Monitoring Kelas</span>
         </a>
-        <a href="{{ route('monitoring.dosen') }}" class="{{ request()->routeIs('monitoring.dosen') ? 'active' : '' }}" title="Monitoring Dosen" data-title="Monitoring Dosen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.354a4 4 0 110 7.292"/><path d="M16 21H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2z"/><path d="M9 7h1"/><path d="M9 11h1"/><path d="M9 15h1"/><path d="M15 7h1"/><path d="M15 11h1"/></svg>
-            <span class="nav-text">Monitoring Dosen</span>
+        <a href="{{ route('monitoring.kurikulum') }}" class="{{ request()->routeIs('monitoring.kurikulum') ? 'active' : '' }}" title="Monitoring Kurikulum" data-title="Monitoring Kurikulum">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            <span class="nav-text">Monitoring Kurikulum</span>
         </a>
     </nav>
 </aside>

@@ -8,6 +8,7 @@
 
 <form action="{{ route('rps.pertemuan.store', $rps->id) }}"
       method="POST"
+      enctype="multipart/form-data"
       class="card">
 
     @csrf
@@ -20,6 +21,23 @@
                name="minggu"
                class="form-input w-full"
                value="{{ old('minggu') }}">
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">CPMK Induk</label>
+
+        <select name="cpmk_induk"
+                class="form-select w-full">
+            <option value="">— Pilih CPMK —</option>
+            @foreach($cpmks as $cpmk)
+                <option value="{{ $cpmk->kode_cpmk }}"
+                        {{ old('cpmk_induk') === $cpmk->kode_cpmk ? 'selected' : '' }}>
+                    {{ $cpmk->kode_cpmk }} — {{ $cpmk->deskripsi }}
+                </option>
+            @endforeach
+        </select>
 
     </div>
 
@@ -75,18 +93,6 @@
 
     <div class="form-group">
 
-        <label class="form-label">CPMK Induk (Sub-CPMK)</label>
-
-        <input type="text"
-               name="cpmk_induk"
-               class="form-input w-full"
-               value="{{ old('cpmk_induk') }}"
-               placeholder="Contoh: CPMK07.08">
-
-    </div>
-
-    <div class="form-group">
-
         <label class="form-label">Penilaian - Teknik &amp; Kriteria</label>
 
         <textarea name="teknik_kriteria"
@@ -123,6 +129,17 @@
                name="bobot"
                class="form-input w-full"
                value="{{ old('bobot') }}">
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">File Materi (Lampiran)</label>
+
+        <input type="file"
+               name="file"
+               class="form-input w-full">
+        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Format PDF, DOC, XLS, PPT, ZIP, gambar (maks 50 MB)</div>
 
     </div>
 

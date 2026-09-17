@@ -6,7 +6,6 @@ use App\Models\Assessment;
 use App\Models\AssessmentScore;
 use App\Models\Cpl;
 use App\Models\Cpmk;
-use App\Models\EvaluasiKurikulum;
 use App\Models\Kurikulum;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
@@ -182,85 +181,19 @@ class AssessmentController extends Controller
         $drop = $this->filterDropdowns($filters);
 
         if ($assessments->isEmpty()) {
-            return view('assessment.rekap', compact('filters', 'drop'))->with('rekap', null);
+            $target = $this->capaianTarget($filters);
+
+            return view('assessment.rekap', compact('filters', 'drop', 'target'))->with('rekap', null);
         }
 
         $rekap = $this->calc->rekap($assessments);
 
-        return view('assessment.rekap', compact('filters', 'drop', 'rekap'));
-    }
+        $target = $this->capaianTarget($filters);
+        $cpmkRecaps = $this->calc->cpmkRecap($rekap['mata_kuliahs'], $target);
+        $cplRecaps = $this->calc->cplRecap($rekap['cpls'], $target);
+        $distribusi = $this->calc->distribusiGrade($rekap['mata_kuliahs']);
 
-    /**
-     * Evaluasi kurikulum: capaian CPL lintas MK, kontribusi MK per CPL, identifikasi CPMK lemah.
-     */
-    public function evaluasiKurikulum(Request $request)
-    {
-        $this->authorizeAssessmentRead();
-
-        $filters = $this->filters($request);
-        $assessments = $this->scopedAssessments($filters, ['scores', 'pengampu.mataKuliah', 'pengampu.tahunAkademik', 'pengampu.mahasiswas'])->get();
-        $drop = $this->filterDropdowns($filters);
-
-        if ($assessments->isEmpty()) {
-            return view('assessment.evaluasi-kurikulum', compact('filters', 'drop'))->with('evaluasi', null);
-        }
-
-        $cplSummary = $this->calc->cplSummary($assessments);
-        $mkSummaries = $assessments->map(fn ($a) => [
-            'assessment' => $a,
-            'mata_kuliah' => $a->pengampu->mataKuliah,
-            'summary' => $this->calc->mkSummary($a, $a->pengampu->mahasiswas),
-        ]);
-
-        $mkCplContribution = $this->buildMkCplContribution($mkSummaries, $cplSummary);
-        $cpmkLemah = $this->buildCpmkLemah($mkSummaries);
-
-        $capaianValues = collect($cplSummary)->pluck('avg_capaian')->filter(fn ($v) => $v !== null);
-        $evaluasi = [
-            'cpl_summary' => $cplSummary,
-            'mk_summaries' => $mkSummaries,
-            'mk_cpl_contribution' => $mkCplContribution,
-            'cpmk_lemah' => $cpmkLemah,
-            'mk_terassess' => $mkSummaries->count(),
-            'rata_rata_kurikulum' => $capaianValues->isEmpty() ? null : $capaianValues->avg(),
-            'cpl_tercapai' => collect($cplSummary)->filter(fn ($r) => ($r['avg_capaian'] ?? 0) >= 70)->count(),
-            'cpl_belum' => collect($cplSummary)->filter(fn ($r) => ($r['avg_capaian'] ?? 0) < 70 || $r['avg_capaian'] === null)->count(),
-            'total_cpl' => count($cplSummary),
-        ];
-
-        return view('assessment.evaluasi-kurikulum', compact('filters', 'drop', 'evaluasi'));
-    }
-
-    /**
-     * Daftar evaluasi kurikulum (CRUD) dalam konteks assessment.
-     */
-    public function evaluasiList(Request $request)
-    {
-        $this->authorizeAssessmentRead();
-
-        $filters = $this->filters($request);
-        $drop = $this->filterDropdowns($filters);
-
-        $query = EvaluasiKurikulum::query()
-            ->with(['kurikulum.programStudi', 'tahunAkademik', 'creator'])
-            ->orderByDesc('created_at');
-
-        if ($filters['kurikulum_id']) {
-            $query->where('kurikulum_id', $filters['kurikulum_id']);
-        } elseif ($filters['program_studi_id']) {
-            $query->whereHas('kurikulum', fn ($q) => $q->where('program_studi_id', $filters['program_studi_id']));
-        }
-
-        $user = auth()->user();
-        if (! $user->isAdmin() && ! $user->isDirektur()) {
-            if ($user->isKaprodi()) {
-                $query->whereHas('kurikulum', fn ($q) => $q->where('program_studi_id', $user->dosen?->program_studi_id));
-            }
-        }
-
-        $evaluasis = $query->get();
-
-        return view('assessment.evaluasi-list', compact('filters', 'drop', 'evaluasis'));
+        return view('assessment.rekap', compact('filters', 'drop', 'rekap', 'target', 'cpmkRecaps', 'cplRecaps', 'distribusi'));
     }
 
     /**
@@ -374,6 +307,18 @@ class AssessmentController extends Controller
             'cpl_id' => $request->integer('cpl_id') ?: null,
             'cpmk_id' => $request->integer('cpmk_id') ?: null,
         ];
+    }
+
+    /**
+     * Target capaian CPL/CPMK (default 75) dari Program Studi terpilih.
+     */
+    protected function capaianTarget(array $filters): float
+    {
+        if (! empty($filters['program_studi_id'])) {
+            $target = ProgramStudi::find($filters['program_studi_id'])?->target_capaian;
+        }
+
+        return (float) ($target ?? 75);
     }
 
     /**
@@ -511,101 +456,6 @@ class AssessmentController extends Controller
         }
 
         return compact('mahasiswaCount', 'mkCount', 'cpmkScored', 'cpls', 'avgCpl', 'tertinggi', 'terendah', 'distribusi', 'cplCapaian');
-    }
-
-    /**
-     * Kontribusi rata-rata capaian per MK ke CPL-nya.
-     */
-    protected function buildMkCplContribution(Collection $mkSummaries, array $cplSummary): array
-    {
-        $result = [];
-
-        foreach ($mkSummaries as $item) {
-            $summary = $item['summary'];
-            $mk = $item['mata_kuliah'];
-
-            $rows = $summary['rows'];
-            $totalMahasiswa = count($rows);
-            if ($totalMahasiswa === 0) {
-                continue;
-            }
-
-            $perCpl = [];
-            foreach ($summary['config'] as $cpmkId => $meta) {
-                $cplId = $meta['cpl']->id;
-                $capaianValues = collect($rows)
-                    ->map(fn ($r) => $r['scores'][$cpmkId]['nilai'] ?? null)
-                    ->filter(fn ($v) => $v !== null)
-                    ->values();
-
-                $avgNilai = $capaianValues->isEmpty() ? null : $capaianValues->avg();
-                $bobot = $meta['bobot'];
-                $perCpl[$cplId] = [
-                    'cpl_kode' => $meta['cpl']->kode_cpl,
-                    'cpmk_kode' => $meta['cpmk']->kode_cpmk,
-                    'bobot' => $bobot,
-                    'avg_nilai' => $avgNilai,
-                    'capaian' => $bobot > 0 && $avgNilai !== null ? ($avgNilai / $bobot) * 100 : null,
-                ];
-            }
-
-            $maxMk = (float) $summary['max'];
-            $avgCapaian = collect($rows)->pluck('capaian')->filter(fn ($v) => $v !== null)->avg();
-
-            $result[] = [
-                'mata_kuliah' => $mk,
-                'max_mk' => $maxMk,
-                'avg_capaian' => $avgCapaian,
-                'per_cpl' => $perCpl,
-            ];
-        }
-
-        usort($result, fn ($a, $b) => ($a['avg_capaian'] ?? 0) <=> ($b['avg_capaian'] ?? 0));
-
-        return $result;
-    }
-
-    /**
-     * CPMK-CPMK yang capaian avg-nya di bawah threshold.
-     */
-    protected function buildCpmkLemah(Collection $mkSummaries, float $threshold = 70): array
-    {
-        $cpmkData = [];
-
-        foreach ($mkSummaries as $item) {
-            $summary = $item['summary'];
-            $mk = $item['mata_kuliah'];
-            $rows = $summary['rows'];
-
-            foreach ($summary['config'] as $cpmkId => $meta) {
-                $capaianValues = collect($rows)
-                    ->map(fn ($r) => $r['scores'][$cpmkId]['nilai'] ?? null)
-                    ->filter(fn ($v) => $v !== null);
-
-                if ($capaianValues->isEmpty()) {
-                    continue;
-                }
-
-                $avg = $capaianValues->avg();
-                $bobot = $meta['bobot'];
-                $capaian = $bobot > 0 ? ($avg / $bobot) * 100 : null;
-
-                if ($capaian !== null && $capaian < $threshold) {
-                    $cpmkData[] = [
-                        'mata_kuliah' => $mk,
-                        'cpmk' => $meta['cpmk'],
-                        'cpl' => $meta['cpl'],
-                        'bobot' => $bobot,
-                        'avg_nilai' => $avg,
-                        'capaian' => $capaian,
-                    ];
-                }
-            }
-        }
-
-        usort($cpmkData, fn ($a, $b) => $a['capaian'] <=> $b['capaian']);
-
-        return $cpmkData;
     }
 
     protected function exportExcel(?array $rekap, string $title)

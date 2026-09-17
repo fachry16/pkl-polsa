@@ -5,11 +5,74 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\AuthorizesKurikulum;
 use App\Models\Cpl;
 use App\Models\Kurikulum;
+use App\Services\CsvImportService;
 use Illuminate\Http\Request;
 
 class CplController extends Controller
 {
     use AuthorizesKurikulum;
+
+    public function downloadTemplate(CsvImportService $csvService)
+    {
+        $headers = ['kode_cpl', 'deskripsi'];
+        $samples = [
+            ['CPL01', 'Mampu menerapkan ilmu komputer dan matematika untuk menyelesaikan masalah rekayasa perangkat lunak.'],
+            ['CPL02', 'Mampu menganalisis, merancang, dan membangun perangkat lunak yang andal dan efisien.'],
+        ];
+
+        return $csvService->downloadTemplate('template_import_cpl.csv', $headers, $samples);
+    }
+
+    public function import(Request $request, Kurikulum $kurikulum, CsvImportService $csvService)
+    {
+        $this->authorizeKurikulum($kurikulum);
+        $request->validate([
+            'file' => 'required|file|max:5120',
+        ]);
+
+        $rows = $csvService->parseCsv($request->file('file')->getRealPath());
+
+        if (empty($rows)) {
+            return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
+        }
+
+        $imported = 0;
+        $skipped = [];
+        $existing = $kurikulum->cpls()->pluck('kode_cpl')->map(fn ($k) => strtoupper(trim($k)))->all();
+
+        foreach ($rows as $row) {
+            $rowNum = $row['_row_number'] ?? '?';
+            $kode = strtoupper(trim($row['kode_cpl'] ?? ''));
+            $deskripsi = trim($row['deskripsi'] ?? '');
+
+            if ($kode === '' || $deskripsi === '') {
+                $skipped[] = "Baris {$rowNum}: kode_cpl dan deskripsi wajib diisi.";
+
+                continue;
+            }
+
+            if (in_array($kode, $existing)) {
+                $skipped[] = "Baris {$rowNum}: Kode CPL {$kode} sudah terdaftar pada kurikulum ini.";
+
+                continue;
+            }
+
+            Cpl::create([
+                'kurikulum_id' => $kurikulum->id,
+                'kode_cpl' => $kode,
+                'deskripsi' => $deskripsi,
+            ]);
+            $existing[] = $kode;
+            $imported++;
+        }
+
+        $msg = "Berhasil mengimpor {$imported} data CPL.";
+        if (! empty($skipped)) {
+            return back()->with('success', $msg.' '.count($skipped).' baris dilewati.')->with('import_warnings', $skipped);
+        }
+
+        return back()->with('success', $msg);
+    }
 
     /**
      * Display a listing of the resource.
