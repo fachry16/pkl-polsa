@@ -11,7 +11,7 @@ use App\Models\Rps;
 
 class PenilaianService
 {
-    public const KOMPONEN = ['tugas', 'quiz', 'uts', 'uas', 'praktikum', 'project', 'absensi', 'keaktifan'];
+    public const KOMPONEN = ['tugas', 'quiz', 'uts', 'uas', 'praktikum', 'project', 'absensi', 'keaktifan', 'etika'];
 
     /**
      * Hitung nilai komponen "tugas" seorang mahasiswa di sebuah kelas.

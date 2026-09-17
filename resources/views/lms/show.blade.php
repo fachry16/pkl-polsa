@@ -598,6 +598,8 @@
             @endif
         </div>
 
+        @include('lms.tugas._rekap-approval', ['belumDinilai' => $belumDinilai])
+
         {{-- Tabel Rekap --}}
         @if(!Auth::user()->isAdmin())
         <form action="{{ route('lms.tugas.komponen', $pengampu->id) }}" method="POST">
@@ -615,11 +617,14 @@
                         @endforeach
                         <th style="text-align: center; font-weight: 700;">Nilai Tugas</th>
                         @foreach($bobot as $komponen => $persen)
-                            @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
+                            @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan', 'etika'])))
                                 <th style="text-align: center; font-size: 0.7rem;">{{ ucfirst($komponen) }}<br><small style="color:#94a3b8;">({{ $persen }}%)</small></th>
                             @endif
                         @endforeach
                         <th style="text-align: center; font-weight: 700; background: #f8fafc;">Nilai Angka</th>
+                        @if(!Auth::user()->isAdmin())
+                            <th style="text-align: center; font-weight: 700; background: #f8fafc;">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -651,7 +656,7 @@
                                 {{ $nilaiTugas !== null ? number_format($nilaiTugas, 2) : '-' }}
                             </td>
                             @foreach($bobot as $komponen => $persen)
-                                @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
+                                @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan', 'etika'])))
                                     @php
                                         $nilaiKomponen = $nilaiByMhs->get($mahasiswa->id)?->firstWhere('komponen', $komponen)?->nilai;
                                         if ($komponen === 'absensi' && $nilaiKomponen === null) {
@@ -670,10 +675,29 @@
                             <td style="text-align: center; font-weight: 700; background: #f8fafc;">
                                 {{ $nilaiAkhir !== null ? number_format($nilaiAkhir, 2) : '-' }}
                             </td>
+                            @if(!Auth::user()->isAdmin())
+                                @php
+                                    $nilaiAbsensiEdit = $nilaiByMhs->get($mahasiswa->id)?->firstWhere('komponen', 'absensi')?->nilai;
+                                    if ($nilaiAbsensiEdit === null) {
+                                        $nilaiAbsensiEdit = app(App\Services\PenilaianService::class)->hitungAbsensi($pengampu, $mahasiswa);
+                                    }
+                                    $nilaiKeaktifanEdit = $nilaiByMhs->get($mahasiswa->id)?->firstWhere('komponen', 'keaktifan')?->nilai;
+                                    $nilaiEtikaEdit = $nilaiByMhs->get($mahasiswa->id)?->firstWhere('komponen', 'etika')?->nilai;
+                                @endphp
+                                <td style="text-align: center; background: #f8fafc;">
+                                    <button type="button"
+                                            @click="$dispatch('open-rekap-edit', { id: {{ $mahasiswa->id }}, nim: @js($mahasiswa->nim), nama: @js($mahasiswa->nama), absensi: @js($nilaiAbsensiEdit ?? ''), keaktifan: @js($nilaiKeaktifanEdit ?? ''), etika: @js($nilaiEtikaEdit ?? '') })"
+                                            title="Edit Absensi / Keaktifan / Etika"
+                                            style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #e2e8f0; background: #ffffff; color: #475569; cursor: pointer; font-size: 0.75rem; font-weight: 600;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        Edit
+                                    </button>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter()->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
+                            <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter(fn ($p, $k) => $p > 0 || in_array($k, ['absensi', 'keaktifan', 'etika']))->count() + (Auth::user()->isAdmin() ? 0 : 1) }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -695,6 +719,10 @@
         </div>
         @if(!Auth::user()->isAdmin())
         </form>
+        @endif
+
+        @if(!Auth::user()->isAdmin())
+            @include('lms.tugas._rekap-edit-modal', ['pengampu' => $pengampu])
         @endif
     </div>
 

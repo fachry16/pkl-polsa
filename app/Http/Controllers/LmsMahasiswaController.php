@@ -14,6 +14,7 @@ use App\Models\Pengampu;
 use App\Models\TahunAkademik;
 use App\Notifications\SubmissionBaru;
 use App\Rules\LmsFileMime;
+use App\Services\GoogleDriveService;
 use App\Services\PenilaianService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -309,7 +310,7 @@ class LmsMahasiswaController extends Controller
                 Storage::disk('public')->delete($existing->file_jawaban);
             }
 
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions');
         }
 
@@ -364,7 +365,7 @@ class LmsMahasiswaController extends Controller
                 Storage::disk('public')->delete($submission->file_jawaban);
             }
 
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions');
         } elseif ($request->boolean('hapus_file_jawaban') && $submission->file_jawaban) {
             Storage::disk('public')->delete($submission->file_jawaban);

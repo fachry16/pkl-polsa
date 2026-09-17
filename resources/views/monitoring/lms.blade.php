@@ -51,6 +51,12 @@
                         <span style="font-weight: 600; color: #d97706;">{{ $kelas->submissions_belum_dinilai }}</span>
                         <span>Blm Dinilai</span>
                     </div>
+                    @if(($kelas->pengajuan_menunggu ?? 0) > 0)
+                        <a href="{{ route('assessment.pengajuan') }}" title="Ada pengajuan nilai menunggu persetujuan" style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #dc2626; text-decoration: none;">
+                            <span style="width: 20px; height: 20px; border-radius: 50%; background: #dc2626; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">!</span>
+                            <span style="font-weight: 600;">Pengajuan Nilai</span>
+                        </a>
+                    @endif
                 </div>
 
                 <div style="margin-top: 0.75rem;">
