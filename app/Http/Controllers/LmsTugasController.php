@@ -15,6 +15,7 @@ use App\Notifications\NilaiDiberikan;
 use App\Notifications\TugasBaru;
 use App\Rules\LmsFileMime;
 use App\Services\AssessmentCalculationService;
+use App\Services\GoogleDriveService;
 use App\Services\PenilaianService;
 use Closure;
 use Illuminate\Http\Request;
@@ -82,7 +83,7 @@ class LmsTugasController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 
@@ -197,7 +198,7 @@ class LmsTugasController extends Controller
                 Storage::disk('public')->delete($tugas->file_lampiran);
             }
 
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 
@@ -284,7 +285,14 @@ class LmsTugasController extends Controller
         $calc = app(AssessmentCalculationService::class);
         $cpmkConfig = $calc->cpmkConfigForMataKuliah($pengampu->mataKuliah);
 
-        return view('lms.tugas.rekap', compact('pengampu', 'mahasiswas', 'tugasList', 'nilaiByMhs', 'bobot', 'instrumenCpmk', 'cpmkConfig'));
+        $assessment = Assessment::where('pengampu_id', $pengampu->id)->first();
+        $pengampu->setRelation('assessment', $assessment);
+
+        $belumDinilai = $mahasiswas
+            ->filter(fn ($m) => $nilaiByMhs->get($m->id)?->firstWhere('komponen', 'akhir')?->nilai === null)
+            ->count();
+
+        return view('lms.tugas.rekap', compact('pengampu', 'mahasiswas', 'tugasList', 'nilaiByMhs', 'bobot', 'instrumenCpmk', 'cpmkConfig', 'belumDinilai'));
     }
 
     public function simpanKomponen(Request $request, Pengampu $pengampu)
@@ -300,10 +308,11 @@ class LmsTugasController extends Controller
             'nilai.*.project' => 'nullable|numeric|min:0|max:100',
             'nilai.*.absensi' => 'nullable|numeric|min:0|max:100',
             'nilai.*.keaktifan' => 'nullable|numeric|min:0|max:100',
+            'nilai.*.etika' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $service = app(PenilaianService::class);
-        $komponenLain = ['quiz', 'uts', 'uas', 'praktikum', 'project', 'absensi', 'keaktifan'];
+        $komponenLain = ['quiz', 'uts', 'uas', 'praktikum', 'project', 'absensi', 'keaktifan', 'etika'];
 
         foreach ($request->input('nilai', []) as $mahasiswaId => $nilaiKomponen) {
             $mahasiswa = $pengampu->mahasiswas()->find($mahasiswaId);
@@ -371,7 +380,7 @@ class LmsTugasController extends Controller
 
         $request->validate([
             'cpmk_id' => 'required|exists:cpmks,id',
-            'komponen' => 'required|in:tugas,quiz,uts,uas,praktikum,project',
+            'komponen' => 'required|in:tugas,quiz,uts,uas,praktikum,project,absensi,keaktifan,etika',
             'bobot_kontribusi' => 'required|numeric|min:0|max:100',
         ]);
 

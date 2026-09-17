@@ -16,6 +16,7 @@ class RpsPenilaian extends Model
         'project',
         'absensi',
         'keaktifan',
+        'etika',
     ];
 
     public function rps()

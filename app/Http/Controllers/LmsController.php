@@ -132,6 +132,10 @@ class LmsController extends Controller
             );
         }
 
+        $belumDinilai = $pengampu->mahasiswas
+            ->filter(fn ($m) => $nilaiByMhs->get($m->id)?->firstWhere('komponen', 'akhir')?->nilai === null)
+            ->count();
+
         return view('lms.show', compact(
             'pengampu',
             'materiCount',
@@ -142,7 +146,8 @@ class LmsController extends Controller
             'tugasList',
             'nilaiByMhs',
             'bobot',
-            'assessmentSummary'
+            'assessmentSummary',
+            'belumDinilai'
         ));
     }
 }

@@ -18,7 +18,6 @@ use App\Models\LmsMateriMahasiswa;
 use App\Models\LmsPengumuman;
 use App\Models\LmsSesiAbsensi;
 use App\Models\LmsSubmission;
-use App\Models\LmsTopikKomentar;
 use App\Models\LmsTugas;
 use App\Models\Mahasiswa;
 use App\Models\MahasiswaTahunAkademik;
@@ -450,6 +449,7 @@ class DemoPresentationSeeder extends Seeder
                 'project' => 0.00,
                 'absensi' => 0.00,
                 'keaktifan' => 0.00,
+                'etika' => 0.00,
             ]
         );
 

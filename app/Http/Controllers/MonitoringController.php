@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssessmentApproval;
 use App\Models\Kurikulum;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
@@ -43,6 +44,11 @@ class MonitoringController extends Controller
                 'lmsForumDiskusis',
                 'lmsSubmissions as submissions_belum_dinilai' => function ($q) {
                     $q->whereNull('nilai');
+                },
+                'assessment as pengajuan_menunggu' => function ($q) {
+                    $q->whereHas('approval', function ($aq) {
+                        $aq->where('status', AssessmentApproval::STATUS_MENUNGGU);
+                    });
                 },
             ]);
 

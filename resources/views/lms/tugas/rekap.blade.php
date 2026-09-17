@@ -19,6 +19,8 @@
     </div>
 </div>
 
+@include('lms.tugas._rekap-approval', ['belumDinilai' => $belumDinilai])
+
 @if(!Auth::user()->isAdmin())
 <form action="{{ route('lms.tugas.komponen', $pengampu->id) }}" method="POST">
     @csrf
@@ -35,7 +37,7 @@
                 @endforeach
                 <th style="text-align: center; font-weight: 700;">Nilai Tugas</th>
                 @foreach($bobot as $komponen => $persen)
-                    @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
+                    @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan', 'etika'])))
                         <th style="text-align: center; font-size: 0.7rem;">{{ ucfirst($komponen) }}<br><small style="color:#94a3b8;">({{ $persen }}%)</small></th>
                     @endif
                 @endforeach
@@ -71,7 +73,7 @@
                         {{ $nilaiTugas !== null ? number_format($nilaiTugas, 2) : '-' }}
                     </td>
                     @foreach($bobot as $komponen => $persen)
-                        @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
+                        @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan', 'etika'])))
                             @php
                                 $nilaiKomponen = $nilaiByMhs->get($mahasiswa->id)?->firstWhere('komponen', $komponen)?->nilai;
                                 if ($komponen === 'absensi' && $nilaiKomponen === null) {
@@ -93,7 +95,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter()->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
+                    <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter(fn ($p, $k) => $p > 0 || in_array($k, ['absensi', 'keaktifan', 'etika']))->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -135,7 +137,7 @@
                     <input type="hidden" name="cpmk_id" value="{{ $cpmkId }}">
                     <select name="komponen" required style="font-size: 0.75rem; padding: 0.2rem 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px;">
                         <option value="">Komponen</option>
-                        @foreach(['tugas','quiz','uts','uas','praktikum','project','absensi','keaktifan'] as $k)
+                        @foreach(['tugas','quiz','uts','uas','praktikum','project','absensi','keaktifan','etika'] as $k)
                             <option value="{{ $k }}">{{ ucfirst($k) }}</option>
                         @endforeach
                     </select>

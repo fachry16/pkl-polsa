@@ -598,6 +598,8 @@
             @endif
         </div>
 
+        @include('lms.tugas._rekap-approval', ['belumDinilai' => $belumDinilai])
+
         {{-- Tabel Rekap --}}
         @if(!Auth::user()->isAdmin())
         <form action="{{ route('lms.tugas.komponen', $pengampu->id) }}" method="POST">
@@ -615,7 +617,7 @@
                         @endforeach
                         <th style="text-align: center; font-weight: 700;">Nilai Tugas</th>
                         @foreach($bobot as $komponen => $persen)
-                            @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
+                            @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan', 'etika'])))
                                 <th style="text-align: center; font-size: 0.7rem;">{{ ucfirst($komponen) }}<br><small style="color:#94a3b8;">({{ $persen }}%)</small></th>
                             @endif
                         @endforeach
@@ -651,7 +653,7 @@
                                 {{ $nilaiTugas !== null ? number_format($nilaiTugas, 2) : '-' }}
                             </td>
                             @foreach($bobot as $komponen => $persen)
-                                @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan'])))
+                                @if($komponen !== 'tugas' && ($persen > 0 || in_array($komponen, ['absensi', 'keaktifan', 'etika'])))
                                     @php
                                         $nilaiKomponen = $nilaiByMhs->get($mahasiswa->id)?->firstWhere('komponen', $komponen)?->nilai;
                                         if ($komponen === 'absensi' && $nilaiKomponen === null) {
@@ -673,7 +675,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter()->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
+                            <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter(fn ($p, $k) => $p > 0 || in_array($k, ['absensi', 'keaktifan', 'etika']))->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -7,6 +7,7 @@ use App\Models\Pengampu;
 use App\Models\RpsPertemuan;
 use App\Notifications\MateriBaru;
 use App\Rules\LmsFileMime;
+use App\Services\GoogleDriveService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,7 @@ class LmsMateriController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi');
         }
 
@@ -138,7 +139,7 @@ class LmsMateriController extends Controller
                 Storage::disk('public')->delete($materi->file_path);
             }
 
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi');
         }
 

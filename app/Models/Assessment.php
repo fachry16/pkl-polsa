@@ -33,6 +33,11 @@ class Assessment extends Model
         return $this->hasMany(AssessmentScore::class);
     }
 
+    public function approval()
+    {
+        return $this->hasOne(AssessmentApproval::class);
+    }
+
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {

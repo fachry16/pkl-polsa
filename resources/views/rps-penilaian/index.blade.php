@@ -78,6 +78,11 @@
             <td>{{ $penilaian->keaktifan }}%</td>
         </tr>
 
+        <tr>
+            <td>Etika</td>
+            <td>{{ $penilaian->etika }}%</td>
+        </tr>
+
         <tr class="font-bold">
             <td>Total</td>
             <td>
@@ -88,7 +93,8 @@
                    $penilaian->praktikum +
                    $penilaian->project +
                    $penilaian->absensi +
-                   $penilaian->keaktifan }}%
+                   $penilaian->keaktifan +
+                   $penilaian->etika }}%
             </td>
         </tr>
 

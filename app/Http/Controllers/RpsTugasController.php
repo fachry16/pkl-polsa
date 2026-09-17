@@ -8,6 +8,7 @@ use App\Models\Pengampu;
 use App\Models\Rps;
 use App\Models\RpsTugas;
 use App\Rules\LmsFileMime;
+use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -78,7 +79,7 @@ class RpsTugasController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 
@@ -140,7 +141,7 @@ class RpsTugasController extends Controller
             if ($tugas->file_soal) {
                 Storage::disk('public')->delete($tugas->file_soal);
             }
-            $driveService = app(\App\Services\GoogleDriveService::class);
+            $driveService = app(GoogleDriveService::class);
             $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
         }
 

@@ -917,6 +917,21 @@ Route::middleware(['auth', 'role:kaprodi,direktur'])->group(function () {
         'monitoring/lms',
         [MonitoringController::class, 'lms']
     )->name('monitoring.lms');
+
+    Route::get(
+        'assessment/pengajuan',
+        [AssessmentController::class, 'pengajuan']
+    )->name('assessment.pengajuan');
+
+    Route::patch(
+        'assessment/{assessment}/setujui',
+        [AssessmentController::class, 'setujui']
+    )->name('assessment.setujui');
+
+    Route::patch(
+        'assessment/{assessment}/revisi',
+        [AssessmentController::class, 'revisi']
+    )->name('assessment.revisi');
 });
 
 /* Direktur */
@@ -991,6 +1006,7 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
 
     Route::get('/{pengampu}/rekap-nilai', [LmsTugasController::class, 'rekap'])->name('tugas.rekap');
     Route::post('/{pengampu}/rekap-nilai/komponen', [LmsTugasController::class, 'simpanKomponen'])->name('tugas.komponen');
+    Route::patch('/{pengampu}/nilai/ajukan', [AssessmentController::class, 'ajukan'])->name('nilai.ajukan');
     Route::match(['get', 'post'], '/{pengampu}/hitung-ulang-nilai', [LmsTugasController::class, 'hitungUlangNilai'])->name('tugas.sync');
     Route::post('/{pengampu}/instrumen-cpmk', [LmsTugasController::class, 'simpanInstrumenCpmk'])->name('tugas.instrumen-cpmk');
     Route::delete('/{pengampu}/instrumen-cpmk/{instrumen}', [LmsTugasController::class, 'hapusInstrumenCpmk'])->name('tugas.instrumen-cpmk.hapus');

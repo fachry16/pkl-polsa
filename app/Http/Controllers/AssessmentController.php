@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assessment;
+use App\Models\AssessmentApproval;
 use App\Models\AssessmentScore;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\Dosen;
 use App\Models\Kurikulum;
+use App\Models\LmsNilaiMahasiswa;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\TahunAkademik;
+use App\Notifications\NilaiDiajukan;
+use App\Notifications\NilaiDirevisi;
+use App\Notifications\NilaiDisetujui;
 use App\Services\AssessmentCalculationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
@@ -532,5 +538,156 @@ class AssessmentController extends Controller
         $rows[] = '</Table></Worksheet></Workbook>';
 
         return implode("\n", $rows);
+    }
+
+    /**
+     * Ajukan nilai kelas ke Kaprodi (hanya pengampu kelas).
+     * Hanya bisa diajukan jika seluruh mahasiswa sudah memiliki nilai akhir.
+     */
+    public function ajukan(Pengampu $pengampu)
+    {
+        $user = auth()->user();
+        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+        abort_if(! $user->dosen || $pengampu->dosen_id !== $user->dosen->id, 403, 'Anda bukan pengampu kelas ini.');
+
+        $assessment = Assessment::firstOrCreate(
+            ['pengampu_id' => $pengampu->id],
+            ['status' => Assessment::STATUS_DRAFT, 'created_by' => $user->id]
+        );
+
+        $approval = $assessment->approval;
+
+        if ($approval && $approval->status === AssessmentApproval::STATUS_MENUNGGU) {
+            return back()->with('toast_error', 'Nilai kelas ini sudah diajukan dan masih menunggu persetujuan Kaprodi.');
+        }
+
+        $belumDinilai = $this->jumlahBelumDinilai($pengampu);
+
+        if ($belumDinilai > 0) {
+            return back()->with('toast_error', "Nilai belum dapat diajukan: {$belumDinilai} mahasiswa belum memiliki nilai akhir.");
+        }
+
+        AssessmentApproval::updateOrCreate(
+            ['assessment_id' => $assessment->id],
+            [
+                'status' => AssessmentApproval::STATUS_MENUNGGU,
+                'diajukan_oleh' => $user->id,
+                'diajukan_at' => now(),
+                'catatan_revisi' => null,
+                'direvisi_oleh' => null,
+                'direvisi_at' => null,
+            ]
+        );
+
+        $pengaju = $user->name ?? 'Dosen';
+
+        $kaprodis = Dosen::where('jabatan', 'Kaprodi')
+            ->where('program_studi_id', $pengampu->mataKuliah->kurikulum->program_studi_id)
+            ->with('user')
+            ->get();
+
+        foreach ($kaprodis as $kaprodi) {
+            if ($kaprodi->user) {
+                $kaprodi->user->notify(new NilaiDiajukan($pengampu, $pengaju));
+            }
+        }
+
+        return back()->with('toast_success', 'Nilai berhasil diajukan ke Kaprodi.');
+    }
+
+    /**
+     * Daftar pengajuan nilai untuk Kaprodi / Direktur (meniru pengajuan RPS).
+     */
+    public function pengajuan()
+    {
+        $user = auth()->user();
+
+        if ($user) {
+            $user->unreadNotifications()
+                ->where('type', NilaiDiajukan::class)
+                ->update(['read_at' => now()]);
+        }
+
+        $approvals = AssessmentApproval::query()
+            ->with(['assessment.pengampu.mataKuliah', 'assessment.pengampu.dosen.user', 'assessment.pengampu.tahunAkademik', 'penyetuju'])
+            ->when(! $user->isDirektur() && $user->dosen, function ($query) use ($user) {
+                $query->whereHas('assessment.pengampu.mataKuliah.kurikulum', function ($q) use ($user) {
+                    $q->where('program_studi_id', $user->dosen->program_studi_id);
+                });
+            })
+            ->latest()
+            ->get();
+
+        return view('assessment.pengajuan', compact('approvals'));
+    }
+
+    public function setujui(Assessment $assessment)
+    {
+        $approval = $assessment->approval;
+
+        if (! $approval || $approval->status !== AssessmentApproval::STATUS_MENUNGGU) {
+            return back()->with('error', 'Hanya nilai berstatus menunggu yang dapat disetujui.');
+        }
+
+        $approval->update([
+            'status' => AssessmentApproval::STATUS_DISETUJUI,
+            'disetujui_oleh' => auth()->id(),
+            'disetujui_at' => now(),
+        ]);
+
+        $penyetuju = auth()->user()->name ?? 'Kaprodi';
+        $pengampu = $assessment->pengampu;
+
+        if ($pengampu->dosen?->user) {
+            $pengampu->dosen->user->notify(new NilaiDisetujui($pengampu, $penyetuju));
+        }
+
+        return back()->with('success', 'Nilai kelas berhasil disetujui.');
+    }
+
+    public function revisi(Request $request, Assessment $assessment)
+    {
+        $request->validate([
+            'catatan_revisi' => 'required|string',
+        ]);
+
+        $approval = $assessment->approval;
+
+        if (! $approval || $approval->status !== AssessmentApproval::STATUS_MENUNGGU) {
+            return back()->with('error', 'Hanya nilai berstatus menunggu yang dapat dikembalikan.');
+        }
+
+        $approval->update([
+            'status' => AssessmentApproval::STATUS_DIREVISI,
+            'catatan_revisi' => $request->catatan_revisi,
+            'direvisi_oleh' => auth()->id(),
+            'direvisi_at' => now(),
+        ]);
+
+        $peninjau = auth()->user()->name ?? 'Kaprodi';
+        $pengampu = $assessment->pengampu;
+
+        if ($pengampu->dosen?->user) {
+            $pengampu->dosen->user->notify(new NilaiDirevisi($pengampu, $request->catatan_revisi, $peninjau));
+        }
+
+        return back()->with('success', 'Nilai dikembalikan untuk direvisi.');
+    }
+
+    /**
+     * Jumlah mahasiswa aktif di kelas yang belum memiliki nilai akhir.
+     */
+    protected function jumlahBelumDinilai(Pengampu $pengampu): int
+    {
+        $mahasiswaIds = $pengampu->mahasiswas()->pluck('mahasiswas.id');
+
+        $sudahDinilai = LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
+            ->where('komponen', 'akhir')
+            ->whereNotNull('nilai')
+            ->whereIn('mahasiswa_id', $mahasiswaIds)
+            ->distinct()
+            ->count('mahasiswa_id');
+
+        return max($mahasiswaIds->count() - $sudahDinilai, 0);
     }
 }
