@@ -120,17 +120,14 @@
 
     <!-- POPUP MODAL PANDUAN -->
     <div x-show="showModal"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         style="position: fixed; inset: 0; z-index: 1000; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; padding: 1rem;"
-         x-cloak>
+         x-cloak
+         @keydown.escape.window="showModal = false"
+         @click.self="showModal = false"
+         :style="{ display: showModal ? 'flex' : 'none' }"
+         style="position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(2px); align-items: center; justify-content: center; padding: 1rem; display: none;">
 
-        <div @click.away="showModal = false"
-             style="background: #ffffff; border-radius: 16px; max-width: 780px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+        <div @click.outside="showModal = false"
+             style="background: #ffffff; border-radius: 16px; max-width: 800px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); border: 1px solid #e2e8f0;">
 
             <!-- Modal Header -->
             <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #f8fafc;">
@@ -146,11 +143,12 @@
                     </div>
                 </div>
 
-                <button type="button" @click="showModal = false" style="background: transparent; border: none; cursor: pointer; padding: 0.4rem; border-radius: 8px; color: #64748b;" title="Tutup">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button type="button" @click="showModal = false" style="background: #f1f5f9; border: 1px solid #e2e8f0; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: 8px; color: #475569; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem;" title="Tutup">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
+                    Tutup
                 </button>
             </div>
 
@@ -180,12 +178,12 @@
                         Sistem Eduva LMS menggunakan Google Drive kampus sebagai <strong>Storage Backend Cloud</strong>. Dosen dan mahasiswa tidak perlu membuat folder manual atau menghubungkan akun Google pribadi mereka.
                     </p>
                     <div style="background: #f8fafc; padding: 1rem; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
-                        <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">Alur Pengunggahan &amp; Pratinjau File:</div>
+                        <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">Alur Pengunggahan &amp; Pengunduhan:</div>
                         <ul style="margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;">
-                            <li>Pengguna mengunggah file biasa melalui form LMS (Upload Materi / Tugas).</li>
-                            <li>Eduva LMS secara otomatis mentransfer file tersebut ke folder Google Drive kampus.</li>
-                            <li>Sistem membuatkan hirarki folder per Semester &amp; Mata Kuliah secara otomatis.</li>
-                            <li>Saat file diklik, browser akan **membuka tab baru** dengan tampilan pratinjau bawaan Google Drive (lengkap dengan opsi cetak &amp; download).</li>
+                            <li>Pengguna mengunggah berkas biasa lewat form LMS (Materi, Tugas, Kiriman Jawaban Mahasiswa).</li>
+                            <li>Eduva LMS secara otomatis mentransfer berkas tersebut ke Google Drive kampus.</li>
+                            <li>Sistem otomatis membuat struktur folder rapi per Mata Kuliah &amp; Kelas di Google Drive.</li>
+                            <li>Server lokal tidak menimbun file, sehingga ruang disk hosting/server tetap hemat.</li>
                         </ul>
                     </div>
                 </div>
@@ -206,28 +204,45 @@
 
                 <!-- TAB 3: FOLDER & SHARING -->
                 <div x-show="activeTab === 'drive'">
-                    <h4 style="font-weight: 700; color: #1e293b; margin-top: 0;">Langkah 2: Menyiapkan Folder di Google Drive Kampus</h4>
+                    <h4 style="font-weight: 700; color: #1e293b; margin-top: 0;">Langkah 2: Menyiapkan Folder di Akun Google Drive Kampus</h4>
                     
-                    <div style="background: #fffbebfb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.82rem; color: #92400e;">
-                        <strong style="display: block; font-weight: 700; margin-bottom: 0.25rem;">Penting Mengenai Kuota Google Drive (Service Account 0 MB):</strong>
-                        Google menetapkan bahwa Service Account tidak memiliki kuota penyimpanan (0 MB). Jika folder dibuat di akun Google Drive pribadi (<code>@gmail.com</code>), Google akan menolak unggahan dengan pesan <em>"Service Accounts do not have storage quota"</em>.
-                        <div style="margin-top: 0.35rem;">
-                            <strong>Solusi:</strong> Buat folder di <strong>Drive Bersama (Shared Drive)</strong> pada Google Workspace Kampus, ATAU aktifkan <em>Domain-Wide Delegation</em> di Google Workspace Admin dan isi field <em>Email Delegasi Impersonate</em> di form ini.
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+                        <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            Di mana Posisi Drive Bersama (Shared Drives)?
+                        </div>
+                        <p style="margin: 0 0 0.5rem; font-size: 0.85rem; color: #475569;">
+                            Di Google Drive (<a href="https://drive.google.com" target="_blank" style="color: #2563eb; text-decoration: underline;">drive.google.com</a>), perhatikan <strong>sidebar sebelah kiri</strong>:
+                        </p>
+                        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.6rem 0.85rem; font-family: monospace; font-size: 0.8rem; color: #334155; line-height: 1.6;">
+                            &bull; Beranda<br>
+                            &bull; <strong>Drive Saya (My Drive)</strong><br>
+                            &bull; <strong style="color: #2563eb;">Drive Bersama (Shared drives)</strong> &larr; <em>Letaknya di sini</em><br>
+                            &bull; Dibagikan dengan saya (Shared with me)
                         </div>
                     </div>
 
-                    <ol style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.6rem;">
-                        <li>Buka Google Drive instansi/kampus Anda (<a href="https://drive.google.com" target="_blank" style="color: #2563eb; text-decoration: underline;">drive.google.com</a>).</li>
-                        <li>Buat folder baru di <strong>Drive Bersama (Shared Drive)</strong> sebagai induk penyimpanan (misal: <code>Eduva_LMS_Storage</code>).</li>
-                        <li>Klik kanan folder tersebut lalu pilih <strong>Bagikan / Share</strong>.</li>
-                        <li>Salin <strong>Email Service Account</strong> (contoh: <code>eduva-drive-bot@project-id.iam.gserviceaccount.com</code>) lalu paste ke kotak bagikan.</li>
-                        <li>Pastikan perannya diset sebagai <strong>Editor</strong>, uncheck "Send notification", lalu klik <strong>Share</strong>.</li>
-                        <li>Buka folder tersebut, lalu perhatikan URL pada address bar browser:
-                            <div style="background: #f1f5f9; padding: 0.5rem; border-radius: 6px; font-family: monospace; font-size: 0.8rem; margin-top: 0.3rem;">
-                                https://drive.google.com/drive/u/0/folders/<strong style="color: #059669;">1A2b3C4d5E6f7G8h9I0jK</strong>
-                            </div>
-                            Kode acak setelah <code>/folders/</code> tersebut adalah <strong>Folder ID Induk</strong> Anda.
-                        </li>
+                    <div style="background: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.84rem; color: #92400e;">
+                        <strong style="display: block; font-weight: 700; margin-bottom: 0.25rem;">Bagaimana Jika Menu "Drive Bersama" Tidak Muncul di Akun Kampus?</strong>
+                        Jika menu <em>Drive Bersama</em> tidak ada di sidebar kiri Anda, itu artinya admin IT kampus Anda membatasi pembuatan Drive Bersama hanya untuk unit kerja tertentu. <strong>Tidak perlu khawatir! Anda tetap bisa menggunakan folder biasa di "Drive Saya" (My Drive).</strong>
+                    </div>
+
+                    <h5 style="font-weight: 700; color: #1e293b; margin: 1rem 0 0.5rem;">Pilihan 1: Menggunakan "Drive Saya" (My Drive) Kampus</h5>
+                    <ol style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem;">
+                        <li>Buka <strong>Drive Saya</strong> di Google Drive kampus Anda.</li>
+                        <li>Klik tombol <strong>+ Baru (+ New)</strong> &rarr; pilih <strong>Folder baru</strong> (beri nama misal: <code>Eduva_LMS_Storage</code>).</li>
+                        <li>Klik kanan folder tersebut &rarr; pilih <strong>Bagikan (Share)</strong>.</li>
+                        <li>Masukkan email Service Account Anda (contoh: <code>eduva-drive-bot@project-id.iam.gserviceaccount.com</code>), beri hak akses <strong>Editor</strong>, uncheck "Beri tahu orang", lalu klik <strong>Bagikan</strong>.</li>
+                        <li>Buka folder tersebut, lalu salin kode Folder ID dari address bar browser (setelah <code>/folders/</code>).</li>
+                        <li><em>Tips Kuota:</em> Masukkan juga email kampus Anda di kolom <strong>Email Delegasi Impersonate</strong> pada form ini agar kuota yang dipakai adalah kuota resmi kampus Anda.</li>
+                    </ol>
+
+                    <h5 style="font-weight: 700; color: #1e293b; margin: 1rem 0 0.5rem;">Pilihan 2: Menggunakan "Drive Bersama" (Shared drives)</h5>
+                    <ol style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li>Klik <strong>Drive Bersama</strong> di sidebar kiri Google Drive kampus.</li>
+                        <li>Klik <strong>+ Baru</strong> untuk membuat Drive Bersama baru.</li>
+                        <li>Klik <strong>Kelola anggota</strong> di kanan atas &rarr; tambahkan email Service Account dengan peran <strong>Pengelola Konten (Content Manager)</strong>.</li>
+                        <li>Buka Drive Bersama tersebut dan salin Folder ID dari address bar browser.</li>
                     </ol>
                 </div>
 
@@ -240,7 +255,8 @@
                         <li>Salin dan tempel <strong>Email Service Account</strong> dari Langkah 1.</li>
                         <li>Pilih dan unggah file <strong>JSON Key</strong> yang telah diunduh pada Langkah 1.</li>
                         <li>Centang kotak <strong>Aktifkan Penyimpanan Cloud Google Drive</strong>.</li>
-                        <li>Klik tombol <strong>Simpan Pengaturan</strong>. Sistem Anda kini telah terhubung ke Google Drive!</li>
+                        <li>Klik tombol <strong>Simpan Pengaturan</strong>.</li>
+                        <li>Setelah tersimpan, klik tombol <strong>Tes Koneksi GDrive</strong> untuk memastikan koneksi berhasil 100%!</li>
                     </ol>
                 </div>
 
