@@ -54,12 +54,32 @@ class GoogleDriveService
             : storage_path('app/google-drive/config.json');
     }
 
+    public function getBackupConfigPath(): string
+    {
+        $path = $this->getConfigPath();
+        $base = basename($path, '.json');
+
+        return dirname($path).'/.'.$base.'.backup.json';
+    }
+
     public function getDriveConfig(): array
     {
         $configPath = $this->getConfigPath();
+        $backupPath = $this->getBackupConfigPath();
+
         if (File::exists($configPath)) {
             $config = json_decode(File::get($configPath), true);
-            if (is_array($config)) {
+            if (is_array($config) && ! empty($config)) {
+                return $config;
+            }
+        }
+
+        if (File::exists($backupPath)) {
+            $config = json_decode(File::get($backupPath), true);
+            if (is_array($config) && ! empty($config)) {
+                // Pulihkan file utama jika hilang
+                File::put($configPath, json_encode($config, JSON_PRETTY_PRINT));
+
                 return $config;
             }
         }
