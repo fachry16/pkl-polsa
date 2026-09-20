@@ -454,7 +454,15 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+                        @if(! $tugas->is_active && !Auth::user()->isAdmin())
+                            <button type="button" class="btn btn-primary btn-xs" style="display: inline-flex; align-items: center; gap: 0.3rem;"
+                                @click.stop="bukaModalPublikasi('{{ route('lms.tugas.tugaskan', [$pengampu->id, $tugas->id]) }}', '{{ addslashes($tugas->judul) }}', {{ $tugas->batas_upload_mb ?? 50 }}, '{{ $tugas->deadline ? $tugas->deadline->format('Y-m-d\TH:i') : '' }}')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Publikasikan
+                            </button>
+                        @endif
+
                         @if($tugas->deadline)
                             <div style="font-size: 0.8rem; color: #64748b; text-align: right;">
                                 <span style="display: block; font-size: 0.7rem; color: #94a3b8;">Tenggat</span>
@@ -468,6 +476,12 @@
                             </button>
 
                             <div x-show="openMenu" style="position: absolute; right: 0; top: 100%; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; min-width: 140px; z-index: 20; padding: 0.35rem 0; display: none;">
+                                @if(! $tugas->is_active && !Auth::user()->isAdmin())
+                                    <button type="button" @click.stop="openMenu = false; bukaModalPublikasi('{{ route('lms.tugas.tugaskan', [$pengampu->id, $tugas->id]) }}', '{{ addslashes($tugas->judul) }}', {{ $tugas->batas_upload_mb ?? 50 }}, '{{ $tugas->deadline ? $tugas->deadline->format('Y-m-d\TH:i') : '' }}');" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        Publikasikan
+                                    </button>
+                                @endif
                                 <button type="button" @click="copyLink('{{ route('lms.tugas.show', [$pengampu->id, $tugas->id]) }}'); openMenu = false;" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     Salin Link
@@ -775,5 +789,7 @@
         </div>
     </div>
 </div>
+
+@include('lms.tugas._modal-publikasikan')
 
 @endsection

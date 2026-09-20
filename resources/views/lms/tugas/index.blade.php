@@ -89,13 +89,10 @@
                 </a>
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
                     @if(! $item->is_active)
-                        <form action="{{ route('lms.tugas.tugaskan', [$pengampu->id, $item->id]) }}" method="POST" style="margin: 0;">
-                            @csrf
-                            <button type="submit" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;" onclick="return confirm('Publikasikan rancangan tugas ini ke mahasiswa di kelas ini?')">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                Publikasikan Tugas
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;" onclick="bukaModalPublikasi('{{ route('lms.tugas.tugaskan', [$pengampu->id, $item->id]) }}', '{{ addslashes($item->judul) }}', {{ $item->batas_upload_mb ?? 50 }}, '{{ $item->deadline ? $item->deadline->format('Y-m-d\TH:i') : '' }}')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Publikasikan Tugas
+                        </button>
                     @endif
                     @if($item->canBeModified())
                         @if($item->rps_tugas_id && $pengampu->mataKuliah?->rps)
@@ -123,5 +120,7 @@
         </div>
     </div>
 </div>
+
+@include('lms.tugas._modal-publikasikan')
 
 @endsection

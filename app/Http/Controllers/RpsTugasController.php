@@ -7,6 +7,7 @@ use App\Models\LmsTugas;
 use App\Models\Pengampu;
 use App\Models\Rps;
 use App\Models\RpsTugas;
+use App\Notifications\DrafTugasRpsBaru;
 use App\Rules\LmsFileMime;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
@@ -289,7 +290,7 @@ class RpsTugasController extends Controller
                 ->exists();
 
             if (! $sudahAda) {
-                LmsTugas::create([
+                $lmsTugas = LmsTugas::create([
                     'pengampu_id' => $pengampu->id,
                     'rps_pertemuan_id' => $pertemuan?->id,
                     'rps_tugas_id' => $tugas->id,
@@ -301,6 +302,10 @@ class RpsTugasController extends Controller
                     'is_active' => false,
                 ]);
                 $createdCount++;
+
+                if ($pengampu->dosen?->user) {
+                    $pengampu->dosen->user->notify(new DrafTugasRpsBaru($pengampu, $lmsTugas));
+                }
             }
         }
 
