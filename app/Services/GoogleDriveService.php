@@ -92,13 +92,19 @@ class GoogleDriveService
     public function getRootFolderId(): ?string
     {
         $config = $this->getDriveConfig();
-        if (! empty($config['folder_id'])) {
-            return trim($config['folder_id']);
+        $folderId = ! empty($config['folder_id'])
+            ? trim($config['folder_id'])
+            : trim((string) env('GOOGLE_DRIVE_FOLDER_ID', ''));
+
+        if (empty($folderId)) {
+            return null;
         }
 
-        $envFolder = env('GOOGLE_DRIVE_FOLDER_ID');
+        if (preg_match('/folders\/([a-zA-Z0-9_\-]+)/', $folderId, $matches)) {
+            return $matches[1];
+        }
 
-        return ! empty($envFolder) ? trim($envFolder) : null;
+        return trim($folderId, ' /\\');
     }
 
     public function getAccessToken(): ?string
