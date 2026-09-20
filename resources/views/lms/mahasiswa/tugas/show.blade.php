@@ -5,9 +5,9 @@
 <div style="max-width: 1100px; margin: 0 auto;">
     {{-- Tombol Kembali --}}
     <div style="margin-bottom: 1rem;">
-        <a href="{{ route('mahasiswa.lms.show', $pengampu->id) }}?tab=tugas_kelas" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+        <a href="{{ route('mahasiswa.lms.show', $pengampu->id) }}?tab=tugas" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            Kembali ke Tugas Kelas
+            Kembali ke Tugas
         </a>
     </div>
 

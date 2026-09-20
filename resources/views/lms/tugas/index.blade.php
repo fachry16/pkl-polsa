@@ -7,15 +7,15 @@
 </div>
 
 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas_kelas']) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas Kelas</a>
+    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas']) }}" class="btn btn-secondary btn-sm">Kembali ke Kelas</a>
     <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'rekap_nilai']) }}" class="btn btn-secondary btn-sm">Rekap Nilai</a>
 </div>
 
 @if($pengampu->lmsTugas->where('is_active', false)->count() > 0)
-    <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.85rem 1.25rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.6rem;">
-        <span style="font-size: 1.1rem;">🔴</span>
+    <div style="background: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; padding: 0.85rem 1.25rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 0.75rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         <div>
-            <strong>Draf Tugas RPS Perlu Konfirmasi:</strong> Terdapat {{ $pengampu->lmsTugas->where('is_active', false)->count() }} draf tugas hasil pengiriman dari RPS. Klik tombol <strong>"🚀 Tugaskan"</strong> pada draf di bawah untuk mengaktifkannya ke mahasiswa.
+            <strong>Draf Tugas RPS:</strong> Terdapat {{ $pengampu->lmsTugas->where('is_active', false)->count() }} draf tugas hasil sinkronisasi RPS. Klik tombol <strong>"Publikasikan Tugas"</strong> untuk merilisnya ke mahasiswa.
         </div>
     </div>
 @endif
@@ -45,20 +45,23 @@
             Buka RPS Mata Kuliah
         </a>
 
-        <div style="font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 8px; margin-top: 1.25rem; line-height: 1.5;">
-            💡 <strong>Panduan:</strong> Unggah rancangan tugas dari RPS. Setelah dikonfirmasi, draf tugas akan muncul di daftar sebelah kanan. Klik tombol <strong>"🚀 Tugaskan"</strong> untuk mempublikasikannya ke mahasiswa.
+        <div style="font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 8px; margin-top: 1.25rem; line-height: 1.5; display: flex; align-items: flex-start; gap: 0.5rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="flex-shrink: 0; margin-top: 0.1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <div>
+                <strong>Petunjuk:</strong> Rancang tugas di dokumen RPS. Draf yang dikirim akan muncul di daftar sebelah kanan. Klik <strong>"Publikasikan Tugas"</strong> untuk merilisnya ke mahasiswa.
+            </div>
         </div>
     </div>
 
     {{-- Daftar Tugas LMS yang Sudah Dibuat --}}
     <div>
         @forelse($tugas as $item)
-            <div style="background: {{ ! $item->is_active ? '#fff5f5' : '#fff' }}; border-radius: 12px; border: 1px solid {{ ! $item->is_active ? '#fecaca' : '#e2e8f0' }}; padding: 1.25rem; transition: all 0.2s; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);"
+            <div style="background: #ffffff; border-radius: 12px; border: 1px solid {{ ! $item->is_active ? '#fcd34d' : '#e2e8f0' }}; padding: 1.25rem; transition: all 0.2s; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);"
                  onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(79,70,229,0.08)';"
-                 onmouseout="this.style.borderColor='{{ ! $item->is_active ? '#fecaca' : '#e2e8f0' }}';this.style.boxShadow='none';">
+                 onmouseout="this.style.borderColor='{{ ! $item->is_active ? '#fcd34d' : '#e2e8f0' }}';this.style.boxShadow='none';">
                 <a href="{{ route('lms.tugas.show', [$pengampu->id, $item->id]) }}" style="display: block; text-decoration: none;">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: {{ ! $item->is_active ? '#fee2e2' : '#f1f5f9' }}; color: {{ ! $item->is_active ? '#dc2626' : '#475569' }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: {{ ! $item->is_active ? '#fef3c7' : '#f1f5f9' }}; color: {{ ! $item->is_active ? '#b45309' : '#475569' }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
                         </div>
                         <div style="flex: 1; min-width: 0;">
@@ -68,11 +71,14 @@
                                     <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Minggu {{ $item->rpsPertemuan->minggu ?? '?' }}</span>
                                 @endif
                                 @if(! $item->is_active)
-                                    <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.12rem 0.55rem; font-size: 0.68rem; font-weight: 700;">🔴 Draf (Perlu Konfirmasi)</span>
+                                    <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.12rem 0.55rem; font-size: 0.68rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                        <span style="width: 5px; height: 5px; border-radius: 50%; background: #d97706;"></span>
+                                        Draf RPS
+                                    </span>
                                 @elseif($item->deadline->isPast())
-                                    <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Tutup</span>
+                                    <span style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Tutup</span>
                                 @else
-                                    <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Aktif</span>
+                                    <span style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Aktif</span>
                                 @endif
                             </div>
                             <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">
@@ -81,12 +87,13 @@
                         </div>
                     </div>
                 </a>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid {{ ! $item->is_active ? '#fecaca' : '#f1f5f9' }};">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
                     @if(! $item->is_active)
                         <form action="{{ route('lms.tugas.tugaskan', [$pengampu->id, $item->id]) }}" method="POST" style="margin: 0;">
                             @csrf
-                            <button type="submit" class="btn btn-primary btn-sm" style="background: #dc2626; border-color: #dc2626;" onclick="return confirm('Aktifkan dan tugaskan rancangan ini ke mahasiswa di kelas ini?')">
-                                🚀 Tugaskan
+                            <button type="submit" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;" onclick="return confirm('Publikasikan rancangan tugas ini ke mahasiswa di kelas ini?')">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Publikasikan Tugas
                             </button>
                         </form>
                     @endif
