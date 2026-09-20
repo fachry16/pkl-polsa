@@ -58,3 +58,12 @@
 - Views in `resources/views/` as clean Blade templates
 - Routes: `routes/web.php` (web routes), `routes/auth.php` (Breeze auth), `routes/console.php` (Artisan commands)
 - No unnecessary API layers or over-engineered repositories. Idiomatic Laravel MVC.
+
+<!-- antislop:start -->
+## antislop
+For UI, copy, and mobile layout work, read the matching skill:
+- Core filter: `.agents/skills/antislop/SKILL.md`
+- UI / visual: `.agents/skills/antislop-ui/SKILL.md`
+- Mobile / responsive: `.agents/skills/antislop-layoutmobile/SKILL.md`
+- Copywriting: `.agents/skills/antislop-copywriting/SKILL.md`
+<!-- antislop:end -->

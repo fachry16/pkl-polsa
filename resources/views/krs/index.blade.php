@@ -17,9 +17,9 @@
 
 <x-alert type="success" :message="session('success')" />
 
-<div class="table-container mt-5">
+<div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -43,34 +43,32 @@
 
                 <tr>
 
-                    <td>
-                        {{ $krs->programStudi->kode_prodi ?? '-' }}
+                    <td data-label="Prodi">
+                        <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">{{ $krs->programStudi->kode_prodi ?? '-' }}</span>
                     </td>
 
-                    <td>
-                        {{ $krs->mataKuliah->kode }}
-                        -
-                        {{ $krs->mataKuliah->nama }}
+                    <td data-label="Mata Kuliah">
+                        <strong style="color: #0f172a;">{{ $krs->mataKuliah->nama }}</strong>
+                        <div style="font-size: 0.72rem; color: #64748b;">{{ $krs->mataKuliah->kode }}</div>
                     </td>
 
-                    <td>
+                    <td data-label="Dosen">
                         {{ $krs->dosen->user->name ?? '-' }}
                     </td>
 
-                    <td>
-                        {{ $krs->tahunAkademik->tahun }}
-                        {{ $krs->tahunAkademik->semester }}
+                    <td data-label="Tahun Akademik">
+                        {{ $krs->tahunAkademik->tahun }} {{ $krs->tahunAkademik->semester }}
                     </td>
 
-                    <td>
-                        {{ $krs->kelas }}
+                    <td data-label="Kelas">
+                        <strong>{{ $krs->kelas }}</strong>
                     </td>
 
-                    <td>
+                    <td data-label="Jml Mahasiswa">
                         {{ $krs->mahasiswas->count() }} Mahasiswa
                     </td>
 
-                    <td class="aksi-cell">
+                    <td data-label="Aksi" class="aksi-cell">
                         <a href="{{ route('krs.show', $krs->id) }}"
                            class="btn btn-primary btn-sm">
                             Kelola Mahasiswa

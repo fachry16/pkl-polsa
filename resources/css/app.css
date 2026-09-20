@@ -2690,6 +2690,138 @@ table.rps-korelasi-table {
         margin-bottom: 0.75rem !important;
     }
 
+    /* Transformasi Tabel Responsif ke Mode Card Stack di Layar Mobile (< 768px) */
+    table.data-table-stack {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    table.data-table-stack thead {
+        display: none !important; /* Header kolom desktop disembunyikan di smartphone */
+    }
+
+    table.data-table-stack tbody {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.85rem !important;
+        width: 100% !important;
+    }
+
+    table.data-table-stack tbody tr {
+        display: block !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 0.85rem 1rem !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+        position: relative !important;
+    }
+
+    table.data-table-stack tbody tr:hover {
+        background: #ffffff !important;
+    }
+
+    table.data-table-stack tbody tr.empty-row td,
+    table.data-table-stack tbody tr td[colspan] {
+        display: block !important;
+        text-align: center !important;
+        padding: 1.5rem !important;
+        border: none !important;
+    }
+
+    table.data-table-stack tbody tr td {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0.45rem 0 !important;
+        border-bottom: 1px dashed #f1f5f9 !important;
+        font-size: 0.82rem !important;
+        text-align: right !important;
+        min-height: 2rem !important;
+    }
+
+    table.data-table-stack tbody tr td:last-child {
+        border-bottom: none !important;
+        padding-top: 0.65rem !important;
+        margin-top: 0.35rem !important;
+        border-top: 1px solid #f1f5f9 !important;
+        justify-content: stretch !important;
+    }
+
+    table.data-table-stack tbody tr td::before {
+        content: attr(data-label) !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        color: #64748b !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.03em !important;
+        text-align: left !important;
+        padding-right: 0.75rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Penyesuaian Kolom Aksi / Tombol di Bawah Kartu */
+    table.data-table-stack tbody tr td[data-label="Aksi"]::before,
+    table.data-table-stack tbody tr td:last-child::before {
+        display: none !important;
+    }
+
+    table.data-table-stack tbody tr td .btn-group,
+    table.data-table-stack tbody tr td .aksi-cell {
+        display: flex !important;
+        width: 100% !important;
+        gap: 0.4rem !important;
+        flex-wrap: wrap !important;
+    }
+
+    table.data-table-stack tbody tr td .btn-group .btn,
+    table.data-table-stack tbody tr td .btn-group > *,
+    table.data-table-stack tbody tr td .aksi-cell .btn,
+    table.data-table-stack tbody tr td .aksi-cell form {
+        flex: 1 1 auto !important;
+        text-align: center !important;
+        justify-content: center !important;
+        min-height: 36px !important;
+        padding: 0.4rem 0.65rem !important;
+        font-size: 0.76rem !important;
+    }
+
+    /* Form Filter Lebih Bersih & Mudah Ditekan di Mobile */
+    .filter-card {
+        padding: 0.75rem !important;
+        gap: 0.6rem !important;
+        justify-content: stretch !important;
+    }
+
+    .filter-group {
+        flex: 1 1 calc(50% - 0.3rem) !important;
+        min-width: 130px !important;
+    }
+
+    .filter-select {
+        width: 100% !important;
+        min-height: 36px !important;
+        font-size: 0.78rem !important;
+    }
+
+    .filter-actions {
+        width: 100% !important;
+        display: flex !important;
+        gap: 0.5rem !important;
+        margin-top: 0.25rem !important;
+    }
+
+    .filter-actions .btn {
+        flex: 1 !important;
+        min-height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.78rem !important;
+    }
+
     table th, table td {
         padding: 0.45rem 0.6rem !important;
         font-size: 0.78rem !important;
