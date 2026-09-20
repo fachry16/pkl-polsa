@@ -29,35 +29,12 @@ class GoogleDriveStructuredTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $configPath = storage_path('app/google-drive/config.json');
-        $jsonPath = storage_path('app/google-drive/service-account.json');
-
-        if (File::exists($configPath)) {
-            $this->originalConfig = File::get($configPath);
-        }
-        if (File::exists($jsonPath)) {
-            $this->originalServiceAccount = File::get($jsonPath);
-        }
+        File::delete(storage_path('app/google-drive/test_config.json'));
     }
 
     protected function tearDown(): void
     {
-        $configPath = storage_path('app/google-drive/config.json');
-        $jsonPath = storage_path('app/google-drive/service-account.json');
-
-        if ($this->originalConfig !== null) {
-            File::put($configPath, $this->originalConfig);
-        } else {
-            File::delete($configPath);
-        }
-
-        if ($this->originalServiceAccount !== null) {
-            File::put($jsonPath, $this->originalServiceAccount);
-        } else {
-            File::delete($jsonPath);
-        }
-
+        File::delete(storage_path('app/google-drive/test_config.json'));
         parent::tearDown();
     }
 
@@ -90,7 +67,7 @@ class GoogleDriveStructuredTest extends TestCase
             'private_key' => "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA0mockkey...\n-----END RSA PRIVATE KEY-----\n",
         ]));
 
-        File::put($dir.'/config.json', json_encode([
+        File::put($dir.'/test_config.json', json_encode([
             'enabled' => true,
             'folder_id' => 'root-folder-xyz',
             'client_email' => 'bot@project.iam.gserviceaccount.com',

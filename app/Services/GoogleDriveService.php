@@ -47,32 +47,53 @@ class GoogleDriveService
         return trim($name) ?: 'file_'.time().'.pdf';
     }
 
-    public function isDriveEnabled(): bool
+    public function getConfigPath(): string
     {
-        $jsonPath = storage_path('app/google-drive/service-account.json');
-        if (! File::exists($jsonPath)) {
-            return false;
-        }
+        return app()->runningUnitTests()
+            ? storage_path('app/google-drive/test_config.json')
+            : storage_path('app/google-drive/config.json');
+    }
 
-        $configPath = storage_path('app/google-drive/config.json');
+    public function getDriveConfig(): array
+    {
+        $configPath = $this->getConfigPath();
         if (File::exists($configPath)) {
-            $config = json_decode(File::get($configPath), true) ?? [];
-            if (isset($config['enabled'])) {
-                return filter_var($config['enabled'], FILTER_VALIDATE_BOOLEAN) && ! empty($config['folder_id']);
+            $config = json_decode(File::get($configPath), true);
+            if (is_array($config)) {
+                return $config;
             }
         }
 
-        return filter_var(env('GOOGLE_DRIVE_ENABLED', false), FILTER_VALIDATE_BOOLEAN) && ! empty(env('GOOGLE_DRIVE_FOLDER_ID'));
+        return [];
+    }
+
+    public function isDriveEnabled(): bool
+    {
+        $config = $this->getDriveConfig();
+        $enabled = isset($config['enabled'])
+            ? filter_var($config['enabled'], FILTER_VALIDATE_BOOLEAN)
+            : filter_var(env('GOOGLE_DRIVE_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
+
+        if (! $enabled) {
+            return false;
+        }
+
+        $folderId = $this->getRootFolderId();
+        if (empty($folderId)) {
+            return false;
+        }
+
+        $hasOAuth = ! empty($config['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+        $hasServiceAccount = File::exists(storage_path('app/google-drive/service-account.json'));
+
+        return $hasOAuth || $hasServiceAccount;
     }
 
     public function getRootFolderId(): ?string
     {
-        $configPath = storage_path('app/google-drive/config.json');
-        if (File::exists($configPath)) {
-            $config = json_decode(File::get($configPath), true) ?? [];
-            if (! empty($config['folder_id'])) {
-                return trim($config['folder_id']);
-            }
+        $config = $this->getDriveConfig();
+        if (! empty($config['folder_id'])) {
+            return trim($config['folder_id']);
         }
 
         $envFolder = env('GOOGLE_DRIVE_FOLDER_ID');
@@ -82,9 +103,58 @@ class GoogleDriveService
 
     public function getAccessToken(): ?string
     {
+        $oauthToken = $this->getAccessTokenFromOAuth();
+        if ($oauthToken) {
+            return $oauthToken;
+        }
+
         $jsonPath = storage_path('app/google-drive/service-account.json');
 
         return $this->getAccessTokenFromServiceAccount($jsonPath);
+    }
+
+    public function getAccessTokenFromOAuth(): ?string
+    {
+        $config = $this->getDriveConfig();
+        $refreshToken = $config['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN');
+        $clientId = $config['oauth_client_id'] ?? env('GOOGLE_DRIVE_CLIENT_ID');
+        $clientSecret = $config['oauth_client_secret'] ?? env('GOOGLE_DRIVE_CLIENT_SECRET');
+
+        if (empty($refreshToken) || empty($clientId) || empty($clientSecret)) {
+            return null;
+        }
+
+        $cacheKey = 'gdrive_oauth_token_'.md5($refreshToken);
+
+        return Cache::remember($cacheKey, 3000, function () use ($clientId, $clientSecret, $refreshToken) {
+            try {
+                $response = Http::withoutVerifying()->asForm()->post('https://oauth2.googleapis.com/token', [
+                    'client_id' => $clientId,
+                    'client_secret' => $clientSecret,
+                    'refresh_token' => $refreshToken,
+                    'grant_type' => 'refresh_token',
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json('access_token');
+                }
+
+                Log::error('Google OAuth Refresh Token Failed: '.$response->body());
+
+                return null;
+            } catch (\Throwable $e) {
+                Log::error('Google OAuth Refresh Exception: '.$e->getMessage());
+
+                return null;
+            }
+        });
+    }
+
+    public function getConnectedEmail(): ?string
+    {
+        $config = $this->getDriveConfig();
+
+        return $config['oauth_connected_email'] ?? env('GOOGLE_DRIVE_CONNECTED_EMAIL') ?: null;
     }
 
     public function getOrCreateFolder(string $folderName, string $parentFolderId, string $accessToken): ?string
@@ -244,7 +314,7 @@ class GoogleDriveService
         if (str_starts_with($path, 'gdrive/')) {
             $parts = explode('/', $path);
             $driveFileId = $parts[1] ?? null;
-            if ($driveFileId && $this->isDriveEnabled()) {
+            if ($driveFileId) {
                 return $this->deleteFromDrive($driveFileId);
             }
 
@@ -333,13 +403,13 @@ class GoogleDriveService
                 if (str_contains($err, 'Service Accounts do not have storage quota')) {
                     return [
                         'success' => false,
-                        'message' => 'Google melarang Service Account mengunggah berkas ke Folder Google Drive pribadi (@gmail.com) karena Service Account tidak memiliki kuota (0 MB). Solusi: Gunakan Folder di Drive Bersama (Shared Drive Google Workspace) atau isi Email Delegasi (Impersonate).',
+                        'message' => 'Service Account tidak memiliki kuota (0 MB) untuk mengunggah ke folder "Drive Saya". Solusi: Hubungkan Akun Google Kampus (OAuth 2.0) di form pengaturan, atau gunakan Drive Bersama (Shared Drive).',
                     ];
                 }
 
                 return [
                     'success' => false,
-                    'message' => "Gagal mengunggah file uji coba ke folder: {$err}. Pastikan Service Account memiliki izin 'Editor' pada folder GDrive.",
+                    'message' => "Gagal mengunggah file uji coba ke folder: {$err}. Pastikan akun yang digunakan memiliki izin akses ke folder GDrive.",
                 ];
             }
 
@@ -352,9 +422,15 @@ class GoogleDriveService
                 ])->delete("https://www.googleapis.com/drive/v3/files/{$testFileId}?supportsAllDrives=true");
             }
 
+            $connectedEmail = $this->getConnectedEmail();
+            $hasOAuth = ! empty($this->getDriveConfig()['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+            $authInfo = $hasOAuth
+                ? 'OAuth 2.0 Akun Google'.($connectedEmail ? " ({$connectedEmail})" : '')
+                : 'Service Account';
+
             return [
                 'success' => true,
-                'message' => 'Koneksi Google Drive BERHASIL 100%! Service Account memiliki hak akses Editor dan berhasil menulis ke Folder ID.',
+                'message' => "Koneksi Google Drive BERHASIL 100%! Berhasil menguji unggah dan hapus berkas menggunakan {$authInfo}.",
             ];
         } catch (\Throwable $e) {
             Log::error('Google Drive Test Connection Exception: '.$e->getMessage());

@@ -110,6 +110,21 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     )->name('admin.setting.gdrive.test');
 
     Route::get(
+        'admin/setting/gdrive/oauth/connect',
+        [GoogleDriveSettingController::class, 'oauthConnect']
+    )->name('admin.setting.gdrive.oauth.connect');
+
+    Route::get(
+        'admin/setting/gdrive/oauth/callback',
+        [GoogleDriveSettingController::class, 'oauthCallback']
+    )->name('admin.setting.gdrive.oauth.callback');
+
+    Route::post(
+        'admin/setting/gdrive/oauth/disconnect',
+        [GoogleDriveSettingController::class, 'oauthDisconnect']
+    )->name('admin.setting.gdrive.oauth.disconnect');
+
+    Route::get(
         'program-studi',
         [ProgramStudiController::class, 'index']
     )->name('program-studi.index');
