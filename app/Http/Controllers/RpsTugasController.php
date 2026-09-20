@@ -10,7 +10,6 @@ use App\Models\RpsTugas;
 use App\Rules\LmsFileMime;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class RpsTugasController extends Controller
 {
@@ -80,7 +79,9 @@ class RpsTugasController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
+            $mkLabel = ($rps->mataKuliah->kode ?? 'MK').' - RPS';
+            $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->nama_tugas], $customName);
         }
 
         $tugas = RpsTugas::create($data);
@@ -138,11 +139,13 @@ class RpsTugasController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            if ($tugas->file_soal) {
-                Storage::disk('public')->delete($tugas->file_soal);
-            }
             $driveService = app(GoogleDriveService::class);
-            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
+            if ($tugas->file_soal) {
+                $driveService->deleteFile($tugas->file_soal);
+            }
+            $mkLabel = ($rps->mataKuliah->kode ?? 'MK').' - RPS';
+            $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->nama_tugas ?: $tugas->nama_tugas], $customName);
         }
 
         $oldTitle = $tugas->getOriginal('nama_tugas');
@@ -183,7 +186,8 @@ class RpsTugasController extends Controller
         LmsTugas::where('rps_tugas_id', $tugas->id)->update(['is_active' => false]);
 
         if ($tugas->file_soal) {
-            Storage::disk('public')->delete($tugas->file_soal);
+            $driveService = app(GoogleDriveService::class);
+            $driveService->deleteFile($tugas->file_soal);
         }
 
         $tugas->delete();

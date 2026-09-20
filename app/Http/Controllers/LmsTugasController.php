@@ -20,7 +20,6 @@ use App\Services\PenilaianService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class LmsTugasController extends Controller
 {
@@ -84,7 +83,9 @@ class LmsTugasController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $customName = 'Lampiran_'.$request->file('file')->getClientOriginalName();
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->judul], $customName);
         }
 
         $tugas = LmsTugas::create($data);
@@ -194,12 +195,14 @@ class LmsTugasController extends Controller
         ];
 
         if ($request->hasFile('file')) {
+            $driveService = app(GoogleDriveService::class);
             if ($tugas->file_lampiran) {
-                Storage::disk('public')->delete($tugas->file_lampiran);
+                $driveService->deleteFile($tugas->file_lampiran);
             }
 
-            $driveService = app(GoogleDriveService::class);
-            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $customName = 'Lampiran_'.$request->file('file')->getClientOriginalName();
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->judul ?: $tugas->judul], $customName);
         }
 
         $tugas->update($data);
@@ -218,13 +221,15 @@ class LmsTugasController extends Controller
             return back()->with('toast_error', 'Batas waktu 1x24 jam untuk menghapus tugas telah berakhir.');
         }
 
+        $driveService = app(GoogleDriveService::class);
+
         if ($tugas->file_lampiran) {
-            Storage::disk('public')->delete($tugas->file_lampiran);
+            $driveService->deleteFile($tugas->file_lampiran);
         }
 
         foreach ($tugas->submissions as $submission) {
             if ($submission->file_jawaban) {
-                Storage::disk('public')->delete($submission->file_jawaban);
+                $driveService->deleteFile($submission->file_jawaban);
             }
 
             $submission->delete();
