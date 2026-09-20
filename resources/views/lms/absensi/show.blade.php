@@ -22,8 +22,8 @@
     @endif
 </div>
 
-@if(! $editable)
-    <x-alert type="warning" :message="'Sesi ini terkunci karena sesi pertemuan berikutnya sudah dibuka.'" />
+@if(Auth::user()->isAdmin())
+    <x-alert type="info" :message="'Mode pratinjau (read-only): Admin tidak dapat mengubah data presensi.'" />
 @endif
 
 <div class="card">

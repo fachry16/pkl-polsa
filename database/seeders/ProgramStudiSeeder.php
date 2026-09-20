@@ -18,7 +18,7 @@ class ProgramStudiSeeder extends Seeder
         ];
 
         foreach ($data as $item) {
-            ProgramStudi::create($item);
+            ProgramStudi::firstOrCreate(['kode_prodi' => $item['kode_prodi']], $item);
         }
     }
 }

@@ -35,11 +35,6 @@ class LmsSesiAbsensi extends Model
 
     public function canEdit(): bool
     {
-        $nextSession = self::where('pengampu_id', $this->pengampu_id)
-            ->where('id', '!=', $this->id)
-            ->where('tanggal_aktual', '>', $this->tanggal_aktual)
-            ->exists();
-
-        return ! $nextSession;
+        return true;
     }
 }
