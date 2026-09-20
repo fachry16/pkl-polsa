@@ -295,6 +295,7 @@ class MahasiswaController extends Controller
             'email' => $this->emailUntukNim($request->nim),
             'password' => $request->nim,
             'role' => 'mahasiswa',
+            'harus_ganti_password' => true,
             'email_verified_at' => now(),
         ]);
 
@@ -481,6 +482,7 @@ class MahasiswaController extends Controller
                 'password' => $nim,
                 'role' => 'mahasiswa',
                 'roles' => ['mahasiswa'],
+                'harus_ganti_password' => true,
                 'email_verified_at' => now(),
             ]);
 

@@ -222,6 +222,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         [PengampuController::class, 'destroyMahasiswa']
     )->name('pengampu.kelas.mahasiswa.destroy');
 
+    Route::patch('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
 });

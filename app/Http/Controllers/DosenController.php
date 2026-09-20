@@ -89,6 +89,7 @@ class DosenController extends Controller
             'role' => 'dosen',
             'roles' => $roles,
             'password' => $request->nidn,
+            'harus_ganti_password' => true,
         ]);
 
         Dosen::create([
@@ -300,6 +301,7 @@ class DosenController extends Controller
                 'password' => $nidn,
                 'role' => 'dosen',
                 'roles' => ['dosen'],
+                'harus_ganti_password' => true,
                 'email_verified_at' => now(),
             ]);
 
