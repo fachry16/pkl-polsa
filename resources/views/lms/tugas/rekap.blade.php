@@ -42,6 +42,7 @@
                     @endif
                 @endforeach
                 <th style="text-align: center; font-weight: 700; background: #f8fafc;">Nilai Angka</th>
+                <th style="text-align: center; font-weight: 700; background: #f8fafc;">Nilai Huruf (NA)</th>
             </tr>
         </thead>
         <tbody>
@@ -92,10 +93,29 @@
                     <td style="text-align: center; font-weight: 700; background: #f8fafc;">
                         {{ $nilaiAkhir !== null ? number_format($nilaiAkhir, 2) : '-' }}
                     </td>
+                    <td style="text-align: center; background: #f8fafc;">
+                        @if($nilaiAkhir !== null)
+                            @php
+                                $huruf = konversiNilaiHurufPolsa($nilaiAkhir);
+                                $badgeStyle = match($huruf) {
+                                    'A', 'A-' => 'background: #ecfdf5; color: #059669; border-color: #a7f3d0;',
+                                    'B+', 'B' => 'background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;',
+                                    'B-', 'C+', 'C' => 'background: #fefce8; color: #a16207; border-color: #fde047;',
+                                    'C-', 'D' => 'background: #fff7ed; color: #c2410c; border-color: #fdba74;',
+                                    default => 'background: #fef2f2; color: #b91c1c; border-color: #fecaca;',
+                                };
+                            @endphp
+                            <span style="{{ $badgeStyle }} border-width: 1px; border-style: solid; padding: 0.2rem 0.55rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem; display: inline-block;">
+                                {{ $huruf }}
+                            </span>
+                        @else
+                            <span style="color: #cbd5e1;">-</span>
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ 5 + $tugasList->count() + collect($bobot)->except('tugas')->filter(fn ($p, $k) => $p > 0 || in_array($k, ['absensi', 'keaktifan', 'etika']))->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
+                    <td colspan="{{ 6 + $tugasList->count() + collect($bobot)->except('tugas')->filter(fn ($p, $k) => $p > 0 || in_array($k, ['absensi', 'keaktifan', 'etika']))->count() }}" class="text-center" style="padding: 2rem; color: #94a3b8;">Belum ada mahasiswa di kelas ini.</td>
                 </tr>
             @endforelse
         </tbody>

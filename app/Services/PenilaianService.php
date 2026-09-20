@@ -203,6 +203,47 @@ class PenilaianService
     }
 
     /**
+     * Konversi nilai angka ke nilai huruf sesuai standar format Polsa (10 skala):
+     * >= 85: A, >= 80: A-, >= 75: B+, >= 70: B, >= 65: B-, >= 60: C+, >= 55: C, >= 50: C-, >= 40: D, < 40: E
+     */
+    public static function konversiHurufPolsa(?float $nilai): ?string
+    {
+        if ($nilai === null) {
+            return null;
+        }
+
+        if ($nilai >= 85) {
+            return 'A';
+        }
+        if ($nilai >= 80) {
+            return 'A-';
+        }
+        if ($nilai >= 75) {
+            return 'B+';
+        }
+        if ($nilai >= 70) {
+            return 'B';
+        }
+        if ($nilai >= 65) {
+            return 'B-';
+        }
+        if ($nilai >= 60) {
+            return 'C+';
+        }
+        if ($nilai >= 55) {
+            return 'C';
+        }
+        if ($nilai >= 50) {
+            return 'C-';
+        }
+        if ($nilai >= 40) {
+            return 'D';
+        }
+
+        return 'E';
+    }
+
+    /**
      * Konversi nilai angka ke bobot mutu (skala 0.00 - 4.00).
      */
     public static function konversiBobotMutu(?float $nilai): ?float
