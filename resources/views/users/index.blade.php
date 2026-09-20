@@ -19,7 +19,7 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -40,20 +40,20 @@
 
             <tr>
 
-                <td>
+                <td data-label="No">
                     {{ $users->firstItem() + $index }}
                 </td>
 
-                <td>
-                    {{ $user->name }}
+                <td data-label="Nama">
+                    <span style="font-weight: 600; color: #0f172a;">{{ $user->name }}</span>
                 </td>
 
-                <td>
+                <td data-label="Email">
                     {{ $user->email }}
                 </td>
 
-                <td>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                <td data-label="Role">
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: flex-end;">
                         @php
                             $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
                         @endphp
@@ -74,7 +74,7 @@
                     </div>
                 </td>
 
-                <td>
+                <td data-label="Status Password">
                     @if($user->isAdmin())
                         <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">Admin</span>
                     @elseif($user->harus_ganti_password)
@@ -87,7 +87,7 @@
                     @endif
                 </td>
 
-                <td>
+                <td data-label="Aksi">
 
                     <div class="btn-group">
                         <a href="{{ route('users.edit', $user->id) }}"

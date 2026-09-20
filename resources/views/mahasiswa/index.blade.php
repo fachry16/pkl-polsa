@@ -185,7 +185,7 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -215,23 +215,23 @@
 
             <tr>
 
-                <td>
+                <td data-label="No">
                     {{ $mahasiswas->firstItem() + $index }}
                 </td>
 
-                <td>
-                    {{ $mahasiswa->nim }}
+                <td data-label="NIM">
+                    <strong>{{ $mahasiswa->nim }}</strong>
                 </td>
 
-                <td>
-                    {{ $mahasiswa->nama }}
+                <td data-label="Nama">
+                    <span style="font-weight: 600; color: #0f172a;">{{ $mahasiswa->nama }}</span>
                 </td>
 
-                <td>
+                <td data-label="Prodi">
                     {{ $mahasiswa->programStudi->nama_prodi }}
                 </td>
 
-                <td>
+                <td data-label="Program">
                     @if(($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan')
                         <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700;">Karyawan</span>
                     @else
@@ -239,20 +239,20 @@
                     @endif
                 </td>
 
-                <td>
+                <td data-label="Angkatan">
                     {{ $mahasiswa->angkatan }}
                 </td>
 
-                <td>
+                <td data-label="Semester">
                     {{ $semesterAktif?->semester ?? '-' }}
                 </td>
 
-                <td>
+                <td data-label="Tahun Akademik">
                     {{ $semesterAktif?->tahunAkademik?->tahun ?? '-' }}
                     {{ $semesterAktif?->tahunAkademik?->semester ?? '' }}
                 </td>
 
-                <td>
+                <td data-label="Status">
                     @php
                         $statusWarna = [
                             'Aktif' => ['#d1fae5', '#059669'],
@@ -269,7 +269,7 @@
                     </span>
                 </td>
 
-                <td>
+                <td data-label="Akun">
                     @if($mahasiswa->user)
                         <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
                         <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 0.15rem;">{{ $mahasiswa->user->email }}</div>
@@ -278,7 +278,7 @@
                     @endif
                 </td>
 
-                <td>
+                <td data-label="Aksi">
 
                     <div class="btn-group">
                         <a href="{{ route('mahasiswa.nilai', $mahasiswa->id) }}"
@@ -313,7 +313,7 @@
 
             <tr>
 
-                <td colspan="10"
+                <td colspan="11"
                     class="text-center">
 
                     Data mahasiswa belum tersedia.

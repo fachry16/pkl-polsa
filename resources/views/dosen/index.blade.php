@@ -144,7 +144,7 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -166,28 +166,28 @@
 
             <tr>
 
-                <td>
+                <td data-label="No">
                     {{ $dosens->firstItem() + $index }}
                 </td>
 
-                <td>
-                    {{ $dosen->user->name }}
+                <td data-label="Nama">
+                    <span style="font-weight: 600; color: #0f172a;">{{ $dosen->user->name }}</span>
                 </td>
 
-                <td>
+                <td data-label="Email">
                     {{ $dosen->user->email }}
                 </td>
 
-                <td>
-                    {{ $dosen->nidn }}
+                <td data-label="NIDN">
+                    <strong>{{ $dosen->nidn }}</strong>
                 </td>
 
-                <td>
+                <td data-label="Program Studi">
                     {{ $dosen->programStudi->nama_prodi }}
                 </td>
 
-                <td>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                <td data-label="Jabatan / Role">
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: flex-end;">
                         @php
                             $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
                             $roles = $dosen->user ? $dosen->user->getRolesList() : ['dosen'];
@@ -209,7 +209,7 @@
                     </div>
                 </td>
 
-                <td>
+                <td data-label="Aksi">
 
                     <div class="btn-group">
                         <a href="{{ route('dosen.riwayat', $dosen->id) }}"
