@@ -6,9 +6,9 @@ use App\Models\LmsForumDiskusi;
 use App\Models\Pengampu;
 use App\Notifications\ForumDiskusiBaru;
 use App\Rules\LmsFileMime;
+use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class LmsForumController extends Controller
 {
@@ -43,7 +43,9 @@ class LmsForumController extends Controller
         $data = $this->validated($request, $pengampu->id);
 
         if ($request->hasFile('file')) {
-            $data['file_path'] = $request->file('file')->store('lms/forum', 'public');
+            $driveService = app(GoogleDriveService::class);
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
         }
 
         $forum = LmsForumDiskusi::create($data);
@@ -75,14 +77,16 @@ class LmsForumController extends Controller
         $this->authorizePost($pengampu, $diskusi);
 
         $data = $this->validated($request, $pengampu->id);
+        $driveService = app(GoogleDriveService::class);
+        $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
 
         if ($request->hasFile('file')) {
             if ($diskusi->file_path) {
-                Storage::disk('public')->delete($diskusi->file_path);
+                $driveService->deleteFile($diskusi->file_path);
             }
-            $data['file_path'] = $request->file('file')->store('lms/forum', 'public');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
         } elseif ($request->boolean('remove_file') && $diskusi->file_path) {
-            Storage::disk('public')->delete($diskusi->file_path);
+            $driveService->deleteFile($diskusi->file_path);
             $data['file_path'] = null;
         }
 
@@ -105,15 +109,17 @@ class LmsForumController extends Controller
             abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
         }
 
+        $driveService = app(GoogleDriveService::class);
+
         foreach ($diskusi->replies as $reply) {
             if ($reply->file_path) {
-                Storage::disk('public')->delete($reply->file_path);
+                $driveService->deleteFile($reply->file_path);
             }
         }
         $diskusi->replies()->delete();
 
         if ($diskusi->file_path) {
-            Storage::disk('public')->delete($diskusi->file_path);
+            $driveService->deleteFile($diskusi->file_path);
         }
 
         $diskusi->delete();

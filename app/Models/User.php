@@ -37,6 +37,7 @@ class User extends Authenticatable
         'password',
         'role',
         'roles',
+        'harus_ganti_password',
         'email_verified_at',
     ];
 
@@ -61,6 +62,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'roles' => 'array',
+            'harus_ganti_password' => 'boolean',
         ];
     }
 
@@ -210,5 +212,18 @@ class User extends Authenticatable
         return $this->unreadNotifications()
             ->where('type', KurikulumBaruAdmin::class)
             ->count();
+    }
+
+    public function defaultPassword(): string
+    {
+        if ($this->dosen && $this->dosen->nidn) {
+            return (string) $this->dosen->nidn;
+        }
+
+        if ($this->mahasiswa && $this->mahasiswa->nim) {
+            return (string) $this->mahasiswa->nim;
+        }
+
+        return 'password';
     }
 }

@@ -29,7 +29,7 @@
 
 {{-- Navigation Tabs (Google Classroom Style) --}}
 <div x-data="{ 
-    tab: '{{ request('tab', 'forum') }}',
+    tab: '{{ in_array(request('tab'), ['materi', 'tugas', 'orang', 'nilai']) ? request('tab') : (request('tab') === 'tugas_kelas' ? 'materi' : request('tab', 'forum')) }}',
     copyLink(url) {
         navigator.clipboard.writeText(url).then(() => {
             alert('Link berhasil disalin ke clipboard!');
@@ -43,10 +43,16 @@
             Forum
         </button>
 
-        <button type="button" @click="tab = 'tugas_kelas'; history.replaceState(null, null, '?tab=tugas_kelas')" 
+        <button type="button" @click="tab = 'materi'; history.replaceState(null, null, '?tab=materi')" 
             class="btn btn-secondary btn-sm"
-            :style="tab === 'tugas_kelas' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
-            Tugas Kelas ({{ $materiCount + $tugasCount }})
+            :style="tab === 'materi' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
+            Materi ({{ $materiCount }})
+        </button>
+
+        <button type="button" @click="tab = 'tugas'; history.replaceState(null, null, '?tab=tugas')" 
+            class="btn btn-secondary btn-sm"
+            :style="tab === 'tugas' ? 'background: #cbd5e1; color: #0f172a; font-weight: 600;' : ''">
+            Tugas ({{ $tugasCount }})
         </button>
 
         <button type="button" @click="tab = 'orang'; history.replaceState(null, null, '?tab=orang')" 
@@ -102,7 +108,7 @@
                         <p style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0 0;">Hore, tidak ada tugas yang mendekati tenggat waktu!</p>
                     @endforelse
                     <div style="margin-top: 0.75rem; text-align: right;">
-                        <button type="button" @click="tab = 'tugas_kelas'; history.replaceState(null, null, '?tab=tugas_kelas')" style="background: none; border: none; font-size: 0.8rem; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0;">
+                        <button type="button" @click="tab = 'tugas'; history.replaceState(null, null, '?tab=tugas')" style="background: none; border: none; font-size: 0.8rem; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0;">
                             Lihat semua &rarr;
                         </button>
                     </div>
@@ -275,112 +281,49 @@
             </div>
         </div>
 
-    {{-- TAB 2: TUGAS KELAS (CLASSWORK) --}}
-    <div x-show="tab === 'tugas_kelas'">
+    {{-- TAB 2: MATERI PERKULIAHAN --}}
+    <div x-show="tab === 'materi'">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <div>
-                <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem;">Tugas & Materi Perkuliahan</h2>
-                <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Akses materi perkuliahan dan kumpulkan tugas yang ditugaskan.</p>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem;">Materi Perkuliahan</h2>
+                <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Akses modul pembelajaran dan materi ajar perkuliahan.</p>
             </div>
         </div>
 
-        {{-- Unified Stream of Classwork --}}
         <div style="display: flex; flex-direction: column; gap: 1rem;">
-            @php
-                $allClasswork = collect();
-                foreach($pengampu->lmsMateris as $m) {
-                    $isSelesai = $materiSelesai->has($m->id);
-                    $allClasswork->push((object)[
-                        'type' => 'materi',
-                        'id' => $m->id,
-                        'title' => $m->judul,
-                        'pertemuan' => $m->rpsPertemuan?->minggu_ke ?? null,
-                        'deadline' => null,
-                        'is_selesai' => $isSelesai,
-                        'created_at' => $m->created_at,
-                        'url' => route('mahasiswa.lms.materi.show', [$pengampu->id, $m->id]),
-                        'obj' => $m
-                    ]);
-                }
-                foreach($pengampu->lmsTugas as $t) {
-                    $sub = $submissions->get($t->id);
-                    $allClasswork->push((object)[
-                        'type' => 'tugas',
-                        'id' => $t->id,
-                        'title' => $t->judul,
-                        'pertemuan' => $t->rpsPertemuan?->minggu_ke ?? null,
-                        'deadline' => $t->deadline,
-                        'submission' => $sub,
-                        'created_at' => $t->created_at,
-                        'url' => route('mahasiswa.lms.tugas.show', [$pengampu->id, $t->id]),
-                        'obj' => $t
-                    ]);
-                }
-                $sortedClasswork = $allClasswork->sortByDesc('created_at');
-            @endphp
-
-            @forelse($sortedClasswork as $item)
+            @forelse($pengampu->lmsMateris as $materi)
+                @php $isSelesai = $materiSelesai->has($materi->id); @endphp
                 <div x-data="{ openMenu: false }" 
-                    @click="window.location.href = '{{ $item->url }}'"
+                    @click="window.location.href = '{{ route('mahasiswa.lms.materi.show', [$pengampu->id, $materi->id]) }}'"
                     style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); cursor: pointer;"
                     onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.03)'; this.style.borderColor='#e2e8f0'">
                     
                     <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0;">
-                        {{-- Icon Pembeda: Biru untuk Materi, Abu-abu untuk Tugas --}}
-                        <div style="width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: {{ $item->type === 'materi' ? '#dbeafe' : '#f1f5f9' }}; color: {{ $item->type === 'materi' ? '#2563eb' : '#475569' }};">
-                            @if($item->type === 'materi')
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                            @else
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                            @endif
+                        <div style="width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #dbeafe; color: #2563eb;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                         </div>
 
                         <div style="flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                <a href="{{ $item->url }}" @click.stop style="font-weight: 600; font-size: 0.95rem; color: #1e293b; text-decoration: none;">
-                                    {{ $item->title }}
+                                <a href="{{ route('mahasiswa.lms.materi.show', [$pengampu->id, $materi->id]) }}" @click.stop style="font-weight: 600; font-size: 0.95rem; color: #1e293b; text-decoration: none;">
+                                    {{ $materi->judul }}
                                 </a>
-                                @if($item->pertemuan)
-                                    <span style="background: #f1f5f9; color: #64748b; font-size: 0.7rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px;">Pertemuan {{ $item->pertemuan }}</span>
+                                @if($materi->rpsPertemuan)
+                                    <span style="background: #f1f5f9; color: #64748b; font-size: 0.7rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px;">Pertemuan {{ $materi->rpsPertemuan->minggu ?? $materi->rpsPertemuan->minggu_ke }}</span>
                                 @endif
                             </div>
                             <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">
-                                Diposting: {{ $item->created_at->format('d M, H:i') }}
+                                Diposting: {{ $materi->created_at->format('d M, H:i') }}
                             </div>
                         </div>
                     </div>
 
-                    {{-- Status Tugas / Materi & Tenggat & Kebab Menu --}}
                     <div style="display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
-                        @if($item->type === 'materi')
-                            @if($item->is_selesai)
-                                <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    Selesai
-                                </span>
-                            @endif
-                        @else
-                            {{-- Status Tugas Mahasiswa --}}
-                            @if($item->submission)
-                                <span style="background: {{ $item->submission->isTerlambat() ? '#fef2f2' : '#ecfdf5' }}; color: {{ $item->submission->isTerlambat() ? '#dc2626' : '#059669' }}; border: 1px solid {{ $item->submission->isTerlambat() ? '#fecaca' : '#a7f3d0' }}; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
-                                    {{ $item->submission->isTerlambat() ? 'Terlambat' : 'Diserahkan' }}
-                                </span>
-                            @elseif($item->deadline && $item->deadline->isPast())
-                                <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
-                                    Terlewat
-                                </span>
-                            @else
-                                <span style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
-                                    Ditugaskan
-                                </span>
-                            @endif
-
-                            @if($item->deadline)
-                                <div style="font-size: 0.8rem; color: #64748b; text-align: right;">
-                                    <span style="display: block; font-size: 0.7rem; color: #94a3b8;">Tenggat</span>
-                                    {{ $item->deadline->format('d M, H:i') }}
-                                </div>
-                            @endif
+                        @if($isSelesai)
+                            <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Selesai
+                            </span>
                         @endif
 
                         <div style="position: relative;" @click.stop>
@@ -389,11 +332,11 @@
                             </button>
 
                             <div x-show="openMenu" style="position: absolute; right: 0; top: 100%; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; min-width: 140px; z-index: 20; padding: 0.35rem 0; display: none;">
-                                <button type="button" @click="copyLink('{{ $item->url }}'); openMenu = false;" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
+                                <button type="button" @click="copyLink('{{ route('mahasiswa.lms.materi.show', [$pengampu->id, $materi->id]) }}'); openMenu = false;" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     Salin Link
                                 </button>
-                                <a href="{{ $item->url }}" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                                <a href="{{ route('mahasiswa.lms.materi.show', [$pengampu->id, $materi->id]) }}" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     Buka Detail
                                 </a>
@@ -403,7 +346,92 @@
                 </div>
             @empty
                 <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 3rem; text-align: center;">
-                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Belum ada materi atau tugas yang diberikan pada kelas ini.</p>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Belum ada materi perkuliahan yang ditambahkan.</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- TAB 3: TUGAS PERKULIAHAN --}}
+    <div x-show="tab === 'tugas'">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem;">Tugas Perkuliahan</h2>
+                <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Lihat tugas terstruktur dan status pengumpulan tugas Anda.</p>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            @forelse($pengampu->lmsTugas as $tugas)
+                @php $sub = $submissions->get($tugas->id); @endphp
+                <div x-data="{ openMenu: false }" 
+                    @click="window.location.href = '{{ route('mahasiswa.lms.tugas.show', [$pengampu->id, $tugas->id]) }}'"
+                    style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); cursor: pointer;"
+                    onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.03)'; this.style.borderColor='#e2e8f0'">
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0;">
+                        <div style="width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #f1f5f9; color: #475569;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                        </div>
+
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <a href="{{ route('mahasiswa.lms.tugas.show', [$pengampu->id, $tugas->id]) }}" @click.stop style="font-weight: 600; font-size: 0.95rem; color: #1e293b; text-decoration: none;">
+                                    {{ $tugas->judul }}
+                                </a>
+                                @if($tugas->rpsPertemuan)
+                                    <span style="background: #f1f5f9; color: #64748b; font-size: 0.7rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px;">Pertemuan {{ $tugas->rpsPertemuan->minggu ?? $tugas->rpsPertemuan->minggu_ke }}</span>
+                                @endif
+                            </div>
+                            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">
+                                Diposting: {{ $tugas->created_at->format('d M, H:i') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
+                        @if($sub)
+                            <span style="background: {{ $sub->isTerlambat() ? '#fef2f2' : '#ecfdf5' }}; color: {{ $sub->isTerlambat() ? '#dc2626' : '#059669' }}; border: 1px solid {{ $sub->isTerlambat() ? '#fecaca' : '#a7f3d0' }}; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
+                                {{ $sub->isTerlambat() ? 'Terlambat' : 'Diserahkan' }}
+                            </span>
+                        @elseif($tugas->deadline && $tugas->deadline->isPast())
+                            <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
+                                Terlewat
+                            </span>
+                        @else
+                            <span style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
+                                Ditugaskan
+                            </span>
+                        @endif
+
+                        @if($tugas->deadline)
+                            <div style="font-size: 0.8rem; color: #64748b; text-align: right;">
+                                <span style="display: block; font-size: 0.7rem; color: #94a3b8;">Tenggat</span>
+                                {{ $tugas->deadline->format('d M, H:i') }}
+                            </div>
+                        @endif
+
+                        <div style="position: relative;" @click.stop>
+                            <button type="button" @click="openMenu = !openMenu" @click.outside="openMenu = false" style="background: none; border: none; padding: 0.4rem; cursor: pointer; color: #64748b; border-radius: 50%;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                            </button>
+
+                            <div x-show="openMenu" style="position: absolute; right: 0; top: 100%; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; min-width: 140px; z-index: 20; padding: 0.35rem 0; display: none;">
+                                <button type="button" @click="copyLink('{{ route('mahasiswa.lms.tugas.show', [$pengampu->id, $tugas->id]) }}'); openMenu = false;" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    Salin Link
+                                </button>
+                                <a href="{{ route('mahasiswa.lms.tugas.show', [$pengampu->id, $tugas->id]) }}" style="width: 100%; text-align: left; padding: 0.5rem 0.85rem; font-size: 0.8rem; background: none; border: none; cursor: pointer; color: #1e293b; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    Buka Detail
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 3rem; text-align: center;">
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Belum ada tugas yang diberikan pada kelas ini.</p>
                 </div>
             @endforelse
         </div>

@@ -183,7 +183,7 @@ class LmsAbsensiTest extends TestCase
         $sesi1 = LmsSesiAbsensi::create([
             'pengampu_id' => $data['pengampu']->id,
             'rps_pertemuan_id' => $p1->id,
-            'tanggal_aktual' => now()->toDateString(),
+            'tanggal_aktual' => now()->subDays(7)->toDateString(),
         ]);
 
         LmsSesiAbsensi::create([
@@ -191,6 +191,11 @@ class LmsAbsensiTest extends TestCase
             'rps_pertemuan_id' => $p2->id,
             'tanggal_aktual' => now()->toDateString(),
         ]);
+
+        $this->actingAs($data['userDosen'])
+            ->get(route('lms.absensi.show', [$data['pengampu']->id, $sesi1->id]))
+            ->assertOk()
+            ->assertDontSee('Sesi ini terkunci');
 
         $this->actingAs($data['userDosen'])
             ->post(route('lms.absensi.store', [$data['pengampu']->id, $sesi1->id]), [

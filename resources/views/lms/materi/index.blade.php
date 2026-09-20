@@ -7,7 +7,7 @@
 </div>
 
 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas_kelas']) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas Kelas</a>
+    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'materi']) }}" class="btn btn-secondary btn-sm">Kembali ke Materi</a>
 </div>
 
 <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; align-items: start;">
@@ -35,8 +35,9 @@
             Buka RPS Mata Kuliah
         </a>
 
-        <div style="font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 8px; margin-top: 1.25rem; line-height: 1.5;">
-            💡 <strong>Panduan:</strong> Materi pembelajaran terhubung langsung dengan minggu pertemuan RPS mata kuliah.
+        <div style="font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 8px; margin-top: 1.25rem; line-height: 1.5; display: flex; align-items: flex-start; gap: 0.4rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span><strong>Panduan:</strong> Materi pembelajaran terhubung langsung dengan minggu pertemuan RPS mata kuliah.</span>
         </div>
     </div>
 

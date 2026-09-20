@@ -18,7 +18,7 @@ use App\Services\GoogleDriveService;
 use App\Services\PenilaianService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class LmsMahasiswaController extends Controller
 {
@@ -201,7 +201,9 @@ class LmsMahasiswaController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $data['file_path'] = $request->file('file')->store('lms/forum', 'public');
+            $driveService = app(GoogleDriveService::class);
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
         }
 
         LmsForumDiskusi::create($data);
@@ -219,16 +221,18 @@ class LmsMahasiswaController extends Controller
         abort_unless(Auth::id() === $diskusi->user_id, 403);
         abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
 
+        $driveService = app(GoogleDriveService::class);
+
         foreach ($diskusi->replies as $reply) {
             if ($reply->file_path) {
-                Storage::disk('public')->delete($reply->file_path);
+                $driveService->deleteFile($reply->file_path);
             }
         }
 
         $diskusi->replies()->delete();
 
         if ($diskusi->file_path) {
-            Storage::disk('public')->delete($diskusi->file_path);
+            $driveService->deleteFile($diskusi->file_path);
         }
 
         $diskusi->delete();
@@ -252,15 +256,17 @@ class LmsMahasiswaController extends Controller
         ]);
 
         $data = ['pesan' => $validated['pesan']];
+        $driveService = app(GoogleDriveService::class);
+        $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
 
         if ($request->hasFile('file')) {
             if ($diskusi->file_path) {
-                Storage::disk('public')->delete($diskusi->file_path);
+                $driveService->deleteFile($diskusi->file_path);
             }
 
-            $data['file_path'] = $request->file('file')->store('lms/forum', 'public');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
         } elseif ($request->boolean('remove_file') && $diskusi->file_path) {
-            Storage::disk('public')->delete($diskusi->file_path);
+            $driveService->deleteFile($diskusi->file_path);
             $data['file_path'] = null;
         }
 
@@ -306,12 +312,17 @@ class LmsMahasiswaController extends Controller
         ];
 
         if ($request->hasFile('file_jawaban')) {
+            $driveService = app(GoogleDriveService::class);
             if ($existing?->file_jawaban) {
-                Storage::disk('public')->delete($existing->file_jawaban);
+                $driveService->deleteFile($existing->file_jawaban);
             }
 
-            $driveService = app(GoogleDriveService::class);
-            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $nim = $mahasiswa->nim ?? 'MHS';
+            $namaMhs = Str::slug($mahasiswa->nama ?? Auth::user()->name, '_');
+            $customName = "{$nim}_{$namaMhs}_".$request->file('file_jawaban')->getClientOriginalName();
+
+            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions', [$mkLabel, 'Tugas', $tugas->judul, 'Jawaban'], $customName);
         }
 
         LmsSubmission::updateOrCreate(
@@ -361,14 +372,20 @@ class LmsMahasiswaController extends Controller
         }
 
         if ($request->hasFile('file_jawaban')) {
+            $driveService = app(GoogleDriveService::class);
             if ($submission->file_jawaban) {
-                Storage::disk('public')->delete($submission->file_jawaban);
+                $driveService->deleteFile($submission->file_jawaban);
             }
 
-            $driveService = app(GoogleDriveService::class);
-            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $nim = $mahasiswa->nim ?? 'MHS';
+            $namaMhs = Str::slug($mahasiswa->nama ?? Auth::user()->name, '_');
+            $customName = "{$nim}_{$namaMhs}_".$request->file('file_jawaban')->getClientOriginalName();
+
+            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions', [$mkLabel, 'Tugas', $tugas->judul, 'Jawaban'], $customName);
         } elseif ($request->boolean('hapus_file_jawaban') && $submission->file_jawaban) {
-            Storage::disk('public')->delete($submission->file_jawaban);
+            $driveService = app(GoogleDriveService::class);
+            $driveService->deleteFile($submission->file_jawaban);
             $data['file_jawaban'] = null;
         }
 

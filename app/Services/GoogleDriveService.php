@@ -3,23 +3,31 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\Response;
 
 class GoogleDriveService
 {
     /**
-     * Upload a file with its original name. If GDrive is enabled and credentials exist, upload to GDrive.
+     * Store a file. If GDrive is enabled, upload to structured GDrive folders and return 'gdrive/{fileId}/{fileName}'.
      * Otherwise, fallback to local disk storage with original file name.
      */
-    public function storeFile(UploadedFile $file, string $folder = 'lms/tugas'): string
-    {
-        $originalName = $file->getClientOriginalName();
-        $safeName = $this->sanitizeFileName($originalName);
+    public function storeFile(
+        UploadedFile $file,
+        string $folder = 'lms/tugas',
+        array $hierarchy = [],
+        ?string $customFileName = null
+    ): string {
+        $rawName = $customFileName ?: $file->getClientOriginalName();
+        $safeName = $this->sanitizeFileName($rawName);
 
         if ($this->isDriveEnabled()) {
-            $drivePath = $this->uploadToDrive($file, $folder, $safeName);
+            $drivePath = $this->uploadToDrive($file, $safeName, $hierarchy);
             if ($drivePath) {
                 return $drivePath;
             }
@@ -32,53 +40,214 @@ class GoogleDriveService
         return $folder.'/'.$finalLocalName;
     }
 
-    private function sanitizeFileName(string $name): string
+    public function sanitizeFileName(string $name): string
     {
         $name = preg_replace('/[^\w\.\-\s]/u', '', $name);
 
         return trim($name) ?: 'file_'.time().'.pdf';
     }
 
+    public function getConfigPath(): string
+    {
+        return app()->runningUnitTests()
+            ? storage_path('app/google-drive/test_config.json')
+            : storage_path('app/google-drive/config.json');
+    }
+
+    public function getDriveConfig(): array
+    {
+        $configPath = $this->getConfigPath();
+        if (File::exists($configPath)) {
+            $config = json_decode(File::get($configPath), true);
+            if (is_array($config)) {
+                return $config;
+            }
+        }
+
+        return [];
+    }
+
     public function isDriveEnabled(): bool
     {
-        $configPath = storage_path('app/google-drive/config.json');
-        $jsonPath = storage_path('app/google-drive/service-account.json');
+        $config = $this->getDriveConfig();
+        $enabled = isset($config['enabled'])
+            ? filter_var($config['enabled'], FILTER_VALIDATE_BOOLEAN)
+            : filter_var(env('GOOGLE_DRIVE_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
 
-        if (! File::exists($jsonPath)) {
+        if (! $enabled) {
             return false;
         }
 
-        if (File::exists($configPath)) {
-            $config = json_decode(File::get($configPath), true) ?? [];
-            if (isset($config['enabled'])) {
-                return filter_var($config['enabled'], FILTER_VALIDATE_BOOLEAN) && ! empty($config['folder_id']);
-            }
+        $folderId = $this->getRootFolderId();
+        if (empty($folderId)) {
+            return false;
         }
 
-        return filter_var(env('GOOGLE_DRIVE_ENABLED', false), FILTER_VALIDATE_BOOLEAN) && ! empty(env('GOOGLE_DRIVE_FOLDER_ID'));
+        $hasOAuth = ! empty($config['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+        $hasServiceAccount = File::exists(storage_path('app/google-drive/service-account.json'));
+
+        return $hasOAuth || $hasServiceAccount;
     }
 
-    private function uploadToDrive(UploadedFile $file, string $folder, string $fileName): ?string
+    public function getRootFolderId(): ?string
     {
-        try {
-            $jsonPath = storage_path('app/google-drive/service-account.json');
-            $configPath = storage_path('app/google-drive/config.json');
+        $config = $this->getDriveConfig();
+        $folderId = ! empty($config['folder_id'])
+            ? trim($config['folder_id'])
+            : trim((string) env('GOOGLE_DRIVE_FOLDER_ID', ''));
 
-            $folderId = env('GOOGLE_DRIVE_FOLDER_ID', '');
-            if (File::exists($configPath)) {
-                $config = json_decode(File::get($configPath), true) ?? [];
-                if (! empty($config['folder_id'])) {
-                    $folderId = $config['folder_id'];
+        if (empty($folderId)) {
+            return null;
+        }
+
+        if (preg_match('/folders\/([a-zA-Z0-9_\-]+)/', $folderId, $matches)) {
+            return $matches[1];
+        }
+
+        return trim($folderId, ' /\\');
+    }
+
+    public function getAccessToken(): ?string
+    {
+        $oauthToken = $this->getAccessTokenFromOAuth();
+        if ($oauthToken) {
+            return $oauthToken;
+        }
+
+        $jsonPath = storage_path('app/google-drive/service-account.json');
+
+        return $this->getAccessTokenFromServiceAccount($jsonPath);
+    }
+
+    public function getAccessTokenFromOAuth(): ?string
+    {
+        $config = $this->getDriveConfig();
+        $refreshToken = $config['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN');
+        $clientId = $config['oauth_client_id'] ?? env('GOOGLE_DRIVE_CLIENT_ID');
+        $clientSecret = $config['oauth_client_secret'] ?? env('GOOGLE_DRIVE_CLIENT_SECRET');
+
+        if (empty($refreshToken) || empty($clientId) || empty($clientSecret)) {
+            return null;
+        }
+
+        $cacheKey = 'gdrive_oauth_token_'.md5($refreshToken);
+
+        return Cache::remember($cacheKey, 3000, function () use ($clientId, $clientSecret, $refreshToken) {
+            try {
+                $response = Http::withoutVerifying()->asForm()->post('https://oauth2.googleapis.com/token', [
+                    'client_id' => $clientId,
+                    'client_secret' => $clientSecret,
+                    'refresh_token' => $refreshToken,
+                    'grant_type' => 'refresh_token',
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json('access_token');
+                }
+
+                Log::error('Google OAuth Refresh Token Failed: '.$response->body());
+
+                return null;
+            } catch (\Throwable $e) {
+                Log::error('Google OAuth Refresh Exception: '.$e->getMessage());
+
+                return null;
+            }
+        });
+    }
+
+    public function getConnectedEmail(): ?string
+    {
+        $config = $this->getDriveConfig();
+
+        return $config['oauth_connected_email'] ?? env('GOOGLE_DRIVE_CONNECTED_EMAIL') ?: null;
+    }
+
+    public function getOrCreateFolder(string $folderName, string $parentFolderId, string $accessToken): ?string
+    {
+        $cleanName = str_replace(["'", '\\', '"', '/'], '', trim($folderName));
+        if ($cleanName === '') {
+            return $parentFolderId;
+        }
+
+        $cacheKey = 'gdrive_f_'.md5($parentFolderId.'_'.$cleanName);
+        if ($cached = Cache::get($cacheKey)) {
+            return $cached;
+        }
+
+        try {
+            $query = sprintf(
+                "mimeType='application/vnd.google-apps.folder' and name='%s' and '%s' in parents and trashed=false",
+                $cleanName,
+                $parentFolderId
+            );
+
+            $searchResponse = Http::withoutVerifying()->withHeaders([
+                'Authorization' => 'Bearer '.$accessToken,
+            ])->get('https://www.googleapis.com/drive/v3/files', [
+                'q' => $query,
+                'fields' => 'files(id, name)',
+                'supportsAllDrives' => 'true',
+                'includeItemsFromAllDrives' => 'true',
+            ]);
+
+            if ($searchResponse->successful()) {
+                $files = $searchResponse->json('files', []);
+                if (! empty($files[0]['id'])) {
+                    $folderId = $files[0]['id'];
+                    Cache::put($cacheKey, $folderId, now()->addDay());
+
+                    return $folderId;
                 }
             }
 
-            if (! $folderId) {
+            $createResponse = Http::withoutVerifying()->withHeaders([
+                'Authorization' => 'Bearer '.$accessToken,
+            ])->post('https://www.googleapis.com/drive/v3/files?supportsAllDrives=true', [
+                'name' => $cleanName,
+                'mimeType' => 'application/vnd.google-apps.folder',
+                'parents' => [$parentFolderId],
+            ]);
+
+            if ($createResponse->successful()) {
+                $folderId = $createResponse->json('id');
+                if ($folderId) {
+                    Cache::put($cacheKey, $folderId, now()->addDay());
+
+                    return $folderId;
+                }
+            } else {
+                Log::error('Google Drive Create Folder Error: '.$createResponse->body());
+            }
+        } catch (\Throwable $e) {
+            Log::error('Google Drive Create Folder Exception: '.$e->getMessage());
+        }
+
+        return null;
+    }
+
+    private function uploadToDrive(UploadedFile $file, string $fileName, array $hierarchy = []): ?string
+    {
+        try {
+            $rootFolderId = $this->getRootFolderId();
+            if (! $rootFolderId) {
                 return null;
             }
 
-            $accessToken = $this->getAccessTokenFromServiceAccount($jsonPath);
+            $accessToken = $this->getAccessToken();
             if (! $accessToken) {
                 return null;
+            }
+
+            $targetFolderId = $rootFolderId;
+            foreach ($hierarchy as $folderSegment) {
+                $folderSegment = trim((string) $folderSegment);
+                if ($folderSegment !== '') {
+                    $nextFolderId = $this->getOrCreateFolder($folderSegment, $targetFolderId, $accessToken);
+                    if ($nextFolderId) {
+                        $targetFolderId = $nextFolderId;
+                    }
+                }
             }
 
             $mimeType = $file->getClientMimeType() ?: 'application/octet-stream';
@@ -86,7 +255,7 @@ class GoogleDriveService
 
             $metadata = [
                 'name' => $fileName,
-                'parents' => [$folderId],
+                'parents' => [$targetFolderId],
             ];
 
             $response = Http::withoutVerifying()->withHeaders([
@@ -101,12 +270,7 @@ class GoogleDriveService
                 $fileData = $response->json();
                 $driveFileId = $fileData['id'] ?? null;
                 if ($driveFileId) {
-                    Http::withoutVerifying()->withHeaders([
-                        'Authorization' => 'Bearer '.$accessToken,
-                    ])->post("https://www.googleapis.com/drive/v3/files/{$driveFileId}/permissions?supportsAllDrives=true", [
-                        'role' => 'reader',
-                        'type' => 'anyone',
-                    ]);
+                    return 'gdrive/'.$driveFileId.'/'.$fileName;
                 }
             } else {
                 Log::error('Google Drive Upload Error: '.$response->body());
@@ -115,11 +279,75 @@ class GoogleDriveService
             Log::error('Google Drive Upload Exception: '.$e->getMessage());
         }
 
-        $timestamp = time();
-        $finalLocalName = $timestamp.'_'.$fileName;
-        $file->storeAs($folder, $finalLocalName, 'public');
+        return null;
+    }
 
-        return $folder.'/'.$finalLocalName;
+    public function streamFileResponse(string $fileId, string $fileName): Response
+    {
+        $accessToken = $this->getAccessToken();
+        abort_unless($accessToken, 500, 'Gagal mengautentikasi ke Google Drive.');
+
+        $metaResponse = Http::withoutVerifying()->withHeaders([
+            'Authorization' => 'Bearer '.$accessToken,
+        ])->get("https://www.googleapis.com/drive/v3/files/{$fileId}?fields=id,name,mimeType&supportsAllDrives=true");
+
+        $mimeType = 'application/octet-stream';
+        if ($metaResponse->successful()) {
+            $mimeType = $metaResponse->json('mimeType') ?: $mimeType;
+        }
+
+        $response = Http::withoutVerifying()->withHeaders([
+            'Authorization' => 'Bearer '.$accessToken,
+        ])->get("https://www.googleapis.com/drive/v3/files/{$fileId}?alt=media&supportsAllDrives=true");
+
+        abort_unless($response->successful(), 404, 'Berkas di Google Drive tidak ditemukan atau gagal diunduh.');
+
+        return response($response->body(), 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_INLINE,
+                $fileName
+            ),
+        ]);
+    }
+
+    public function deleteFile(?string $path): bool
+    {
+        if (! $path) {
+            return false;
+        }
+
+        if (str_starts_with($path, 'gdrive/')) {
+            $parts = explode('/', $path);
+            $driveFileId = $parts[1] ?? null;
+            if ($driveFileId) {
+                return $this->deleteFromDrive($driveFileId);
+            }
+
+            return false;
+        }
+
+        return Storage::disk('public')->delete($path);
+    }
+
+    public function deleteFromDrive(string $fileId): bool
+    {
+        try {
+            $accessToken = $this->getAccessToken();
+            if (! $accessToken) {
+                return false;
+            }
+
+            $response = Http::withoutVerifying()->withHeaders([
+                'Authorization' => 'Bearer '.$accessToken,
+            ])->delete("https://www.googleapis.com/drive/v3/files/{$fileId}?supportsAllDrives=true");
+
+            return $response->successful();
+        } catch (\Throwable $e) {
+            Log::error('Google Drive Delete Exception: '.$e->getMessage());
+
+            return false;
+        }
     }
 
     public function testConnection(): array
@@ -133,15 +361,7 @@ class GoogleDriveService
                 ];
             }
 
-            $configPath = storage_path('app/google-drive/config.json');
-            $folderId = env('GOOGLE_DRIVE_FOLDER_ID', '');
-            if (File::exists($configPath)) {
-                $config = json_decode(File::get($configPath), true) ?? [];
-                if (! empty($config['folder_id'])) {
-                    $folderId = $config['folder_id'];
-                }
-            }
-
+            $folderId = $this->getRootFolderId();
             if (! $folderId) {
                 return [
                     'success' => false,
@@ -149,7 +369,7 @@ class GoogleDriveService
                 ];
             }
 
-            $accessToken = $this->getAccessTokenFromServiceAccount($jsonPath);
+            $accessToken = $this->getAccessToken();
             if (! $accessToken) {
                 return [
                     'success' => false,
@@ -189,13 +409,13 @@ class GoogleDriveService
                 if (str_contains($err, 'Service Accounts do not have storage quota')) {
                     return [
                         'success' => false,
-                        'message' => 'Google melarang Service Account mengunggah berkas ke Folder Google Drive pribadi (@gmail.com) karena Service Account tidak memiliki kuota (0 MB). Solusi: Gunakan Folder di Drive Bersama (Shared Drive Google Workspace) atau isi Email Delegasi (Impersonate).',
+                        'message' => 'Service Account tidak memiliki kuota (0 MB) untuk mengunggah ke folder "Drive Saya". Solusi: Hubungkan Akun Google Kampus (OAuth 2.0) di form pengaturan, atau gunakan Drive Bersama (Shared Drive).',
                     ];
                 }
 
                 return [
                     'success' => false,
-                    'message' => "Gagal mengunggah file uji coba ke folder: {$err}. Pastikan Service Account memiliki izin 'Editor' pada folder GDrive.",
+                    'message' => "Gagal mengunggah file uji coba ke folder: {$err}. Pastikan akun yang digunakan memiliki izin akses ke folder GDrive.",
                 ];
             }
 
@@ -208,9 +428,15 @@ class GoogleDriveService
                 ])->delete("https://www.googleapis.com/drive/v3/files/{$testFileId}?supportsAllDrives=true");
             }
 
+            $connectedEmail = $this->getConnectedEmail();
+            $hasOAuth = ! empty($this->getDriveConfig()['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+            $authInfo = $hasOAuth
+                ? 'OAuth 2.0 Akun Google'.($connectedEmail ? " ({$connectedEmail})" : '')
+                : 'Service Account';
+
             return [
                 'success' => true,
-                'message' => 'Koneksi Google Drive BERHASIL 100%! Service Account memiliki hak akses Editor dan berhasil menulis ke Folder ID.',
+                'message' => "Koneksi Google Drive BERHASIL 100%! Berhasil menguji unggah dan hapus berkas menggunakan {$authInfo}.",
             ];
         } catch (\Throwable $e) {
             Log::error('Google Drive Test Connection Exception: '.$e->getMessage());

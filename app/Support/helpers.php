@@ -52,6 +52,13 @@ if (! function_exists('konversiNilaiHuruf')) {
     }
 }
 
+if (! function_exists('konversiNilaiHurufPolsa')) {
+    function konversiNilaiHurufPolsa(?float $nilai): ?string
+    {
+        return PenilaianService::konversiHurufPolsa($nilai);
+    }
+}
+
 if (! function_exists('konversiBobotMutu')) {
     function konversiBobotMutu(?float $nilai): ?float
     {

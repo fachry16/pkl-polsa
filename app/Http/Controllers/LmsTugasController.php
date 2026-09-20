@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assessment;
 use App\Models\AssessmentScore;
+use App\Models\Dosen;
 use App\Models\LmsInstrumenCpmk;
 use App\Models\LmsNilaiMahasiswa;
 use App\Models\LmsSubmission;
@@ -11,6 +12,7 @@ use App\Models\LmsTopikKomentar;
 use App\Models\LmsTugas;
 use App\Models\Pengampu;
 use App\Models\RpsPertemuan;
+use App\Models\User;
 use App\Notifications\NilaiDiberikan;
 use App\Notifications\TugasBaru;
 use App\Rules\LmsFileMime;
@@ -20,7 +22,6 @@ use App\Services\PenilaianService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class LmsTugasController extends Controller
 {
@@ -84,34 +85,41 @@ class LmsTugasController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $customName = 'Lampiran_'.$request->file('file')->getClientOriginalName();
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->judul], $customName);
         }
 
         $tugas = LmsTugas::create($data);
 
-        foreach ($pengampu->mahasiswas as $mahasiswa) {
-            if ($mahasiswa->user) {
-                $mahasiswa->user->notify(new TugasBaru($pengampu, $tugas));
-            }
-        }
+        $this->notifyTugasPublikasi($pengampu, $tugas);
 
         return back()->with('toast_success', 'Tugas berhasil ditambahkan.');
     }
 
-    public function tugaskan(Pengampu $pengampu, LmsTugas $tugas)
+    public function tugaskan(Request $request, Pengampu $pengampu, LmsTugas $tugas)
     {
         $this->authorizeWrite($pengampu);
         abort_if($tugas->pengampu_id !== $pengampu->id, 404);
 
-        $tugas->update(['is_active' => true]);
+        $request->validate([
+            'batas_upload_mb' => 'nullable|integer|min:1|max:50',
+            'deadline' => 'nullable|date',
+        ]);
 
-        foreach ($pengampu->mahasiswas as $mahasiswa) {
-            if ($mahasiswa->user) {
-                $mahasiswa->user->notify(new TugasBaru($pengampu, $tugas));
-            }
+        $updateData = ['is_active' => true];
+        if ($request->filled('batas_upload_mb')) {
+            $updateData['batas_upload_mb'] = (int) $request->batas_upload_mb;
+        }
+        if ($request->filled('deadline')) {
+            $updateData['deadline'] = $request->deadline;
         }
 
-        return back()->with('toast_success', 'Tugas berhasil ditugaskan ke mahasiswa.');
+        $tugas->update($updateData);
+
+        $this->notifyTugasPublikasi($pengampu, $tugas);
+
+        return back()->with('toast_success', 'Tugas berhasil dipublikasikan ke kelas.');
     }
 
     public function show(Pengampu $pengampu, LmsTugas $tugas)
@@ -194,12 +202,14 @@ class LmsTugasController extends Controller
         ];
 
         if ($request->hasFile('file')) {
+            $driveService = app(GoogleDriveService::class);
             if ($tugas->file_lampiran) {
-                Storage::disk('public')->delete($tugas->file_lampiran);
+                $driveService->deleteFile($tugas->file_lampiran);
             }
 
-            $driveService = app(GoogleDriveService::class);
-            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $customName = 'Lampiran_'.$request->file('file')->getClientOriginalName();
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->judul ?: $tugas->judul], $customName);
         }
 
         $tugas->update($data);
@@ -218,13 +228,15 @@ class LmsTugasController extends Controller
             return back()->with('toast_error', 'Batas waktu 1x24 jam untuk menghapus tugas telah berakhir.');
         }
 
+        $driveService = app(GoogleDriveService::class);
+
         if ($tugas->file_lampiran) {
-            Storage::disk('public')->delete($tugas->file_lampiran);
+            $driveService->deleteFile($tugas->file_lampiran);
         }
 
         foreach ($tugas->submissions as $submission) {
             if ($submission->file_jawaban) {
-                Storage::disk('public')->delete($submission->file_jawaban);
+                $driveService->deleteFile($submission->file_jawaban);
             }
 
             $submission->delete();
@@ -487,5 +499,41 @@ class LmsTugasController extends Controller
                 $fail('Pertemuan tidak valid untuk mata kuliah ini.');
             }
         };
+    }
+
+    private function notifyTugasPublikasi(Pengampu $pengampu, LmsTugas $tugas): void
+    {
+        // 1. Mahasiswa di kelas tersebut
+        foreach ($pengampu->mahasiswas as $mahasiswa) {
+            if ($mahasiswa->user) {
+                $mahasiswa->user->notify(new TugasBaru($pengampu, $tugas, 'mahasiswa'));
+            }
+        }
+
+        // 2. Dosen pengampu kelas tersebut
+        if ($pengampu->dosen?->user) {
+            $pengampu->dosen->user->notify(new TugasBaru($pengampu, $tugas, 'dosen'));
+        }
+
+        // 3. Kaprodi dari Program Studi mata kuliah tersebut
+        $prodiId = $pengampu->mataKuliah?->kurikulum?->program_studi_id ?? $pengampu->dosen?->program_studi_id;
+        if ($prodiId) {
+            $kaprodis = Dosen::where('program_studi_id', $prodiId)
+                ->where('jabatan', 'Kaprodi')
+                ->with('user')
+                ->get();
+
+            foreach ($kaprodis as $kaprodi) {
+                if ($kaprodi->user && $kaprodi->user_id !== $pengampu->dosen?->user_id) {
+                    $kaprodi->user->notify(new TugasBaru($pengampu, $tugas, 'kaprodi'));
+                }
+            }
+        }
+
+        // 4. Direktur
+        $direkturs = User::where('role', 'direktur')->get();
+        foreach ($direkturs as $direktur) {
+            $direktur->notify(new TugasBaru($pengampu, $tugas, 'direktur'));
+        }
     }
 }

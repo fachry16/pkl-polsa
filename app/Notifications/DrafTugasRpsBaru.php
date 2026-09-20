@@ -7,14 +7,13 @@ use App\Models\Pengampu;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class TugasBaru extends Notification
+class DrafTugasRpsBaru extends Notification
 {
     use Queueable;
 
     public function __construct(
         public Pengampu $pengampu,
         public LmsTugas $tugas,
-        public string $targetRole = 'mahasiswa',
     ) {}
 
     public function via(object $notifiable): array
@@ -24,18 +23,14 @@ class TugasBaru extends Notification
 
     public function toDatabase(object $notifiable): array
     {
-        $url = ($this->targetRole === 'mahasiswa')
-            ? route('mahasiswa.lms.show', $this->pengampu->id).'?tab=tugas_kelas'
-            : route('lms.show', [$this->pengampu->id, 'tab' => 'tugas']);
-
         return [
             'pengampu_id' => $this->pengampu->id,
             'mata_kuliah' => $this->pengampu->mataKuliah?->nama,
             'mata_kuliah_kode' => $this->pengampu->mataKuliah?->kode,
             'kelas' => $this->pengampu->kelas,
-            'judul' => 'Tugas Baru: '.$this->tugas->judul,
-            'deadline' => $this->tugas->deadline?->toDateTimeString(),
-            'url' => $url,
+            'judul' => 'Draf Tugas Baru: '.$this->tugas->judul,
+            'pesan' => 'Rancangan tugas baru dari RPS telah ditambahkan. Silakan atur batas upload file dan publikasikan ke mahasiswa.',
+            'url' => route('lms.show', [$this->pengampu->id, 'tab' => 'tugas']),
         ];
     }
 }

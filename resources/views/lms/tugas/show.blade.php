@@ -10,7 +10,7 @@
 </div>
 
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas_kelas']) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas Kelas</a>
+    <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas']) }}" class="btn btn-secondary btn-sm">Kembali ke Tugas</a>
     @if($tugas->canBeModified())
         @if($tugas->rps_tugas_id && $pengampu->mataKuliah?->rps)
             <a href="{{ route('rps.tugas.edit', [$pengampu->mataKuliah->rps->id, $tugas->rps_tugas_id]) }}" class="btn btn-secondary btn-sm">Perbarui di RPS</a>
@@ -122,8 +122,9 @@
                                     @endif
                                 </div>
                                 @if($submission->catatan_mahasiswa)
-                                    <div style="font-size: 0.78rem; color: #1e293b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.35rem 0.6rem; border-radius: 6px; line-height: 1.4; word-break: break-word;">
-                                        💬 <strong>Catatan:</strong> {{ $submission->catatan_mahasiswa }}
+                                    <div style="font-size: 0.78rem; color: #1e293b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.35rem 0.6rem; border-radius: 6px; line-height: 1.4; word-break: break-word; display: flex; align-items: flex-start; gap: 0.35rem;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                        <span><strong>Catatan:</strong> {{ $submission->catatan_mahasiswa }}</span>
                                     </div>
                                 @endif
                             </div>
@@ -199,7 +200,10 @@
 
                                 @if($submission->catatan_mahasiswa)
                                     <div style="margin-bottom: 1rem;">
-                                        <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">💬 Pesan / Catatan Mahasiswa:</div>
+                                        <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem;">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                            Pesan / Catatan Mahasiswa:
+                                        </div>
                                         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem; font-size: 0.85rem; color: #334155; line-height: 1.5; white-space: pre-wrap;">{{ $submission->catatan_mahasiswa }}</div>
                                     </div>
                                 @endif
@@ -207,13 +211,19 @@
                                 <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                                     @if($submission->file_jawaban)
                                         <div>
-                                            <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">📄 File Jawaban:</div>
+                                            <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                                File Jawaban:
+                                            </div>
                                             <x-file-link :file="$submission->file_jawaban" :href="route('lms.file', ['submission', $submission->id])" />
                                         </div>
                                     @endif
                                     @if($submission->link_jawaban)
                                         <div>
-                                            <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem;">🔗 Link URL Jawaban:</div>
+                                            <div style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                                Link URL Jawaban:
+                                            </div>
                                             <a href="{{ $submission->link_jawaban }}" target="_blank" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                                                 Buka Tautan Jawaban

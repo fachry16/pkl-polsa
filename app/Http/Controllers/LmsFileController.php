@@ -7,6 +7,7 @@ use App\Models\LmsMateri;
 use App\Models\LmsSubmission;
 use App\Models\LmsTugas;
 use App\Models\Pengampu;
+use App\Services\GoogleDriveService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -21,6 +22,18 @@ class LmsFileController extends Controller
         abort_if(! $file['path'], 404);
 
         $this->authorizeFile($model, $file);
+
+        if (str_starts_with($file['path'], 'gdrive/')) {
+            $parts = explode('/', $file['path']);
+            $driveFileId = $parts[1] ?? null;
+            $fileName = $parts[2] ?? basename($file['path']);
+
+            abort_if(! $driveFileId, 404);
+
+            $driveService = app(GoogleDriveService::class);
+
+            return $driveService->streamFileResponse($driveFileId, $fileName);
+        }
 
         $disk = Storage::disk('public');
 

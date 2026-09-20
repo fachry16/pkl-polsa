@@ -5,8 +5,8 @@
 <div style="max-width: 900px; margin: 0 auto;">
     {{-- Tombol Kembali --}}
     <div style="margin-bottom: 1rem;">
-        <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'tugas_kelas']) }}" class="btn btn-secondary btn-sm">
-            Kembali ke Tugas Kelas
+        <a href="{{ route('lms.show', [$pengampu->id, 'tab' => 'materi']) }}" class="btn btn-secondary btn-sm">
+            Kembali ke Materi
         </a>
     </div>
 

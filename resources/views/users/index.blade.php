@@ -28,6 +28,7 @@
                 <th>Nama</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Status Password</th>
                 <th>Aksi</th>
             </tr>
 
@@ -74,6 +75,19 @@
                 </td>
 
                 <td>
+                    @if($user->isAdmin())
+                        <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">Admin</span>
+                    @elseif($user->harus_ganti_password)
+                        <span class="badge badge-diajukan">Wajib Ganti</span>
+                        <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.2rem;">
+                            Default: <code>{{ $user->defaultPassword() }}</code>
+                        </div>
+                    @else
+                        <span class="badge badge-disetujui">Aktif</span>
+                    @endif
+                </td>
+
+                <td>
 
                     <div class="btn-group">
                         <a href="{{ route('users.edit', $user->id) }}"
@@ -82,6 +96,20 @@
                             Edit
 
                         </a>
+
+                        @if(! $user->isAdmin())
+                            <x-confirm
+                                action="{{ route('users.reset-password', $user->id) }}"
+                                method="PATCH"
+                                title="Reset Password User"
+                                message="Reset password user {{ $user->name }} ke password default ({{ $user->defaultPassword() }})?"
+                                subMessage="User akan diwajibkan mengganti password baru saat login berikutnya."
+                                buttonText="Reset"
+                                buttonClass="btn btn-sm btn-secondary"
+                                confirmText="Ya, Reset"
+                                confirmClass="btn-secondary"
+                            />
+                        @endif
 
                         <x-confirm
                             action="{{ route('users.destroy', $user->id) }}"
@@ -100,7 +128,7 @@
 
             <tr>
 
-                <td colspan="5"
+                <td colspan="6"
                     class="text-center text-sm" style="padding: 1.5rem; color: #6b7280;">
 
                     Data user belum tersedia.

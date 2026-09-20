@@ -79,7 +79,7 @@ class LmsAbsensiController extends Controller
         $mahasiswas = $pengampu->mahasiswas()->orderBy('nim')->get();
         $absensis = $sesi->absensis()->get()->keyBy('mahasiswa_id');
 
-        $editable = $sesi->canEdit();
+        $editable = ! Auth::user()->isAdmin();
 
         return view('lms.absensi.show', compact('pengampu', 'sesi', 'mahasiswas', 'absensis', 'editable'));
     }
@@ -88,10 +88,6 @@ class LmsAbsensiController extends Controller
     {
         $this->authorizeWrite($pengampu);
         abort_if($sesi->pengampu_id !== $pengampu->id, 404);
-
-        if (! $sesi->canEdit()) {
-            return back()->with('toast_error', 'Sesi presensi terkunci karena sesi berikutnya sudah dibuka.');
-        }
 
         $request->validate([
             'status' => 'required|array',
@@ -118,10 +114,6 @@ class LmsAbsensiController extends Controller
     {
         $this->authorizeWrite($pengampu);
         abort_if($sesi->pengampu_id !== $pengampu->id, 404);
-
-        if (! $sesi->canEdit()) {
-            return back()->with('toast_error', 'Sesi presensi terkunci karena sesi berikutnya sudah dibuka.');
-        }
 
         $mahasiswaIds = $pengampu->mahasiswas()->pluck('mahasiswas.id');
 

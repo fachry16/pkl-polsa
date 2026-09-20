@@ -20,7 +20,6 @@ use App\Models\LmsSesiAbsensi;
 use App\Models\LmsSubmission;
 use App\Models\LmsTugas;
 use App\Models\Mahasiswa;
-use App\Models\MahasiswaTahunAkademik;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\ProfilLulusan;
@@ -33,6 +32,7 @@ use App\Models\RpsPertemuan;
 use App\Models\RpsTugas;
 use App\Models\RumusanNilaiAkhirCpl;
 use App\Models\RumusanNilaiAkhirMk;
+use App\Models\SemesterMahasiswa;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -212,7 +212,7 @@ class DemoPresentationSeeder extends Seeder
 
         // Link Mahasiswa ke Tahun Akademik
         foreach ([[$mhs1, 3], [$mhs2, 3], [$mhs3, 1], [$mhs4, 5]] as [$mhs, $sem]) {
-            MahasiswaTahunAkademik::firstOrCreate([
+            SemesterMahasiswa::firstOrCreate([
                 'mahasiswa_id' => $mhs->id,
                 'tahun_akademik_id' => $taAktif->id,
             ], [

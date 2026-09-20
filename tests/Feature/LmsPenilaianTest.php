@@ -458,6 +458,18 @@ class LmsPenilaianTest extends TestCase
         $this->assertEquals('D', PenilaianService::konversiHuruf(55));
         $this->assertEquals('E', PenilaianService::konversiHuruf(40));
 
+        // Format Polsa (10 skala)
+        $this->assertEquals('A', PenilaianService::konversiHurufPolsa(85));
+        $this->assertEquals('A-', PenilaianService::konversiHurufPolsa(80));
+        $this->assertEquals('B+', PenilaianService::konversiHurufPolsa(75));
+        $this->assertEquals('B', PenilaianService::konversiHurufPolsa(70));
+        $this->assertEquals('B-', PenilaianService::konversiHurufPolsa(65));
+        $this->assertEquals('C+', PenilaianService::konversiHurufPolsa(60));
+        $this->assertEquals('C', PenilaianService::konversiHurufPolsa(55));
+        $this->assertEquals('C-', PenilaianService::konversiHurufPolsa(50));
+        $this->assertEquals('D', PenilaianService::konversiHurufPolsa(40));
+        $this->assertEquals('E', PenilaianService::konversiHurufPolsa(39));
+
         $data = $this->buatKelas();
 
         $response = $this->actingAs($data['dosen']->user)
@@ -466,5 +478,6 @@ class LmsPenilaianTest extends TestCase
         $response->assertOk();
         $response->assertSee('Rekap Nilai Perkuliahan &amp; LMS', false);
         $response->assertSee('Nilai Angka');
+        $response->assertSee('Nilai Huruf (NA)');
     }
 }

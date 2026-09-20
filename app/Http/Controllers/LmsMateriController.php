@@ -11,7 +11,6 @@ use App\Services\GoogleDriveService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class LmsMateriController extends Controller
 {
@@ -69,7 +68,12 @@ class LmsMateriController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $pertemuan = $request->rps_pertemuan_id ? RpsPertemuan::find($request->rps_pertemuan_id) : null;
+            $minggu = $pertemuan ? ($pertemuan->minggu ?? $pertemuan->minggu_ke) : null;
+            $customName = ($minggu ? "Pertemuan_{$minggu}_" : '').$request->file('file')->getClientOriginalName();
+
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', [$mkLabel, 'Materi'], $customName);
         }
 
         $materi = LmsMateri::create($data);
@@ -135,12 +139,17 @@ class LmsMateriController extends Controller
         ];
 
         if ($request->hasFile('file')) {
+            $driveService = app(GoogleDriveService::class);
             if ($materi->file_path) {
-                Storage::disk('public')->delete($materi->file_path);
+                $driveService->deleteFile($materi->file_path);
             }
 
-            $driveService = app(GoogleDriveService::class);
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi');
+            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $pertemuan = $request->rps_pertemuan_id ? RpsPertemuan::find($request->rps_pertemuan_id) : null;
+            $minggu = $pertemuan ? ($pertemuan->minggu ?? $pertemuan->minggu_ke) : null;
+            $customName = ($minggu ? "Pertemuan_{$minggu}_" : '').$request->file('file')->getClientOriginalName();
+
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', [$mkLabel, 'Materi'], $customName);
         }
 
         $materi->update($data);
@@ -160,7 +169,8 @@ class LmsMateriController extends Controller
         }
 
         if ($materi->file_path) {
-            Storage::disk('public')->delete($materi->file_path);
+            $driveService = app(GoogleDriveService::class);
+            $driveService->deleteFile($materi->file_path);
         }
 
         $materi->delete();

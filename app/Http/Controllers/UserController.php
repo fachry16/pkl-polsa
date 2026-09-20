@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -121,5 +122,20 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
+    }
+
+    public function resetPassword(User $user)
+    {
+        abort_if($user->isAdmin(), 403, 'Password akun Administrator tidak dapat di-reset melalui menu ini.');
+
+        $defaultPassword = $user->defaultPassword();
+
+        $user->forceFill([
+            'password' => Hash::make($defaultPassword),
+            'harus_ganti_password' => true,
+        ])->save();
+
+        return redirect()->route('users.index')
+            ->with('success', "Password user {$user->name} berhasil di-reset ke default ({$defaultPassword}). User wajib mengganti password saat login.");
     }
 }
