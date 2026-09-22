@@ -196,6 +196,11 @@ document.addEventListener('DOMContentLoaded', function () {
         <div id="preview-file-materi-notice" style="display: none; font-size: 0.75rem; color: #b91c1c; margin-top: 0.3rem; font-weight: 600;"></div>
     </div>
 
+    <div style="margin: 0 1.5rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; display: flex; align-items: flex-start; gap: 0.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span style="font-size: 0.78rem; color: #166534; line-height: 1.5;">File materi akan otomatis tersinkron sebagai materi di seluruh kelas LMS mata kuliah ini.</span>
+    </div>
+
     <form id="upload-materi-form" method="POST" enctype="multipart/form-data" style="padding: 0 1.5rem 1.25rem 1.5rem;">
         @csrf
 

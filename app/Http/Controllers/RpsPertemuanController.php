@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesRps;
+use App\Models\LmsMateri;
+use App\Models\Pengampu;
 use App\Models\Rps;
 use App\Models\RpsPertemuan;
 use App\Rules\LmsFileMime;
@@ -98,7 +100,9 @@ class RpsPertemuanController extends Controller
             $data['file_materi'] = $request->file('file')->store('lms/materi', 'public');
         }
 
-        RpsPertemuan::create($data);
+        $pertemuan = RpsPertemuan::create($data);
+
+        $this->syncToPengampu($rps, $pertemuan);
 
         return redirect()
             ->route('rps.pertemuan.index', $rps->id)
@@ -183,6 +187,8 @@ class RpsPertemuanController extends Controller
 
         $pertemuan->update($data);
 
+        $this->syncToPengampu($rps, $pertemuan);
+
         return redirect()
             ->route('rps.pertemuan.index', $rps->id)
             ->with(
@@ -203,6 +209,8 @@ class RpsPertemuanController extends Controller
         if ($pertemuan->file_materi) {
             Storage::disk('public')->delete($pertemuan->file_materi);
         }
+
+        LmsMateri::where('rps_pertemuan_id', $pertemuan->id)->delete();
 
         $pertemuan->delete();
 
@@ -236,11 +244,50 @@ class RpsPertemuanController extends Controller
             'file_materi' => $request->file('file')->store('lms/materi', 'public'),
         ]);
 
+        $this->syncToPengampu($rps, $pertemuan);
+
         return redirect()
             ->route('rps.pertemuan.index', $rps->id)
             ->with(
                 'success',
-                'File materi untuk pertemuan minggu '.$pertemuan->minggu.' berhasil diunggah.'
+                'File materi untuk pertemuan minggu '.$pertemuan->minggu.' berhasil diunggah & tersinkron ke kelas LMS.'
             );
+    }
+
+    private function syncToPengampu(Rps $rps, RpsPertemuan $pertemuan): void
+    {
+        if (! $pertemuan->file_materi) {
+            return;
+        }
+
+        $judul = $pertemuan->materi
+            ?: 'Materi Minggu '.$pertemuan->minggu;
+
+        $pengampus = Pengampu::where('mata_kuliah_id', $rps->mata_kuliah_id)->get();
+
+        foreach ($pengampus as $pengampu) {
+            $sudahAda = LmsMateri::where('pengampu_id', $pengampu->id)
+                ->where('rps_pertemuan_id', $pertemuan->id)
+                ->exists();
+
+            if ($sudahAda) {
+                LmsMateri::where('pengampu_id', $pengampu->id)
+                    ->where('rps_pertemuan_id', $pertemuan->id)
+                    ->update([
+                        'judul' => $judul,
+                        'file_path' => $pertemuan->file_materi,
+                    ]);
+
+                continue;
+            }
+
+            LmsMateri::create([
+                'pengampu_id' => $pengampu->id,
+                'rps_pertemuan_id' => $pertemuan->id,
+                'judul' => $judul,
+                'deskripsi' => $pertemuan->sub_cpmk,
+                'file_path' => $pertemuan->file_materi,
+            ]);
+        }
     }
 }
