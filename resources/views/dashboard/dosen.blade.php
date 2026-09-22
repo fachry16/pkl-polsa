@@ -219,7 +219,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
             @foreach($pengampus as $pengampu)
                 @php
-                    $isKelasB = preg_match('/B|karyawan|sore|malam/i', $pengampu->kelas);
+                    $isKelasB = \App\Models\Krs::isKelasB($pengampu->kelas);
                     $persenPertemuan = min(100, round(($pengampu->sesi_absensi_count / 16) * 100));
                 @endphp
                 <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s;" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 12px rgba(79,70,229,0.06)';" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">

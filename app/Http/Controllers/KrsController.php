@@ -73,14 +73,20 @@ class KrsController extends Controller
             'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
             'dosen_id' => 'required|exists:dosens,id',
             'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
-            'kelas' => 'required|max:10',
         ]);
 
         $programStudiId = $kaprodiProdiId ?: $request->program_studi_id;
 
-        $krs = DB::transaction(function () use ($request, $programStudiId) {
+        $mataKuliah = MataKuliah::findOrFail($request->mata_kuliah_id);
+        $kodeProdi = ProgramStudi::findOrFail($programStudiId)->kode_prodi;
+        $kelas = $kodeProdi.' '.$mataKuliah->semester;
+
+        $krs = DB::transaction(function () use ($request, $programStudiId, $kelas) {
             $krs = Krs::create(
-                array_merge($request->all(), ['program_studi_id' => $programStudiId])
+                array_merge($request->except('kelas'), [
+                    'program_studi_id' => $programStudiId,
+                    'kelas' => $kelas,
+                ])
             );
 
             $tahunAkademik = TahunAkademik::find($request->tahun_akademik_id);
@@ -91,7 +97,7 @@ class KrsController extends Controller
                 'mata_kuliah_id' => $request->mata_kuliah_id,
                 'tahun_akademik_id' => $request->tahun_akademik_id,
                 'semester_akademik' => $tahunAkademik->semester,
-                'kelas' => $request->kelas,
+                'kelas' => $kelas,
             ]);
 
             return $krs;

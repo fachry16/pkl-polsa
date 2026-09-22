@@ -80,13 +80,6 @@
 
                     <div class="btn-group">
 
-                        <a href="{{ route('rps.tugas.nilai', [$rps->id, $item->id]) }}"
-                           class="btn btn-info btn-sm">
-
-                            Lihat
-
-                        </a>
-
                         <a href="{{ route('rps.tugas.edit', [$rps->id, $item->id]) }}"
                            class="btn btn-warning btn-sm">
 

@@ -74,10 +74,7 @@
 
     <div class="form-group">
         <label class="form-label">Kelas</label>
-        <input type="text" name="kelas" class="form-input" value="{{ old('kelas') }}" placeholder="Contoh: A, B, Reguler Pagi" maxlength="10" required>
-        @error('kelas')
-            <div class="form-error">{{ $message }}</div>
-        @enderror
+        <p class="form-text">Kelas dibuat otomatis sesuai program studi dan semester mata kuliah (contoh: TI 3, lalu dipecah menjadi TI 3A / TI 3B saat mahasiswa dilampirkan).</p>
     </div>
 
     <div class="form-actions">
@@ -117,6 +114,11 @@
 .form-error {
     font-size: 0.75rem;
     color: #ef4444;
+    margin-top: 0.25rem;
+}
+.form-text {
+    font-size: 0.8rem;
+    color: #6b7280;
     margin-top: 0.25rem;
 }
 .form-actions {

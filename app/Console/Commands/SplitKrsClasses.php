@@ -27,19 +27,8 @@ class SplitKrsClasses extends Command
         $dilewati = 0;
 
         foreach ($groups as $key => $group) {
-            $kelasKrs = array_filter(
-                $group,
-                fn (Krs $k) => str_contains($k->kelas, '/') || in_array($this->classLetter($k->kelas), ['A', 'B'])
-            );
-
-            if (empty($kelasKrs)) {
-                $dilewati++;
-
-                continue;
-            }
-
             try {
-                $this->seimbangkan($kelasKrs);
+                $this->seimbangkan($group);
                 $diproses++;
             } catch (\Throwable $e) {
                 $this->error("Grup {$key} gagal: {$e->getMessage()}");
@@ -72,7 +61,11 @@ class SplitKrsClasses extends Command
         }
 
         if (! $krsA && ! $krsB) {
-            return;
+            $krsA = $members[0] ?? null;
+
+            if (! $krsA) {
+                return;
+            }
         }
 
         $ids = [];

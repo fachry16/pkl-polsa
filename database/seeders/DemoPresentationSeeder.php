@@ -472,7 +472,7 @@ class DemoPresentationSeeder extends Seeder
                 'program_studi_id' => $prodiTrpl->id,
                 'mata_kuliah_id' => $mkWebLanjut->id,
                 'tahun_akademik_id' => $taAktif->id,
-                'kelas' => '3A',
+                'kelas' => 'TRPL 3',
             ],
             [
                 'dosen_id' => $dosen1->id,
@@ -483,7 +483,7 @@ class DemoPresentationSeeder extends Seeder
             [
                 'mata_kuliah_id' => $mkWebLanjut->id,
                 'tahun_akademik_id' => $taAktif->id,
-                'kelas' => '3A',
+                'kelas' => 'TRPL 3',
             ],
             [
                 'krs_id' => $krsWeb->id,

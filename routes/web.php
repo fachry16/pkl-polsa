@@ -904,11 +904,6 @@ Route::middleware(['auth'])->group(function () {
         'rps/{rps}/tugas/{tugas}/upload-ke-lms',
         [RpsTugasController::class, 'uploadKeLms']
     )->name('rps.tugas.upload-ke-lms');
-
-    Route::get(
-        'rps/{rps}/tugas/{tugas}/nilai',
-        [RpsTugasController::class, 'lihatNilai']
-    )->name('rps.tugas.nilai');
 });
 
 /* Kaprodi & Direktur — pengajuan RPS */

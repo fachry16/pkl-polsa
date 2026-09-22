@@ -223,53 +223,6 @@ class RpsTugasController extends Controller
             ->get();
     }
 
-    public function lihatNilai(Rps $rps, RpsTugas $tugas)
-    {
-        $this->authorizeRpsModel($rps);
-
-        $tugas = $rps->tugas()->findOrFail($tugas->id);
-
-        $lmsTugasList = $tugas->lmsTugas()
-            ->with(['pengampu.dosen.user', 'pengampu.tahunAkademik', 'submissions'])
-            ->orderBy('pengampu_id')
-            ->get();
-
-        $kelasData = [];
-
-        foreach ($lmsTugasList->groupBy('pengampu_id') as $pengampuId => $kelasTugas) {
-            $lmsTugas = $kelasTugas->first();
-            $pengampu = $lmsTugas->pengampu;
-
-            if (! $pengampu) {
-                continue;
-            }
-
-            $mahasiswas = $pengampu->mahasiswas()->orderBy('nama')->get();
-
-            if ($mahasiswas->isEmpty()) {
-                continue;
-            }
-
-            $submissions = $kelasTugas->flatMap->submissions->keyBy('mahasiswa_id');
-
-            $rows = $mahasiswas->map(fn ($mhs) => [
-                'mahasiswa' => $mhs,
-                'submission' => $submissions->get($mhs->id),
-            ]);
-
-            $kelasData[] = [
-                'pengampu' => $pengampu,
-                'lmsTugas' => $lmsTugas,
-                'rows' => $rows,
-                'total' => $rows->count(),
-                'mengumpulkan' => $rows->filter(fn ($r) => $r['submission'] !== null)->count(),
-                'dinilai' => $rows->filter(fn ($r) => $r['submission']?->nilai !== null)->count(),
-            ];
-        }
-
-        return view('rps-tugas.nilai', compact('rps', 'tugas', 'kelasData'));
-    }
-
     private function syncToPengampu(Rps $rps, RpsTugas $tugas): int
     {
         $pengampus = $this->pengampuKelas($rps);
