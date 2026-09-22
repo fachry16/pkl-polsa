@@ -3,7 +3,8 @@
 !public/
 !google-drive/
 google-drive/*
-!google-drive/config.json
+!google-drive/config.json.example
 !google-drive/.gitignore
 !.gitignore
+
 

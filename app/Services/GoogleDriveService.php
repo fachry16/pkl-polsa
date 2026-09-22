@@ -84,6 +84,14 @@ class GoogleDriveService
             }
         }
 
+        $examplePath = dirname($configPath).'/config.json.example';
+        if (File::exists($examplePath)) {
+            $config = json_decode(File::get($examplePath), true);
+            if (is_array($config) && ! empty($config)) {
+                return $config;
+            }
+        }
+
         return [];
     }
 

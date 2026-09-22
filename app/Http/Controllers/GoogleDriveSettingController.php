@@ -47,6 +47,15 @@ class GoogleDriveSettingController extends Controller
             }
         }
 
+        $examplePath = dirname($path).'/config.json.example';
+        if (File::exists($examplePath)) {
+            $content = File::get($examplePath);
+            $decoded = json_decode($content, true);
+            if (is_array($decoded) && ! empty($decoded)) {
+                return $decoded;
+            }
+        }
+
         return [];
     }
 
@@ -146,24 +155,8 @@ class GoogleDriveSettingController extends Controller
         File::put($configPath, json_encode($configData, JSON_PRETTY_PRINT));
         File::put($backupPath, json_encode($configData, JSON_PRETTY_PRINT));
 
-        $envUpdates = [
-            'GOOGLE_DRIVE_ENABLED' => $enabledStr,
-            'GOOGLE_DRIVE_FOLDER_ID' => $folderId,
-            'GOOGLE_DRIVE_AUTH_MODE' => 'oauth',
-            'GOOGLE_DRIVE_CLIENT_ID' => $oauthClientId,
-            'GOOGLE_DRIVE_CLIENT_SECRET' => $oauthClientSecret,
-        ];
-
-        if (! empty($existing['oauth_refresh_token'])) {
-            $envUpdates['GOOGLE_DRIVE_REFRESH_TOKEN'] = $existing['oauth_refresh_token'];
-        }
-        if (! empty($existing['oauth_connected_email'])) {
-            $envUpdates['GOOGLE_DRIVE_CONNECTED_EMAIL'] = $existing['oauth_connected_email'];
-        }
-
-        $this->updateEnv($envUpdates);
-
-        return back()->with('toast_success', 'Pengaturan Google Drive (OAuth 2.0) berhasil diperbarui dan tersimpan permanen.');
+        return redirect()->route('admin.setting.gdrive')
+            ->with('toast_success', 'Pengaturan Google Drive (OAuth 2.0) berhasil diperbarui dan tersimpan permanen.');
     }
 
     public function oauthConnect(Request $request)
@@ -263,13 +256,6 @@ class GoogleDriveSettingController extends Controller
         File::put($configPath, json_encode($config, JSON_PRETTY_PRINT));
         File::put($backupPath, json_encode($config, JSON_PRETTY_PRINT));
 
-        $this->updateEnv([
-            'GOOGLE_DRIVE_ENABLED' => 'true',
-            'GOOGLE_DRIVE_AUTH_MODE' => 'oauth',
-            'GOOGLE_DRIVE_REFRESH_TOKEN' => $refreshToken,
-            'GOOGLE_DRIVE_CONNECTED_EMAIL' => $connectedEmail ?: '',
-        ]);
-
         return redirect()->route('admin.setting.gdrive')
             ->with('toast_success', "Berhasil! Akun Google ({$connectedEmail}) berhasil terhubung sebagai penyimpanan Eduva.");
     }
@@ -287,36 +273,8 @@ class GoogleDriveSettingController extends Controller
         File::put($configPath, json_encode($config, JSON_PRETTY_PRINT));
         File::put($backupPath, json_encode($config, JSON_PRETTY_PRINT));
 
-        $this->updateEnv([
-            'GOOGLE_DRIVE_REFRESH_TOKEN' => '',
-            'GOOGLE_DRIVE_CONNECTED_EMAIL' => '',
-        ]);
-
         return redirect()->route('admin.setting.gdrive')
             ->with('toast_success', 'Koneksi akun Google berhasil diputuskan.');
-    }
-
-    private function updateEnv(array $data): void
-    {
-        $envFile = base_path('.env');
-        if (! File::exists($envFile)) {
-            return;
-        }
-
-        $content = File::get($envFile);
-
-        foreach ($data as $key => $value) {
-            $keyPattern = "/^{$key}=.*/m";
-            $valueFormatted = str_contains($value, ' ') ? '"'.$value.'"' : $value;
-
-            if (preg_match($keyPattern, $content)) {
-                $content = preg_replace($keyPattern, "{$key}={$valueFormatted}", $content);
-            } else {
-                $content .= "\n{$key}={$valueFormatted}";
-            }
-        }
-
-        File::put($envFile, $content);
     }
 
     public function testConnection(GoogleDriveService $driveService)
