@@ -168,7 +168,7 @@
                class="form-input w-full">
         @if($tugas->file_soal)
             <div style="font-size: 0.75rem; color: #16a34a; margin-top: 0.25rem;">
-                File saat ini: <a href="{{ Storage::url($tugas->file_soal) }}" target="_blank" style="text-decoration: underline;">Unduh Lampiran</a>
+                File saat ini: <a href="{{ route('rps.tugas.file', [$rps->id, $tugas->id]) }}" target="_blank" style="text-decoration: underline;">Unduh Lampiran</a>
             </div>
         @else
             <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Format PDF, DOC, XLS, PPT, ZIP, gambar (maks 50 MB)</div>

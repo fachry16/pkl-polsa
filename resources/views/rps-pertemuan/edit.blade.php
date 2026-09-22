@@ -143,7 +143,7 @@
                class="form-input w-full">
         @if($pertemuan->file_materi)
             <div style="font-size: 0.75rem; color: #16a34a; margin-top: 0.25rem;">
-                File saat ini: <a href="{{ Storage::url($pertemuan->file_materi) }}" target="_blank" style="text-decoration: underline;">Unduh Materi</a>
+                File saat ini: <a href="{{ route('rps.pertemuan.file', [$rps->id, $pertemuan->id]) }}" target="_blank" style="text-decoration: underline;">Unduh Materi</a>
             </div>
         @else
             <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Format PDF, DOC, XLS, PPT, ZIP, gambar (maks 50 MB)</div>

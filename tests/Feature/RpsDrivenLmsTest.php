@@ -439,4 +439,47 @@ class RpsDrivenLmsTest extends TestCase
 
         $this->assertSame(0, LmsMateri::where('rps_pertemuan_id', $pertemuan->id)->count());
     }
+
+    public function test_unduh_materi_rps_melewati_kontroler_tidak_403(): void
+    {
+        $prodi = ProgramStudi::create(['kode_prodi' => 'TRPL5', 'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak 5', 'jenjang' => 'D4', 'akreditasi' => 'Baik']);
+        $userDosen = User::create(['name' => 'Dosen RPL 5', 'email' => 'dosenrpl5@test.dev', 'password' => bcrypt('password'), 'role' => 'dosen']);
+        $dosen = Dosen::create(['user_id' => $userDosen->id, 'program_studi_id' => $prodi->id, 'nidn' => '99887770', 'jabatan' => 'Dosen']);
+        $kurikulum = Kurikulum::create(['program_studi_id' => $prodi->id, 'nama_kurikulum' => 'Kurikulum 2024', 'tahun_berlaku' => 2024, 'beban_studi' => '144 SKS', 'deskripsi' => 'D', 'status' => 'Aktif']);
+        $ta = TahunAkademik::create(['tahun' => 2026, 'semester' => 'Ganjil', 'is_active' => true]);
+        $mk = MataKuliah::create(['kurikulum_id' => $kurikulum->id, 'kode' => 'RPL206', 'nama' => 'Basis Data', 'sks_teori' => 3, 'sks_praktikum' => 0, 'semester' => 2, 'jenis' => 'Wajib']);
+        $rps = Rps::create(['mata_kuliah_id' => $mk->id, 'dosen_pengembang_id' => $dosen->id, 'dosen_pengampu' => 'Dosen RPL 5', 'semester' => 2, 'deskripsi' => 'RPS', 'status' => 'Disetujui']);
+
+        Pengampu::create([
+            'dosen_id' => $dosen->id,
+            'mata_kuliah_id' => $mk->id,
+            'tahun_akademik_id' => $ta->id,
+            'kelas' => 'A',
+            'semester_akademik' => 'Ganjil 2026/2027',
+        ]);
+
+        Storage::fake('public');
+        $file = UploadedFile::fake()->create('modul.pdf', 100, 'application/pdf');
+
+        $pertemuan = RpsPertemuan::create([
+            'rps_id' => $rps->id,
+            'minggu' => 1,
+            'sub_cpmk' => 'ERD',
+            'materi' => 'Konsep Basis Data',
+            'metode' => 'Diskusi',
+            'pengalaman_belajar' => 'Studi kasus',
+            'indikator' => 'Ketepatan',
+            'bobot' => 10,
+        ]);
+
+        $this->actingAs($userDosen)
+            ->post(route('rps.pertemuan.upload-materi', [$rps->id, $pertemuan->id]), ['file' => $file])
+            ->assertRedirect();
+
+        $response = $this->actingAs($userDosen)
+            ->get(route('rps.pertemuan.file', [$rps->id, $pertemuan->id]));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
+    }
 }

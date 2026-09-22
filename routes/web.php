@@ -816,6 +816,11 @@ Route::middleware(['auth'])->group(function () {
     )->name('rps.pertemuan.upload-materi');
 
     Route::get(
+        'rps/{rps}/pertemuan/{pertemuan}/file',
+        [RpsPertemuanController::class, 'file']
+    )->name('rps.pertemuan.file');
+
+    Route::get(
         'rps/{rps}/penilaian',
         [RpsPenilaianController::class, 'index']
     )->name('rps.penilaian.index');
@@ -904,6 +909,11 @@ Route::middleware(['auth'])->group(function () {
         'rps/{rps}/tugas/{tugas}/upload-ke-lms',
         [RpsTugasController::class, 'uploadKeLms']
     )->name('rps.tugas.upload-ke-lms');
+
+    Route::get(
+        'rps/{rps}/tugas/{tugas}/file',
+        [RpsTugasController::class, 'file']
+    )->name('rps.tugas.file');
 });
 
 /* Kaprodi & Direktur — pengajuan RPS */

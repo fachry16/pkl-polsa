@@ -11,6 +11,7 @@ use App\Rules\LmsFileMime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class RpsPertemuanController extends Controller
 {
@@ -252,6 +253,29 @@ class RpsPertemuanController extends Controller
                 'success',
                 'File materi untuk pertemuan minggu '.$pertemuan->minggu.' berhasil diunggah & tersinkron ke kelas LMS.'
             );
+    }
+
+    /**
+     * Stream file materi pertemuan.
+     */
+    public function file(Rps $rps, RpsPertemuan $pertemuan)
+    {
+        $this->authorizeRpsModel($rps);
+
+        abort_unless($pertemuan->file_materi, 404);
+
+        $disk = Storage::disk('public');
+        $path = $disk->path($pertemuan->file_materi);
+
+        abort_unless(is_file($path), 404);
+
+        return response()->file($path, [
+            'Content-Type' => $disk->mimeType($pertemuan->file_materi),
+            'Content-Disposition' => HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_INLINE,
+                basename($pertemuan->file_materi)
+            ),
+        ]);
     }
 
     private function syncToPengampu(Rps $rps, RpsPertemuan $pertemuan): void

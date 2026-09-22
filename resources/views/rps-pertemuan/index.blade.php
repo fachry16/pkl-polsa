@@ -58,7 +58,7 @@
 
                 <td class="text-sm">
                     @if($pertemuan->file_materi)
-                        <a href="{{ Storage::url($pertemuan->file_materi) }}" target="_blank"
+                        <a href="{{ route('rps.pertemuan.file', [$rps->id, $pertemuan->id]) }}" target="_blank"
                            style="color: #16a34a; text-decoration: underline; font-weight: 600;">
                             Unduh Materi
                         </a>
