@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Assessment;
 use App\Models\AssessmentScore;
-use App\Models\Dosen;
 use App\Models\LmsInstrumenCpmk;
 use App\Models\LmsNilaiMahasiswa;
 use App\Models\LmsSubmission;
@@ -12,7 +11,6 @@ use App\Models\LmsTopikKomentar;
 use App\Models\LmsTugas;
 use App\Models\Pengampu;
 use App\Models\RpsPertemuan;
-use App\Models\User;
 use App\Notifications\NilaiDiberikan;
 use App\Notifications\TugasBaru;
 use App\Rules\LmsFileMime;
@@ -503,37 +501,11 @@ class LmsTugasController extends Controller
 
     private function notifyTugasPublikasi(Pengampu $pengampu, LmsTugas $tugas): void
     {
-        // 1. Mahasiswa di kelas tersebut
+        // Notifikasi tugas baru hanya ditujukan kepada mahasiswa di kelas terkait
         foreach ($pengampu->mahasiswas as $mahasiswa) {
             if ($mahasiswa->user) {
                 $mahasiswa->user->notify(new TugasBaru($pengampu, $tugas, 'mahasiswa'));
             }
-        }
-
-        // 2. Dosen pengampu kelas tersebut
-        if ($pengampu->dosen?->user) {
-            $pengampu->dosen->user->notify(new TugasBaru($pengampu, $tugas, 'dosen'));
-        }
-
-        // 3. Kaprodi dari Program Studi mata kuliah tersebut
-        $prodiId = $pengampu->mataKuliah?->kurikulum?->program_studi_id ?? $pengampu->dosen?->program_studi_id;
-        if ($prodiId) {
-            $kaprodis = Dosen::where('program_studi_id', $prodiId)
-                ->where('jabatan', 'Kaprodi')
-                ->with('user')
-                ->get();
-
-            foreach ($kaprodis as $kaprodi) {
-                if ($kaprodi->user && $kaprodi->user_id !== $pengampu->dosen?->user_id) {
-                    $kaprodi->user->notify(new TugasBaru($pengampu, $tugas, 'kaprodi'));
-                }
-            }
-        }
-
-        // 4. Direktur
-        $direkturs = User::where('role', 'direktur')->get();
-        foreach ($direkturs as $direktur) {
-            $direktur->notify(new TugasBaru($pengampu, $tugas, 'direktur'));
         }
     }
 }

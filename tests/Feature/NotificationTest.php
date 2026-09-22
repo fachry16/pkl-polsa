@@ -247,9 +247,10 @@ class NotificationTest extends TestCase
         $this->assertNotNull($notification);
         $this->assertNull($notification->read_at);
 
-        $this->actingAs($data['userMhs'])
-            ->get(route('notifications.read', $notification->id))
-            ->assertRedirect();
+        $response = $this->actingAs($data['userMhs'])
+            ->get(route('notifications.read', $notification->id));
+
+        $response->assertRedirect(route('mahasiswa.lms.show', $data['pengampu']->id, false).'?tab=tugas_kelas');
 
         $this->assertNotNull($notification->fresh()->read_at);
     }

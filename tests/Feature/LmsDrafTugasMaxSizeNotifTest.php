@@ -243,22 +243,9 @@ class LmsDrafTugasMaxSizeNotifTest extends TestCase
             return $n->targetRole === 'mahasiswa';
         });
 
-        // Dosen pengampu menerima notif
-        Notification::assertSentTo($data['userDosen'], TugasBaru::class, function ($n) {
-            return $n->targetRole === 'dosen';
-        });
-
-        // Kaprodi prodi mata kuliah menerima notif
-        Notification::assertSentTo($data['userKaprodi'], TugasBaru::class, function ($n) {
-            return $n->targetRole === 'kaprodi';
-        });
-
-        // Direktur menerima notif
-        Notification::assertSentTo($data['userDirektur'], TugasBaru::class, function ($n) {
-            return $n->targetRole === 'direktur';
-        });
-
-        // Admin TIDAK menerima notif
+        // Kaprodi, Direktur, dan Admin TIDAK menerima notif tugas harian
+        Notification::assertNotSentTo($data['userKaprodi'], TugasBaru::class);
+        Notification::assertNotSentTo($data['userDirektur'], TugasBaru::class);
         Notification::assertNotSentTo($data['userAdmin'], TugasBaru::class);
     }
 
