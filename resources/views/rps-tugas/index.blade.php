@@ -47,7 +47,7 @@
                     @if($item->deskripsi)
                         <div style="font-size: 0.8rem; color: #475569; margin-top: 0.2rem;">{{ $item->deskripsi }}</div>
                     @endif
-                    <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-top: 0.25rem; display: inline-block;">
+                    <span style="background: #FFF8E0; color: #B8860B; border: 1px solid #FFE88F; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-top: 0.25rem; display: inline-block;">
                         {{ $item->kategori_komponen ?? 'tugas' }}
                     </span>
                 </td>
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div style="font-size: 0.75rem; color: #16a34a; margin-top: 0.4rem; font-weight: 600;">
             Deadline: <span id="preview-deadline"></span> &middot; Bobot Nilai: <span id="preview-bobot"></span>
         </div>
-        <div id="preview-file-soal-notice" style="display: none; font-size: 0.75rem; color: #0284c7; margin-top: 0.3rem; font-weight: 600;">
+        <div id="preview-file-soal-notice" style="display: none; font-size: 0.75rem; color: #A16207; margin-top: 0.3rem; font-weight: 600;">
         </div>
     </div>
 

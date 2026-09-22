@@ -20,7 +20,7 @@ class KrsCetakTest extends TestCase
     private function buatData(): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',
@@ -202,7 +202,7 @@ class KrsCetakTest extends TestCase
         $data = $this->buatData();
 
         $prodiLain = ProgramStudi::create([
-            'kode_prodi' => 'AK',
+            'kode_prodi' => '15',
             'nama_prodi' => 'Akuntansi',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',

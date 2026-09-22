@@ -66,7 +66,7 @@
                         <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.74rem; color: #64748b; line-height: 1.6;">
                             <li><code>nim</code>: Nomor Induk Mahasiswa unik (juga sebagai password login awal).</li>
                             <li><code>nama</code>: Nama lengkap mahasiswa.</li>
-                            <li><code>kode_prodi</code>: Kode prodi mahasiswa (contoh: <strong>TRPL</strong>, <strong>TI</strong>, <strong>AK</strong>, <strong>AB</strong>, <strong>BD</strong>).</li>
+                            <li><code>kode_prodi</code>: Kode prodi mahasiswa (contoh: <strong>11</strong>, <strong>12</strong>, <strong>13</strong>, <strong>14</strong>, <strong>15</strong>).</li>
                             <li><code>angkatan</code>: Tahun angkatan 4 digit (contoh: <strong>2024</strong>).</li>
                             <li><code>semester</code>: Semester awal (angka 1-14, default: <strong>1</strong>).</li>
                             <li><code>status</code>: Opsional (default: <em>Aktif</em>).</li>
@@ -235,7 +235,7 @@
                     @if(($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan')
                         <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700;">Karyawan</span>
                     @else
-                        <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700;">Reguler</span>
+                        <span style="background: #FFF8E0; color: #B8860B; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700;">Reguler</span>
                     @endif
                 </td>
 
@@ -257,7 +257,7 @@
                         $statusWarna = [
                             'Aktif' => ['#d1fae5', '#059669'],
                             'Cuti' => ['#fef3c7', '#b45309'],
-                            'Lulus' => ['#dbeafe', '#1d4ed8'],
+                            'Lulus' => ['#FFF3C4', '#B8860B'],
                             'DO' => ['#fee2e2', '#dc2626'],
                             'Non Aktif' => ['#f1f5f9', '#64748b'],
                         ];

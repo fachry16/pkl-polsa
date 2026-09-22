@@ -12,11 +12,11 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
         @foreach($pengampus as $pengampu)
             <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; transition: all 0.2s;"
-                 onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(79,70,229,0.08)';"
+                 onmouseover="this.style.borderColor='#FFE88F';this.style.boxShadow='0 4px 16px rgba(254,194,0,0.08)';"
                  onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
                 <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                    <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFF3C4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                     </div>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-weight: 600; font-size: 0.95rem; color: #0f172a;">
@@ -33,7 +33,7 @@
 
                 <div style="display: flex; gap: 1rem; padding: 0.5rem 0; margin-top: 0.75rem; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
                     <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
-                        <span style="font-weight: 600; color: #4f46e5;">{{ $pengampu->lms_materis_count }}</span>
+                        <span style="font-weight: 600; color: #A16207;">{{ $pengampu->lms_materis_count }}</span>
                         <span>Materi</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">

@@ -59,7 +59,7 @@
                         <th style="text-align: center; font-size: 0.7rem;">-</th>
                     @endforelse
                     <th style="text-align: center; font-size: 0.7rem; color: #059669;">H</th>
-                    <th style="text-align: center; font-size: 0.7rem; color: #2563eb;">S</th>
+                    <th style="text-align: center; font-size: 0.7rem; color: #A16207;">S</th>
                     <th style="text-align: center; font-size: 0.7rem; color: #d97706;">I</th>
                     <th style="text-align: center; font-size: 0.7rem; color: #dc2626;">A</th>
                 </tr>
@@ -87,7 +87,7 @@
                                 @if($status === 'hadir')
                                     <span style="color: #059669;">H</span>
                                 @elseif($status === 'sakit')
-                                    <span style="color: #2563eb;">S</span>
+                                    <span style="color: #A16207;">S</span>
                                 @elseif($status === 'izin')
                                     <span style="color: #d97706;">I</span>
                                 @elseif($status === 'alpa')
@@ -104,7 +104,7 @@
                             $persen = $totalSesiDibuka > 0 ? round(($skorPoints / $totalSesiDibuka) * 100, 1) : null;
                         @endphp
                         <td style="text-align: center; font-weight: 600; color: #059669;">{{ $hadir }}</td>
-                        <td style="text-align: center; font-weight: 600; color: #2563eb;">{{ $sakit }}</td>
+                        <td style="text-align: center; font-weight: 600; color: #A16207;">{{ $sakit }}</td>
                         <td style="text-align: center; font-weight: 600; color: #d97706;">{{ $izin }}</td>
                         <td style="text-align: center; font-weight: 600; color: #dc2626;">{{ $alpa }}</td>
                         <td style="text-align: center; font-weight: 700;">

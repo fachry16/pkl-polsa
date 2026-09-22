@@ -2,7 +2,6 @@
     $approval = $pengampu->assessment?->approval ?? null;
 @endphp
 
-@if(!Auth::user()->isAdmin())
 <div style="margin-bottom: 1.25rem; padding: 1rem 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
 
     @if($approval && $approval->status === \App\Models\AssessmentApproval::STATUS_MENUNGGU)
@@ -28,25 +27,38 @@
         </div>
 
     @elseif($approval && $approval->status === \App\Models\AssessmentApproval::STATUS_DISETUJUI)
-        {{-- KONDISI: Sudah Disetujui Kaprodi (Terkunci) --}}
+        @php $kunciTerbuka = $approval->buka_kunci_at !== null; @endphp
+        {{-- KONDISI: Sudah Disetujui Kaprodi (Terkunci/Terbuka Kunci) --}}
         <div style="display: flex; align-items: center; gap: 0.65rem;">
-            <div style="width: 34px; height: 34px; border-radius: 8px; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <div style="width: 34px; height: 34px; border-radius: 8px; background: {{ $kunciTerbuka ? '#fef3c7' : '#d1fae5' }}; color: {{ $kunciTerbuka ? '#d97706' : '#059669' }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
             <div>
                 <div style="font-size: 0.88rem; font-weight: 700; color: #065f46;">Nilai Telah Disetujui Kaprodi</div>
                 <div style="font-size: 0.75rem; color: #059669; margin-top: 0.1rem;">
-                    Disetujui {{ $approval->disetujui_at?->format('d/m/Y H:i') }} oleh {{ $approval->penyetuju?->name ?? 'Kaprodi' }} &middot; Nilai terkunci
+                    Disetujui {{ $approval->disetujui_at?->format('d/m/Y H:i') }} oleh {{ $approval->penyetuju?->name ?? 'Kaprodi' }} &middot;
+                    @if($kunciTerbuka)
+                        Kunci dibuka admin, nilai dapat diedit
+                    @else
+                        Nilai terkunci
+                    @endif
                 </div>
             </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: 0.6rem;">
             <span class="badge badge-disetujui">Disetujui</span>
-            <button type="button" disabled title="Nilai kelas telah disetujui Kaprodi dan statusnya final" style="padding: 0.45rem 1rem; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; color: #94a3b8; font-size: 0.8rem; font-weight: 600; cursor: not-allowed; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                Nilai Terkunci
-            </button>
+            @if($kunciTerbuka)
+                <button type="button" disabled title="Kunci rekap nilai telah dibuka oleh admin. Dosen dapat mengedit kembali." style="padding: 0.45rem 1rem; border-radius: 8px; border: 1px solid #fde68a; background: #fffbeb; color: #b45309; font-size: 0.8rem; font-weight: 600; cursor: not-allowed; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    Kunci Dibuka (Admin)
+                </button>
+            @else
+                <button type="button" disabled title="Nilai kelas telah disetujui Kaprodi dan statusnya final" style="padding: 0.45rem 1rem; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; color: #94a3b8; font-size: 0.8rem; font-weight: 600; cursor: not-allowed; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    Nilai Terkunci
+                </button>
+            @endif
         </div>
 
     @else
@@ -65,7 +77,7 @@
             </div>
         @else
             <div style="display: flex; align-items: center; gap: 0.65rem;">
-                <div style="width: 34px; height: 34px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #FFF8E0; color: #A16207; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 </div>
                 <div>
@@ -109,4 +121,3 @@
     @endif
 
 </div>
-@endif

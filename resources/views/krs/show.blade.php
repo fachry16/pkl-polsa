@@ -72,7 +72,7 @@
                             @if(($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan')
                                 <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 700;">Karyawan</span>
                             @else
-                                <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 700;">Reguler</span>
+                                <span style="background: #FFF8E0; color: #B8860B; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 700;">Reguler</span>
                             @endif
                         </td>
                         <td>{{ $mahasiswa->angkatan }}</td>
@@ -140,7 +140,7 @@
 
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 0.5rem;">
                 <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #374151; cursor: pointer; user-select: none;">
-                    <input type="checkbox" x-model="selectAll" x-on:change="toggleAll()" style="accent-color: #4f46e5;">
+                    <input type="checkbox" x-model="selectAll" x-on:change="toggleAll()" style="accent-color: #A16207;">
                     <span>Pilih Semua (<span x-text="visibleCount"></span>)</span>
                 </label>
                 <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.72rem;" x-show="selectedIds.length > 0" x-text="'Tambah (' + selectedIds.length + ')'"></button>
@@ -157,7 +157,7 @@
                                name="mahasiswa_id[]"
                                value="{{ $mahasiswa->id }}"
                                x-model="selectedIds"
-                               style="accent-color: #4f46e5; flex-shrink: 0; width: 15px; height: 15px;">
+                               style="accent-color: #A16207; flex-shrink: 0; width: 15px; height: 15px;">
                         <div style="flex: 1; min-width: 0;">
                             <div class="krs-mahasiswa-nama">
                                 {{ $mahasiswa->nim }} - {{ $mahasiswa->nama }}
@@ -165,7 +165,7 @@
                             <div class="krs-mahasiswa-info" style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.15rem;">
                                 <span>Angk. {{ $mahasiswa->angkatan }}</span>
                                 <span>&bull;</span>
-                                <span style="font-weight: 600; color: {{ ($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan' ? '#d97706' : '#2563eb' }};">
+                                <span style="font-weight: 600; color: {{ ($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan' ? '#d97706' : '#A16207' }};">
                                     {{ $mahasiswa->jenis_kelas ?? 'Reguler' }}
                                 </span>
                             </div>
@@ -328,7 +328,7 @@ window.krsSidebar = function () {
     transition: border-color 0.15s;
 }
 .krs-mahasiswa-item:hover {
-    border-color: #3b82f6;
+    border-color: #A16207;
 }
 .krs-mahasiswa-nama {
     font-size: 0.8rem;

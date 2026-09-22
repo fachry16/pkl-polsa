@@ -53,7 +53,7 @@
                     <th rowspan="2" style="position: sticky; left: 0; background: #fff; z-index: 6; min-width: 220px;">Mahasiswa</th>
 
                     @foreach($rekap['mata_kuliahs'] as $mks)
-                        <th colspan="{{ $mks['config']->count() + 1 }}" style="text-align: center; background: #eef2ff;">
+                        <th colspan="{{ $mks['config']->count() + 1 }}" style="text-align: center; background: #FFF3C4;">
                             {{ $mks['mata_kuliah']->kode }} (max {{ $mks['max'] }})
                         </th>
                     @endforeach
@@ -257,7 +257,7 @@
                         <td style="font-size: 0.8rem; color: #475569; max-width: 260px;">{{ $cpl['cpl']->deskripsi ?? '—' }}</td>
                         <td>
                             @foreach($cpl['mk_pendukung'] as $mk)
-                                <span style="display: inline-block; background: #eef2ff; color: #4338ca; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; margin: 2px 4px 2px 0;">
+                                <span style="display: inline-block; background: #FFF3C4; color: #A16207; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; margin: 2px 4px 2px 0;">
                                     {{ $mk->kode }}
                                 </span>
                             @endforeach
@@ -305,7 +305,7 @@
                 <div style="flex: 1 1 110px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.9rem 1rem; text-align: center;">
                     <div style="font-size: 1.3rem; font-weight: 800; color: #1e293b;">{{ $huruf }}</div>
                     <div style="font-size: 0.8rem; color: #64748b;">{{ $d['jumlah'] }} mahasiswa</div>
-                    <div style="font-size: 0.78rem; font-weight: 700; color: #4f46e5;">{{ $d['persen'] }}%</div>
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #A16207;">{{ $d['persen'] }}%</div>
                 </div>
             @endforeach
         </div>
@@ -315,21 +315,21 @@
 
 @else
 
-<div class="card" style="padding: 1.5rem; margin-bottom: 1.25rem; border-left: 4px solid #3b82f6; background: #eff6ff;">
+<div class="card" style="padding: 1.5rem; margin-bottom: 1.25rem; border-left: 4px solid #D9A500; background: #FFF8E0;">
     <div style="display: flex; gap: 12px; align-items: flex-start;">
-        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
+        <svg width="20" height="20" fill="none" stroke="#0A0D40" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="16" x2="12" y2="12"></line>
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>
         <div>
-            <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e40af; margin: 0 0 0.4rem 0;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #A16207; margin: 0 0 0.4rem 0;">
                 Panduan Asesmen OBE & Rekap CPMK
             </h3>
-            <p style="font-size: 0.85rem; color: #1d4ed8; margin: 0 0 0.75rem 0; line-height: 1.5;">
+            <p style="font-size: 0.85rem; color: #B8860B; margin: 0 0 0.75rem 0; line-height: 1.5;">
                 Belum ada data nilai Asesmen OBE untuk filter yang dipilih. Agar nilai mahasiswa muncul pada Rekap Asesmen OBE, silakan pastikan alur berikut:
             </p>
-            <ol style="font-size: 0.82rem; color: #1e3a8a; margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+            <ol style="font-size: 0.82rem; color: #B8860B; margin: 0; padding-left: 1.2rem; line-height: 1.6;">
                 <li><strong>Kurikulum</strong>: Buka menu <strong>Kurikulum</strong> &rarr; pilih Kurikulum aktif &rarr; klik menu <strong>Rumusan Nilai Akhir MK</strong> untuk mengisi bobot CPMK ke CPL per Mata Kuliah.</li>
                 <li><strong>Nilai LMS Kelas</strong>: Dosen menginput nilai tugas / UTS / UAS di LMS Kelas.</li>
                 <li><strong>Sinkronisasi</strong>: Dosen mengklik tombol <strong>"Simpan & Kirim ke Asesmen OBE"</strong> pada tab Rekap Nilai di LMS Kelas.</li>

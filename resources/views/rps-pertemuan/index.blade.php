@@ -59,10 +59,15 @@
                 <td class="text-sm">
                     @if($pertemuan->file_materi)
                         <a href="{{ route('rps.pertemuan.file', [$rps->id, $pertemuan->id]) }}" target="_blank"
-                           style="color: #16a34a; text-decoration: underline; font-weight: 600;">
-                            Unduh Materi
+                           title="{{ $pertemuan->file_materi_nama }}"
+                           style="color: #16a34a; text-decoration: underline; font-weight: 600; display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom;">
+                            {{ $pertemuan->file_materi_nama ?: 'Unduh Materi' }}
                         </a>
-                    @else
+                    @endif
+                    @if($pertemuan->link_materi)
+                        <div style="margin-top: 0.35rem; font-size: 0.78rem; color: #334155; line-height: 1.5; word-break: break-word;">{!! linkify($pertemuan->link_materi) !!}</div>
+                    @endif
+                    @if(! $pertemuan->file_materi && ! $pertemuan->link_materi)
                         <span style="color: #94a3b8;">-</span>
                     @endif
                 </td>
@@ -157,8 +162,10 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     window.openUploadMateri = function (pertemuan) {
-        var route = @js(route('rps.pertemuan.upload-materi', ['rps' => $rps->id, 'pertemuan' => '__P__'])).replace('__P__', pertemuan.id);
-        document.getElementById('upload-materi-form').action = route;
+        var form = document.getElementById('upload-materi-form');
+        form.reset();
+        form.action = @js(route('rps.pertemuan.upload-materi', ['rps' => $rps->id, 'pertemuan' => '__P__'])).replace('__P__', pertemuan.id);
+        form.querySelector('textarea[name="link_materi"]').value = pertemuan.link_materi || '';
 
         document.getElementById('preview-minggu').innerText = 'Minggu ' + (pertemuan.minggu || '-');
         document.getElementById('preview-materi').innerText = pertemuan.materi || '-';
@@ -183,16 +190,16 @@ document.addEventListener('DOMContentLoaded', function () {
     <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0;">
         <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600;">Upload Materi Pertemuan</h3>
         <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.2rem;">
-            Upload file materi pembelajaran untuk pertemuan ini.
+            Unggah file materi atau tulis catatan untuk pertemuan ini.
         </div>
     </div>
 
-    <div style="margin: 1.25rem 1.5rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem;">
+    <div style="margin: 1.25rem 1.5rem; background: #FFF8E0; border: 1px solid #FFE88F; border-radius: 8px; padding: 1rem;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-            <span style="font-size: 0.75rem; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">Pertemuan</span>
-            <span id="preview-minggu" style="font-size: 0.7rem; background: #dbeafe; color: #1d4ed8; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600;"></span>
+            <span style="font-size: 0.75rem; font-weight: 700; color: #A16207; text-transform: uppercase; letter-spacing: 0.5px;">Pertemuan</span>
+            <span id="preview-minggu" style="font-size: 0.7rem; background: #FFF3C4; color: #B8860B; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600;"></span>
         </div>
-        <div id="preview-materi" style="font-size: 0.88rem; font-weight: 600; color: #1e3a5f;"></div>
+        <div id="preview-materi" style="font-size: 0.88rem; font-weight: 600; color: #A16207;"></div>
         <div id="preview-file-materi-notice" style="display: none; font-size: 0.75rem; color: #b91c1c; margin-top: 0.3rem; font-weight: 600;"></div>
     </div>
 
@@ -201,7 +208,9 @@ document.addEventListener('DOMContentLoaded', function () {
         <span style="font-size: 0.78rem; color: #166534; line-height: 1.5;">File materi akan otomatis tersinkron sebagai materi di seluruh kelas LMS mata kuliah ini.</span>
     </div>
 
-    <form id="upload-materi-form" method="POST" enctype="multipart/form-data" style="padding: 0 1.5rem 1.25rem 1.5rem;">
+    <div style="padding: 0 1.5rem 1.25rem 1.5rem;">
+
+    <form id="upload-materi-form" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="form-group">
@@ -210,23 +219,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <input type="file"
                    name="file"
-                   class="form-input w-full"
-                   required>
-            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Format PDF, DOC, XLS, PPT, ZIP, gambar (maks 50 MB)</div>
+                   class="form-input w-full">
+            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Format PDF, DOC, XLS, PPT, ZIP, gambar (maks 50 MB). Kosongkan jika hanya ingin menyimpan catatan.</div>
 
         </div>
 
-        <div class="btn-group" style="justify-content: flex-end;">
+        <div style="border-top: 1px solid #e2e8f0; margin-top: 1.25rem; padding-top: 1rem;">
+            <label class="form-label">Catatan / Link</label>
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; line-height: 1.5;">Tempel link video YouTube atau tulis informasi tambahan untuk pertemuan ini.</div>
+
+            <textarea name="link_materi"
+                      rows="3"
+                      class="form-input w-full"
+                      placeholder="Contoh: https://www.youtube.com/watch?v=... atau catatan belajar lain"></textarea>
+        </div>
+
+        <div class="btn-group" style="justify-content: flex-end; margin-top: 1rem;">
             <button type="button"
                     class="btn btn-secondary"
                     onclick="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'upload-materi-modal' }))">
                 Batal
             </button>
             <button type="submit" class="btn btn-success">
-                Simpan Materi
+                Simpan
             </button>
         </div>
     </form>
+</div>
 </x-modal>
 
 @endsection

@@ -4,13 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name') }}</title>
+    <title>EDUVA | POLSA</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/eduva/eduva-logo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+        background: linear-gradient(135deg, #FFFBE9 0%, #FFF1C4 100%);
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -23,7 +25,7 @@
         max-width: 820px;
         background: #fff;
         border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(79,70,229,0.1);
+        box-shadow: 0 8px 32px rgba(254,194,0,0.1);
         overflow: hidden;
         display: flex;
     }
@@ -35,7 +37,7 @@
         align-items: center;
         justify-content: center;
         padding: 3rem 2rem;
-        background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+        background: linear-gradient(160deg, #0A0D40 0%, #141A5E 100%);
         position: relative;
         overflow: hidden;
     }
@@ -46,7 +48,7 @@
         width: 500px;
         height: 500px;
         border-radius: 50%;
-        background: rgba(79,70,229,0.04);
+        background: rgba(254,194,0,0.08);
         top: -100px;
         right: -100px;
     }
@@ -57,36 +59,22 @@
         width: 400px;
         height: 400px;
         border-radius: 50%;
-        background: rgba(79,70,229,0.03);
+        background: rgba(254,194,0,0.06);
         bottom: -80px;
         left: -80px;
     }
 
-    .login-brand .brand-icon {
-        width: 72px;
-        height: 72px;
-        background: #fff;
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 16px rgba(79,70,229,0.12);
-        position: relative;
-        z-index: 1;
-    }
-
-    .login-brand h2 {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin-top: 1.25rem;
+    .login-brand .brand-img {
+        width: 80px;
+        max-width: 90%;
+        height: auto;
         position: relative;
         z-index: 1;
     }
 
     .login-brand p {
         font-size: 0.85rem;
-        color: #64748b;
+        color: #C9CDF0;
         text-align: center;
         max-width: 320px;
         margin-top: 0.4rem;
@@ -110,7 +98,7 @@
     .login-form-wrap .form-header h1 {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #4f46e5;
+        color: #A16207;
     }
 
     .login-form-wrap .form-group { margin-bottom: 1.15rem; }
@@ -137,9 +125,9 @@
 
     .login-form-wrap .form-input:focus {
         outline: none;
-        border-color: #4f46e5;
+        border-color: #A16207;
         background: #fff;
-        box-shadow: 0 0 0 3px rgba(79,70,229,0.08);
+        box-shadow: 0 0 0 3px rgba(254,194,0,0.08);
     }
 
     .password-wrap {
@@ -164,7 +152,7 @@
         align-items: center;
     }
 
-    .toggle-pw:hover { color: #4f46e5; }
+    .toggle-pw:hover { color: #A16207; }
 
     .login-form-wrap .form-error {
         color: #dc2626;
@@ -183,14 +171,7 @@
 <body>
     <div class="login-card">
         <div class="login-brand">
-            <div class="brand-icon">
-                <svg width="34" height="34" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 4L26 10V18L16 24L6 18V10L16 4Z" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
-                    <path d="M16 24L26 18V22L16 28L6 22V18L16 24Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
-                    <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#4f46e5" opacity="0.3"/>
-                </svg>
-            </div>
-            <h2>EDUVA Polsa</h2>
+            <img class="brand-img" src="{{ asset('images/eduva/eduva-logo.png') }}" alt="Eduva">
             <p>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS) — Politeknik Sawunggalih Aji</p>
         </div>
 
@@ -223,21 +204,21 @@
 
                 <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #475569; cursor: pointer;">
-                        <input type="checkbox" name="remember" style="accent-color: #4f46e5;">
+                        <input type="checkbox" name="remember" style="accent-color: #A16207;">
                         <span>Ingat saya</span>
                     </label>
                 </div>
 
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem;">
                     @if (Route::has('password.request'))
-                        <a style="font-size: 0.85rem; color: #4f46e5; font-weight: 500; text-decoration: none;" href="{{ route('password.request') }}">
+                        <a style="font-size: 0.85rem; color: #A16207; font-weight: 500; text-decoration: none;" href="{{ route('password.request') }}">
                             Lupa password?
                         </a>
                     @endif
 
-                    <button type="submit" style="background: #4f46e5; color: #fff; font-weight: 600; padding: 0.65rem 1.75rem; font-size: 0.9rem; border: none; border-radius: 8px; cursor: pointer; transition: all 0.15s; font-family: inherit;"
-                            onmouseover="this.style.background='#4338ca'"
-                            onmouseout="this.style.background='#4f46e5'">
+                    <button type="submit" style="background: #FEC200; color: #0A0D40; font-weight: 600; padding: 0.65rem 1.75rem; font-size: 0.9rem; border: none; border-radius: 8px; cursor: pointer; transition: all 0.15s; font-family: inherit;"
+                            onmouseover="this.style.background='#A16207'"
+                            onmouseout="this.style.background='#A16207'">
                         Masuk
                     </button>
                 </div>

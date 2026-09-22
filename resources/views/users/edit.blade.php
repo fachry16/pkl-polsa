@@ -64,11 +64,11 @@
             @enderror
         </div>
 
-        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 0.75rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 0.1rem;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <div style="font-size: 0.85rem; color: #1e3a8a; line-height: 1.4;">
+        <div style="background-color: #FFF8E0; border: 1px solid #FFE88F; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 0.1rem;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div style="font-size: 0.85rem; color: #B8860B; line-height: 1.4;">
                 <strong>Catatan Role Akademik:</strong><br>
-                Role <strong>Dosen, Kaprodi, atau Direktur</strong> hanya dapat diberikan jika akun telah terdaftar di <a href="{{ route('dosen.index') }}" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Master Data Dosen</a>. Role <strong>Mahasiswa</strong> hanya dapat diberikan jika akun telah terdaftar di <a href="{{ route('mahasiswa.index') }}" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Master Data Mahasiswa</a>.
+                Role <strong>Dosen, Kaprodi, atau Direktur</strong> hanya dapat diberikan jika akun telah terdaftar di <a href="{{ route('dosen.index') }}" style="color: #A16207; font-weight: 600; text-decoration: underline;">Master Data Dosen</a>. Role <strong>Mahasiswa</strong> hanya dapat diberikan jika akun telah terdaftar di <a href="{{ route('mahasiswa.index') }}" style="color: #A16207; font-weight: 600; text-decoration: underline;">Master Data Mahasiswa</a>.
             </div>
         </div>
 

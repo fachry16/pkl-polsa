@@ -5,7 +5,7 @@
 {{-- Running Text Visi & Misi POLSA --}}
 <div class="card" style="padding: 0.5rem 0.85rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
     {{-- Fixed Badge on Left --}}
-    <div style="display: flex; align-items: center; gap: 0.35rem; background: #eef2ff; border: 1px solid #e0e7ff; color: #4338ca; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap; flex-shrink: 0; z-index: 2;">
+    <div style="display: flex; align-items: center; gap: 0.35rem; background: #FFF3C4; border: 1px solid #FFF3C4; color: #A16207; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap; flex-shrink: 0; z-index: 2;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <polygon points="12 8 8 12 12 16 12 8"/>

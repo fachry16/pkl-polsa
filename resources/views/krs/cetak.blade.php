@@ -21,9 +21,9 @@
     <div class="krs-kop">
         <div class="krs-logo">
             <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 4L26 10V18L16 24L6 18V10L16 4Z" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
-                <path d="M16 24L26 18V22L16 28L6 22V18L16 24Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
-                <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#4f46e5" opacity="0.3"/>
+                <path d="M16 4L26 10V18L16 24L6 18V10L16 4Z" fill="#FFF3C4" stroke="#0A0D40" stroke-width="1.5"/>
+                <path d="M16 24L26 18V22L16 28L6 22V18L16 24Z" fill="#FFF3C4" stroke="#0A0D40" stroke-width="1.5"/>
+                <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#0A0D40" opacity="0.3"/>
             </svg>
         </div>
         <div class="krs-kop-text">
@@ -140,7 +140,7 @@
 .krs-logo { flex-shrink: 0; }.krs-institusi { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
 .krs-alamat { font-size: 0.75rem; color: #64748b; }
 .krs-judul { font-size: 1.4rem; font-weight: 700; color: #1e293b; letter-spacing: 0.02em; margin-top: 0.15rem; }
-.krs-semester { font-size: 0.8rem; color: #4f46e5; font-weight: 600; }
+.krs-semester { font-size: 0.8rem; color: #A16207; font-weight: 600; }
 .krs-kop-nip {
     margin-left: auto;
     align-self: flex-start;
@@ -191,8 +191,8 @@
     vertical-align: top;
 }
 .krs-table thead th {
-    background: #eef2ff;
-    color: #3730a3;
+    background: #FFF3C4;
+    color: #B8860B;
     font-weight: 700;
     text-align: center;
 }
@@ -208,7 +208,7 @@
     font-weight: 700;
 }
 .krs-total-label { text-align: right; }
-.krs-total-value { color: #4f46e5; }
+.krs-total-value { color: #A16207; }
 .krs-total-note { font-weight: 500; color: #64748b; }
 .text-center { text-align: center !important; }
 .text-right { text-align: right !important; }

@@ -31,10 +31,12 @@ class ProgramStudiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_prodi' => 'required|unique:program_studis,kode_prodi',
+            'kode_prodi' => 'required|numeric|unique:program_studis,kode_prodi',
             'nama_prodi' => 'required',
             'jenjang' => 'required',
             'akreditasi' => 'required|in:Baik,Baik Sekali,Unggul',
+        ], [
+            'kode_prodi.numeric' => 'Kode program studi wajib angka.',
         ]);
         ProgramStudi::create([
             'kode_prodi' => $request->kode_prodi,
@@ -68,10 +70,12 @@ class ProgramStudiController extends Controller
     public function update(Request $request, ProgramStudi $programStudi)
     {
         $request->validate([
-            'kode_prodi' => 'required|unique:program_studis,kode_prodi,'.$programStudi->id,
+            'kode_prodi' => 'required|numeric|unique:program_studis,kode_prodi,'.$programStudi->id,
             'nama_prodi' => 'required',
             'jenjang' => 'required',
             'akreditasi' => 'required|in:Baik,Baik Sekali,Unggul',
+        ], [
+            'kode_prodi.numeric' => 'Kode program studi wajib angka.',
         ]);
         $programStudi->update([
             'kode_prodi' => $request->kode_prodi,

@@ -25,7 +25,7 @@ class MultiRoleDashboardTest extends TestCase
         ]);
 
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknik Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',
@@ -77,7 +77,7 @@ class MultiRoleDashboardTest extends TestCase
 
         $response->assertOk();
         // Sebelum switch: dashboard kaprodi terkunci, langsung tampil dashboard dosen
-        $response->assertDontSee('Program Studi (TRPL)');
+        $response->assertDontSee('Program Studi (14)');
         $response->assertDontSee('Pusat Kendali Program Studi');
         $response->assertSee('Kelas Paket Diampu');
 
@@ -88,7 +88,7 @@ class MultiRoleDashboardTest extends TestCase
 
         $response->assertOk();
         // Multi-role tab header
-        $response->assertSee('Program Studi (TRPL)');
+        $response->assertSee('Program Studi (14)');
         $response->assertSee('Mengajar (Dosen)');
         // Kaprodi section
         $response->assertSee('Pusat Kendali Program Studi');
@@ -109,7 +109,7 @@ class MultiRoleDashboardTest extends TestCase
         ]);
 
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',
@@ -161,7 +161,7 @@ class MultiRoleDashboardTest extends TestCase
         ]);
 
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'AK',
+            'kode_prodi' => '15',
             'nama_prodi' => 'Akuntansi',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',

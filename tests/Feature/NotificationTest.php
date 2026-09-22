@@ -34,7 +34,7 @@ class NotificationTest extends TestCase
     private function buatData(): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',
@@ -286,6 +286,44 @@ class NotificationTest extends TestCase
             ->assertSessionHas('success');
 
         Notification::assertSentTo($data['userDosen'], RpsDisetujui::class);
+    }
+
+    public function test_direktur_hanya_bisa_melihat_rps_tanpa_aksi_acc(): void
+    {
+        $data = $this->buatData();
+
+        $rps = Rps::create([
+            'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
+            'semester' => 3,
+            'dosen_pengampu' => $data['dosen']->user->name,
+            'status' => 'Diajukan',
+        ]);
+
+        $direktur = User::create([
+            'name' => 'Direktur RPS',
+            'email' => 'direktur_rps@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'direktur',
+            'roles' => ['direktur'],
+        ]);
+
+        $this->actingAs($direktur)
+            ->get(route('rps.pengajuan'))
+            ->assertOk()
+            ->assertSee('Pemrograman Web')
+            ->assertSee('Menunggu persetujuan Kaprodi')
+            ->assertDontSee('Minta Revisi')
+            ->assertDontSee('action="'.route('rps.setujui', $rps->id).'"');
+
+        $this->actingAs($direktur)
+            ->patch(route('rps.setujui', $rps->id))
+            ->assertForbidden();
+
+        $this->actingAs($direktur)
+            ->patch(route('rps.revisi', $rps->id), [
+                'catatan_revisi' => 'x',
+            ])
+            ->assertForbidden();
     }
 
     public function test_kaprodi_revisi_rps_mengirim_notif_ke_dosen(): void

@@ -16,7 +16,7 @@ class ForceChangePasswordTest extends TestCase
     private function createDosenUser(string $nidn = '1234567890', bool $harusGanti = true): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D4',
         ]);

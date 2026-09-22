@@ -1,6 +1,6 @@
 @php
     $linkBase = 'display:flex; align-items:center; gap:0.55rem; padding:0.55rem 0.75rem; border-radius:8px; font-size:0.8rem; font-weight:600; text-decoration:none; border-left:3px solid transparent;';
-    $activeStyle = 'background:#eff6ff; color:#1d4ed8; border-left-color:#3b82f6;';
+    $activeStyle = 'background:#FFF8E0; color:#B8860B; border-left-color:#A16207;';
     $idleStyle = 'color:#475569;';
 @endphp
 
@@ -19,9 +19,9 @@
                 KHS
             </a>
 
-            <a href="{{ route('mahasiswa.aktivitas', $mahasiswa->id) }}" style="{{ $linkBase }} {{ $current === 'aktivitas' ? $activeStyle : $idleStyle }}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Aktivitas Perkuliahan
+            <a href="{{ route('mahasiswa.status', $mahasiswa->id) }}" style="{{ $linkBase }} {{ $current === 'status' ? $activeStyle : $idleStyle }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                Status
             </a>
 
             <a href="{{ route('mahasiswa.transkrip', $mahasiswa->id) }}" style="{{ $linkBase }} {{ $current === 'transkrip' ? $activeStyle : $idleStyle }}">

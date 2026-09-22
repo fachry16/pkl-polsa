@@ -167,7 +167,7 @@ class RpsController extends Controller
         }
 
         if ($rps->kelengkapanAjukan()['siap'] === false) {
-            return back()->with('error', 'RPS belum lengkap: seluruh pertemuan (minggu 1-16), tugas & latihan, dan penilaian harus diisi sebelum diajukan.');
+            return back()->with('error', 'RPS belum lengkap: seluruh pertemuan (minggu 1-'.Rps::JUMLAH_PERTEMUAN.'), tugas & latihan, dan penilaian harus diisi sebelum diajukan.');
         }
 
         $rps->update([
@@ -216,6 +216,8 @@ class RpsController extends Controller
 
     public function revisi(Request $request, Rps $rps)
     {
+        abort_unless(! auth()->user()->isDirektur(), 403, 'Direktur hanya dapat melihat RPS.');
+
         $request->validate([
             'catatan_revisi' => 'required|string',
         ]);
@@ -237,6 +239,8 @@ class RpsController extends Controller
 
     public function setujui(Rps $rps)
     {
+        abort_unless(! auth()->user()->isDirektur(), 403, 'Direktur hanya dapat melihat RPS.');
+
         if ($rps->status !== 'Diajukan') {
             return back()->with('error', 'Hanya RPS dengan status Diajukan yang dapat disetujui.');
         }

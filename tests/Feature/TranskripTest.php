@@ -44,7 +44,7 @@ class TranskripTest extends TestCase
         parent::setUp();
 
         $prodiA = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',
@@ -306,6 +306,30 @@ class TranskripTest extends TestCase
 
         $this->actingAs($this->mhsUser)
             ->get(route('mahasiswa.transkrip', $this->mhs1->id))
+            ->assertForbidden();
+    }
+
+    public function test_mahasiswa_melihat_halaman_identitas_dengan_lihat_detail(): void
+    {
+        $response = $this->actingAs($this->mhsUser)
+            ->get(route('mahasiswa.identitas'))
+            ->assertOk()
+            ->assertSee('Identitas — Mahasiswa Satu')
+            ->assertSee('2024001')
+            ->assertSee('Lihat Detail')
+            ->assertSee('IPK Kumulatif')
+            ->assertSee('MATEMATIKA BISNIS')
+            ->assertSee('bagian akademik')
+            ->assertSee('Transkrip')
+            ->assertDontSee('Transkrip Saya');
+
+        $response->assertSee('Identitas', false);
+    }
+
+    public function test_halaman_identitas_hanya_untuk_mahasiswa(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('mahasiswa.identitas'))
             ->assertForbidden();
     }
 

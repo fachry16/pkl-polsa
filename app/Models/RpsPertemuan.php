@@ -12,6 +12,8 @@ class RpsPertemuan extends Model
         'sub_cpmk',
         'materi',
         'file_materi',
+        'file_materi_nama',
+        'link_materi',
         'metode',
         'pengalaman_belajar',
         'indikator',

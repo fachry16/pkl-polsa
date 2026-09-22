@@ -22,7 +22,7 @@ class LmsPengumumanTest extends TestCase
     private function buatData(): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',

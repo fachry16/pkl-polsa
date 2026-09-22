@@ -218,7 +218,7 @@
     transition: border-color 0.15s;
 }
 .sidebar-item:hover {
-    border-color: #3b82f6;
+    border-color: #A16207;
 }
 </style>
 

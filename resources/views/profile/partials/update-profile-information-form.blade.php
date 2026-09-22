@@ -11,7 +11,7 @@
     {{-- Bagian Personalisasi Foto Profil --}}
     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
         <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                 <circle cx="12" cy="13" r="4"/>
             </svg>
@@ -31,14 +31,14 @@
             {{-- Preview Box --}}
             <div style="position: relative; flex-shrink: 0;">
                 <template x-if="previewUrl">
-                    <img :src="previewUrl" alt="Preview" style="width: 88px; height: 88px; border-radius: 14px; object-fit: cover; border: 2px solid #6366f1; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);">
+                    <img :src="previewUrl" alt="Preview" style="width: 88px; height: 88px; border-radius: 14px; object-fit: cover; border: 2px solid #D9A500; box-shadow: 0 4px 12px rgba(254, 194, 0, 0.2);">
                 </template>
                 <template x-if="!previewUrl">
                     <div>
                         @if($user->avatar_url)
-                            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" style="width: 88px; height: 88px; border-radius: 14px; object-fit: cover; border: 2px solid #e0e7ff; box-shadow: 0 4px 10px rgba(0,0,0,0.06);">
+                            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" style="width: 88px; height: 88px; border-radius: 14px; object-fit: cover; border: 2px solid #FFF3C4; box-shadow: 0 4px 10px rgba(0,0,0,0.06);">
                         @else
-                            <div style="width: 88px; height: 88px; border-radius: 14px; background: linear-gradient(135deg, #4f46e5, #818cf8); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
+                            <div style="width: 88px; height: 88px; border-radius: 14px; background: linear-gradient(135deg, #FEC200, #FFD54F); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; box-shadow: 0 4px 12px rgba(254, 194, 0, 0.25);">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         @endif
@@ -135,14 +135,14 @@
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
             <span style="font-size: 0.78rem; font-weight: 600; color: #64748b;">Peran Terdaftar:</span>
             @foreach($rolesList as $roleCode)
-                <span style="font-size: 0.72rem; font-weight: 700; background: #e0e7ff; color: #4338ca; padding: 0.18rem 0.6rem; border-radius: 6px;">
+                <span style="font-size: 0.72rem; font-weight: 700; background: #FFF3C4; color: #A16207; padding: 0.18rem 0.6rem; border-radius: 6px;">
                     {{ $roleMap->get($roleCode) ?? ucfirst(str_replace('_', ' ', $roleCode)) }}
                 </span>
             @endforeach
         </div>
 
         {{-- Notice Security --}}
-        <div style="display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.75rem 1rem; border-radius: 8px; background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; font-size: 0.78rem; line-height: 1.5;">
+        <div style="display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.75rem 1rem; border-radius: 8px; background: #FFF8E0; border: 1px solid #FFF3C4; color: #A16207; font-size: 0.78rem; line-height: 1.5;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 0.1rem;">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="12" y1="8" x2="12" y2="12"/>

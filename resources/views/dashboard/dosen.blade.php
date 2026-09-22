@@ -1,11 +1,11 @@
 {{-- Header Sambutan Personal Dosen --}}
-<div class="role-hero-banner" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
+<div class="role-hero-banner" style="background: linear-gradient(135deg, #0A0D40 0%, #0A0D40 100%);">
     <div style="display: flex; align-items: center; gap: 1rem;">
-        <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #a5b4fc; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #A16207; border: 1px solid rgba(255, 255, 255, 0.2);">
             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
         </div>
         <div>
-            <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Selamat Datang, Dosen Pengajar POLSA</div>
+            <div style="font-size: 0.75rem; color: #A16207; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Selamat Datang, Dosen Pengajar POLSA</div>
             <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">{{ auth()->user()->name }}</div>
             <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <span>NIDN: <strong>{{ auth()->user()->dosen->nidn ?? '-' }}</strong></span>
@@ -15,7 +15,7 @@
         </div>
     </div>
     <div style="display: flex; align-items: center; gap: 0.6rem;">
-        <span style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #e0e7ff;">
+        <span style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #FFF3C4;">
             {{ $tahunAkademik ? $tahunAkademik->tahun.' '.ucfirst($tahunAkademik->semester) : 'Semester Aktif' }}
         </span>
         @if(auth()->user()->isKaprodi())
@@ -29,13 +29,13 @@
 {{-- Baris 1: 4 KPI Cards Mengajar Dosen --}}
 <div class="dashboard-kpi-grid">
     {{-- Kelas Diampu --}}
-    <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+    <div class="stat-prodi-card" style="border-left: 4px solid #D9A500;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFF3C4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
         </div>
         <div style="flex: 1; min-width: 0;">
-            <span style="font-weight: 700; font-size: 1.35rem; color: #4f46e5; display: block; line-height: 1.2;">{{ $pengampus->count() }} Kelas</span>
-            <span style="font-size: 0.75rem; color: #4f46e5; font-weight: 600;">Kelas Paket Diampu</span>
+            <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $pengampus->count() }} Kelas</span>
+            <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Kelas Paket Diampu</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">
                 <span>Kelas A: {{ $dosenKelasA }}</span> &bull; 
                 <span>Kelas B: {{ $dosenKelasB }}</span>
@@ -44,13 +44,13 @@
     </div>
 
     {{-- Total Mahasiswa Diajar --}}
-    <div class="stat-prodi-card" style="border-left: 4px solid #0ea5e9;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #f0f9ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    <div class="stat-prodi-card" style="border-left: 4px solid #D9A500;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFFBE9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         </div>
         <div style="flex: 1; min-width: 0;">
-            <span style="font-weight: 700; font-size: 1.35rem; color: #0284c7; display: block; line-height: 1.2;">{{ $dosenTotalMahasiswa }}</span>
-            <span style="font-size: 0.75rem; color: #0284c7; font-weight: 600;">Total Mahasiswa Diajar</span>
+            <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $dosenTotalMahasiswa }}</span>
+            <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Total Mahasiswa Diajar</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Akumulasi Mahasiswa Rombel</div>
         </div>
     </div>
@@ -192,7 +192,7 @@
             @endif
         </div>
         <div style="margin-top: 0.75rem; border-top: 1px solid #f1f5f9; padding-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
-            <a href="{{ route('dosen.self.riwayat') }}" style="color: #4f46e5; text-decoration: none; font-weight: 500;">Riwayat Mengajar &amp; RPS &rarr;</a>
+            <a href="{{ route('dosen.self.riwayat') }}" style="color: #A16207; text-decoration: none; font-weight: 500;">Riwayat Mengajar &amp; RPS &rarr;</a>
             <span style="color: #64748b;">OBE System POLSA</span>
         </div>
     </div>
@@ -202,15 +202,15 @@
 <div class="card" style="margin-bottom: 1.5rem;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFF3C4; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
             </div>
             <div>
                 <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Ruang Kelas LMS yang Diampu</div>
                 <div style="font-size: 0.75rem; color: #64748b;">Pantau progres materi, tugas, dan pertemuan rombel per kelas</div>
             </div>
         </div>
-        <span style="font-size: 0.75rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 0.2rem 0.6rem; border-radius: 6px;">
+        <span style="font-size: 0.75rem; font-weight: 600; background: #FFF3C4; color: #A16207; padding: 0.2rem 0.6rem; border-radius: 6px;">
             {{ $pengampus->count() }} Kelas Aktif
         </span>
     </div>
@@ -220,9 +220,9 @@
             @foreach($pengampus as $pengampu)
                 @php
                     $isKelasB = \App\Models\Krs::isKelasB($pengampu->kelas);
-                    $persenPertemuan = min(100, round(($pengampu->sesi_absensi_count / 16) * 100));
+                    $persenPertemuan = min(100, round(($pengampu->sesi_absensi_count / \App\Models\Rps::JUMLAH_PERTEMUAN) * 100));
                 @endphp
-                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s;" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 12px rgba(79,70,229,0.06)';" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s;" onmouseover="this.style.borderColor='#FFE88F';this.style.boxShadow='0 4px 12px rgba(254,194,0,0.06)';" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
                     <div>
                         {{-- Header Kartu Kelas --}}
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem;">
@@ -234,19 +234,19 @@
                                     {{ $pengampu->mataKuliah->kode ?? '-' }} &bull; {{ $pengampu->label_semester }}
                                 </div>
                             </div>
-                            <span style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; flex-shrink: 0; background: {{ $isKelasB ? '#fef3c7' : '#e0f2fe' }}; color: {{ $isKelasB ? '#b45309' : '#0369a1' }};">
+                            <span style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; flex-shrink: 0; background: {{ $isKelasB ? '#fef3c7' : '#FFF8E0' }}; color: {{ $isKelasB ? '#b45309' : '#B8860B' }};">
                                 Kelas {{ $pengampu->kelas }} ({{ $isKelasB ? 'Karyawan' : 'Reguler' }})
                             </span>
                         </div>
 
-                        {{-- Progres 16 Pertemuan Kelas Ini --}}
+                        {{-- Progres Pertemuan Kelas Ini --}}
                         <div style="margin-bottom: 0.85rem;">
                             <div style="display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 0.3rem;">
                                 <span style="color: #64748b; font-weight: 500;">Capaian Pertemuan</span>
-                                <span style="font-weight: 700; color: #1e293b;">{{ $pengampu->sesi_absensi_count }} / 16 Sesi</span>
+                                <span style="font-weight: 700; color: #1e293b;">{{ $pengampu->sesi_absensi_count }} / {{ \App\Models\Rps::JUMLAH_PERTEMUAN }} Sesi</span>
                             </div>
                             <div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden;">
-                                <div style="width: {{ $persenPertemuan }}%; height: 100%; background: #4f46e5; border-radius: 999px;"></div>
+                                <div style="width: {{ $persenPertemuan }}%; height: 100%; background: #FEC200; border-radius: 999px;"></div>
                             </div>
                         </div>
 
@@ -258,7 +258,7 @@
                             </div>
                             <div>
                                 <div style="font-size: 0.68rem; color: #64748b;">Materi</div>
-                                <div style="font-weight: 700; font-size: 0.85rem; color: #4f46e5;">{{ $pengampu->lms_materis_count }}</div>
+                                <div style="font-weight: 700; font-size: 0.85rem; color: #A16207;">{{ $pengampu->lms_materis_count }}</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.68rem; color: #64748b;">Tugas</div>
@@ -318,8 +318,8 @@
 
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             @foreach($dosenForumTerbaru as $diskusi)
-                <a href="{{ route('lms.show', $diskusi->pengampu_id) }}" style="display: flex; align-items: flex-start; gap: 0.75rem; text-decoration: none; padding: 0.75rem; border-radius: 8px; background: #f8fafc; border: 1px solid #f1f5f9; transition: all 0.15s;" onmouseover="this.style.background='#eef2ff';this.style.borderColor='#c7d2fe';" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#f1f5f9';">
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem; font-weight: 700; color: #4f46e5;">
+                <a href="{{ route('lms.show', $diskusi->pengampu_id) }}" style="display: flex; align-items: flex-start; gap: 0.75rem; text-decoration: none; padding: 0.75rem; border-radius: 8px; background: #f8fafc; border: 1px solid #f1f5f9; transition: all 0.15s;" onmouseover="this.style.background='#FFF3C4';this.style.borderColor='#FFE88F';" onmouseout="this.style.background='#f8fafc';this.style.borderColor='#f1f5f9';">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: #FFF3C4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem; font-weight: 700; color: #A16207;">
                         {{ strtoupper(substr($diskusi->user->name ?? 'M', 0, 1)) }}
                     </div>
                     <div style="flex: 1; min-width: 0;">
@@ -330,7 +330,7 @@
                         <div style="font-size: 0.78rem; color: #475569; margin-top: 0.2rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ $diskusi->pesan }}
                         </div>
-                        <div style="font-size: 0.7rem; color: #4f46e5; margin-top: 0.25rem; font-weight: 500;">
+                        <div style="font-size: 0.7rem; color: #A16207; margin-top: 0.25rem; font-weight: 500;">
                             Kelas: {{ $diskusi->pengampu->mataKuliah->nama ?? '-' }} ({{ $diskusi->pengampu->kelas ?? '-' }}) &rarr;
                         </div>
                     </div>

@@ -3,7 +3,7 @@
 @section('content')
 
 {{-- Header Banner (Google Classroom Style) --}}
-<div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; color: #ffffff; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15); position: relative; overflow: hidden;">
+<div style="background: linear-gradient(135deg, #0A0D40 0%, #FEC200 100%); border-radius: 16px; padding: 2rem; color: #ffffff; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(10, 13, 64, 0.15); position: relative; overflow: hidden;">
     <div style="position: absolute; right: -20px; bottom: -20px; opacity: 0.15; pointer-events: none;">
         <svg width="220" height="220" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -108,7 +108,7 @@
                         <p style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0 0;">Hore, tidak ada tugas yang mendekati tenggat waktu!</p>
                     @endforelse
                     <div style="margin-top: 0.75rem; text-align: right;">
-                        <button type="button" @click="tab = 'tugas'; history.replaceState(null, null, '?tab=tugas')" style="background: none; border: none; font-size: 0.8rem; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0;">
+                        <button type="button" @click="tab = 'tugas'; history.replaceState(null, null, '?tab=tugas')" style="background: none; border: none; font-size: 0.8rem; font-weight: 600; color: #A16207; cursor: pointer; padding: 0;">
                             Lihat semua &rarr;
                         </button>
                     </div>
@@ -118,7 +118,7 @@
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <h3 style="font-size: 0.9rem; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 0.35rem;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path></svg>
                             Pengumuman ({{ $pengumumans->count() }})
                         </h3>
                     </div>
@@ -140,7 +140,7 @@
             {{-- Kolom Kanan: Diskusi Forum Kelas --}}
             <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     Diskusi Forum Kelas
                 </h3>
 
@@ -158,7 +158,7 @@
                     @forelse($pengampu->lmsForumDiskusis as $post)
                         <div x-data="{ editPost: false }" style="border-bottom: 1px solid #f1f5f9; padding: 1rem 0;">
                             <div style="display: flex; gap: 0.75rem;">
-                                <div style="width: 2.25rem; height: 2.25rem; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #818cf8); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">
+                                <div style="width: 2.25rem; height: 2.25rem; border-radius: 50%; background: linear-gradient(135deg, #FEC200, #FFD54F); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">
                                     {{ substr($post->user->name ?? '?', 0, 2) }}
                                 </div>
                                 <div style="flex: 1;">
@@ -166,7 +166,7 @@
                                         <span style="font-weight: 600; font-size: 0.85rem; color: #0f172a;">{{ $post->user->name ?? '-' }}</span>
                                         <span style="font-size: 0.7rem; color: #94a3b8;">{{ $post->created_at->diffForHumans() }}</span>
                                         @if($post->user?->isDosen())
-                                            <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.4rem; font-size: 0.65rem; font-weight: 600;">Dosen</span>
+                                            <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.1rem 0.4rem; font-size: 0.65rem; font-weight: 600;">Dosen</span>
                                         @endif
                                     </div>
                                     <div x-show="!editPost" style="font-size: 0.85rem; color: #334155; margin-top: 0.35rem; line-height: 1.6; white-space: pre-wrap;">{!! linkify($post->pesan) !!}</div>
@@ -220,7 +220,7 @@
                                                             {{ $reply->user->name ?? '-' }}
                                                             <span style="font-weight: 400; color: #94a3b8; font-size: 0.7rem; margin-left: 0.3rem;">{{ $reply->created_at->diffForHumans() }}</span>
                                                             @if($reply->user?->isDosen())
-                                                                <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.05rem 0.35rem; font-size: 0.6rem; font-weight: 600; margin-left: 0.3rem;">Dosen</span>
+                                                                <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.05rem 0.35rem; font-size: 0.6rem; font-weight: 600; margin-left: 0.3rem;">Dosen</span>
                                                             @endif
                                                         </div>
                                                         <div x-show="!editReply" style="font-size: 0.8rem; color: #475569; margin-top: 0.15rem; white-space: pre-wrap;">{!! linkify($reply->pesan) !!}</div>
@@ -299,7 +299,7 @@
                     onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.03)'; this.style.borderColor='#e2e8f0'">
                     
                     <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0;">
-                        <div style="width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #dbeafe; color: #2563eb;">
+                        <div style="width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF3C4; color: #A16207;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                         </div>
 
@@ -399,7 +399,7 @@
                                 Terlewat
                             </span>
                         @else
-                            <span style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
+                            <span style="background: #FFF8E0; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
                                 Ditugaskan
                             </span>
                         @endif
@@ -443,11 +443,11 @@
             
             {{-- Pengajar / Dosen --}}
             <div>
-                <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e3a8a; border-bottom: 2px solid #2563eb; padding-bottom: 0.5rem; margin: 0 0 1rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: #B8860B; border-bottom: 2px solid #D9A500; padding-bottom: 0.5rem; margin: 0 0 1rem;">
                     Pengajar
                 </h2>
                 <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9;">
-                    <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #2563eb; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+                    <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #FEC200; color: #0A0D40; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
                         {{ substr($pengampu->dosen?->user?->name ?? 'D', 0, 2) }}
                     </div>
                     <div>
@@ -459,8 +459,8 @@
 
             {{-- Mahasiswa / Teman Sekelas --}}
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2563eb; padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                    <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e3a8a; margin: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #D9A500; padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: #B8860B; margin: 0;">
                         Teman Sekelas
                     </h2>
                     <span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">{{ $pengampu->mahasiswas->count() }} mahasiswa</span>
@@ -476,7 +476,7 @@
                                 <div style="font-weight: 600; font-size: 0.9rem; color: #1e293b;">
                                     {{ $mhs->nama ?? $mhs->user?->name }}
                                     @if($mhs->id === Auth::user()->mahasiswa?->id)
-                                        <span style="background: #eff6ff; color: #2563eb; font-size: 0.65rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: 0.3rem;">Saya</span>
+                                        <span style="background: #FFF8E0; color: #A16207; font-size: 0.65rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px; margin-left: 0.3rem;">Saya</span>
                                     @endif
                                 </div>
                                 <div style="font-size: 0.75rem; color: #94a3b8;">NIM: {{ $mhs->nim }}</div>

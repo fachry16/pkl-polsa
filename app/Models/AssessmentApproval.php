@@ -22,12 +22,15 @@ class AssessmentApproval extends Model
         'catatan_revisi',
         'direvisi_oleh',
         'direvisi_at',
+        'buka_kunci_oleh',
+        'buka_kunci_at',
     ];
 
     protected $casts = [
         'diajukan_at' => 'datetime',
         'disetujui_at' => 'datetime',
         'direvisi_at' => 'datetime',
+        'buka_kunci_at' => 'datetime',
     ];
 
     public function assessment()
@@ -48,6 +51,11 @@ class AssessmentApproval extends Model
     public function peninjau()
     {
         return $this->belongsTo(User::class, 'direvisi_oleh');
+    }
+
+    public function pembukaKunci()
+    {
+        return $this->belongsTo(User::class, 'buka_kunci_oleh');
     }
 
     public function getStatusLabelAttribute(): string

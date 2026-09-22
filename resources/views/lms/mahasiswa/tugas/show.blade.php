@@ -62,7 +62,7 @@
             {{-- Komentar Kelas (Class Comments) --}}
             <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     Komentar Kelas ({{ $komentarsKelas->count() }})
                 </h3>
 
@@ -124,7 +124,7 @@
                             Terlewat
                         </span>
                     @else
-                        <span style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
+                        <span style="background: #FFF8E0; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600;">
                             Ditugaskan
                         </span>
                     @endif
@@ -149,8 +149,8 @@
                         @if($submission->file_jawaban)
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.75rem; display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                                    <a href="{{ route('mahasiswa.lms.file', ['submission', $submission->id]) }}" target="_blank" style="font-size: 0.8rem; font-weight: 500; color: #2563eb; text-decoration: none;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                                    <a href="{{ route('mahasiswa.lms.file', ['submission', $submission->id]) }}" target="_blank" style="font-size: 0.8rem; font-weight: 500; color: #A16207; text-decoration: none;">
                                         {{ basename($submission->file_jawaban) }}
                                     </a>
                                 </div>
@@ -159,8 +159,8 @@
 
                         @if($submission->link_jawaban)
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                <a href="{{ $submission->link_jawaban }}" target="_blank" style="font-size: 0.8rem; font-weight: 500; color: #2563eb; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                <a href="{{ $submission->link_jawaban }}" target="_blank" style="font-size: 0.8rem; font-weight: 500; color: #A16207; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                     {{ $submission->link_jawaban }}
                                 </a>
                             </div>
@@ -261,7 +261,7 @@
                                 <span style="font-weight: 600; font-size: 0.75rem; color: #1e293b;">
                                     {{ $komentar->user->name ?? '-' }}
                                     @if($komentar->user->isDosen())
-                                        <span style="color: #2563eb; font-weight: 600;">(Dosen)</span>
+                                        <span style="color: #A16207; font-weight: 600;">(Dosen)</span>
                                     @endif
                                 </span>
                                 <span style="font-size: 0.65rem; color: #94a3b8;">{{ $komentar->created_at->diffForHumans() }}</span>

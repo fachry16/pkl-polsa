@@ -33,13 +33,13 @@
         <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 0.2rem;">Capaian pembelajaran lulusan</div>
     </div>
 
-    <div style="background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid #4f46e5; border-radius: 0.75rem; padding: 1rem 1.25rem;">
-        <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #4f46e5;">Mahasiswa Dinilai</div>
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid #D9A500; border-radius: 0.75rem; padding: 1rem 1.25rem;">
+        <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #A16207;">Mahasiswa Dinilai</div>
         <div style="font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1.1;">{{ number_format($kpis['mahasiswaCount']) }}</div>
     </div>
 
-    <div style="background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid #0ea5e9; border-radius: 0.75rem; padding: 1rem 1.25rem;">
-        <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #0ea5e9;">Mata Kuliah Dinilai</div>
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid #D9A500; border-radius: 0.75rem; padding: 1rem 1.25rem;">
+        <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #A16207;">Mata Kuliah Dinilai</div>
         <div style="font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1.1;">{{ number_format($kpis['mkCount']) }}</div>
     </div>
 
@@ -102,7 +102,7 @@
                             <span style="color: #475569;">{{ $jumlah }} mahasiswa</span>
                         </div>
                         <div style="height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                            <div style="height: 100%; width: {{ $persen }}%; background: #4f46e5; border-radius: 999px;"></div>
+                            <div style="height: 100%; width: {{ $persen }}%; background: #FEC200; border-radius: 999px;"></div>
                         </div>
                     </div>
                 @endforeach
@@ -171,8 +171,8 @@
                             </td>
                             <td>
                                 @php
-                                    $warna = $assessment->status === 'final' ? '#059669' : ($assessment->status === 'dinilai' ? '#2563eb' : '#94a3b8');
-                                    $bg = $assessment->status === 'final' ? '#d1fae5' : ($assessment->status === 'dinilai' ? '#dbeafe' : '#f1f5f9');
+                                    $warna = $assessment->status === 'final' ? '#059669' : ($assessment->status === 'dinilai' ? '#A16207' : '#94a3b8');
+                                    $bg = $assessment->status === 'final' ? '#d1fae5' : ($assessment->status === 'dinilai' ? '#FFF3C4' : '#f1f5f9');
                                 @endphp
                                 <span style="background: {{ $bg }}; color: {{ $warna }}; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">
                                     {{ $assessment->status_label }}

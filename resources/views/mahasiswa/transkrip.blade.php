@@ -77,7 +77,7 @@
                                             @php
                                                 $colorMatch = match($mk['huruf'] ?? '') {
                                                     'A', 'B+' => ['bg' => '#ecfdf5', 'fg' => '#059669', 'bd' => '#a7f3d0'],
-                                                    'B', 'C+' => ['bg' => '#eff6ff', 'fg' => '#1d4ed8', 'bd' => '#bfdbfe'],
+                                                    'B', 'C+' => ['bg' => '#FFF8E0', 'fg' => '#B8860B', 'bd' => '#FFE88F'],
                                                     default    => ['bg' => '#fef3c7', 'fg' => '#b45309', 'bd' => '#fde68a'],
                                                 };
                                             @endphp

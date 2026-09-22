@@ -96,7 +96,7 @@ class GoogleDriveStructuredTest extends TestCase
     public function test_lms_file_controller_stream_file_gdrive(): void
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',

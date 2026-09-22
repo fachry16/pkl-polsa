@@ -26,7 +26,9 @@ class LmsAbsensiController extends Controller
     private function authorizeWrite(Pengampu $pengampu): void
     {
         $user = Auth::user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+        if ($user->isAdmin()) {
+            return;
+        }
 
         $dosen = $user->dosen;
 
@@ -79,7 +81,7 @@ class LmsAbsensiController extends Controller
         $mahasiswas = $pengampu->mahasiswas()->orderBy('nim')->get();
         $absensis = $sesi->absensis()->get()->keyBy('mahasiswa_id');
 
-        $editable = ! Auth::user()->isAdmin();
+        $editable = true;
 
         return view('lms.absensi.show', compact('pengampu', 'sesi', 'mahasiswas', 'absensis', 'editable'));
     }

@@ -2,11 +2,11 @@
 <div class="role-hero-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);">
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; width: 100%;">
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="hero-avatar" style="width: 52px; height: 52px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.5rem; font-weight: 700; color: #38bdf8;">
+            <div class="hero-avatar" style="width: 52px; height: 52px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.5rem; font-weight: 700; color: #A16207;">
                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
             </div>
             <div>
-                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 0.4rem;">
+                <div style="font-size: 0.72rem; color: #A16207; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 0.4rem;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     Pusat Kendali Akademik POLSA
                 </div>
@@ -14,7 +14,7 @@
                     {{ auth()->user()->name }}
                 </div>
                 <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                    <span style="background: rgba(99, 102, 241, 0.25); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.4); padding: 0.1rem 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.72rem;">
+                    <span style="background: rgba(254, 194, 0, 0.25); color: #FFE88F; border: 1px solid rgba(254, 194, 0, 0.4); padding: 0.1rem 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.72rem;">
                         Administrator Sistem
                     </span>
                     <span>&bull;</span>
@@ -35,7 +35,7 @@
 
     {{-- Quick Action Buttons Bar --}}
     <div class="quick-action-bar" style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.12); width: 100%;">
-        <a href="{{ route('krs.create') }}" class="btn btn-sm" style="background: #4f46e5; color: #fff; border: 1px solid #6366f1; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; padding: 0.4rem 0.8rem; border-radius: 8px;">
+        <a href="{{ route('krs.create') }}" class="btn btn-sm" style="background: #FEC200; color: #0A0D40; border: 1px solid #D9A500; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; padding: 0.4rem 0.8rem; border-radius: 8px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Buat Kelas Paket (KRS)
         </a>
@@ -57,15 +57,15 @@
 {{-- Baris 1: 4 Kartu KPI Utama POLSA --}}
 <div class="dashboard-kpi-grid">
     {{-- Tahun Akademik --}}
-    <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div class="stat-prodi-card" style="border-left: 4px solid #D9A500;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFF3C4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div style="flex: 1; min-width: 0;">
             <span style="font-weight: 700; font-size: 1.1rem; color: #1e293b; display: block; line-height: 1.2;">
                 {{ $tahunAkademik ? $tahunAkademik->tahun.' '.ucfirst($tahunAkademik->semester) : 'Belum Diatur' }}
             </span>
-            <span style="font-size: 0.75rem; color: #4f46e5; font-weight: 600;">Tahun Akademik Aktif</span>
+            <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Tahun Akademik Aktif</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Status Perkuliahan Berjalan</div>
         </div>
     </div>
@@ -79,20 +79,20 @@
             <span style="font-weight: 700; font-size: 1.35rem; color: #059669; display: block; line-height: 1.2;">{{ $totalMahasiswa }}</span>
             <span style="font-size: 0.75rem; color: #059669; font-weight: 600;">Total Mahasiswa Rombel</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">
-                <span style="color: #0284c7; font-weight: 600;">Reguler (A): {{ $mhsKelasA }}</span> &bull; 
+                <span style="color: #A16207; font-weight: 600;">Reguler (A): {{ $mhsKelasA }}</span> &bull; 
                 <span style="color: #d97706; font-weight: 600;">Karyawan (B): {{ $mhsKelasB }}</span>
             </div>
         </div>
     </div>
 
     {{-- Total Dosen Pengajar --}}
-    <div class="stat-prodi-card" style="border-left: 4px solid #0ea5e9;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #f0f9ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <div class="stat-prodi-card" style="border-left: 4px solid #D9A500;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFFBE9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div style="flex: 1; min-width: 0;">
-            <span style="font-weight: 700; font-size: 1.35rem; color: #0284c7; display: block; line-height: 1.2;">{{ $totalDosen }}</span>
-            <span style="font-size: 0.75rem; color: #0284c7; font-weight: 600;">Total Dosen Pengajar</span>
+            <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $totalDosen }}</span>
+            <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Total Dosen Pengajar</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Civitas Akademika Dosen POLSA</div>
         </div>
     </div>
@@ -119,19 +119,19 @@
     {{-- KOLOM KIRI: Mutu RPS, Pertemuan LMS & Rekapitulasi Prodi --}}
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
         
-        {{-- Card Gabungan: Kesiapan RPS & 16 Pertemuan LMS --}}
+        {{-- Card Gabungan: Kesiapan RPS & Pertemuan LMS --}}
         <div class="card">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #FFF3C4; display: flex; align-items: center; justify-content: center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                     </div>
                     <div>
                         <div style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">Monitoring Kesiapan Perkuliahan &amp; LMS</div>
                         <div style="font-size: 0.75rem; color: #64748b;">Standar Kepatuhan Mutu OBE &amp; Realisasi Pertemuan</div>
                     </div>
                 </div>
-                <span style="font-size: 0.75rem; font-weight: 600; color: #4f46e5; background: #eef2ff; padding: 0.2rem 0.6rem; border-radius: 6px;">
+                <span style="font-size: 0.75rem; font-weight: 600; color: #A16207; background: #FFF3C4; padding: 0.2rem 0.6rem; border-radius: 6px;">
                     Semester Berjalan
                 </span>
             </div>
@@ -170,27 +170,27 @@
                     </div>
                 </div>
 
-                {{-- Panel B: Progres 16 Pertemuan LMS --}}
+                {{-- Panel B: Progres Pertemuan LMS --}}
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">Progres 16 Pertemuan LMS</span>
-                        <span style="font-size: 0.75rem; font-weight: 700; background: #eef2ff; color: #4f46e5; padding: 0.15rem 0.5rem; border-radius: 6px;">
-                            {{ $pertemuanStats['rata_rata'] }} / 16 Sesi
+                        <span style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">Progres {{ \App\Models\Rps::JUMLAH_PERTEMUAN }} Pertemuan LMS</span>
+                        <span style="font-size: 0.75rem; font-weight: 700; background: #FFF3C4; color: #A16207; padding: 0.15rem 0.5rem; border-radius: 6px;">
+                            {{ $pertemuanStats['rata_rata'] }} / {{ \App\Models\Rps::JUMLAH_PERTEMUAN }} Sesi
                         </span>
                     </div>
 
                     {{-- Progress Bar Pertemuan --}}
                     <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.75rem;">
-                        <div style="width: {{ $pertemuanStats['persen'] }}%; height: 100%; background: #4f46e5; transition: width 0.3s;"></div>
+                        <div style="width: {{ $pertemuanStats['persen'] }}%; height: 100%; background: #FEC200; transition: width 0.3s;"></div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; text-align: center;">
                         <div style="background: #fff; border: 1px solid #f1f5f9; border-radius: 6px; padding: 0.45rem;">
-                            <div style="font-weight: 700; font-size: 0.95rem; color: #4f46e5;">{{ $pertemuanStats['total_sesi'] }}</div>
+                            <div style="font-weight: 700; font-size: 0.95rem; color: #A16207;">{{ $pertemuanStats['total_sesi'] }}</div>
                             <div style="font-size: 0.65rem; color: #64748b;">Sesi Buka</div>
                         </div>
                         <div style="background: #fff; border: 1px solid #f1f5f9; border-radius: 6px; padding: 0.45rem;">
-                            <div style="font-weight: 700; font-size: 0.95rem; color: #0284c7;">{{ $statMateriLMS }}</div>
+                            <div style="font-weight: 700; font-size: 0.95rem; color: #A16207;">{{ $statMateriLMS }}</div>
                             <div style="font-size: 0.65rem; color: #64748b;">Materi</div>
                         </div>
                         <div style="background: #fff; border: 1px solid #f1f5f9; border-radius: 6px; padding: 0.45rem;">
@@ -203,7 +203,7 @@
 
             <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #64748b;">
                 <span>Total <strong>{{ $rpsStats['total_mk'] }}</strong> Mata Kuliah Terdaftar &bull; Target Sesi: <strong>{{ $pertemuanStats['target_sesi'] }}</strong></span>
-                <a href="{{ route('lms.monitor') }}" style="color: #4f46e5; font-weight: 600; text-decoration: none;">Monitor Presensi &rarr;</a>
+                <a href="{{ route('lms.monitor') }}" style="color: #A16207; font-weight: 600; text-decoration: none;">Monitor Presensi &rarr;</a>
             </div>
         </div>
 
@@ -211,8 +211,8 @@
         <div class="card">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <div style="width: 32px; height: 32px; border-radius: 8px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFF3C4; display: flex; align-items: center; justify-content: center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                     </div>
                     <div>
                         <div style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">Rekapitulasi Program Studi POLSA</div>
@@ -245,14 +245,14 @@
                                     <div style="font-size: 0.7rem; color: #94a3b8;">Kode: {{ $pr->kode_prodi }}</div>
                                 </td>
                                 <td style="text-align: center;">
-                                    <span style="font-size: 0.72rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 0.12rem 0.45rem; border-radius: 4px;">
+                                    <span style="font-size: 0.72rem; font-weight: 600; background: #FFF3C4; color: #A16207; padding: 0.12rem 0.45rem; border-radius: 4px;">
                                         {{ $pr->jenjang }}
                                     </span>
                                 </td>
                                 <td style="text-align: center; font-weight: 600; font-size: 0.82rem; color: #334155;">{{ $pr->dosen_count }}</td>
                                 <td style="text-align: center; font-weight: 600; font-size: 0.82rem; color: #334155;">{{ $pr->mhs_count }}</td>
                                 <td style="text-align: center; font-size: 0.8rem;">
-                                    <span style="font-weight: 600; color: #0284c7;">{{ $pr->kelas_a }}</span>
+                                    <span style="font-weight: 600; color: #A16207;">{{ $pr->kelas_a }}</span>
                                     <span style="color: #cbd5e1;">/</span>
                                     <span style="font-weight: 600; color: #d97706;">{{ $pr->kelas_b }}</span>
                                 </td>
@@ -379,7 +379,7 @@
                         <span style="color: #059669; font-weight: 600;">✅ Semua mahasiswa punya akun login</span>
                     @endif
                 </div>
-                <a href="{{ route('lms.monitor') }}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Buka Monitor &rarr;</a>
+                <a href="{{ route('lms.monitor') }}" style="color: #A16207; text-decoration: none; font-weight: 600;">Buka Monitor &rarr;</a>
             </div>
         </div>
 
@@ -387,12 +387,12 @@
         <div class="card">
             <div style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 0.4rem;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    <div style="width: 28px; height: 28px; border-radius: 6px; background: #FFF3C4; display: flex; align-items: center; justify-content: center;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                     </div>
                     <span>Sebaran Akun Pengguna Terdaftar POLSA</span>
                 </div>
-                <a href="{{ route('roles.index') }}" style="font-size: 0.72rem; color: #4f46e5; text-decoration: none; font-weight: 600;">Role &rarr;</a>
+                <a href="{{ route('roles.index') }}" style="font-size: 0.72rem; color: #A16207; text-decoration: none; font-weight: 600;">Role &rarr;</a>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.5rem;">
@@ -402,11 +402,11 @@
                 </div>
                 <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.5rem 0.4rem; text-align: center;">
                     <div style="font-size: 0.65rem; color: #64748b; font-weight: 500;">Dosen</div>
-                    <div style="font-weight: 700; font-size: 1.05rem; color: #4f46e5; margin-top: 0.1rem;">{{ $userRoleStats['dosen'] ?? 0 }}</div>
+                    <div style="font-weight: 700; font-size: 1.05rem; color: #A16207; margin-top: 0.1rem;">{{ $userRoleStats['dosen'] ?? 0 }}</div>
                 </div>
                 <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.5rem 0.4rem; text-align: center;">
                     <div style="font-size: 0.65rem; color: #64748b; font-weight: 500;">Kaprodi</div>
-                    <div style="font-weight: 700; font-size: 1.05rem; color: #0284c7; margin-top: 0.1rem;">{{ $userRoleStats['kaprodi'] ?? 0 }}</div>
+                    <div style="font-weight: 700; font-size: 1.05rem; color: #A16207; margin-top: 0.1rem;">{{ $userRoleStats['kaprodi'] ?? 0 }}</div>
                 </div>
                 <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.5rem 0.4rem; text-align: center;">
                     <div style="font-size: 0.65rem; color: #64748b; font-weight: 500;">Direktur</div>

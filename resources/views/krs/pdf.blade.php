@@ -22,7 +22,7 @@
         .institusi { font-size: 14px; font-weight: bold; color: #000; text-transform: uppercase; letter-spacing: 0.5px; }
         .alamat { font-size: 8.5px; color: #334155; margin-top: 2px; }
         .judul { font-size: 15px; font-weight: bold; margin-top: 8px; color: #000; letter-spacing: 0.5px; text-transform: uppercase; }
-        .semester { font-size: 9.5px; font-weight: bold; color: #4338ca; margin-top: 2px; }
+        .semester { font-size: 9.5px; font-weight: bold; color: #A16207; margin-top: 2px; }
 
         /* Section title */
         .section-title {

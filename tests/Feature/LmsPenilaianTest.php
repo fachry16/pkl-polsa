@@ -28,7 +28,7 @@ class LmsPenilaianTest extends TestCase
     private function buatKelas(): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',
@@ -479,5 +479,89 @@ class LmsPenilaianTest extends TestCase
         $response->assertSee('Rekap Nilai Perkuliahan &amp; LMS', false);
         $response->assertSee('Nilai Angka');
         $response->assertSee('Nilai Huruf (NA)');
+    }
+
+    public function test_export_rekap_nilai_print_pdf_dan_excel(): void
+    {
+        $data = $this->buatKelas();
+
+        $tugas = LmsTugas::create([
+            'pengampu_id' => $data['pengampu']->id,
+            'judul' => 'Tugas 1',
+            'instruksi' => 'Kerjakan',
+            'deadline' => now()->addDays(7),
+            'bobot_nilai' => 40,
+        ]);
+
+        LmsSubmission::create([
+            'lms_tugas_id' => $tugas->id,
+            'mahasiswa_id' => $data['mahasiswa']->id,
+            'nilai' => 85,
+            'dikumpulkan_pada' => now(),
+        ]);
+
+        $this->actingAs($data['dosen']->user)
+            ->get(route('lms.tugas.rekap.export', ['pengampu' => $data['pengampu']->id, 'format' => 'print']))
+            ->assertOk()
+            ->assertSee('Daftar Nilai', false)
+            ->assertSee('Nama Mahasiswa')
+            ->assertSee('UJIAN')
+            ->assertSee('Disetujui');
+
+        $this->actingAs($data['dosen']->user)
+            ->get(route('lms.tugas.rekap.export', ['pengampu' => $data['pengampu']->id, 'format' => 'pdf']))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf');
+
+        $excel = $this->actingAs($data['dosen']->user)
+            ->get(route('lms.tugas.rekap.export', ['pengampu' => $data['pengampu']->id, 'format' => 'excel']))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/vnd.ms-excel');
+
+        $excel->assertSee('mso-application', false);
+        $excel->assertSee('DAFTAR NILAI');
+        $excel->assertSee('32240001');
+        $excel->assertSee('Jumlah TM');
+    }
+
+    public function test_export_rekap_nilai_admin_boleh_dan_dosen_lain_ditolak(): void
+    {
+        $data = $this->buatKelas();
+
+        $admin = User::create([
+            'name' => 'Admin',
+            'email' => 'admin_export@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('lms.tugas.rekap.export', ['pengampu' => $data['pengampu']->id, 'format' => 'print']))
+            ->assertOk();
+
+        $prodi = ProgramStudi::create([
+            'kode_prodi' => '12',
+            'nama_prodi' => 'Teknik Elektro',
+            'jenjang' => 'S1',
+            'akreditasi' => 'Baik',
+        ]);
+
+        $userLain = User::create([
+            'name' => 'Dosen Lain',
+            'email' => 'dosen_lain_export@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+        ]);
+
+        Dosen::create([
+            'user_id' => $userLain->id,
+            'program_studi_id' => $prodi->id,
+            'nidn' => '1301',
+            'jabatan' => 'Dosen',
+        ]);
+
+        $this->actingAs($userLain)
+            ->get(route('lms.tugas.rekap.export', ['pengampu' => $data['pengampu']->id, 'format' => 'print']))
+            ->assertForbidden();
     }
 }

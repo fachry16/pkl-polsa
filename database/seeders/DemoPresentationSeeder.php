@@ -47,11 +47,11 @@ class DemoPresentationSeeder extends Seeder
 
         // 1. Program Studi POLSA
         $prodiTrpl = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'TRPL'],
+            ['kode_prodi' => '14'],
             ['nama_prodi' => 'Teknik Rekayasa Perangkat Lunak', 'jenjang' => 'D4', 'akreditasi' => 'Unggul']
         );
         $prodiTi = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'TI'],
+            ['kode_prodi' => '11'],
             ['nama_prodi' => 'Teknik Informatika', 'jenjang' => 'D3', 'akreditasi' => 'Baik Sekali']
         );
 
@@ -364,7 +364,7 @@ class DemoPresentationSeeder extends Seeder
             ]
         );
 
-        // RPS Pertemuan (16 Minggu)
+        // RPS Pertemuan (14 Minggu)
         $topikPertemuan = [
             1 => 'Pengenalan Arsitektur Laravel 12 & Konsep MVC Modern',
             2 => 'Database Migration, Seeder & Eloquent Model',
@@ -379,9 +379,7 @@ class DemoPresentationSeeder extends Seeder
             11 => 'Form Request Validation & Custom Validation Rules',
             12 => 'Eloquent Relationship Lanjut: One-to-Many & Many-to-Many',
             13 => 'Pengujian Otomatis (Unit & Feature Testing dengan PHPUnit)',
-            14 => 'Optimasi Performa Query & Caching Strategi',
-            15 => 'Persiapan Capstone Project & Code Review',
-            16 => 'Ujian Akhir Semester (UAS) - Presentasi & Demo Web Fullstack',
+            14 => 'Persiapan Capstone Project, Code Review & Ujian Akhir Semester (UAS) - Presentasi & Demo Web Fullstack',
         ];
 
         $rpsPertemuanObjects = [];

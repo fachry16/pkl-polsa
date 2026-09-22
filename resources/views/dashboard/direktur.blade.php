@@ -34,24 +34,24 @@
         </div>
     </div>
 
-    <div class="stat-prodi-card" style="border-left: 4px solid #4f46e5;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    <div class="stat-prodi-card" style="border-left: 4px solid #D9A500;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFF3C4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         </div>
         <div style="flex: 1; min-width: 0;">
-            <span style="font-weight: 700; font-size: 1.35rem; color: #4f46e5; display: block; line-height: 1.2;">{{ $totalDosen }}</span>
-            <span style="font-size: 0.75rem; color: #4f46e5; font-weight: 600;">Dosen Pengajar POLSA</span>
+            <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $totalDosen }}</span>
+            <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Dosen Pengajar POLSA</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Tenaga Pengajar Terdaftar</div>
         </div>
     </div>
 
-    <div class="stat-prodi-card" style="border-left: 4px solid #0ea5e9;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #f0f9ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    <div class="stat-prodi-card" style="border-left: 4px solid #D9A500;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFFBE9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         </div>
         <div style="flex: 1; min-width: 0;">
-            <span style="font-weight: 700; font-size: 1.35rem; color: #0284c7; display: block; line-height: 1.2;">{{ $totalMahasiswa }}</span>
-            <span style="font-size: 0.75rem; color: #0284c7; font-weight: 600;">Total Mahasiswa POLSA</span>
+            <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $totalMahasiswa }}</span>
+            <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Total Mahasiswa POLSA</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">
                 <span>Reguler: {{ $mhsKelasA }}</span> &bull; 
                 <span>Karyawan: {{ $mhsKelasB }}</span>
@@ -59,13 +59,13 @@
         </div>
     </div>
 
-    <div class="stat-prodi-card" style="border-left: 4px solid #8b5cf6;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: #f5f3ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div class="stat-prodi-card" style="border-left: 4px solid #FFE88F;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFFBE9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div style="flex: 1; min-width: 0;">
-            <span style="font-weight: 700; font-size: 1.35rem; color: #7c3aed; display: block; line-height: 1.2;">{{ $statKelasA + $statKelasB }} Kelas</span>
-            <span style="font-size: 0.75rem; color: #7c3aed; font-weight: 600;">Kelas Paket Berjalan</span>
+            <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $statKelasA + $statKelasB }} Kelas</span>
+            <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Kelas Paket Berjalan</span>
             <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">
                 <span>Kelas A: {{ $statKelasA }}</span> &bull; 
                 <span>Kelas B: {{ $statKelasB }}</span>
@@ -74,7 +74,7 @@
     </div>
 </div>
 
-{{-- Baris 2: Capaian Mutu OBE & 16 Pertemuan Perkuliahan POLSA --}}
+{{-- Baris 2: Capaian Mutu OBE & Pertemuan Perkuliahan POLSA --}}
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
     {{-- Kesiapan RPS OBE Institusi --}}
     <div class="card">
@@ -110,27 +110,27 @@
         </div>
     </div>
 
-    {{-- Capaian 16 Pertemuan & Presensi --}}
+    {{-- Capaian Pertemuan & Presensi --}}
     <div class="card">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div style="width: 32px; height: 32px; border-radius: 8px; background: #e0f2fe; display: flex; align-items: center; justify-content: center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFF8E0; display: flex; align-items: center; justify-content: center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
                 </div>
                 <div>
                     <div style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">Keterlaksanaan Perkuliahan LMS</div>
                     <div style="font-size: 0.75rem; color: #64748b;">Rata-rata pertemuan &amp; presensi mahasiswa</div>
                 </div>
             </div>
-            <span style="font-weight: 700; font-size: 1.1rem; color: #0284c7;">{{ $pertemuanStats['persen'] }}%</span>
+            <span style="font-weight: 700; font-size: 1.1rem; color: #A16207;">{{ $pertemuanStats['persen'] }}%</span>
         </div>
 
         <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 0.75rem;">
-            <div style="width: {{ $pertemuanStats['persen'] }}%; height: 100%; background: #0284c7; border-radius: 999px;"></div>
+            <div style="width: {{ $pertemuanStats['persen'] }}%; height: 100%; background: #FEC200; border-radius: 999px;"></div>
         </div>
 
         <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b;">
-            <span>Rata-rata: <strong>{{ $pertemuanStats['rata_rata'] }} / 16 Pertemuan</strong></span>
+            <span>Rata-rata: <strong>{{ $pertemuanStats['rata_rata'] }} / {{ \App\Models\Rps::JUMLAH_PERTEMUAN }} Pertemuan</strong></span>
             <span>Kehadiran Mahasiswa: <strong style="color: #059669;">{{ $pertemuanStats['persen_kehadiran'] }}%</strong></span>
         </div>
     </div>
@@ -140,8 +140,8 @@
 <div class="card">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFF3C4; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
             </div>
             <div>
                 <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Rekapitulasi Program Studi POLSA</div>
@@ -172,15 +172,15 @@
                             <div style="font-size: 0.72rem; color: #64748b;">Kode: {{ $recap->kode_prodi }}</div>
                         </td>
                         <td style="padding: 0.75rem 0.75rem; text-align: center;">
-                            <span style="background: #eef2ff; color: #4f46e5; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">
+                            <span style="background: #FFF3C4; color: #A16207; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">
                                 {{ $recap->jenjang }}
                             </span>
                         </td>
                         <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #334155;">{{ $recap->dosen_count }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #0369a1;">{{ $recap->mhs_count }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #B8860B;">{{ $recap->mhs_count }}</td>
                         <td style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $recap->kelas_a }}</td>
                         <td style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $recap->kelas_b }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 700; color: #4f46e5;">{{ $recap->total_kelas }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 700; color: #A16207;">{{ $recap->total_kelas }}</td>
                         <td style="padding: 0.75rem 1rem;">
                             <div style="display: flex; align-items: center; gap: 0.6rem;">
                                 <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
@@ -232,7 +232,7 @@
                         <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $k->programStudi->nama_prodi ?? '-' }}</td>
                         <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $k->nama_kurikulum }}</td>
                         <td style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $k->tahun_berlaku }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #4f46e5;">{{ $k->beban_studi ?? '-' }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #A16207;">{{ $k->beban_studi ?? '-' }}</td>
                         <td style="padding: 0.75rem 0.75rem; color: #64748b; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $k->deskripsi ?? '-' }}</td>
                         <td style="padding: 0.75rem 0.75rem; text-align: center;">
                             @if(($k->status ?? '') === 'Aktif' || ($k->status ?? '') === 'aktif')
@@ -258,15 +258,15 @@
 <div class="card" style="margin-top: 1.5rem;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: #e0f2fe; display: flex; align-items: center; justify-content: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFF8E0; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div>
                 <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Monitoring Tahun Akademik</div>
                 <div style="font-size: 0.75rem; color: #64748b;">Riwayat dan status seluruh tahun akademik</div>
             </div>
         </div>
-        <span style="background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturTahunAkademiks->count() }} Semester</span>
+        <span style="background: #FFF8E0; color: #B8860B; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturTahunAkademiks->count() }} Semester</span>
     </div>
 
     <div style="overflow-x: auto;">
@@ -287,8 +287,8 @@
                         <td style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
                         <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $ta->tahun }}</td>
                         <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $ta->semester }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #4f46e5;">{{ $ta->pengampus_count }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #0369a1;">{{ $ta->semesterMahasiswas_count }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #A16207;">{{ $ta->pengampus_count }}</td>
+                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #B8860B;">{{ $ta->semesterMahasiswas_count }}</td>
                         <td style="padding: 0.75rem 0.75rem; text-align: center;">
                             @if($ta->is_active)
                                 <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
@@ -311,8 +311,8 @@
 <div class="card" style="margin-top: 1.5rem;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: #eef2ff; display: flex; align-items: center; justify-content: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFF3C4; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
             </div>
             <div>
                 <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">Monitoring Kelas</div>
@@ -320,8 +320,8 @@
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturKelases->total() }} Kelas</span>
-            <a href="{{ route('monitoring.kelas') }}" style="font-size: 0.75rem; color: #4f46e5; text-decoration: none; font-weight: 600;">Lihat Semua &rarr;</a>
+            <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 700;">{{ $direkturKelases->total() }} Kelas</span>
+            <a href="{{ route('monitoring.kelas') }}" style="font-size: 0.75rem; color: #A16207; text-decoration: none; font-weight: 600;">Lihat Semua &rarr;</a>
         </div>
     </div>
 
@@ -329,11 +329,11 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
             @foreach($direkturKelases as $kelas)
                 <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; transition: all 0.2s;"
-                     onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(79,70,229,0.08)';"
+                     onmouseover="this.style.borderColor='#FFE88F';this.style.boxShadow='0 4px 16px rgba(254,194,0,0.08)';"
                      onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFF3C4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <div style="font-weight: 600; font-size: 0.95rem; color: #0f172a;">
@@ -351,11 +351,11 @@
 
                     <div style="display: flex; gap: 1rem; padding: 0.5rem 0; margin-top: 0.75rem; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
                         <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
-                            <span style="font-weight: 600; color: #0284c7;">{{ $kelas->mahasiswas_count }}</span>
+                            <span style="font-weight: 600; color: #A16207;">{{ $kelas->mahasiswas_count }}</span>
                             <span>Mahasiswa</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
-                            <span style="font-weight: 600; color: #4f46e5;">{{ $kelas->lms_materis_count }}</span>
+                            <span style="font-weight: 600; color: #A16207;">{{ $kelas->lms_materis_count }}</span>
                             <span>Materi</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
@@ -363,7 +363,7 @@
                             <span>Tugas</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">
-                            <span style="font-weight: 600; color: #818cf8;">{{ $kelas->lms_forum_diskusis_count }}</span>
+                            <span style="font-weight: 600; color: #A16207;">{{ $kelas->lms_forum_diskusis_count }}</span>
                             <span>Diskusi</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: #475569;">

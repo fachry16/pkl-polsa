@@ -26,7 +26,7 @@ class RpsDrivenLmsTest extends TestCase
     public function test_dosen_dapat_melihat_pilihan_rps_dan_menilai_upload_lms(): void
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',

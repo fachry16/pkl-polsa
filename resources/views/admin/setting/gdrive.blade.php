@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <div class="card" style="padding: 1.25rem; border-left: 4px solid {{ $status['has_oauth_connected'] ? '#10b981' : ($status['has_json'] ? '#2563eb' : '#f59e0b') }};">
+        <div class="card" style="padding: 1.25rem; border-left: 4px solid {{ $status['has_oauth_connected'] ? '#10b981' : ($status['has_json'] ? '#A16207' : '#f59e0b') }};">
             <div style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">
                 Metode Autentikasi
             </div>
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <div class="card" style="padding: 1.25rem; border-left: 4px solid #6366f1;">
+        <div class="card" style="padding: 1.25rem; border-left: 4px solid #D9A500;">
             <div style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">
                 Folder Penyimpanan Utama
             </div>
@@ -96,7 +96,7 @@
             <!-- Checkbox Aktifkan -->
             <div style="margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9;">
                 <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none;">
-                    <input type="checkbox" name="enabled" value="1" {{ $status['enabled'] ? 'checked' : '' }} style="width: 18px; height: 18px; accent-color: #2563eb;">
+                    <input type="checkbox" name="enabled" value="1" {{ $status['enabled'] ? 'checked' : '' }} style="width: 18px; height: 18px; accent-color: #A16207;">
                     <span style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">Aktifkan Penyimpanan Cloud Google Drive</span>
                 </label>
                 <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; margin-left: 1.8rem;">
@@ -121,13 +121,13 @@
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
                     <!-- Option OAuth -->
-                    <label :style="authMode === 'oauth' ? 'border-color: #2563eb; background: #eff6ff;' : 'border-color: #e2e8f0; background: #ffffff;'"
+                    <label :style="authMode === 'oauth' ? 'border-color: #A16207; background: #FFF8E0;' : 'border-color: #e2e8f0; background: #ffffff;'"
                            style="border: 2px solid; border-radius: 12px; padding: 1rem; cursor: pointer; display: flex; gap: 0.75rem; align-items: flex-start; transition: all 0.2s;">
-                        <input type="radio" name="auth_mode" value="oauth" x-model="authMode" style="margin-top: 0.2rem; accent-color: #2563eb;">
+                        <input type="radio" name="auth_mode" value="oauth" x-model="authMode" style="margin-top: 0.2rem; accent-color: #A16207;">
                         <div>
                             <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
                                 OAuth 2.0 (Akun Kampus)
-                                <span style="background: #dbeafe; color: #1e40af; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 9999px;">Disarankan</span>
+                                <span style="background: #FFF3C4; color: #A16207; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 9999px;">Disarankan</span>
                             </div>
                             <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">
                                 Login langsung dengan email kampus (misal: <code>eduva@polsa.ac.id</code>). Bebas kuota 0 MB Service Account dan tanpa perlu izin admin kampus.
@@ -136,9 +136,9 @@
                     </label>
 
                     <!-- Option Service Account -->
-                    <label :style="authMode === 'service_account' ? 'border-color: #2563eb; background: #eff6ff;' : 'border-color: #e2e8f0; background: #ffffff;'"
+                    <label :style="authMode === 'service_account' ? 'border-color: #A16207; background: #FFF8E0;' : 'border-color: #e2e8f0; background: #ffffff;'"
                            style="border: 2px solid; border-radius: 12px; padding: 1rem; cursor: pointer; display: flex; gap: 0.75rem; align-items: flex-start; transition: all 0.2s;">
-                        <input type="radio" name="auth_mode" value="service_account" x-model="authMode" style="margin-top: 0.2rem; accent-color: #2563eb;">
+                        <input type="radio" name="auth_mode" value="service_account" x-model="authMode" style="margin-top: 0.2rem; accent-color: #A16207;">
                         <div>
                             <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
                                 Service Account (Kunci JSON)
@@ -154,7 +154,7 @@
             <!-- BAGIAN 1: FORM OAUTH 2.0 -->
             <div x-show="authMode === 'oauth'" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
                 <div style="font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                         <polyline points="10 17 15 12 10 7"></polyline>
                         <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -251,7 +251,7 @@
             <!-- BAGIAN 2: FORM SERVICE ACCOUNT -->
             <div x-show="authMode === 'service_account'" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
                 <div style="font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                         <line x1="8" y1="21" x2="16" y2="21"></line>
                         <line x1="12" y1="17" x2="12" y2="21"></line>
@@ -316,7 +316,7 @@
             <!-- Modal Header -->
             <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #f8fafc;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #FFF8E0; color: #A16207; display: flex; align-items: center; justify-content: center;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                         </svg>
@@ -338,13 +338,13 @@
 
             <!-- Modal Tab Nav -->
             <div style="display: flex; border-bottom: 1px solid #e2e8f0; background: #ffffff; padding: 0 1.5rem; gap: 1rem; overflow-x: auto;">
-                <button type="button" @click="activeTab = 'oauth'" :style="activeTab === 'oauth' ? 'border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 700;' : 'color: #64748b; font-weight: 500;'" style="padding: 0.8rem 0.25rem; font-size: 0.85rem; background: transparent; border: none; cursor: pointer;">
+                <button type="button" @click="activeTab = 'oauth'" :style="activeTab === 'oauth' ? 'border-bottom: 2px solid #D9A500; color: #A16207; font-weight: 700;' : 'color: #64748b; font-weight: 500;'" style="padding: 0.8rem 0.25rem; font-size: 0.85rem; background: transparent; border: none; cursor: pointer;">
                     1. OAuth Akun Kampus (Utama)
                 </button>
-                <button type="button" @click="activeTab = 'folder'" :style="activeTab === 'folder' ? 'border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 700;' : 'color: #64748b; font-weight: 500;'" style="padding: 0.8rem 0.25rem; font-size: 0.85rem; background: transparent; border: none; cursor: pointer;">
+                <button type="button" @click="activeTab = 'folder'" :style="activeTab === 'folder' ? 'border-bottom: 2px solid #D9A500; color: #A16207; font-weight: 700;' : 'color: #64748b; font-weight: 500;'" style="padding: 0.8rem 0.25rem; font-size: 0.85rem; background: transparent; border: none; cursor: pointer;">
                     2. Folder Drive Saya
                 </button>
-                <button type="button" @click="activeTab = 'service_account'" :style="activeTab === 'service_account' ? 'border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 700;' : 'color: #64748b; font-weight: 500;'" style="padding: 0.8rem 0.25rem; font-size: 0.85rem; background: transparent; border: none; cursor: pointer;">
+                <button type="button" @click="activeTab = 'service_account'" :style="activeTab === 'service_account' ? 'border-bottom: 2px solid #D9A500; color: #A16207; font-weight: 700;' : 'color: #64748b; font-weight: 500;'" style="padding: 0.8rem 0.25rem; font-size: 0.85rem; background: transparent; border: none; cursor: pointer;">
                     3. Alternatif Service Account
                 </button>
             </div>
@@ -360,7 +360,7 @@
                     </p>
 
                     <ol style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.65rem;">
-                        <li>Buka konsol Google: <a href="https://console.cloud.google.com" target="_blank" style="color: #2563eb; text-decoration: underline; font-weight: 600;">console.cloud.google.com</a> dan pastikan project aktif sudah terpilih.</li>
+                        <li>Buka konsol Google: <a href="https://console.cloud.google.com" target="_blank" style="color: #A16207; text-decoration: underline; font-weight: 600;">console.cloud.google.com</a> dan pastikan project aktif sudah terpilih.</li>
                         <li>Pastikan <strong>Google Drive API</strong> telah diaktifkan di menu <strong>APIs &amp; Services</strong> &rarr; <strong>Library</strong>.</li>
                         <li>Buka menu <strong>APIs &amp; Services</strong> &rarr; <strong>OAuth consent screen</strong>:
                             <ul style="padding-left: 1.2rem; margin-top: 0.25rem;">
@@ -390,11 +390,11 @@
                 <div x-show="activeTab === 'folder'">
                     <h4 style="font-weight: 700; color: #1e293b; margin-top: 0;">Langkah 2: Menyiapkan Folder di Drive Saya (eduva@polsa.ac.id)</h4>
                     <ol style="padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.65rem;">
-                        <li>Buka <a href="https://drive.google.com" target="_blank" style="color: #2563eb; text-decoration: underline;">drive.google.com</a> dengan akun kampus <code>eduva@polsa.ac.id</code>.</li>
+                        <li>Buka <a href="https://drive.google.com" target="_blank" style="color: #A16207; text-decoration: underline;">drive.google.com</a> dengan akun kampus <code>eduva@polsa.ac.id</code>.</li>
                         <li>Di menu <strong>Drive Saya (My Drive)</strong>, klik <strong>+ Baru (+ New)</strong> &rarr; pilih <strong>Folder baru</strong> (beri nama misal: <code>Eduva_LMS_Storage</code>).</li>
                         <li>Buka folder tersebut. Perhatikan address bar browser Anda:
                             <div style="background: #f1f5f9; padding: 0.6rem 0.85rem; border-radius: 6px; font-family: monospace; font-size: 0.8rem; margin-top: 0.35rem; color: #1e293b; border: 1px solid #cbd5e1;">
-                                drive.google.com/drive/folders/<strong style="color: #2563eb;">1A2b3C4d5E6f7G8h9I0jK</strong>
+                                drive.google.com/drive/folders/<strong style="color: #A16207;">1A2b3C4d5E6f7G8h9I0jK</strong>
                             </div>
                         </li>
                         <li>Salin deretan karakter setelah <code>/folders/</code> tersebut (itu adalah <strong>Folder ID</strong>).</li>

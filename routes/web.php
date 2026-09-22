@@ -164,9 +164,9 @@ Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
     )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.khs.export');
 
     Route::get(
-        'mahasiswa/{mahasiswa}/aktivitas',
-        [MahasiswaController::class, 'aktivitas']
-    )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.aktivitas');
+        'mahasiswa/{mahasiswa}/status',
+        [MahasiswaController::class, 'status']
+    )->where(['mahasiswa' => '[0-9]+'])->name('mahasiswa.status');
 
     Route::get(
         'mahasiswa/{mahasiswa}/transkrip',
@@ -182,6 +182,7 @@ Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
 /* Transkrip Mahasiswa — Mahasiswa (milik sendiri) */
 Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::get('transkrip/saya', [TranskripController::class, 'saya'])->name('transkrip.saya');
+    Route::get('identitas', [MahasiswaController::class, 'identitas'])->name('mahasiswa.identitas');
 });
 
 /* Admin only (mutations + user management) */
@@ -1026,8 +1027,10 @@ Route::middleware(['auth'])->prefix('kelas')->name('lms.')->group(function () {
     Route::delete('/{pengampu}/pengumuman/{pengumuman}', [LmsPengumumanController::class, 'destroy'])->name('pengumuman.destroy');
 
     Route::get('/{pengampu}/rekap-nilai', [LmsTugasController::class, 'rekap'])->name('tugas.rekap');
+    Route::get('/{pengampu}/rekap-nilai/export', [LmsTugasController::class, 'export'])->name('tugas.rekap.export');
     Route::post('/{pengampu}/rekap-nilai/komponen', [LmsTugasController::class, 'simpanKomponen'])->name('tugas.komponen');
     Route::patch('/{pengampu}/nilai/ajukan', [AssessmentController::class, 'ajukan'])->name('nilai.ajukan');
+    Route::patch('/{pengampu}/nilai/kunci', [AssessmentController::class, 'kunci'])->name('nilai.kunci')->middleware('role:admin');
     Route::match(['get', 'post'], '/{pengampu}/hitung-ulang-nilai', [LmsTugasController::class, 'hitungUlangNilai'])->name('tugas.sync');
     Route::post('/{pengampu}/instrumen-cpmk', [LmsTugasController::class, 'simpanInstrumenCpmk'])->name('tugas.instrumen-cpmk');
     Route::delete('/{pengampu}/instrumen-cpmk/{instrumen}', [LmsTugasController::class, 'hapusInstrumenCpmk'])->name('tugas.instrumen-cpmk.hapus');

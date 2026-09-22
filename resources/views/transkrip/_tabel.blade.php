@@ -42,7 +42,7 @@
                                 @php
                                     $c = match ($row['huruf']) {
                                         'A', 'A-' => ['bg' => '#ecfdf5', 'fg' => '#059669', 'bd' => '#a7f3d0'],
-                                        'B+', 'B', 'B-' => ['bg' => '#eff6ff', 'fg' => '#1d4ed8', 'bd' => '#bfdbfe'],
+                                        'B+', 'B', 'B-' => ['bg' => '#FFF8E0', 'fg' => '#B8860B', 'bd' => '#FFE88F'],
                                         'C+', 'C' => ['bg' => '#fef3c7', 'fg' => '#b45309', 'bd' => '#fde68a'],
                                         default => ['bg' => '#fee2e2', 'fg' => '#dc2626', 'bd' => '#fecaca'],
                                     };

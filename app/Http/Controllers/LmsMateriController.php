@@ -29,7 +29,9 @@ class LmsMateriController extends Controller
     private function authorizeWrite(Pengampu $pengampu): void
     {
         $user = Auth::user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+        if ($user->isAdmin()) {
+            return;
+        }
 
         $dosen = $user->dosen;
 

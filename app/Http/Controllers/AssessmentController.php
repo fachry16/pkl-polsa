@@ -261,6 +261,9 @@ class AssessmentController extends Controller
         if ($filters['kelas']) {
             $query->where('pengampus.kelas', $filters['kelas']);
         }
+        if ($filters['pengampu_id']) {
+            $query->where('assessments.pengampu_id', $filters['pengampu_id']);
+        }
 
         // Hak akses
         if (! $user->isAdmin() && ! $user->isDirektur()) {
@@ -310,6 +313,7 @@ class AssessmentController extends Controller
             'kurikulum_id' => $request->integer('kurikulum_id') ?: null,
             'mata_kuliah_id' => $request->integer('mata_kuliah_id') ?: null,
             'kelas' => $request->query('kelas'),
+            'pengampu_id' => $request->integer('pengampu_id') ?: null,
             'cpl_id' => $request->integer('cpl_id') ?: null,
             'cpmk_id' => $request->integer('cpmk_id') ?: null,
         ];
@@ -547,8 +551,9 @@ class AssessmentController extends Controller
     public function ajukan(Pengampu $pengampu)
     {
         $user = auth()->user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
-        abort_if(! $user->dosen || $pengampu->dosen_id !== $user->dosen->id, 403, 'Anda bukan pengampu kelas ini.');
+        if (! $user->isAdmin()) {
+            abort_if(! $user->dosen || $pengampu->dosen_id !== $user->dosen->id, 403, 'Anda bukan pengampu kelas ini.');
+        }
 
         $assessment = Assessment::firstOrCreate(
             ['pengampu_id' => $pengampu->id],
@@ -559,6 +564,10 @@ class AssessmentController extends Controller
 
         if ($approval && $approval->status === AssessmentApproval::STATUS_MENUNGGU) {
             return back()->with('toast_error', 'Nilai kelas ini sudah diajukan dan masih menunggu persetujuan Kaprodi.');
+        }
+
+        if ($approval && $approval->status === AssessmentApproval::STATUS_DISETUJUI && $approval->buka_kunci_at === null) {
+            return back()->with('toast_error', 'Nilai kelas telah disetujui Kaprodi dan terkunci. Buka kunci oleh admin terlebih dahulu.');
         }
 
         $belumDinilai = $this->jumlahBelumDinilai($pengampu);
@@ -643,6 +652,28 @@ class AssessmentController extends Controller
         }
 
         return back()->with('success', 'Nilai kelas berhasil disetujui.');
+    }
+
+    public function kunci(Pengampu $pengampu)
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
+        $approval = $pengampu->assessment?->approval;
+
+        if (! $approval || $approval->status !== AssessmentApproval::STATUS_DISETUJUI) {
+            return back()->with('toast_error', 'Hanya rekap nilai berstatus disetujui yang dapat dibuka atau dikunci kembali oleh admin.');
+        }
+
+        $terbuka = $approval->buka_kunci_at !== null;
+
+        $approval->update([
+            'buka_kunci_oleh' => $terbuka ? null : auth()->id(),
+            'buka_kunci_at' => $terbuka ? null : now(),
+        ]);
+
+        return back()->with('toast_success', $terbuka
+            ? 'Rekap nilai dikunci kembali. Dosen tidak dapat mengedit nilai kelas ini.'
+            : 'Kunci rekap nilai dibuka. Dosen dapat mengedit nilai kelas ini kembali.');
     }
 
     public function revisi(Request $request, Assessment $assessment)
