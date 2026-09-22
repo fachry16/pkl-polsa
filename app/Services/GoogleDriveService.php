@@ -470,7 +470,7 @@ class GoogleDriveService
 
     private function getImpersonateEmail(): ?string
     {
-        $configPath = storage_path('app/google-drive/config.json');
+        $configPath = $this->getConfigPath();
         if (File::exists($configPath)) {
             $config = json_decode(File::get($configPath), true) ?? [];
             if (! empty($config['impersonate_email'])) {

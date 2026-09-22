@@ -1,4 +1,9 @@
 *
 !private/
 !public/
+!google-drive/
+google-drive/*
+!google-drive/config.json
+!google-drive/.gitignore
 !.gitignore
+

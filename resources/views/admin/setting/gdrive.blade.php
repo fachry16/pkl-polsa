@@ -251,8 +251,7 @@
          x-cloak
          @keydown.escape.window="showModal = false"
          @click.self="showModal = false"
-         :style="{ display: showModal ? 'flex' : 'none' }"
-         style="position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(2px); align-items: center; justify-content: center; padding: 1rem; display: none;">
+         style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(2px);">
 
         <div @click.outside="showModal = false"
              style="background: #ffffff; border-radius: 16px; max-width: 820px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); border: 1px solid #e2e8f0;">
