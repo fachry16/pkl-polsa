@@ -92,8 +92,8 @@ class DashboardController extends Controller
 
                 $dosenPengampuIds = $pengampus->pluck('id');
 
-                $dosenKelasA = $pengampus->filter(fn ($p) => preg_match('/A|reguler|pagi/i', $p->kelas))->count();
-                $dosenKelasB = $pengampus->filter(fn ($p) => preg_match('/B|karyawan|sore|malam/i', $p->kelas))->count();
+                $dosenKelasA = $pengampus->filter(fn ($p) => Krs::isKelasA($p->kelas))->count();
+                $dosenKelasB = $pengampus->filter(fn ($p) => Krs::isKelasB($p->kelas))->count();
 
                 $dosenTotalMahasiswa = Mahasiswa::whereHas('pengampus', function ($q) use ($dosenPengampuIds) {
                     $q->whereIn('pengampu_id', $dosenPengampuIds);
@@ -175,7 +175,7 @@ class DashboardController extends Controller
                             $q->where('tahun_akademik_id', $tahunAkademik->id);
                         }
                         $q->where(function ($sub) {
-                            $sub->where('kelas', 'like', '%A%')
+                            $sub->where('kelas', 'like', '%A')
                                 ->orWhere('kelas', 'like', '%reguler%')
                                 ->orWhere('kelas', 'like', '%pagi%');
                         });
@@ -189,7 +189,7 @@ class DashboardController extends Controller
                             $q->where('tahun_akademik_id', $tahunAkademik->id);
                         }
                         $q->where(function ($sub) {
-                            $sub->where('kelas', 'like', '%B%')
+                            $sub->where('kelas', 'like', '%B')
                                 ->orWhere('kelas', 'like', '%karyawan%')
                                 ->orWhere('kelas', 'like', '%sore%')
                                 ->orWhere('kelas', 'like', '%malam%');
@@ -208,8 +208,8 @@ class DashboardController extends Controller
                 $krsProdi = $krsProdiQuery->with(['mataKuliah', 'dosen.user'])->withCount('mahasiswas')->get();
 
                 $totalKelasPaketProdi = $krsProdi->count();
-                $krsProdiKelasA = $krsProdi->filter(fn ($k) => preg_match('/A|reguler|pagi/i', $k->kelas))->count();
-                $krsProdiKelasB = $krsProdi->filter(fn ($k) => preg_match('/B|karyawan|sore|malam/i', $k->kelas))->count();
+                $krsProdiKelasA = $krsProdi->filter(fn ($k) => Krs::isKelasA($k->kelas))->count();
+                $krsProdiKelasB = $krsProdi->filter(fn ($k) => Krs::isKelasB($k->kelas))->count();
 
                 // Rombel Kosong di Prodi (Zero-Student Alert)
                 $rombelKosongProdi = $krsProdi->filter(fn ($k) => $k->mahasiswas_count === 0);
@@ -292,14 +292,14 @@ class DashboardController extends Controller
             // Kelas A & B
             $statKelasA = Pengampu::where('tahun_akademik_id', $tahunAkademik->id)
                 ->where(function ($q) {
-                    $q->where('kelas', 'like', '%A%')
+                    $q->where('kelas', 'like', '%A')
                         ->orWhere('kelas', 'like', '%reguler%')
                         ->orWhere('kelas', 'like', '%pagi%');
                 })->count();
 
             $statKelasB = Pengampu::where('tahun_akademik_id', $tahunAkademik->id)
                 ->where(function ($q) {
-                    $q->where('kelas', 'like', '%B%')
+                    $q->where('kelas', 'like', '%B')
                         ->orWhere('kelas', 'like', '%karyawan%')
                         ->orWhere('kelas', 'like', '%sore%')
                         ->orWhere('kelas', 'like', '%malam%');
@@ -308,7 +308,7 @@ class DashboardController extends Controller
             $mhsKelasA = Mahasiswa::whereHas('pengampus', function ($q) use ($tahunAkademik) {
                 $q->where('tahun_akademik_id', $tahunAkademik->id)
                     ->where(function ($sub) {
-                        $sub->where('kelas', 'like', '%A%')
+                        $sub->where('kelas', 'like', '%A')
                             ->orWhere('kelas', 'like', '%reguler%')
                             ->orWhere('kelas', 'like', '%pagi%');
                     });
@@ -317,7 +317,7 @@ class DashboardController extends Controller
             $mhsKelasB = Mahasiswa::whereHas('pengampus', function ($q) use ($tahunAkademik) {
                 $q->where('tahun_akademik_id', $tahunAkademik->id)
                     ->where(function ($sub) {
-                        $sub->where('kelas', 'like', '%B%')
+                        $sub->where('kelas', 'like', '%B')
                             ->orWhere('kelas', 'like', '%karyawan%')
                             ->orWhere('kelas', 'like', '%sore%')
                             ->orWhere('kelas', 'like', '%malam%');
@@ -394,13 +394,13 @@ class DashboardController extends Controller
                     ->whereIn('mata_kuliah_id', $mkIds);
 
                 $kelasA = (clone $kelasQuery)->where(function ($q) {
-                    $q->where('kelas', 'like', '%A%')
+                    $q->where('kelas', 'like', '%A')
                         ->orWhere('kelas', 'like', '%reguler%')
                         ->orWhere('kelas', 'like', '%pagi%');
                 })->count();
 
                 $kelasB = (clone $kelasQuery)->where(function ($q) {
-                    $q->where('kelas', 'like', '%B%')
+                    $q->where('kelas', 'like', '%B')
                         ->orWhere('kelas', 'like', '%karyawan%')
                         ->orWhere('kelas', 'like', '%sore%')
                         ->orWhere('kelas', 'like', '%malam%');

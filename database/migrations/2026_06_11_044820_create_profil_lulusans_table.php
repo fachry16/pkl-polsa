@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('kurikulum_id')->constrained()->cascadeOnDelete();
             $table->string('kode_pl');
             $table->string('nama_pl');
-            $table->string('profesi');
+            $table->string('profesi')->nullable();
             $table->timestamps();
         });
     }

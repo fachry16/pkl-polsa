@@ -14,6 +14,25 @@ class Krs extends Model
         'kelas',
     ];
 
+    public static function isKelasA(?string $kelas): bool
+    {
+        $k = strtolower(trim((string) $kelas));
+
+        return str_ends_with($k, 'a')
+            || str_contains($k, 'reguler')
+            || str_contains($k, 'pagi');
+    }
+
+    public static function isKelasB(?string $kelas): bool
+    {
+        $k = strtolower(trim((string) $kelas));
+
+        return str_ends_with($k, 'b')
+            || str_contains($k, 'karyawan')
+            || str_contains($k, 'sore')
+            || str_contains($k, 'malam');
+    }
+
     public function programStudi()
     {
         return $this->belongsTo(ProgramStudi::class);
