@@ -160,7 +160,7 @@ class DataImportTest extends TestCase
             'jenis_kelas' => 'Reguler',
         ]);
         $this->assertDatabaseHas('users', [
-            'email' => '32240001@polsa.ac.id',
+            'email' => '32240001',
             'role' => 'mahasiswa',
         ]);
 
@@ -178,7 +178,7 @@ class DataImportTest extends TestCase
 
         $existingUser = User::create([
             'name' => 'Existing Mhs',
-            'email' => '32240099@polsa.ac.id',
+            'email' => '32240099',
             'password' => bcrypt('password'),
             'role' => 'mahasiswa',
         ]);

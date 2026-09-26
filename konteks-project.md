@@ -142,7 +142,7 @@ tests/        # Unit + Feature (saat ini masih template Breeze)
 ### 4.5 Mahasiswa (`mahasiswas`)
 - `user_id` (FK, nullable — akun login dibuat otomatis), `program_studi_id` (FK), `nim` (unique), `nama`, `angkatan`, `status`
 - Relasi: `belongsTo(User)`, `belongsTo(ProgramStudi)`, `hasMany(SemesterMahasiswa)`, `belongsToMany(TahunAkademik)` via `semester_mahasiswas`, `belongsToMany(Pengampu)` via `pengampu_mahasiswa`, `hasMany(LmsSubmission)`
-- **Akun login mahasiswa**: email = `{nim}@polsa.ac.id`, password default = NIM. Dibuat otomatis saat input mahasiswa atau via artisan `php artisan mahasiswa:buat-akun`
+- **Akun login mahasiswa**: username = NIM (disimpan di kolom `users.email` tanpa suffix), password default = NIM. Dibuat otomatis saat input mahasiswa atau via artisan `php artisan mahasiswa:buat-akun`
 
 ### 4.6 Kurikulum (`kurikulums`)
 - `program_studi_id` (FK), `nama_kurikulum`, `tahun_berlaku`, `beban_studi`, `deskripsi`, `status` (Draft/Aktif/Arsip)
@@ -428,7 +428,7 @@ tahun_akademiks
 | `php artisan test` | Jalankan PHPUnit |
 | `php artisan test --filter=NamaTest` | Jalankan satu test |
 | `php artisan migrate` | Jalankan migrasi |
-| `php artisan mahasiswa:buat-akun` | Buat akun login semua mahasiswa tanpa user_id (email `{nim}@polsa.ac.id`, pass = NIM) |
+| `php artisan mahasiswa:buat-akun` | Buat akun login semua mahasiswa tanpa user_id (username = NIM, pass = NIM) |
 | `npm run build` / `npm run dev` | Build / dev Vite |
 
 ---

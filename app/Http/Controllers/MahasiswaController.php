@@ -276,7 +276,7 @@ class MahasiswaController extends Controller
                 'required',
                 'unique:mahasiswas,nim',
                 function ($attribute, $value, $fail) {
-                    if (User::where('email', $this->emailUntukNim($value))->exists()) {
+                    if (User::where('email', $value)->exists()) {
                         $fail('NIM ini sudah dipakai untuk akun login lain.');
                     }
                 },
@@ -292,7 +292,7 @@ class MahasiswaController extends Controller
 
         $user = User::create([
             'name' => $request->nama,
-            'email' => $this->emailUntukNim($request->nim),
+            'email' => $request->nim,
             'password' => $request->nim,
             'role' => 'mahasiswa',
             'harus_ganti_password' => true,
@@ -364,7 +364,7 @@ class MahasiswaController extends Controller
         if ($mahasiswa->user) {
             $mahasiswa->user->update([
                 'name' => $request->nama,
-                'email' => $this->emailUntukNim($request->nim),
+                'email' => $request->nim,
             ]);
         }
 
@@ -391,11 +391,6 @@ class MahasiswaController extends Controller
         $mahasiswa->delete();
 
         return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil dihapus.');
-    }
-
-    private function emailUntukNim(string $nim): string
-    {
-        return $nim.'@polsa.ac.id';
     }
 
     public function downloadTemplate(CsvImportService $csvService)
@@ -459,9 +454,8 @@ class MahasiswaController extends Controller
                 continue;
             }
 
-            $emailMhs = $this->emailUntukNim($nim);
-            if (User::where('email', $emailMhs)->exists()) {
-                $skipped[] = "Baris {$rowNum}: Akun email login {$emailMhs} sudah terdaftar.";
+            if (User::where('email', $nim)->exists()) {
+                $skipped[] = "Baris {$rowNum}: NIM {$nim} sudah dipakai untuk akun login lain.";
 
                 continue;
             }
@@ -478,7 +472,7 @@ class MahasiswaController extends Controller
 
             $user = User::create([
                 'name' => $nama,
-                'email' => $emailMhs,
+                'email' => $nim,
                 'password' => $nim,
                 'role' => 'mahasiswa',
                 'roles' => ['mahasiswa'],

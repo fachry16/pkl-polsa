@@ -24,10 +24,10 @@ class MahasiswaBuatAkun extends Command
         $gagal = 0;
 
         foreach ($tanpaAkun as $mahasiswa) {
-            $email = $mahasiswa->nim.'@polsa.ac.id';
+            $nim = $mahasiswa->nim;
 
-            if (User::where('email', $email)->exists()) {
-                $this->warn("{$mahasiswa->nim} dilewati: email {$email} sudah dipakai akun lain.");
+            if (User::where('email', $nim)->exists()) {
+                $this->warn("{$nim} dilewati: NIM sudah dipakai akun lain.");
                 $gagal++;
 
                 continue;
@@ -35,14 +35,14 @@ class MahasiswaBuatAkun extends Command
 
             $user = User::create([
                 'name' => $mahasiswa->nama,
-                'email' => $email,
-                'password' => $mahasiswa->nim,
+                'email' => $nim,
+                'password' => $nim,
                 'role' => 'mahasiswa',
                 'email_verified_at' => now(),
             ]);
 
             $mahasiswa->update(['user_id' => $user->id]);
-            $this->info("Akun dibuat untuk {$mahasiswa->nama} ({$mahasiswa->nim}) -> {$email} / password: {$mahasiswa->nim}");
+            $this->info("Akun dibuat untuk {$mahasiswa->nama} -> NIM {$nim} / password: {$nim}");
             $dibuat++;
         }
 

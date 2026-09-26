@@ -73,7 +73,7 @@
                             <li><code>jenis_kelas</code>: <strong>Reguler</strong> (Kelas A / Pagi) atau <strong>Karyawan</strong> (Kelas B / Sore-Malam). Default: <em>Reguler</em>.</li>
                         </ul>
                         <div style="margin-top: 0.5rem; font-size: 0.72rem; color: #059669; font-weight: 600;">
-                            💡 Akun login mahasiswa otomatis dibuat dengan email: <code>[nim]@polsa.ac.id</code>
+                            Akun login mahasiswa otomatis dibuat dengan NIM sebagai username. Password awal = NIM, wajib diganti saat login pertama.
                         </div>
                     </div>
 
