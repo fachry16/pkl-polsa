@@ -154,6 +154,7 @@ class AssessmentController extends Controller
         abort_unless(auth()->user()->isAdmin() || auth()->user()->isKaprodi(), 403);
 
         $assessment->scores()->delete();
+        $assessment->approval()?->delete();
         $assessment->update(['status' => Assessment::STATUS_DRAFT]);
 
         return back()->with('success', 'Semua nilai assessment direset. Assessment kembali ke status draft.');
