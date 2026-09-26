@@ -240,31 +240,6 @@ Route::middleware(['auth', 'role:admin,kaprodi'])->group(function () {
         'krs/{krs}',
         [KrsController::class, 'show']
     )->where('krs', '[0-9]+')->name('krs.show');
-
-    Route::get(
-        'krs/cetak/pilih-mahasiswa',
-        [KrsController::class, 'cetakPilih']
-    )->name('krs.cetak-pilih');
-
-    Route::post(
-        'krs/cetak/pilih-mahasiswa',
-        [KrsController::class, 'pilihMahasiswa']
-    )->name('krs.pilih-mahasiswa');
-
-    Route::get(
-        'krs/cetak/{mahasiswa}',
-        [KrsController::class, 'cetak']
-    )->where(['mahasiswa' => '[0-9]+'])->name('krs.cetak');
-
-    Route::get(
-        'krs/cetak/{mahasiswa}/pdf',
-        [KrsController::class, 'cetakPdf']
-    )->where(['mahasiswa' => '[0-9]+'])->name('krs.cetak-pdf');
-
-    Route::get(
-        'krs/cetak/mahasiswa-options',
-        [KrsController::class, 'mahasiswaOptions']
-    )->name('krs.mahasiswa-options');
 });
 
 /* Assessment OBE — capaian CPMK, MK, dan CPL */

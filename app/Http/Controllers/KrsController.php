@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Dosen;
 use App\Models\Krs;
+use App\Models\LmsNilaiMahasiswa;
+use App\Models\LmsSubmission;
 use App\Models\LmsTugas;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
@@ -13,10 +15,9 @@ use App\Models\RpsTugas;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use App\Notifications\KrsBaruAdmin;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class KrsController extends Controller
 {
@@ -80,6 +81,16 @@ class KrsController extends Controller
         $mataKuliah = MataKuliah::findOrFail($request->mata_kuliah_id);
         $kodeProdi = ProgramStudi::findOrFail($programStudiId)->kode_prodi;
         $kelas = $kodeProdi.' '.$mataKuliah->semester;
+
+        $already = Krs::where('mata_kuliah_id', $request->mata_kuliah_id)
+            ->where('tahun_akademik_id', $request->tahun_akademik_id)
+            ->where('dosen_id', $request->dosen_id)
+            ->where('kelas', $kelas)
+            ->exists();
+
+        if ($already) {
+            return back()->with('error', 'Data KRS untuk kombinasi mata kuliah, dosen, dan tahun akademik ini sudah ada.');
+        }
 
         $krs = DB::transaction(function () use ($request, $programStudiId, $kelas) {
             $krs = Krs::create(
@@ -170,6 +181,25 @@ class KrsController extends Controller
     {
         $this->authorizeKrs($krs);
 
+        if ($pengampu = $krs->pengampu) {
+            $driveService = app(GoogleDriveService::class);
+
+            $submissions = LmsSubmission::where('mahasiswa_id', $mahasiswa->id)
+                ->whereHas('lmsTugas', fn ($q) => $q->where('pengampu_id', $pengampu->id))
+                ->get();
+
+            foreach ($submissions as $sub) {
+                if ($sub->file_jawaban) {
+                    $driveService->deleteFile($sub->file_jawaban);
+                }
+                $sub->delete();
+            }
+
+            LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
+                ->where('mahasiswa_id', $mahasiswa->id)
+                ->delete();
+        }
+
         $krs->mahasiswas()->detach($mahasiswa->id);
 
         if ($pengampu = $krs->pengampu) {
@@ -184,28 +214,43 @@ class KrsController extends Controller
         $this->authorizeKrs($krs);
 
         DB::transaction(function () use ($krs) {
+            $driveService = app(GoogleDriveService::class);
+
             if ($pengampu = $krs->pengampu) {
                 foreach ($pengampu->lmsTugas as $tugas) {
                     foreach ($tugas->submissions as $sub) {
                         if ($sub->file_jawaban) {
-                            Storage::disk('public')->delete($sub->file_jawaban);
+                            $driveService->deleteFile($sub->file_jawaban);
                         }
                         $sub->delete();
                     }
                     if ($tugas->file_lampiran) {
-                        Storage::disk('public')->delete($tugas->file_lampiran);
+                        $driveService->deleteFile($tugas->file_lampiran);
                     }
                     $tugas->delete();
                 }
 
                 foreach ($pengampu->lmsMateris as $materi) {
                     if ($materi->file_path) {
-                        Storage::disk('public')->delete($materi->file_path);
+                        $driveService->deleteFile($materi->file_path);
                     }
                     $materi->delete();
                 }
 
-                $pengampu->lmsForumDiskusis()->delete();
+                foreach ($pengampu->lmsForumDiskusis as $diskusi) {
+                    foreach ($diskusi->replies as $reply) {
+                        if ($reply->file_path) {
+                            $driveService->deleteFile($reply->file_path);
+                        }
+                    }
+                    $diskusi->replies()->delete();
+
+                    if ($diskusi->file_path) {
+                        $driveService->deleteFile($diskusi->file_path);
+                    }
+                    $diskusi->delete();
+                }
+
                 $pengampu->lmsPengumumans()->delete();
                 $pengampu->lmsSesiAbsensis()->delete();
                 $pengampu->assessment()->delete();
@@ -220,125 +265,6 @@ class KrsController extends Controller
         return redirect()
             ->route('krs.index')
             ->with('success', 'Data KRS berhasil dihapus.');
-    }
-
-    public function cetakPilih()
-    {
-        $user = auth()->user();
-        $kaprodiProdiId = $user->isKaprodi()
-            ? (int) $user->dosen->program_studi_id
-            : null;
-
-        $programStudis = $kaprodiProdiId
-            ? ProgramStudi::where('id', $kaprodiProdiId)->orderBy('nama_prodi')->get()
-            : ProgramStudi::orderBy('nama_prodi')->get();
-
-        $tahunAkademiks = TahunAkademik::orderByDesc('tahun')->get();
-
-        return view('krs.cetak-pilih', compact('programStudis', 'tahunAkademiks'));
-    }
-
-    public function pilihMahasiswa(Request $request)
-    {
-        $request->validate([
-            'program_studi_id' => 'required|exists:program_studis,id',
-            'tahun_akademik_id' => 'required|exists:tahun_akademiks,id',
-            'mahasiswa_id' => 'required|exists:mahasiswas,id',
-        ]);
-
-        return redirect()->route('krs.cetak', [
-            $request->mahasiswa_id,
-            'tahun_akademik_id' => $request->tahun_akademik_id,
-        ]);
-    }
-
-    public function cetak(Mahasiswa $mahasiswa)
-    {
-        $this->authorizeCetak($mahasiswa);
-
-        $tahunAkademikId = request('tahun_akademik_id');
-
-        $kelas = $this->kelasMahasiswa($mahasiswa, $tahunAkademikId);
-
-        $tahunAkademik = $tahunAkademikId
-            ? TahunAkademik::find($tahunAkademikId)
-            : null;
-
-        return view('krs.cetak', compact('mahasiswa', 'kelas', 'tahunAkademik'));
-    }
-
-    public function cetakPdf(Mahasiswa $mahasiswa)
-    {
-        $this->authorizeCetak($mahasiswa);
-
-        $tahunAkademikId = request('tahun_akademik_id');
-
-        $kelas = $this->kelasMahasiswa($mahasiswa, $tahunAkademikId);
-
-        $tahunAkademik = $tahunAkademikId
-            ? TahunAkademik::find($tahunAkademikId)
-            : null;
-
-        $pdf = Pdf::loadView('krs.pdf', compact('mahasiswa', 'kelas', 'tahunAkademik'));
-
-        $filename = 'KRS-'.$mahasiswa->nim.'-'.$mahasiswa->nama.'.pdf';
-
-        return $pdf->download($filename);
-    }
-
-    public function mahasiswaOptions(Request $request)
-    {
-        $request->validate([
-            'program_studi_id' => 'required|exists:program_studis,id',
-        ]);
-
-        $mahasiswas = Mahasiswa::with('programStudi')
-            ->where('program_studi_id', $request->program_studi_id)
-            ->orderBy('nim')
-            ->get();
-
-        return response()->json($mahasiswas->map(fn ($m) => [
-            'id' => $m->id,
-            'nim' => $m->nim,
-            'nama' => $m->nama,
-            'label' => $m->nim.' - '.$m->nama,
-        ]));
-    }
-
-    private function kelasMahasiswa(Mahasiswa $mahasiswa, $tahunAkademikId = null)
-    {
-        return $mahasiswa->pengampus()
-            ->with([
-                'mataKuliah',
-                'dosen.user',
-                'tahunAkademik',
-                'krs',
-            ])
-            ->when($tahunAkademikId, function ($q) use ($tahunAkademikId) {
-                $q->where('tahun_akademik_id', $tahunAkademikId);
-            })
-            ->orderBy('mata_kuliah_id')
-            ->get();
-    }
-
-    private function authorizeCetak(Mahasiswa $mahasiswa)
-    {
-        $user = auth()->user();
-
-        if ($user->isAdmin() || $user->isDirektur()) {
-            return;
-        }
-
-        if ($user->isKaprodi()) {
-            abort_unless(
-                (int) $user->dosen->program_studi_id === (int) $mahasiswa->program_studi_id,
-                403
-            );
-
-            return;
-        }
-
-        abort(403);
     }
 
     private function authorizeKrsRead(Krs $krs)
