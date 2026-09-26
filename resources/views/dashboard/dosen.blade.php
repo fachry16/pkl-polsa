@@ -216,7 +216,7 @@
     </div>
 
     @if($pengampus->count())
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 1rem;">
             @foreach($pengampus as $pengampu)
                 @php
                     $isKelasB = \App\Models\Krs::isKelasB($pengampu->kelas);

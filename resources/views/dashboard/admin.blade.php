@@ -225,7 +225,7 @@
             </div>
 
             <div style="overflow-x: auto;">
-                <table class="table" style="margin-bottom: 0;">
+                <table class="table data-table-stack" style="margin-bottom: 0;">
                     <thead>
                         <tr>
                             <th style="font-size: 0.75rem;">Program Studi</th>
@@ -240,23 +240,23 @@
                     <tbody>
                         @forelse($prodiRecaps as $pr)
                             <tr>
-                                <td>
+                                <td data-label="Program Studi">
                                     <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">{{ $pr->nama_prodi }}</div>
                                     <div style="font-size: 0.7rem; color: #94a3b8;">Kode: {{ $pr->kode_prodi }}</div>
                                 </td>
-                                <td style="text-align: center;">
+                                <td data-label="Jenjang" style="text-align: center;">
                                     <span style="font-size: 0.72rem; font-weight: 600; background: #FFF3C4; color: #A16207; padding: 0.12rem 0.45rem; border-radius: 4px;">
                                         {{ $pr->jenjang }}
                                     </span>
                                 </td>
-                                <td style="text-align: center; font-weight: 600; font-size: 0.82rem; color: #334155;">{{ $pr->dosen_count }}</td>
-                                <td style="text-align: center; font-weight: 600; font-size: 0.82rem; color: #334155;">{{ $pr->mhs_count }}</td>
-                                <td style="text-align: center; font-size: 0.8rem;">
+                                <td data-label="Dosen" style="text-align: center; font-weight: 600; font-size: 0.82rem; color: #334155;">{{ $pr->dosen_count }}</td>
+                                <td data-label="Mahasiswa" style="text-align: center; font-weight: 600; font-size: 0.82rem; color: #334155;">{{ $pr->mhs_count }}</td>
+                                <td data-label="Kelas A/B" style="text-align: center; font-size: 0.8rem;">
                                     <span style="font-weight: 600; color: #A16207;">{{ $pr->kelas_a }}</span>
                                     <span style="color: #cbd5e1;">/</span>
                                     <span style="font-weight: 600; color: #d97706;">{{ $pr->kelas_b }}</span>
                                 </td>
-                                <td>
+                                <td data-label="Kesiapan RPS">
                                     <div style="display: flex; align-items: center; gap: 0.4rem;">
                                         <div style="flex: 1; height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden;">
                                             <div style="width: {{ $pr->rps_persen }}%; height: 100%; background: {{ $pr->rps_persen >= 80 ? '#10b981' : ($pr->rps_persen >= 50 ? '#f59e0b' : '#ef4444') }};"></div>
@@ -265,7 +265,7 @@
                                     </div>
                                     <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 0.1rem;">{{ $pr->rps_disetujui }} / {{ $pr->total_mk }} MK</div>
                                 </td>
-                                <td style="text-align: center;">
+                                <td data-label="Aksi" style="text-align: center;">
                                     <a href="{{ route('program-studi.kurikulum', $pr->id) }}" class="btn btn-secondary btn-xs" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
                                         Kurikulum
                                     </a>

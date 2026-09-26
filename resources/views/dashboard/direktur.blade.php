@@ -326,7 +326,7 @@
     </div>
 
     @if($direkturKelases->count())
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem;">
             @foreach($direkturKelases as $kelas)
                 <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; transition: all 0.2s;"
                      onmouseover="this.style.borderColor='#FFE88F';this.style.boxShadow='0 4px 16px rgba(254,194,0,0.08)';"

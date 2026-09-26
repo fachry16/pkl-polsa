@@ -2653,6 +2653,12 @@ table.rps-korelasi-table {
         margin-bottom: 1.25rem !important;
     }
 
+    /* Baris header kartu: wrap di layar sempit agar judul & badge/link tidak bertabrakan */
+    .card div[style*="justify-content: space-between"] {
+        flex-wrap: wrap !important;
+        row-gap: 0.5rem !important;
+    }
+
     /* Layout dua panel (sidebar detail 235px + konten) collapse jadi satu kolom di HP */
     div[style*="display: flex"][style*="gap: 1.5rem"][style*="align-items: flex-start"] {
         flex-direction: column !important;
@@ -2808,7 +2814,9 @@ table.rps-korelasi-table {
     table.data-table-stack tbody tr td .btn-group .btn,
     table.data-table-stack tbody tr td .btn-group > *,
     table.data-table-stack tbody tr td .aksi-cell .btn,
-    table.data-table-stack tbody tr td .aksi-cell form {
+    table.data-table-stack tbody tr td .aksi-cell form,
+    table.data-table-stack tbody tr td[data-label="Aksi"] .btn,
+    table.data-table-stack tbody tr td[data-label="Aksi"] form {
         flex: 1 1 auto !important;
         text-align: center !important;
         justify-content: center !important;

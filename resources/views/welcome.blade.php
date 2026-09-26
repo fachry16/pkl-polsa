@@ -118,7 +118,15 @@
                 line-height: 1.15;
             }
 
-            .landing-hero .hero-text .highlight { color: #FEC200; }
+            .landing-hero .hero-text .highlight { color: #FEC200; font-family: 'Batica Sans', sans-serif; font-weight: 700; }
+
+            @font-face {
+                font-family: 'Batica Sans';
+                src: url('{{ asset('fonts/BaticaSans-Bold.ttf') }}') format('truetype');
+                font-weight: 700;
+                font-style: normal;
+                font-display: swap;
+            }
 
             .landing-hero .hero-text .hero-tagline {
                 font-size: 0.95rem;
@@ -449,8 +457,7 @@
             <div class="hero-inner">
                 <div class="hero-text">
                     <h1>Selamat Datang di <span class="highlight">Eduva</span></h1>
-                    <p class="hero-tagline">Education Virtual Academic POLSA</p>
-                    <p>Sistem Informasi Kurikulum &amp; Perkuliahan Digital (LMS) — Platform digital untuk mengelola kurikulum, RPS, dan perkuliahan berbasis OBE secara terintegrasi di lingkungan Politeknik Sawunggalih Aji.</p>
+                    <p>Sistem Informasi Kurikulum &amp; Perkuliahan Digital. Transformasi pengelolaan akademik yang lebih terintegrasi, efektif, dan berorientasi pada hasil. Platform digital terpadu untuk mengelola kurikulum, RPS, dan proses perkuliahan berbasis Outcome-Based Education (OBE) dalam satu sistem yang mudah, terstruktur, dan efisien. Mendukung pembelajaran berkualitas untuk mewujudkan pendidikan yang berorientasi pada capaian dan kebutuhan masa depan.</p>
                     @if (Route::has('login'))
                         <a href="{{ route('login') }}" class="btn">Masuk ke Sistem</a>
                     @endif
