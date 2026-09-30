@@ -205,8 +205,8 @@
                 @csrf
 
                 <div class="form-group">
-                    <label class="form-label" for="email">Username, NIM, atau Email</label>
-                    <input id="email" class="form-input" type="text" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="NIM, username (contoh: admin), atau email">
+                    <label class="form-label" for="email">Username</label>
+                    <input id="email" class="form-input" type="text" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="Masukkan username">
                     @error('email')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
 
