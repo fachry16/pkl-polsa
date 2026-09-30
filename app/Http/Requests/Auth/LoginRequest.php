@@ -42,7 +42,12 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $credentials = [
+            'email' => $this->resolveLoginEmail(trim((string) $this->input('email'))),
+            'password' => (string) $this->input('password'),
+        ];
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -51,6 +56,41 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * Resolve input string to matching user identifier (NIM, NIDN, username, or email).
+     */
+    protected function resolveLoginEmail(string $input): string
+    {
+        if (str_contains($input, '@')) {
+            return $input;
+        }
+
+        // 1. Cocokkan langsung users.email (contoh: NIM polos mahasiswa 202401001)
+        if (\App\Models\User::where('email', $input)->exists()) {
+            return $input;
+        }
+
+        // 2. Cocokkan dengan domain kampus @polsa.ac.id (contoh: admin, direktur, budi.santoso)
+        $campusEmail = $input.'@polsa.ac.id';
+        if (\App\Models\User::where('email', $campusEmail)->exists()) {
+            return $campusEmail;
+        }
+
+        // 3. Cocokkan NIDN dosen
+        $dosenUser = \App\Models\Dosen::where('nidn', $input)->with('user')->first()?->user;
+        if ($dosenUser && $dosenUser->email) {
+            return $dosenUser->email;
+        }
+
+        // 4. Cocokkan NIM mahasiswa jika terdaftar di tabel mahasiswas
+        $mhsUser = \App\Models\Mahasiswa::where('nim', $input)->with('user')->first()?->user;
+        if ($mhsUser && $mhsUser->email) {
+            return $mhsUser->email;
+        }
+
+        return $input;
     }
 
     /**
