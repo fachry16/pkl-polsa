@@ -7,13 +7,23 @@
   2. Present a clear, concise design/plan proposal to the USER.
   3. **Wait for explicit USER confirmation** before executing any code changes or file modifications.
 
-## Anti-AI Slop & Ponytail Rule (MANDATORY FOR AGENT)
-- **Ponytail Active Always**: Enforce the Ponytail methodology on EVERY task.
+## Token Optimization & Anti-Slop (MANDATORY & ALWAYS ACTIVE)
+- **Ponytail (Code Generation)**: ALWAYS ACTIVE. Enforce Ponytail YAGNI methodology on EVERY task.
   - **YAGNI First**: Ask if code needs to exist at all before writing. No speculative features, interfaces with one implementation, or unused boilerplate.
   - **Use Native Laravel & PHP**: Reach for standard Eloquent, Collections, Form Requests, Blade, Carbon, Str/Arr, native HTML5/CSS before adding dependencies or custom helper abstractions.
   - **Shortest Working Diff**: Fix root causes cleanly at the single source of truth. Avoid symptom patching across multiple callers.
   - **No Prose Slop**: Code first, followed by at most 2-3 concise lines. Do not add redundant code comments that restate what the code clearly does.
   - **No Swallowed Exceptions**: Never mask runtime errors or return dummy fallback arrays to hide broken code logic.
+
+- **Caveman (Output Communication)**: ALWAYS ACTIVE.
+  - Terse like smart engineer. High signal, zero fluff.
+  - Drop pleasantries, conversational filler, empty preamble, and postamble.
+  - Keep technical substance, code, file paths, and errors exact.
+  - One idea per sentence, active voice, imperative instructions.
+
+- **RTK (Terminal Output Compression)**: ALWAYS ACTIVE.
+  - Prefix shell commands with `rtk` (e.g. `rtk git status`, `rtk cargo test`, `rtk npm run build`, `rtk ls`).
+  - Keep commands concise and use `rtk gain` to review token savings.
 
 ## Git Branching Strategy (STRICT RULE)
 - **NEVER COMMIT DIRECTLY TO MAIN**: All feature additions, refactoring, and bug fixes MUST be executed on a dedicated feature branch (e.g. `feature/<nama-fitur>` or `<task-name>`).
