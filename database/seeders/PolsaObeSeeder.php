@@ -33,25 +33,20 @@ class PolsaObeSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         // 1. Program Studi Politeknik Sawunggalih Aji (POLSA)
-        $prodiTrpl = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'TRPL'],
-            ['nama_prodi' => 'Teknik Rekayasa Perangkat Lunak', 'jenjang' => 'D4', 'akreditasi' => 'Baik']
+        $prodiTrpl = ProgramStudi::whereIn('kode_prodi', ['14', 'TRPL'])->first() ?? ProgramStudi::create(
+            ['kode_prodi' => '14', 'nama_prodi' => 'Teknik Rekayasa Perangkat Lunak', 'jenjang' => 'D4', 'akreditasi' => 'Baik']
         );
-        $prodiTi = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'TI'],
-            ['nama_prodi' => 'Teknik Informatika', 'jenjang' => 'D3', 'akreditasi' => 'Baik Sekali']
+        $prodiTi = ProgramStudi::whereIn('kode_prodi', ['11', 'TI'])->first() ?? ProgramStudi::create(
+            ['kode_prodi' => '11', 'nama_prodi' => 'Teknik Informatika', 'jenjang' => 'D3', 'akreditasi' => 'Baik Sekali']
         );
-        $prodiAb = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'AB'],
-            ['nama_prodi' => 'Administrasi Bisnis', 'jenjang' => 'D3', 'akreditasi' => 'Baik Sekali']
+        $prodiAb = ProgramStudi::whereIn('kode_prodi', ['12', 'AB'])->first() ?? ProgramStudi::create(
+            ['kode_prodi' => '12', 'nama_prodi' => 'Administrasi Bisnis', 'jenjang' => 'D3', 'akreditasi' => 'Baik Sekali']
         );
-        $prodiAk = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'AK'],
-            ['nama_prodi' => 'Akuntansi', 'jenjang' => 'D3', 'akreditasi' => 'Baik']
+        $prodiAk = ProgramStudi::whereIn('kode_prodi', ['15', 'AK'])->first() ?? ProgramStudi::create(
+            ['kode_prodi' => '15', 'nama_prodi' => 'Akuntansi', 'jenjang' => 'D3', 'akreditasi' => 'Baik']
         );
-        $prodiBd = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'BD'],
-            ['nama_prodi' => 'Bisnis Digital', 'jenjang' => 'D4', 'akreditasi' => 'Baik']
+        $prodiBd = ProgramStudi::whereIn('kode_prodi', ['13', 'BD'])->first() ?? ProgramStudi::create(
+            ['kode_prodi' => '13', 'nama_prodi' => 'Bisnis Digital', 'jenjang' => 'D4', 'akreditasi' => 'Baik']
         );
 
         // 2. Roles
