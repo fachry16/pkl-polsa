@@ -26,7 +26,7 @@
     <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
             <h3 style="font-size: 0.95rem; font-weight: 700; margin: 0; color: #1e293b;">Manajemen Tugas LMS</h3>
-            <span style="font-size: 0.7rem; background: #eef2ff; color: #4f46e5; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600;">Berbasis RPS</span>
+            <span style="font-size: 0.7rem; background: #FFF3C4; color: #A16207; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600;">Berbasis RPS</span>
         </div>
 
         <p style="font-size: 0.82rem; color: #475569; line-height: 1.6; margin-bottom: 1.25rem;">
@@ -57,7 +57,7 @@
     <div>
         @forelse($tugas as $item)
             <div style="background: #ffffff; border-radius: 12px; border: 1px solid {{ ! $item->is_active ? '#fcd34d' : '#e2e8f0' }}; padding: 1.25rem; transition: all 0.2s; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);"
-                 onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(79,70,229,0.08)';"
+                 onmouseover="this.style.borderColor='#FFE88F';this.style.boxShadow='0 4px 16px rgba(254,194,0,0.08)';"
                  onmouseout="this.style.borderColor='{{ ! $item->is_active ? '#fcd34d' : '#e2e8f0' }}';this.style.boxShadow='none';">
                 <a href="{{ route('lms.tugas.show', [$pengampu->id, $item->id]) }}" style="display: block; text-decoration: none;">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
@@ -68,7 +68,7 @@
                             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                                 <span style="font-weight: 600; font-size: 0.9rem; color: #0f172a;">{{ $item->judul }}</span>
                                 @if($item->rps_pertemuan_id)
-                                    <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Minggu {{ $item->rpsPertemuan->minggu ?? '?' }}</span>
+                                    <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Minggu {{ $item->rpsPertemuan->minggu ?? '?' }}</span>
                                 @endif
                                 @if(! $item->is_active)
                                     <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.12rem 0.55rem; font-size: 0.68rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">

@@ -37,7 +37,7 @@
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <span style="font-weight: 600; font-size: 0.9rem; color: #0f172a;">{{ $pengumuman->judul }}</span>
-                            <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">{{ $pengumuman->published_at?->format('d M Y H:i') }}</span>
+                            <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">{{ $pengumuman->published_at?->format('d M Y H:i') }}</span>
                         </div>
                         <div style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem; line-height: 1.7; white-space: pre-wrap;">{!! linkify($pengumuman->isi) !!}</div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">

@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesRps;
 use App\Models\Dosen;
+use App\Models\LmsMateri;
+use App\Models\LmsTugas;
 use App\Models\MataKuliah;
 use App\Models\Rps;
 use App\Models\User;
 use App\Notifications\RpsDiajukan;
 use App\Notifications\RpsDirevisi;
 use App\Notifications\RpsDisetujui;
+use App\Services\GoogleDriveService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -151,6 +154,21 @@ class RpsController extends Controller
     public function destroy(MataKuliah $mataKuliah, Rps $rps)
     {
         $this->authorizeRps($mataKuliah);
+
+        $driveService = app(GoogleDriveService::class);
+
+        foreach ($rps->pertemuans()->whereNotNull('file_materi')->get() as $pertemuan) {
+            if (! LmsMateri::where('file_path', $pertemuan->file_materi)->exists()) {
+                $driveService->deleteFile($pertemuan->file_materi);
+            }
+        }
+
+        foreach ($rps->tugas()->whereNotNull('file_soal')->get() as $tugas) {
+            if (! LmsTugas::where('file_lampiran', $tugas->file_soal)->exists()) {
+                $driveService->deleteFile($tugas->file_soal);
+            }
+        }
+
         $rps->delete();
 
         return redirect()
@@ -167,7 +185,7 @@ class RpsController extends Controller
         }
 
         if ($rps->kelengkapanAjukan()['siap'] === false) {
-            return back()->with('error', 'RPS belum lengkap: seluruh pertemuan (minggu 1-16), tugas & latihan, dan penilaian harus diisi sebelum diajukan.');
+            return back()->with('error', 'RPS belum lengkap: seluruh pertemuan (minggu 1-'.Rps::JUMLAH_PERTEMUAN.'), tugas & latihan, dan penilaian harus diisi sebelum diajukan.');
         }
 
         $rps->update([
@@ -216,6 +234,8 @@ class RpsController extends Controller
 
     public function revisi(Request $request, Rps $rps)
     {
+        abort_unless(! auth()->user()->isDirektur(), 403, 'Direktur hanya dapat melihat RPS.');
+
         $request->validate([
             'catatan_revisi' => 'required|string',
         ]);
@@ -237,6 +257,8 @@ class RpsController extends Controller
 
     public function setujui(Rps $rps)
     {
+        abort_unless(! auth()->user()->isDirektur(), 403, 'Direktur hanya dapat melihat RPS.');
+
         if ($rps->status !== 'Diajukan') {
             return back()->with('error', 'Hanya RPS dengan status Diajukan yang dapat disetujui.');
         }

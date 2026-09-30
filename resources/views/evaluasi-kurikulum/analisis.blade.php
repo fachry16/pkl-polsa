@@ -86,8 +86,8 @@
         <div style="font-size: 0.75rem; color: #64748b;">Capaian &lt; {{ $threshold }}%</div>
     </div>
 
-    <div style="background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid #4f46e5; border-radius: 0.75rem; padding: 1rem 1.25rem;">
-        <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #4f46e5;">MK Terassess</div>
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-top: 3px solid #D9A500; border-radius: 0.75rem; padding: 1rem 1.25rem;">
+        <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #A16207;">MK Terassess</div>
         <div style="font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1.1;">{{ $evaluasi['mk_terassess'] }}</div>
         <div style="font-size: 0.75rem; color: #64748b;">Mata kuliah dengan data</div>
     </div>
@@ -314,21 +314,21 @@
 
 @else
 
-<div class="card" style="padding: 1.5rem; margin-bottom: 1.25rem; border-left: 4px solid #3b82f6; background: #eff6ff;">
+<div class="card" style="padding: 1.5rem; margin-bottom: 1.25rem; border-left: 4px solid #D9A500; background: #FFF8E0;">
     <div style="display: flex; gap: 12px; align-items: flex-start;">
-        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
+        <svg width="20" height="20" fill="none" stroke="#0A0D40" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="16" x2="12" y2="12"></line>
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>
         <div>
-            <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e40af; margin: 0 0 0.4rem 0;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: #A16207; margin: 0 0 0.4rem 0;">
                 Evaluasi Kurikulum
             </h3>
-            <p style="font-size: 0.85rem; color: #1d4ed8; margin: 0 0 0.75rem 0; line-height: 1.5;">
+            <p style="font-size: 0.85rem; color: #B8860B; margin: 0 0 0.75rem 0; line-height: 1.5;">
                 Belum ada data assessment untuk kurikulum ini. Evaluasi kurikulum membutuhkan data nilai CPMK dari minimal satu assessment yang sudah diisi.
             </p>
-            <ol style="font-size: 0.82rem; color: #1e3a8a; margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+            <ol style="font-size: 0.82rem; color: #B8860B; margin: 0; padding-left: 1.2rem; line-height: 1.6;">
                 <li>Pilih tahun akademik dan mata kuliah pada filter di atas untuk mempersempit cakupan.</li>
                 <li>Pastikan sudah ada assessment dengan data nilai CPMK.</li>
                 <li>Data akan otomatis ditampilkan setelah dipilih.</li>

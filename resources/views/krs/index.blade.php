@@ -11,9 +11,6 @@
     Tambah KRS
 </a>
 @endif
-<a href="{{ route('krs.cetak-pilih') }}" class="btn btn-secondary">
-    Cetak KRS
-</a>
 
 <x-alert type="success" :message="session('success')" />
 

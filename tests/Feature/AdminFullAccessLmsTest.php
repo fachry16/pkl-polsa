@@ -18,14 +18,14 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AdminReadOnlyLmsTest extends TestCase
+class AdminFullAccessLmsTest extends TestCase
 {
     use RefreshDatabase;
 
     private function setupData(): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',
@@ -159,7 +159,7 @@ class AdminReadOnlyLmsTest extends TestCase
         $this->actingAs($data['userAdmin'])
             ->get(route('lms.show', $data['pengampu']->id))
             ->assertStatus(200)
-            ->assertSee('Read-Only (Admin)');
+            ->assertSee('Rekap Nilai');
 
         $this->actingAs($data['userAdmin'])
             ->get(route('lms.materi.index', $data['pengampu']->id))
@@ -182,31 +182,37 @@ class AdminReadOnlyLmsTest extends TestCase
             ->assertStatus(200);
     }
 
-    public function test_admin_ditolak_melakukan_crud_materi_dan_tugas_lms(): void
+    public function test_admin_dapat_melakukan_crud_materi_dan_tugas_lms(): void
     {
         $data = $this->setupData();
 
-        // Store Materi -> 403
+        // Store Materi
         $this->actingAs($data['userAdmin'])
             ->post(route('lms.materi.store', $data['pengampu']->id), [
                 'judul' => 'Materi Ilegal',
                 'deskripsi' => 'Materi oleh Admin',
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Update Materi -> 403
+        $this->assertDatabaseHas('lms_materis', ['judul' => 'Materi Ilegal']);
+
+        // Update Materi
         $this->actingAs($data['userAdmin'])
             ->patch(route('lms.materi.update', [$data['pengampu']->id, $data['materi']->id]), [
                 'judul' => 'Materi Edit Admin',
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Delete Materi -> 403
+        $this->assertDatabaseHas('lms_materis', ['judul' => 'Materi Edit Admin']);
+
+        // Delete Materi
         $this->actingAs($data['userAdmin'])
             ->delete(route('lms.materi.destroy', [$data['pengampu']->id, $data['materi']->id]))
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Store Tugas -> 403
+        $this->assertDatabaseMissing('lms_materis', ['id' => $data['materi']->id]);
+
+        // Store Tugas
         $this->actingAs($data['userAdmin'])
             ->post(route('lms.tugas.store', $data['pengampu']->id), [
                 'judul' => 'Tugas Admin',
@@ -214,14 +220,16 @@ class AdminReadOnlyLmsTest extends TestCase
                 'deadline' => now()->addDays(5)->format('Y-m-d H:i:s'),
                 'bobot_nilai' => 50,
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Tugaskan -> 403
+        $this->assertDatabaseHas('lms_tugas', ['judul' => 'Tugas Admin']);
+
+        // Tugaskan (publikasi)
         $this->actingAs($data['userAdmin'])
             ->post(route('lms.tugas.tugaskan', [$data['pengampu']->id, $data['tugas']->id]))
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Update Tugas -> 403
+        // Update Tugas
         $this->actingAs($data['userAdmin'])
             ->patch(route('lms.tugas.update', [$data['pengampu']->id, $data['tugas']->id]), [
                 'judul' => 'Tugas Edit Admin',
@@ -229,54 +237,71 @@ class AdminReadOnlyLmsTest extends TestCase
                 'deadline' => now()->addDays(5)->format('Y-m-d H:i:s'),
                 'bobot_nilai' => 50,
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Delete Tugas -> 403
-        $this->actingAs($data['userAdmin'])
-            ->delete(route('lms.tugas.destroy', ['pengampu' => $data['pengampu']->id, 'tugas' => $data['tugas']->id]))
-            ->assertStatus(403);
+        $this->assertDatabaseHas('lms_tugas', ['judul' => 'Tugas Edit Admin']);
 
-        // Nilai Submission -> 403
+        // Nilai Submission
         $this->actingAs($data['userAdmin'])
             ->patch(route('lms.submission.nilai', $data['submission']->id), [
                 'nilai' => 90,
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
+
+        $this->assertEquals(90.0, (float) $data['submission']->refresh()->nilai);
+
+        // Delete Tugas
+        $this->actingAs($data['userAdmin'])
+            ->delete(route('lms.tugas.destroy', ['pengampu' => $data['pengampu']->id, 'tugas' => $data['tugas']->id]))
+            ->assertStatus(302);
+
+        $this->assertDatabaseMissing('lms_tugas', ['id' => $data['tugas']->id]);
     }
 
-    public function test_admin_ditolak_melakukan_crud_pengumuman_forum_dan_absensi(): void
+    public function test_admin_dapat_melakukan_crud_pengumuman_forum_dan_absensi(): void
     {
         $data = $this->setupData();
 
-        // Store Pengumuman -> 403
+        // Store Pengumuman
         $this->actingAs($data['userAdmin'])
             ->post(route('lms.pengumuman.store', $data['pengampu']->id), [
                 'judul' => 'Pengumuman Admin',
                 'isi' => 'Isi pengumuman',
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Store Forum -> 403
+        $this->assertDatabaseHas('lms_pengumumans', ['judul' => 'Pengumuman Admin']);
+
+        // Store Forum
         $this->actingAs($data['userAdmin'])
             ->post(route('lms.forum.store', $data['pengampu']->id), [
                 'pesan' => 'Pesan Forum Admin',
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Store Komentar -> 403
+        $this->assertDatabaseHas('lms_forum_diskusis', ['pesan' => 'Pesan Forum Admin']);
+
+        // Store Komentar
         $this->actingAs($data['userAdmin'])
             ->post(route('lms.topik.komentar.store', $data['pengampu']->id), [
                 'tipe_topik' => 'tugas',
                 'topik_id' => $data['tugas']->id,
                 'pesan' => 'Komentar Admin',
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
 
-        // Buka Sesi Absensi -> 403
+        $this->assertDatabaseHas('lms_topik_komentars', ['pesan' => 'Komentar Admin']);
+
+        // Buka Sesi Absensi
         $this->actingAs($data['userAdmin'])
             ->post(route('lms.absensi.buka', $data['pengampu']->id), [
                 'rps_pertemuan_id' => $data['pertemuan']->id,
             ])
-            ->assertStatus(403);
+            ->assertStatus(302);
+
+        $this->assertDatabaseHas('lms_sesi_absensis', [
+            'pengampu_id' => $data['pengampu']->id,
+            'rps_pertemuan_id' => $data['pertemuan']->id,
+        ]);
     }
 }

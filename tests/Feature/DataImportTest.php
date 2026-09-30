@@ -29,7 +29,7 @@ class DataImportTest extends TestCase
     private function createProdi(): ProgramStudi
     {
         return ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknik Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',
@@ -64,8 +64,8 @@ class DataImportTest extends TestCase
         $prodi = $this->createProdi();
 
         $csvContent = "nama,nidn,email,kode_prodi,jabatan\n"
-            ."Dosen Satu,11223344,dosen1@polsa.ac.id,TRPL,Dosen\n"
-            ."Dosen Dua,22334455,dosen2@polsa.ac.id,TRPL,Kaprodi\n";
+            ."Dosen Satu,11223344,dosen1@polsa.ac.id,14,Dosen\n"
+            ."Dosen Dua,22334455,dosen2@polsa.ac.id,14,Kaprodi\n";
 
         $file = UploadedFile::fake()->createWithContent('import_dosen.csv', $csvContent);
 
@@ -109,8 +109,8 @@ class DataImportTest extends TestCase
 
         // Semicolon delimited CSV (Excel Indonesia format)
         $csvContent = "nama;nidn;email;kode_prodi;jabatan\n"
-            ."Dosen Baru;33445566;baru@polsa.ac.id;TRPL;Dosen\n"
-            ."Dosen Duplikat;99999999;exist@polsa.ac.id;TRPL;Dosen\n"
+            ."Dosen Baru;33445566;baru@polsa.ac.id;14;Dosen\n"
+            ."Dosen Duplikat;99999999;exist@polsa.ac.id;14;Dosen\n"
             ."Dosen Invalid Prodi;44556677;invalid@polsa.ac.id;XYZ;Dosen\n";
 
         $file = UploadedFile::fake()->createWithContent('import_dosen_semicolon.csv', $csvContent);
@@ -141,8 +141,8 @@ class DataImportTest extends TestCase
         ]);
 
         $csvContent = "nim,nama,kode_prodi,angkatan,semester,status,jenis_kelas\n"
-            ."32240001,Ahmad Fauzi,TRPL,2024,1,Aktif,Reguler\n"
-            ."32240002,Budi Santoso,TRPL,2024,1,Aktif,Karyawan\n";
+            ."32240001,Ahmad Fauzi,14,2024,1,Aktif,Reguler\n"
+            ."32240002,Budi Santoso,14,2024,1,Aktif,Karyawan\n";
 
         $file = UploadedFile::fake()->createWithContent('import_mahasiswa.csv', $csvContent);
 
@@ -192,8 +192,8 @@ class DataImportTest extends TestCase
         ]);
 
         $csvContent = "nim;nama;kode_prodi;angkatan;semester;status\n"
-            ."32240010;Mahasiswa Baru;TRPL;2024;1;Aktif\n"
-            ."32240099;Mahasiswa Duplikat;TRPL;2024;1;Aktif\n";
+            ."32240010;Mahasiswa Baru;14;2024;1;Aktif\n"
+            ."32240099;Mahasiswa Duplikat;14;2024;1;Aktif\n";
 
         $file = UploadedFile::fake()->createWithContent('import_mahasiswa_semicolon.csv', $csvContent);
 

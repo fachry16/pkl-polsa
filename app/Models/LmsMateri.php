@@ -46,4 +46,9 @@ class LmsMateri extends Model
     {
         return $this->created_at ? $this->created_at->addHours(24)->isFuture() : false;
     }
+
+    public function getFileNameAttribute(): string
+    {
+        return $this->rpsPertemuan?->file_materi_nama ?? basename((string) $this->file_path);
+    }
 }

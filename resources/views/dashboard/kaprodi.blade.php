@@ -6,11 +6,11 @@
     {{-- Header Banner Kaprodi --}}
     <div class="role-hero-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.25rem; font-weight: 700; color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">
+            <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.25rem; font-weight: 700; color: #A16207; border: 1px solid rgba(59, 130, 246, 0.3);">
                 🎓
             </div>
             <div>
-                <div style="font-size: 0.72rem; color: #93c5fd; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Pusat Kendali Program Studi</div>
+                <div style="font-size: 0.72rem; color: #A16207; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Pusat Kendali Program Studi</div>
                 <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">
                     {{ $kaprodiProdi->nama_prodi }} ({{ $kaprodiProdi->jenjang }})
                 </div>
@@ -39,13 +39,13 @@
     {{-- Baris 1: 4 KPI Cards Khusus Program Studi --}}
     <div class="dashboard-kpi-grid">
         {{-- Total Mahasiswa Prodi --}}
-        <div class="stat-prodi-card" style="border-left: 4px solid #3b82f6;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <div class="stat-prodi-card" style="border-left: 4px solid #D9A500;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFF8E0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
             </div>
             <div style="flex: 1; min-width: 0;">
-                <span style="font-weight: 700; font-size: 1.35rem; color: #2563eb; display: block; line-height: 1.2;">{{ $mhsProdiTotal }}</span>
-                <span style="font-size: 0.75rem; color: #2563eb; font-weight: 600;">Mahasiswa Aktif Prodi</span>
+                <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $mhsProdiTotal }}</span>
+                <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Mahasiswa Aktif Prodi</span>
                 <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">
                     <span>Reguler (A): {{ $mhsProdiKelasA }}</span> &bull; 
                     <span>Karyawan (B): {{ $mhsProdiKelasB }}</span>
@@ -66,13 +66,13 @@
         </div>
 
         {{-- Total Kelas Paket KRS --}}
-        <div class="stat-prodi-card" style="border-left: 4px solid #8b5cf6;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #f5f3ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div class="stat-prodi-card" style="border-left: 4px solid #FFE88F;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #FFFBE9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div style="flex: 1; min-width: 0;">
-                <span style="font-weight: 700; font-size: 1.35rem; color: #7c3aed; display: block; line-height: 1.2;">{{ $totalKelasPaketProdi }} Kelas</span>
-                <span style="font-size: 0.75rem; color: #7c3aed; font-weight: 600;">Kelas Paket KRS</span>
+                <span style="font-weight: 700; font-size: 1.35rem; color: #A16207; display: block; line-height: 1.2;">{{ $totalKelasPaketProdi }} Kelas</span>
+                <span style="font-size: 0.75rem; color: #A16207; font-weight: 600;">Kelas Paket KRS</span>
                 <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">
                     <span>Kelas A: {{ $krsProdiKelasA }}</span> &bull; 
                     <span>Kelas B: {{ $krsProdiKelasB }}</span>
@@ -112,7 +112,7 @@
                             <div style="font-size: 0.75rem; color: #64748b;">RPS yang diajukan dosen pengampu di prodi {{ $kaprodiProdi->kode_prodi }}</div>
                         </div>
                     </div>
-                    <a href="{{ route('rps.pengajuan') }}" style="font-size: 0.75rem; color: #4f46e5; text-decoration: none; font-weight: 600;">Lihat Semua &rarr;</a>
+                    <a href="{{ route('rps.pengajuan') }}" style="font-size: 0.75rem; color: #A16207; text-decoration: none; font-weight: 600;">Lihat Semua &rarr;</a>
                 </div>
 
                 @if($rpsDiajukanProdi->count() > 0)
@@ -190,7 +190,7 @@
                 @endif
             </div>
             <div style="margin-top: 0.75rem; border-top: 1px solid #f1f5f9; padding-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
-                <a href="{{ route('krs.index') }}" style="color: #4f46e5; text-decoration: none; font-weight: 500;">Buka Manajemen KRS &rarr;</a>
+                <a href="{{ route('krs.index') }}" style="color: #A16207; text-decoration: none; font-weight: 500;">Buka Manajemen KRS &rarr;</a>
                 <span style="color: #64748b;">Sistem Paket POLSA</span>
             </div>
         </div>
@@ -240,7 +240,7 @@
                 <span><strong>{{ $kaprodiRpsStats['draft'] }}</strong> Draft / Belum Diajukan</span>
             </div>
             <div style="margin-left: auto;">
-                <a href="{{ route('program-studi.kurikulum', $kaprodiProdi->id) }}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">
+                <a href="{{ route('program-studi.kurikulum', $kaprodiProdi->id) }}" style="color: #A16207; text-decoration: none; font-weight: 600;">
                     Kelola Kurikulum &amp; RPS &rarr;
                 </a>
             </div>

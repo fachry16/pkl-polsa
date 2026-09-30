@@ -16,13 +16,13 @@
         @forelse($diskusi as $post)
             <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; margin-bottom: 0.75rem;">
                 <div style="display: flex; gap: 0.75rem;">
-                    <div style="width: 2.25rem; height: 2.25rem; border-radius: 8px; background: linear-gradient(135deg, #4f46e5, #818cf8); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">{{ substr($post->user->name ?? '?', 0, 2) }}</div>
+                    <div style="width: 2.25rem; height: 2.25rem; border-radius: 8px; background: linear-gradient(135deg, #FEC200, #FFD54F); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">{{ substr($post->user->name ?? '?', 0, 2) }}</div>
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <span style="font-weight: 600; font-size: 0.85rem; color: #0f172a;">{{ $post->user->name ?? '-' }}</span>
                             <span style="font-size: 0.7rem; color: #94a3b8;">{{ $post->created_at->diffForHumans() }}</span>
                             @if($post->user->isDosen())
-                                <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.4rem; font-size: 0.65rem; font-weight: 600;">Dosen</span>
+                                <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.1rem 0.4rem; font-size: 0.65rem; font-weight: 600;">Dosen</span>
                             @endif
                         </div>
                         <div style="font-size: 0.85rem; color: #334155; margin-top: 0.35rem; line-height: 1.7; white-space: pre-wrap;">{!! linkify($post->pesan) !!}</div>
@@ -56,7 +56,7 @@
                             <div style="margin-top: 0.75rem; padding-left: 1rem; border-left: 2px solid #e2e8f0;">
                                 @foreach($post->replies as $reply)
                                     <div style="display: flex; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9;">
-                                        <div style="width: 1.5rem; height: 1.5rem; border-radius: 6px; background: linear-gradient(135deg, #4f46e5, #818cf8); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.55rem; flex-shrink: 0;">{{ substr($reply->user->name ?? '?', 0, 2) }}</div>
+                                        <div style="width: 1.5rem; height: 1.5rem; border-radius: 6px; background: linear-gradient(135deg, #FEC200, #FFD54F); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.55rem; flex-shrink: 0;">{{ substr($reply->user->name ?? '?', 0, 2) }}</div>
                                         <div style="flex: 1;">
                                             <div style="font-size: 0.75rem; font-weight: 500; color: #1e293b;">
                                               {{ $reply->user->name ?? '-' }}

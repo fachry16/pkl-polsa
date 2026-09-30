@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rps extends Model
 {
-    public const JUMLAH_PERTEMUAN = 16;
+    public const JUMLAH_PERTEMUAN = 14;
 
     protected $fillable = [
         'mata_kuliah_id',

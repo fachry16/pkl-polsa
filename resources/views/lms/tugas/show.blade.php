@@ -41,7 +41,7 @@
                 @if($tugas->deadline->isPast())
                     <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.75rem; font-weight: 600;">Tutup</span>
                 @else
-                    <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.75rem; font-weight: 600;">Aktif</span>
+                    <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.75rem; font-weight: 600;">Aktif</span>
                 @endif
             </div>
         </div>
@@ -160,7 +160,7 @@
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                                 <span>Pesan</span>
                                 @if($mhsKomentars->count() > 0)
-                                    <span style="background: #2563eb; color: #fff; border-radius: 999px; padding: 0 0.35rem; font-size: 0.65rem; font-weight: 700;">{{ $mhsKomentars->count() }}</span>
+                                    <span style="background: #FEC200; color: #0A0D40; border-radius: 999px; padding: 0 0.35rem; font-size: 0.65rem; font-weight: 700;">{{ $mhsKomentars->count() }}</span>
                                 @endif
                             </button>
                         </div>
@@ -172,7 +172,7 @@
                             <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">
                                     <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 0.4rem;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
                                         Preview Kiriman Tugas: {{ $mahasiswa->nama }} ({{ $mahasiswa->nim }})
                                     </h4>
                                     <button type="button" class="btn btn-link btn-xs" style="color: #64748b; text-decoration: none;" onclick="document.getElementById('preview-submission-{{ $submission->id }}').classList.add('hidden')">&times; Tutup Preview</button>
@@ -243,7 +243,7 @@
                                         <x-file-link :file="$submission->file_jawaban" compact :href="route('lms.file', ['submission', $submission->id])" />
                                     @endif
                                     @if($submission->link_jawaban)
-                                        <a href="{{ $submission->link_jawaban }}" target="_blank" style="color: #2563eb; font-weight: 500; text-decoration: underline; margin-left: 0.3rem;">[Buka Link]</a>
+                                        <a href="{{ $submission->link_jawaban }}" target="_blank" style="color: #A16207; font-weight: 500; text-decoration: underline; margin-left: 0.3rem;">[Buka Link]</a>
                                     @endif
                                 </div>
                                 @if($submission->catatan_mahasiswa)
@@ -270,7 +270,7 @@
                         <div style="max-width: 650px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
                                 <span style="font-weight: 600; font-size: 0.85rem; color: #1e293b; display: flex; align-items: center; gap: 0.4rem;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                                     Komentar Pribadi: {{ $mahasiswa->nama }} ({{ $mahasiswa->nim }})
                                 </span>
                                 <button type="button" class="btn btn-link btn-xs" style="color: #64748b; padding: 0; text-decoration: none;" onclick="document.getElementById('komentar-pribadi-{{ $mahasiswa->id }}').classList.add('hidden')">&times; Tutup</button>
@@ -279,9 +279,9 @@
                             {{-- Thread Komentar Pribadi --}}
                             <div style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 250px; overflow-y: auto; margin-bottom: 0.75rem; padding-right: 0.5rem;">
                                 @forelse($mhsKomentars as $komentar)
-                                    <div style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.8rem; {{ $komentar->user?->isDosen() ? 'background: #eff6ff; border: 1px solid #dbeafe; margin-left: 1.5rem;' : 'background: #ffffff; border: 1px solid #e2e8f0; margin-right: 1.5rem;' }}">
+                                    <div style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.8rem; {{ $komentar->user?->isDosen() ? 'background: #FFF8E0; border: 1px solid #FFF3C4; margin-left: 1.5rem;' : 'background: #ffffff; border: 1px solid #e2e8f0; margin-right: 1.5rem;' }}">
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
-                                            <span style="font-weight: 600; font-size: 0.75rem; color: {{ $komentar->user?->isDosen() ? '#2563eb' : '#1e293b' }};">
+                                            <span style="font-weight: 600; font-size: 0.75rem; color: {{ $komentar->user?->isDosen() ? '#A16207' : '#1e293b' }};">
                                                 {{ $komentar->user?->name }} {{ $komentar->user?->isDosen() ? '(Dosen)' : '' }}
                                             </span>
                                             <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -327,7 +327,7 @@
 {{-- Komentar Kelas (Class Comments) --}}
 <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-top: 1.5rem;">
     <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
         Komentar Kelas ({{ $komentarsKelas->count() }})
     </h3>
 
@@ -355,7 +355,7 @@
                         <span style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">{{ $komentar->user->name ?? '-' }}</span>
                         <span style="font-size: 0.7rem; color: #94a3b8;">{{ $komentar->created_at->diffForHumans() }}</span>
                         @if($komentar->user?->isDosen())
-                            <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.05rem 0.35rem; font-size: 0.6rem; font-weight: 600;">Dosen</span>
+                            <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.05rem 0.35rem; font-size: 0.6rem; font-weight: 600;">Dosen</span>
                         @endif
                     </div>
                     <div style="font-size: 0.85rem; color: #334155; margin-top: 0.2rem;">{{ $komentar->pesan }}</div>

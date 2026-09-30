@@ -26,7 +26,7 @@ class DirekturMonitorKurikulumTest extends TestCase
     private function createKurikulum(string $status): Kurikulum
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',

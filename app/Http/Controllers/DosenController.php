@@ -230,8 +230,8 @@ class DosenController extends Controller
     {
         $headers = ['nama', 'nidn', 'email', 'kode_prodi', 'jabatan'];
         $samples = [
-            ['Bambang Sudarsono, M.Kom', '0612345678', 'bambang@polsa.ac.id', 'TRPL', 'Dosen'],
-            ['Dr. Siti Aminah, M.T.', '0623456789', 'siti@polsa.ac.id', 'TI', 'Dosen'],
+            ['Bambang Sudarsono, M.Kom', '0612345678', 'bambang@polsa.ac.id', '14', 'Dosen'],
+            ['Dr. Siti Aminah, M.T.', '0623456789', 'siti@polsa.ac.id', '11', 'Dosen'],
         ];
 
         return $csvService->downloadTemplate('template_import_dosen.csv', $headers, $samples);

@@ -37,7 +37,7 @@ class MasterDataAccessTest extends TestCase
     private function createKaprodi(): User
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',
@@ -64,7 +64,7 @@ class MasterDataAccessTest extends TestCase
     private function createDosenBiasa(): User
     {
         $prodi = ProgramStudi::first() ?? ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',

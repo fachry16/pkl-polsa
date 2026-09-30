@@ -14,7 +14,7 @@
     {{-- Card Detail Materi --}}
     <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
         <div style="display: flex; gap: 1.25rem; align-items: flex-start;">
-            <div style="width: 3rem; height: 3rem; border-radius: 50%; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <div style="width: 3rem; height: 3rem; border-radius: 50%; background: #FFF3C4; color: #A16207; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             </div>
             <div style="flex: 1;">
@@ -54,7 +54,7 @@
                 @if($materi->file_path)
                     <div style="margin-top: 1.5rem; border-top: 1px solid #f1f5f9; padding-top: 1rem;">
                         <div style="font-size: 0.8rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem;">Lampiran Materi:</div>
-                        <x-file-link :file="$materi->file_path" :href="route('mahasiswa.lms.file', ['materi', $materi->id])" />
+                        <x-file-link :file="$materi->file_path" :nama="$materi->file_name" :href="route('mahasiswa.lms.file', ['materi', $materi->id])" />
                     </div>
                 @endif
             </div>
@@ -64,7 +64,7 @@
     {{-- Komentar Kelas (Class Comments) --}}
     <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
         <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             Komentar Kelas ({{ $komentarsKelas->count() }})
         </h3>
 

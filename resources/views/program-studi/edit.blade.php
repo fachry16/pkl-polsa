@@ -13,7 +13,7 @@
 
         <div class="form-group">
             <label class="form-label">Kode Program Studi</label>
-            <input type="text" name="kode_prodi" value="{{ old('kode_prodi', $programStudi->kode_prodi) }}" class="form-input" placeholder="Contoh: IF">
+            <input type="text" name="kode_prodi" value="{{ old('kode_prodi', $programStudi->kode_prodi) }}" class="form-input" placeholder="Contoh: 11" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')">
             @error('kode_prodi')
                 <p class="form-error">{{ $message }}</p>
             @enderror

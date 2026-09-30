@@ -1,7 +1,7 @@
 <x-modal name="publikasikan-tugas-modal" maxWidth="lg">
     <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 0.6rem;">
-            <div style="width: 2rem; height: 2rem; border-radius: 8px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <div style="width: 2rem; height: 2rem; border-radius: 8px; background: #FFF3C4; color: #A16207; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
             <div>
@@ -59,9 +59,9 @@
         </div>
 
         {{-- Info Alert --}}
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 0.9rem; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 0.6rem;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 0.1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <div style="font-size: 0.75rem; color: #1e40af; line-height: 1.45;">
+        <div style="background: #FFF8E0; border: 1px solid #FFE88F; border-radius: 8px; padding: 0.75rem 0.9rem; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 0.6rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 0.1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <div style="font-size: 0.75rem; color: #A16207; line-height: 1.45;">
                 Setelah dipublikasikan, notifikasi tugas baru akan otomatis dikirimkan ke seluruh mahasiswa kelas, dosen pengampu, kaprodi, dan pimpinan terkait.
             </div>
         </div>

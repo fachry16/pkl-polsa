@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Wajib Ganti Password - {{ config('app.name', 'Eduva') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/eduva/eduva-logo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -38,8 +40,8 @@
             width: 52px;
             height: 52px;
             border-radius: 12px;
-            background: #eef2ff;
-            color: #4f46e5;
+            background: #FFF3C4;
+            color: #A16207;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -98,15 +100,15 @@
         }
 
         .form-input:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+            border-color: #A16207;
+            box-shadow: 0 0 0 3px rgba(254, 194, 0, 0.12);
         }
 
         .btn-submit {
             width: 100%;
             padding: 0.75rem;
-            background: #4f46e5;
-            color: #ffffff;
+            background: #FEC200;
+            color: #0A0D40;
             border: none;
             border-radius: 8px;
             font-weight: 600;
@@ -120,7 +122,7 @@
         }
 
         .btn-submit:hover {
-            background: #4338ca;
+            background: #D9A500;
         }
 
         .auth-footer {
@@ -167,7 +169,7 @@
                 <div style="font-weight: 600; font-size: 0.85rem; color: #0f172a;">{{ $user->name }}</div>
                 <div style="font-size: 0.72rem; color: #64748b;">{{ $user->email }}</div>
             </div>
-            <span style="font-size: 0.7rem; background: #e0e7ff; color: #4338ca; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600; text-transform: uppercase;">
+            <span style="font-size: 0.7rem; background: #FFF3C4; color: #A16207; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600; text-transform: uppercase;">
                 {{ $user->role }}
             </span>
         </div>

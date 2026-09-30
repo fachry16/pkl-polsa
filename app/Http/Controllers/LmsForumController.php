@@ -36,8 +36,6 @@ class LmsForumController extends Controller
 
     public function store(Request $request, Pengampu $pengampu)
     {
-        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
-
         $this->authorizePengampu($pengampu);
 
         $data = $this->validated($request, $pengampu->id);
@@ -97,16 +95,16 @@ class LmsForumController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsForumDiskusi $diskusi)
     {
-        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
-
         $this->authorizePengampu($pengampu);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
 
-        if ($diskusi->user?->isMahasiswa()) {
-            abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan mahasiswa telah berakhir.');
-        } else {
-            abort_unless(Auth::id() === $diskusi->user_id, 403);
-            abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
+        if (! Auth::user()->isAdmin()) {
+            if ($diskusi->user?->isMahasiswa()) {
+                abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan mahasiswa telah berakhir.');
+            } else {
+                abort_unless(Auth::id() === $diskusi->user_id, 403);
+                abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
+            }
         }
 
         $driveService = app(GoogleDriveService::class);
@@ -171,11 +169,13 @@ class LmsForumController extends Controller
 
     private function authorizePost(Pengampu $pengampu, LmsForumDiskusi $diskusi): void
     {
-        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
-
         $this->authorizePengampu($pengampu);
 
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
+
+        if (Auth::user()->isAdmin()) {
+            return;
+        }
 
         abort_unless(Auth::id() === $diskusi->user_id, 403);
 

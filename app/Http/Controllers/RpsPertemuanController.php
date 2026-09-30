@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesRps;
+use App\Models\LmsMateri;
+use App\Models\Pengampu;
 use App\Models\Rps;
 use App\Models\RpsPertemuan;
 use App\Rules\LmsFileMime;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class RpsPertemuanController extends Controller
 {
@@ -59,7 +63,7 @@ class RpsPertemuanController extends Controller
             'minggu' => [
                 'required',
                 'integer',
-                'between:1,16',
+                'between:1,'.Rps::JUMLAH_PERTEMUAN,
                 Rule::unique('rps_pertemuans')
                     ->where(function ($query) use ($rps) {
                         return $query->where('rps_id', $rps->id);
@@ -95,10 +99,12 @@ class RpsPertemuanController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $data['file_materi'] = $request->file('file')->store('lms/materi', 'public');
+            $data = array_merge($data, $this->simpanFileMateri($request->file('file')));
         }
 
-        RpsPertemuan::create($data);
+        $pertemuan = RpsPertemuan::create($data);
+
+        $this->syncToPengampu($rps, $pertemuan);
 
         return redirect()
             ->route('rps.pertemuan.index', $rps->id)
@@ -139,7 +145,7 @@ class RpsPertemuanController extends Controller
             'minggu' => [
                 'required',
                 'integer',
-                'between:1,16',
+                'between:1,'.Rps::JUMLAH_PERTEMUAN,
                 Rule::unique('rps_pertemuans')
                     ->ignore($pertemuan->id)
                     ->where(function ($query) use ($rps) {
@@ -178,10 +184,12 @@ class RpsPertemuanController extends Controller
             if ($pertemuan->file_materi) {
                 Storage::disk('public')->delete($pertemuan->file_materi);
             }
-            $data['file_materi'] = $request->file('file')->store('lms/materi', 'public');
+            $data = array_merge($data, $this->simpanFileMateri($request->file('file')));
         }
 
         $pertemuan->update($data);
+
+        $this->syncToPengampu($rps, $pertemuan);
 
         return redirect()
             ->route('rps.pertemuan.index', $rps->id)
@@ -204,6 +212,8 @@ class RpsPertemuanController extends Controller
             Storage::disk('public')->delete($pertemuan->file_materi);
         }
 
+        LmsMateri::where('rps_pertemuan_id', $pertemuan->id)->delete();
+
         $pertemuan->delete();
 
         return redirect()
@@ -225,22 +235,116 @@ class RpsPertemuanController extends Controller
         $this->authorizeRpsModel($rps);
 
         $request->validate([
-            'file' => ['required', 'file', 'max:51200', new LmsFileMime],
+            'file' => ['nullable', 'file', 'max:51200', new LmsFileMime],
+            'link_materi' => 'nullable|string|max:2000',
         ]);
 
-        if ($pertemuan->file_materi) {
-            Storage::disk('public')->delete($pertemuan->file_materi);
+        $data = ['link_materi' => $request->link_materi];
+        $adaFile = $request->hasFile('file');
+
+        if ($adaFile) {
+            if ($pertemuan->file_materi) {
+                Storage::disk('public')->delete($pertemuan->file_materi);
+            }
+
+            $data = array_merge($data, $this->simpanFileMateri($request->file('file')));
         }
 
-        $pertemuan->update([
-            'file_materi' => $request->file('file')->store('lms/materi', 'public'),
-        ]);
+        $pertemuan->update($data);
+
+        $this->syncToPengampu($rps, $pertemuan);
+
+        $pesan = $adaFile
+            ? 'File materi untuk pertemuan minggu '.$pertemuan->minggu.' berhasil diunggah & tersinkron ke kelas LMS.'
+            : 'Catatan pertemuan minggu '.$pertemuan->minggu.' berhasil disimpan.';
 
         return redirect()
             ->route('rps.pertemuan.index', $rps->id)
-            ->with(
-                'success',
-                'File materi untuk pertemuan minggu '.$pertemuan->minggu.' berhasil diunggah.'
-            );
+            ->with('success', $pesan);
+    }
+
+    /**
+     * Stream file materi pertemuan.
+     */
+    public function file(Rps $rps, RpsPertemuan $pertemuan)
+    {
+        $this->authorizeRpsModel($rps);
+
+        abort_unless($pertemuan->file_materi, 404);
+
+        $disk = Storage::disk('public');
+        $path = $disk->path($pertemuan->file_materi);
+
+        abort_unless(is_file($path), 404);
+
+        $namaFile = $pertemuan->file_materi_nama ?: basename($pertemuan->file_materi);
+
+        return response()->file($path, [
+            'Content-Type' => $disk->mimeType($pertemuan->file_materi),
+            'Content-Disposition' => HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_INLINE,
+                $namaFile
+            ),
+        ]);
+    }
+
+    /**
+     * Simpan file materi dengan nama asli, aman dari tabrakan nama.
+     */
+    private function simpanFileMateri(UploadedFile $file): array
+    {
+        $original = $file->getClientOriginalName();
+        $base = pathinfo($original, PATHINFO_FILENAME);
+        $ext = pathinfo($original, PATHINFO_EXTENSION);
+        $ext = $ext !== '' ? '.'.$ext : '';
+        $nama = $original;
+        $i = 1;
+
+        while (Storage::disk('public')->exists('lms/materi/'.$nama)) {
+            $nama = $base.' ('.$i.')'.$ext;
+            $i++;
+        }
+
+        return [
+            'file_materi' => $file->storeAs('lms/materi', $nama, 'public'),
+            'file_materi_nama' => $original,
+        ];
+    }
+
+    private function syncToPengampu(Rps $rps, RpsPertemuan $pertemuan): void
+    {
+        if (! $pertemuan->file_materi) {
+            return;
+        }
+
+        $judul = $pertemuan->materi
+            ?: 'Materi Minggu '.$pertemuan->minggu;
+
+        $pengampus = Pengampu::where('mata_kuliah_id', $rps->mata_kuliah_id)->get();
+
+        foreach ($pengampus as $pengampu) {
+            $sudahAda = LmsMateri::where('pengampu_id', $pengampu->id)
+                ->where('rps_pertemuan_id', $pertemuan->id)
+                ->exists();
+
+            if ($sudahAda) {
+                LmsMateri::where('pengampu_id', $pengampu->id)
+                    ->where('rps_pertemuan_id', $pertemuan->id)
+                    ->update([
+                        'judul' => $judul,
+                        'file_path' => $pertemuan->file_materi,
+                    ]);
+
+                continue;
+            }
+
+            LmsMateri::create([
+                'pengampu_id' => $pengampu->id,
+                'rps_pertemuan_id' => $pertemuan->id,
+                'judul' => $judul,
+                'deskripsi' => $pertemuan->sub_cpmk,
+                'file_path' => $pertemuan->file_materi,
+            ]);
+        }
     }
 }

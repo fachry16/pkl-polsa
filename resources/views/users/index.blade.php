@@ -66,7 +66,7 @@
                             @elseif($role === 'direktur' || str_starts_with($role, 'direktur'))
                                 <span class="badge badge-disetujui">{{ $roleName }}</span>
                             @elseif($role === 'kaprodi' || str_starts_with($role, 'kaprodi'))
-                                <span class="badge badge-diajukan" style="background: #e0e7ff; color: #4338ca;">{{ $roleName }}</span>
+                                <span class="badge badge-diajukan" style="background: #FFF3C4; color: #A16207;">{{ $roleName }}</span>
                             @else
                                 <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">{{ $roleName }}</span>
                             @endif

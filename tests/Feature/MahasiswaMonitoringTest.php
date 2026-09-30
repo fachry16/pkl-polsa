@@ -37,7 +37,7 @@ class MahasiswaMonitoringTest extends TestCase
         parent::setUp();
 
         $prodiA = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',
@@ -229,9 +229,16 @@ class MahasiswaMonitoringTest extends TestCase
             ->assertSee('MATEMATIKA BISNIS');
 
         $this->actingAs($this->kaprodi)
-            ->get(route('mahasiswa.aktivitas', $this->mhs1->id))
+            ->get(route('mahasiswa.status', $this->mhs1->id))
             ->assertOk()
-            ->assertSee('Aktivitas Perkuliahan');
+            ->assertSee('Status — Mahasiswa Satu')
+            ->assertSee('Chart Status')
+            ->assertSee('Aktif');
+
+        $this->actingAs($this->kaprodi)
+            ->get(route('mahasiswa.status', $this->mhs3Do->id))
+            ->assertOk()
+            ->assertSee('DO');
 
         $this->actingAs($this->kaprodi)
             ->get(route('mahasiswa.transkrip', $this->mhs1->id))
@@ -247,7 +254,7 @@ class MahasiswaMonitoringTest extends TestCase
             ->assertForbidden();
 
         $this->actingAs($this->kaprodi)
-            ->get(route('mahasiswa.aktivitas', $this->mhs2LainProdi->id))
+            ->get(route('mahasiswa.status', $this->mhs2LainProdi->id))
             ->assertForbidden();
 
         $this->actingAs($this->kaprodi)

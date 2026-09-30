@@ -22,7 +22,7 @@ class AdminDashboardTest extends TestCase
         ]);
 
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknik Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',
@@ -45,7 +45,7 @@ class AdminDashboardTest extends TestCase
         $response->assertSee('Total Dosen Pengajar');
         $response->assertSee('Total Kelas Paket Aktif');
         $response->assertSee('Kesiapan RPS Mata Kuliah');
-        $response->assertSee('Progres 16 Pertemuan LMS');
+        $response->assertSee('Progres 14 Pertemuan LMS');
         $response->assertSee('Peringatan Rombel Mahasiswa');
         $response->assertSee('Antrean Penilaian Tugas Mahasiswa');
         $response->assertSee('Rekapitulasi Program Studi POLSA');
@@ -56,7 +56,7 @@ class AdminDashboardTest extends TestCase
     public function test_dosen_melihat_dashboard_dosen(): void
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',
