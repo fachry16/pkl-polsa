@@ -147,8 +147,8 @@ class PolsaObeSeeder extends Seeder
 
         // Mahasiswa 1: Ahmad Rizky (TRPL - Sem 3)
         $userMhs1 = User::firstOrCreate(
-            ['email' => 'ahmad.rizky@polsa.ac.id'],
-            ['name' => 'Ahmad Rizky', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202401001'],
+            ['name' => 'Ahmad Rizky', 'password' => '202401001', 'role' => 'mahasiswa']
         );
         $mhs1 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs1->id],
@@ -164,8 +164,8 @@ class PolsaObeSeeder extends Seeder
 
         // Mahasiswa 2: Dewi Lestari (TRPL - Sem 3)
         $userMhs2 = User::firstOrCreate(
-            ['email' => 'dewi.lestari@polsa.ac.id'],
-            ['name' => 'Dewi Lestari', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202401002'],
+            ['name' => 'Dewi Lestari', 'password' => '202401002', 'role' => 'mahasiswa']
         );
         $mhs2 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs2->id],
@@ -181,8 +181,8 @@ class PolsaObeSeeder extends Seeder
 
         // Mahasiswa 3: Budi Pratama (TI - Sem 1)
         $userMhs3 = User::firstOrCreate(
-            ['email' => 'budi.pratama@polsa.ac.id'],
-            ['name' => 'Budi Pratama', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202501005'],
+            ['name' => 'Budi Pratama', 'password' => '202501005', 'role' => 'mahasiswa']
         );
         $mhs3 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs3->id],
@@ -198,8 +198,8 @@ class PolsaObeSeeder extends Seeder
 
         // Mahasiswa 4: Citra Ananda (TRPL - Sem 5)
         $userMhs4 = User::firstOrCreate(
-            ['email' => 'citra.ananda@polsa.ac.id'],
-            ['name' => 'Citra Ananda', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202301010'],
+            ['name' => 'Citra Ananda', 'password' => '202301010', 'role' => 'mahasiswa']
         );
         $mhs4 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs4->id],
