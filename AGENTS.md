@@ -71,9 +71,11 @@
 
 <!-- antislop:start -->
 ## antislop
-For UI, copy, and mobile layout work, read the matching skill:
+For UI, copy, accessibility, code comments, and mobile layout work, read the matching skill:
 - Core filter: `.agents/skills/antislop/SKILL.md`
 - UI / visual: `.agents/skills/antislop-ui/SKILL.md`
 - Mobile / responsive: `.agents/skills/antislop-layoutmobile/SKILL.md`
 - Copywriting: `.agents/skills/antislop-copywriting/SKILL.md`
+- Accessibility & human factors: `.agents/skills/antislop-human/SKILL.md`
+- Code comments cleanup: `.agents/skills/antislop-code/SKILL.md`
 <!-- antislop:end -->
