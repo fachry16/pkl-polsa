@@ -2,7 +2,7 @@
 <div class="role-hero-banner" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);">
     <div style="display: flex; align-items: center; gap: 1rem;">
         <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255, 255, 255, 0.2);">
-            🏛️
+            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
         </div>
         <div>
             <div style="font-size: 0.72rem; color: #a7f3d0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dashboard Eksekutif &amp; Tata Kelola</div>

@@ -7,7 +7,7 @@
     <div class="role-hero-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
         <div style="display: flex; align-items: center; gap: 1rem;">
             <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.25rem; font-weight: 700; color: #A16207; border: 1px solid rgba(59, 130, 246, 0.3);">
-                🎓
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
             </div>
             <div>
                 <div style="font-size: 0.72rem; color: #A16207; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Pusat Kendali Program Studi</div>

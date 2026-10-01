@@ -1,7 +1,7 @@
 {{-- Header Sambutan Personal Mahasiswa --}}
-<div class="role-hero-banner" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%);">
+<div class="role-hero-banner" style="background: linear-gradient(135deg, #0A0D40 0%, #141A5E 100%);">
     <div style="display: flex; align-items: center; gap: 1rem;">
-        <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #6ee7b7; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <div class="hero-avatar" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.35rem; font-weight: 700; color: #FEC200; border: 1px solid rgba(254, 194, 0, 0.3);">
             @if(auth()->user()->avatar_url)
                 <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
             @else
@@ -9,27 +9,27 @@
             @endif
         </div>
         <div>
-            <div style="font-size: 0.72rem; color: #6ee7b7; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Portal Perkuliahan &amp; LMS OBE POLSA</div>
-            <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem;">{{ auth()->user()->name }}</div>
-            <div style="font-size: 0.8rem; color: #d1fae5; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <span>NIM: <strong>{{ $mahasiswa->nim ?? '-' }}</strong></span>
+            <div style="font-size: 0.72rem; color: #FFE88F; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Portal Perkuliahan &amp; LMS OBE POLSA</div>
+            <div class="hero-title" style="font-size: 1.25rem; font-weight: 700; line-height: 1.2; margin-top: 0.15rem; color: #f8fafc;">{{ auth()->user()->name }}</div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <span>NIM: <strong style="color: #fff;">{{ $mahasiswa->nim ?? '-' }}</strong></span>
                 <span>&bull;</span>
-                <span>Prodi: <strong>{{ $mahasiswa->programStudi->nama_prodi ?? 'Politeknik Sawunggalih Aji' }}</strong></span>
+                <span>Prodi: <strong style="color: #fff;">{{ $mahasiswa->programStudi->nama_prodi ?? 'Politeknik Sawunggalih Aji' }}</strong></span>
                 @if($semesterAktif)
                     <span>&bull;</span>
-                    <span>Semester: <strong>{{ $semesterAktif->semester }}</strong></span>
+                    <span>Semester: <strong style="color: #fff;">{{ $semesterAktif->semester }}</strong></span>
                 @endif
                 @if($mahasiswa?->angkatan)
                     <span>&bull;</span>
-                    <span>Angkatan: <strong>{{ $mahasiswa->angkatan }}</strong></span>
+                    <span>Angkatan: <strong style="color: #fff;">{{ $mahasiswa->angkatan }}</strong></span>
                 @endif
                 <span>&bull;</span>
                 @if(($mahasiswa?->jenis_kelas ?? 'Reguler') === 'Karyawan')
-                    <span style="background: #f59e0b; color: #78350f; border: 1px solid #fde68a; padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
+                    <span style="background: rgba(254, 194, 0, 0.2); color: #FFE88F; border: 1px solid rgba(254, 194, 0, 0.4); padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
                         Kelas Karyawan (Kelas B)
                     </span>
                 @else
-                    <span style="background: rgba(255, 255, 255, 0.2); color: #ecfdf5; border: 1px solid rgba(255, 255, 255, 0.35); padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
+                    <span style="background: rgba(255, 255, 255, 0.12); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.25); padding: 0.15rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">
                         Kelas Reguler (Kelas A)
                     </span>
                 @endif
@@ -37,10 +37,10 @@
         </div>
     </div>
     <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-        <span style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #ecfdf5;">
+        <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #f1f5f9;">
             {{ $tahunAkademik ? $tahunAkademik->tahun.' '.ucfirst($tahunAkademik->semester) : 'Semester Aktif' }}
         </span>
-        <span style="background: #10b981; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <span style="background: #FEC200; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: #0A0D40;">
             {{ $totalSksSemester }} SKS Ditempuh
         </span>
     </div>

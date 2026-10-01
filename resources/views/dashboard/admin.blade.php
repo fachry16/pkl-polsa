@@ -6,8 +6,7 @@
                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
             </div>
             <div>
-                <div style="font-size: 0.72rem; color: #A16207; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 0.4rem;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <div style="font-size: 0.72rem; color: #A16207; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">
                     Pusat Kendali Akademik POLSA
                 </div>
                 <div class="hero-title" style="font-size: 1.35rem; font-weight: 800; line-height: 1.25; margin-top: 0.15rem; color: #f8fafc;">
@@ -290,7 +289,11 @@
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; padding-bottom: 0.6rem; border-bottom: 1px solid #f1f5f9;">
                 <div style="display: flex; align-items: center; gap: 0.45rem;">
                     <div style="width: 30px; height: 30px; border-radius: 8px; background: {{ $kelasKosong->count() > 0 ? '#fee2e2' : '#ecfdf5' }}; display: flex; align-items: center; justify-content: center;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ $kelasKosong->count() > 0 ? '#dc2626' : '#059669' }}" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        @if($kelasKosong->count() > 0)
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        @else
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        @endif
                     </div>
                     <div>
                         <div style="font-weight: 700; font-size: 0.9rem; color: #1e293b;">Peringatan Rombel Mahasiswa</div>
@@ -330,8 +333,11 @@
                     @endforeach
                 </div>
             @else
-                <div style="text-align: center; padding: 1rem 0.5rem; color: #059669; background: #f0fdf4; border-radius: 8px; margin-bottom: 0.85rem;">
-                    <div style="font-weight: 700; font-size: 0.82rem;">Plotting Rombel Lengkap!</div>
+                <div style="text-align: center; padding: 0.85rem 0.5rem; color: #059669; background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 8px; margin-bottom: 0.85rem;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-weight: 700; font-size: 0.82rem;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Plotting Rombel Lengkap</span>
+                    </div>
                     <div style="font-size: 0.72rem; color: #166534; margin-top: 0.15rem;">Seluruh kelas paket aktif telah terisi mahasiswa.</div>
                 </div>
             @endif
@@ -364,8 +370,9 @@
                         @endforeach
                     </div>
                 @else
-                    <div style="font-size: 0.75rem; color: #059669; text-align: center; padding: 0.5rem;">
-                        ✅ Seluruh tugas mahasiswa telah selesai dinilai dosen.
+                    <div style="font-size: 0.75rem; color: #059669; text-align: center; padding: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Seluruh tugas mahasiswa telah selesai dinilai dosen.</span>
                     </div>
                 @endif
             </div>
@@ -374,9 +381,15 @@
             <div style="margin-top: 0.85rem; border-top: 1px solid #f1f5f9; padding-top: 0.65rem; font-size: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
                 <div>
                     @if($mahasiswaTanpaAkun > 0)
-                        <span style="color: #dc2626; font-weight: 600;">⚠️ {{ $mahasiswaTanpaAkun }} mhs belum punya akun login</span>
+                        <span style="color: #dc2626; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span>{{ $mahasiswaTanpaAkun }} mahasiswa belum memiliki akun login</span>
+                        </span>
                     @else
-                        <span style="color: #059669; font-weight: 600;">✅ Semua mahasiswa punya akun login</span>
+                        <span style="color: #059669; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Semua mahasiswa telah memiliki akun login</span>
+                        </span>
                     @endif
                 </div>
                 <a href="{{ route('lms.monitor') }}" style="color: #A16207; text-decoration: none; font-weight: 600;">Buka Monitor &rarr;</a>
