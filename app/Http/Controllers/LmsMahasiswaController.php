@@ -202,8 +202,8 @@ class LmsMahasiswaController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '03_Forum');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', $hierarchy);
         }
 
         LmsForumDiskusi::create($data);
@@ -257,14 +257,14 @@ class LmsMahasiswaController extends Controller
 
         $data = ['pesan' => $validated['pesan']];
         $driveService = app(GoogleDriveService::class);
-        $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
 
         if ($request->hasFile('file')) {
             if ($diskusi->file_path) {
                 $driveService->deleteFile($diskusi->file_path);
             }
 
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '03_Forum');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', $hierarchy);
         } elseif ($request->boolean('remove_file') && $diskusi->file_path) {
             $driveService->deleteFile($diskusi->file_path);
             $data['file_path'] = null;
@@ -317,12 +317,12 @@ class LmsMahasiswaController extends Controller
                 $driveService->deleteFile($existing->file_jawaban);
             }
 
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '02_Tugas', [$tugas->judul, 'Jawaban_Mahasiswa']);
             $nim = $mahasiswa->nim ?? 'MHS';
             $namaMhs = Str::slug($mahasiswa->nama ?? Auth::user()->name, '_');
             $customName = "{$nim}_{$namaMhs}_".$request->file('file_jawaban')->getClientOriginalName();
 
-            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions', [$mkLabel, 'Tugas', $tugas->judul, 'Jawaban'], $customName);
+            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions', $hierarchy, $customName);
         }
 
         LmsSubmission::updateOrCreate(
@@ -377,12 +377,12 @@ class LmsMahasiswaController extends Controller
                 $driveService->deleteFile($submission->file_jawaban);
             }
 
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '02_Tugas', [$tugas->judul, 'Jawaban_Mahasiswa']);
             $nim = $mahasiswa->nim ?? 'MHS';
             $namaMhs = Str::slug($mahasiswa->nama ?? Auth::user()->name, '_');
             $customName = "{$nim}_{$namaMhs}_".$request->file('file_jawaban')->getClientOriginalName();
 
-            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions', [$mkLabel, 'Tugas', $tugas->judul, 'Jawaban'], $customName);
+            $data['file_jawaban'] = $driveService->storeFile($request->file('file_jawaban'), 'lms/submissions', $hierarchy, $customName);
         } elseif ($request->boolean('hapus_file_jawaban') && $submission->file_jawaban) {
             $driveService = app(GoogleDriveService::class);
             $driveService->deleteFile($submission->file_jawaban);

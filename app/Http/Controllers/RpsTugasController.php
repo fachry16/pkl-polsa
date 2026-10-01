@@ -82,9 +82,9 @@ class RpsTugasController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($rps->mataKuliah->kode ?? 'MK').' - RPS';
+            $hierarchy = $driveService->buildRpsHierarchy($rps, 'Tugas_RPS', [$request->nama_tugas]);
             $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
-            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->nama_tugas], $customName);
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', $hierarchy, $customName);
         }
 
         $tugas = RpsTugas::create($data);
@@ -146,9 +146,9 @@ class RpsTugasController extends Controller
             if ($tugas->file_soal) {
                 $driveService->deleteFile($tugas->file_soal);
             }
-            $mkLabel = ($rps->mataKuliah->kode ?? 'MK').' - RPS';
+            $hierarchy = $driveService->buildRpsHierarchy($rps, 'Tugas_RPS', [$request->nama_tugas ?: $tugas->nama_tugas]);
             $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
-            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->nama_tugas ?: $tugas->nama_tugas], $customName);
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', $hierarchy, $customName);
         }
 
         $oldTitle = $tugas->getOriginal('nama_tugas');

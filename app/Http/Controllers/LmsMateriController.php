@@ -70,12 +70,12 @@ class LmsMateriController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '01_Materi');
             $pertemuan = $request->rps_pertemuan_id ? RpsPertemuan::find($request->rps_pertemuan_id) : null;
             $minggu = $pertemuan ? ($pertemuan->minggu ?? $pertemuan->minggu_ke) : null;
             $customName = ($minggu ? "Pertemuan_{$minggu}_" : '').$request->file('file')->getClientOriginalName();
 
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', [$mkLabel, 'Materi'], $customName);
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', $hierarchy, $customName);
         }
 
         $materi = LmsMateri::create($data);
@@ -146,12 +146,12 @@ class LmsMateriController extends Controller
                 $driveService->deleteFile($materi->file_path);
             }
 
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '01_Materi');
             $pertemuan = $request->rps_pertemuan_id ? RpsPertemuan::find($request->rps_pertemuan_id) : null;
             $minggu = $pertemuan ? ($pertemuan->minggu ?? $pertemuan->minggu_ke) : null;
             $customName = ($minggu ? "Pertemuan_{$minggu}_" : '').$request->file('file')->getClientOriginalName();
 
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', [$mkLabel, 'Materi'], $customName);
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', $hierarchy, $customName);
         }
 
         $materi->update($data);

@@ -94,9 +94,9 @@ class LmsTugasController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
-            $customName = 'Lampiran_'.$request->file('file')->getClientOriginalName();
-            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->judul], $customName);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '02_Tugas', [$request->judul, 'Soal']);
+            $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', $hierarchy, $customName);
         }
 
         $tugas = LmsTugas::create($data);
@@ -216,9 +216,9 @@ class LmsTugasController extends Controller
                 $driveService->deleteFile($tugas->file_lampiran);
             }
 
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
-            $customName = 'Lampiran_'.$request->file('file')->getClientOriginalName();
-            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->judul ?: $tugas->judul], $customName);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '02_Tugas', [$request->judul ?: $tugas->judul, 'Soal']);
+            $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
+            $data['file_lampiran'] = $driveService->storeFile($request->file('file'), 'lms/tugas', $hierarchy, $customName);
         }
 
         $tugas->update($data);

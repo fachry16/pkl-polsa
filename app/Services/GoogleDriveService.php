@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\Pengampu;
+use App\Models\Rps;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -45,6 +48,77 @@ class GoogleDriveService
         $name = preg_replace('/[^\w\.\-\s]/u', '', $name);
 
         return trim($name) ?: 'file_'.time().'.pdf';
+    }
+
+    public function buildLmsHierarchy(Pengampu $pengampu, string $kategori, array $subpaths = []): array
+    {
+        $tahun = $pengampu->tahunAkademik;
+        $tahunLabel = $tahun
+            ? trim(str_replace(['/', ' '], ['-', '_'], $tahun->tahun.'_'.($tahun->semester ?? '')))
+            : 'Tahun_Akademik';
+        $tahunLabel = trim($tahunLabel, '_-');
+
+        $mk = $pengampu->mataKuliah;
+        $prodi = $mk?->kurikulum?->programStudi;
+        $singkatan = [
+            '11' => 'TI',
+            '12' => 'AB',
+            '13' => 'BD',
+            '14' => 'TRPL',
+            '15' => 'AK',
+        ][$prodi?->kode_prodi] ?? ($prodi?->kode_prodi ?: 'Umum');
+
+        $prodiLabel = $prodi
+            ? trim(($prodi->jenjang ? $prodi->jenjang.'_' : '').$singkatan)
+            : 'Umum';
+
+        $mkKode = $mk?->kode ?? 'MK';
+        $mkNama = Str::slug($mk?->nama ?? 'Mata_Kuliah', '_');
+        $kelas = Str::slug($pengampu->kelas ?? 'Kelas', '_');
+        $kelasLabel = "{$mkKode}_{$mkNama}_{$kelas}";
+
+        $hierarchy = ['Arsip_LMS', $tahunLabel, $prodiLabel, $kelasLabel, $kategori];
+
+        foreach ($subpaths as $sub) {
+            $sub = trim((string) $sub);
+            if ($sub !== '') {
+                $hierarchy[] = $sub;
+            }
+        }
+
+        return $hierarchy;
+    }
+
+    public function buildRpsHierarchy(Rps $rps, string $kategori = 'Materi_Mingguan', array $subpaths = []): array
+    {
+        $mk = $rps->mataKuliah;
+        $prodi = $mk?->kurikulum?->programStudi;
+        $singkatan = [
+            '11' => 'TI',
+            '12' => 'AB',
+            '13' => 'BD',
+            '14' => 'TRPL',
+            '15' => 'AK',
+        ][$prodi?->kode_prodi] ?? ($prodi?->kode_prodi ?: 'Umum');
+
+        $prodiLabel = $prodi
+            ? trim(($prodi->jenjang ? $prodi->jenjang.'_' : '').$singkatan)
+            : 'Umum';
+
+        $mkKode = $mk?->kode ?? 'MK';
+        $mkNama = Str::slug($mk?->nama ?? 'Mata_Kuliah', '_');
+        $mkLabel = "{$mkKode}_{$mkNama}";
+
+        $hierarchy = ['Master_Kurikulum_RPS', $prodiLabel, $mkLabel, $kategori];
+
+        foreach ($subpaths as $sub) {
+            $sub = trim((string) $sub);
+            if ($sub !== '') {
+                $hierarchy[] = $sub;
+            }
+        }
+
+        return $hierarchy;
     }
 
     public function getConfigPath(): string

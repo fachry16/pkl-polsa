@@ -8,6 +8,7 @@ use App\Models\Pengampu;
 use App\Models\Rps;
 use App\Models\RpsPertemuan;
 use App\Rules\LmsFileMime;
+use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -99,7 +100,7 @@ class RpsPertemuanController extends Controller
         ];
 
         if ($request->hasFile('file')) {
-            $data = array_merge($data, $this->simpanFileMateri($request->file('file')));
+            $data = array_merge($data, $this->simpanFileMateri($request->file('file'), $rps, (int) $request->minggu));
         }
 
         $pertemuan = RpsPertemuan::create($data);
@@ -182,9 +183,9 @@ class RpsPertemuanController extends Controller
 
         if ($request->hasFile('file')) {
             if ($pertemuan->file_materi) {
-                Storage::disk('public')->delete($pertemuan->file_materi);
+                app(GoogleDriveService::class)->deleteFile($pertemuan->file_materi);
             }
-            $data = array_merge($data, $this->simpanFileMateri($request->file('file')));
+            $data = array_merge($data, $this->simpanFileMateri($request->file('file'), $rps, (int) $request->minggu));
         }
 
         $pertemuan->update($data);
@@ -209,7 +210,7 @@ class RpsPertemuanController extends Controller
         $this->authorizeRpsModel($rps);
 
         if ($pertemuan->file_materi) {
-            Storage::disk('public')->delete($pertemuan->file_materi);
+            app(GoogleDriveService::class)->deleteFile($pertemuan->file_materi);
         }
 
         LmsMateri::where('rps_pertemuan_id', $pertemuan->id)->delete();
@@ -244,10 +245,10 @@ class RpsPertemuanController extends Controller
 
         if ($adaFile) {
             if ($pertemuan->file_materi) {
-                Storage::disk('public')->delete($pertemuan->file_materi);
+                app(GoogleDriveService::class)->deleteFile($pertemuan->file_materi);
             }
 
-            $data = array_merge($data, $this->simpanFileMateri($request->file('file')));
+            $data = array_merge($data, $this->simpanFileMateri($request->file('file'), $rps, $pertemuan->minggu));
         }
 
         $pertemuan->update($data);
@@ -272,12 +273,22 @@ class RpsPertemuanController extends Controller
 
         abort_unless($pertemuan->file_materi, 404);
 
+        $namaFile = $pertemuan->file_materi_nama ?: basename($pertemuan->file_materi);
+
+        if (str_starts_with($pertemuan->file_materi, 'gdrive/')) {
+            $parts = explode('/', $pertemuan->file_materi);
+            $driveFileId = $parts[1] ?? null;
+            $fileName = $pertemuan->file_materi_nama ?? ($parts[2] ?? basename($pertemuan->file_materi));
+
+            abort_unless($driveFileId, 404);
+
+            return app(GoogleDriveService::class)->streamFileResponse($driveFileId, $fileName);
+        }
+
         $disk = Storage::disk('public');
         $path = $disk->path($pertemuan->file_materi);
 
         abort_unless(is_file($path), 404);
-
-        $namaFile = $pertemuan->file_materi_nama ?: basename($pertemuan->file_materi);
 
         return response()->file($path, [
             'Content-Type' => $disk->mimeType($pertemuan->file_materi),
@@ -289,24 +300,20 @@ class RpsPertemuanController extends Controller
     }
 
     /**
-     * Simpan file materi dengan nama asli, aman dari tabrakan nama.
+     * Simpan file materi ke Google Drive (atau fallback lokal) dengan hirarki RPS terstruktur.
      */
-    private function simpanFileMateri(UploadedFile $file): array
+    private function simpanFileMateri(UploadedFile $file, Rps $rps, ?int $minggu = null): array
     {
         $original = $file->getClientOriginalName();
-        $base = pathinfo($original, PATHINFO_FILENAME);
-        $ext = pathinfo($original, PATHINFO_EXTENSION);
-        $ext = $ext !== '' ? '.'.$ext : '';
-        $nama = $original;
-        $i = 1;
+        $driveService = app(GoogleDriveService::class);
+        $mingguLabel = $minggu ? "Pertemuan_{$minggu}_" : '';
+        $customName = $mingguLabel.$original;
 
-        while (Storage::disk('public')->exists('lms/materi/'.$nama)) {
-            $nama = $base.' ('.$i.')'.$ext;
-            $i++;
-        }
+        $hierarchy = $driveService->buildRpsHierarchy($rps, 'Materi_Mingguan');
+        $storedPath = $driveService->storeFile($file, 'lms/materi', $hierarchy, $customName);
 
         return [
-            'file_materi' => $file->storeAs('lms/materi', $nama, 'public'),
+            'file_materi' => $storedPath,
             'file_materi_nama' => $original,
         ];
     }

@@ -42,8 +42,8 @@ class LmsForumController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '03_Forum');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', $hierarchy);
         }
 
         $forum = LmsForumDiskusi::create($data);
@@ -76,13 +76,13 @@ class LmsForumController extends Controller
 
         $data = $this->validated($request, $pengampu->id);
         $driveService = app(GoogleDriveService::class);
-        $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
 
         if ($request->hasFile('file')) {
             if ($diskusi->file_path) {
                 $driveService->deleteFile($diskusi->file_path);
             }
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '03_Forum');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', $hierarchy);
         } elseif ($request->boolean('remove_file') && $diskusi->file_path) {
             $driveService->deleteFile($diskusi->file_path);
             $data['file_path'] = null;
