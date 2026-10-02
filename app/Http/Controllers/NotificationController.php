@@ -15,7 +15,19 @@ class NotificationController extends Controller
             $notification->markAsRead();
         }
 
-        return Redirect::to($notification->data['url'] ?? route('dashboard'));
+        $url = $notification->data['url'] ?? route('dashboard');
+
+        // Pastikan redirect tetap berada pada host & port aktif saat ini (tidak terpental ke port 80/localhost)
+        $parsed = parse_url($url);
+        if (! empty($parsed['path'])) {
+            $relativeUrl = $parsed['path']
+                .(isset($parsed['query']) ? '?'.$parsed['query'] : '')
+                .(isset($parsed['fragment']) ? '#'.$parsed['fragment'] : '');
+
+            return redirect()->to($relativeUrl);
+        }
+
+        return redirect()->to($url);
     }
 
     public function markAllAsRead()

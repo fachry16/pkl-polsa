@@ -30,11 +30,13 @@ class GoogleDriveStructuredTest extends TestCase
     {
         parent::setUp();
         File::delete(storage_path('app/google-drive/test_config.json'));
+        File::delete(storage_path('app/google-drive/.test_config.backup.json'));
     }
 
     protected function tearDown(): void
     {
         File::delete(storage_path('app/google-drive/test_config.json'));
+        File::delete(storage_path('app/google-drive/.test_config.backup.json'));
         parent::tearDown();
     }
 
@@ -171,12 +173,12 @@ class GoogleDriveStructuredTest extends TestCase
             File::makeDirectory($dir, 0755, true, true);
         }
 
-        File::put($dir.'/service-account.json', json_encode(['client_email' => 'bot@test.com']));
-        File::put($dir.'/config.json', json_encode(['enabled' => true, 'folder_id' => 'fid']));
-
         $mockService = $this->getMockBuilder(GoogleDriveService::class)
             ->onlyMethods(['getAccessToken'])
             ->getMock();
+
+        File::put($dir.'/service-account.json', json_encode(['client_email' => 'bot@test.com']));
+        File::put($mockService->getConfigPath(), json_encode(['enabled' => true, 'folder_id' => 'fid']));
 
         $mockService->method('getAccessToken')->willReturn('mock-token');
 
