@@ -455,11 +455,14 @@ class GoogleDriveService
     public function testConnection(): array
     {
         try {
-            $jsonPath = storage_path('app/google-drive/service-account.json');
-            if (! File::exists($jsonPath)) {
+            $config = $this->getDriveConfig();
+            $hasOAuth = ! empty($config['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+            $hasServiceAccount = File::exists(storage_path('app/google-drive/service-account.json'));
+
+            if (! $hasOAuth && ! $hasServiceAccount) {
                 return [
                     'success' => false,
-                    'message' => 'File kredensial service-account.json belum diunggah.',
+                    'message' => 'Koneksi Google Drive belum dikonfigurasi. Hubungkan akun Google Kampus (OAuth 2.0) atau unggah kredensial service account.',
                 ];
             }
 
@@ -475,7 +478,7 @@ class GoogleDriveService
             if (! $accessToken) {
                 return [
                     'success' => false,
-                    'message' => 'Gagal mendapatkan Access Token OAuth2 dari Google. Pastikan file JSON kredensial valid.',
+                    'message' => 'Gagal mendapatkan Access Token dari Google. Pastikan akun Google terhubung atau file kredensial valid.',
                 ];
             }
 
@@ -488,7 +491,7 @@ class GoogleDriveService
 
                 return [
                     'success' => false,
-                    'message' => "Folder ID tidak dapat diakses ({$response->status()}): {$err}. Pastikan Email Service Account telah ditambahkan sebagai Editor di folder GDrive.",
+                    'message' => "Folder ID tidak dapat diakses ({$response->status()}): {$err}. Pastikan akun yang digunakan memiliki akses Editor ke folder GDrive.",
                 ];
             }
 
