@@ -36,6 +36,11 @@ class MataKuliahController extends Controller
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
         }
 
+        $missing = array_diff(['kode', 'nama', 'sks_teori', 'sks_praktikum', 'semester', 'jenis'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
+        }
+
         $imported = 0;
         $skipped = [];
         $existing = $kurikulum->mataKuliahs()->pluck('kode')->map(fn ($k) => strtoupper(trim($k)))->all();

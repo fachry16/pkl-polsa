@@ -64,7 +64,8 @@
                         <div style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 0.35rem;">Struktur Kolom Template:</div>
                         <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.74rem; color: #64748b; line-height: 1.6;">
                             <li><code>nama</code>: Nama dosen lengkap beserta gelar akademik.</li>
-                            <li><code>nidn</code>: Nomor Induk Dosen unik (juga sebagai password login awal).</li>
+                            <li><code>nidn</code>: Nomor Induk Dosen unik.</li>
+                            <li><code>nuptk</code>: Opsional, NUPTK 16 digit.</li>
                             <li><code>email</code>: Alamat email unik untuk akun login.</li>
                             <li><code>kode_prodi</code>: Kode prodi pengampu (contoh: <strong>11</strong>, <strong>12</strong>, <strong>13</strong>, <strong>14</strong>, <strong>15</strong>).</li>
                             <li><code>jabatan</code>: Opsional (default: <em>Dosen</em>).</li>
@@ -153,6 +154,7 @@
                 <th>Nama</th>
                 <th>Email</th>
                 <th>NIDN</th>
+                <th>NUPTK</th>
                 <th>Program Studi</th>
                 <th>Jabatan / Role</th>
                 <th>Aksi</th>
@@ -180,6 +182,10 @@
 
                 <td data-label="NIDN">
                     <strong>{{ $dosen->nidn }}</strong>
+                </td>
+
+                <td data-label="NUPTK">
+                    {{ $dosen->nuptk ?? '-' }}
                 </td>
 
                 <td data-label="Program Studi">
@@ -245,7 +251,7 @@
 
             <tr>
 
-                <td colspan="7"
+                <td colspan="8"
                     class="text-center text-sm" style="padding: 1.5rem; color: #6b7280;">
 
                     Data dosen belum tersedia.

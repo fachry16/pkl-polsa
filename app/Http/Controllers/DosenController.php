@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\CsvImportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DosenController extends Controller
 {
@@ -59,6 +60,7 @@ class DosenController extends Controller
             'name' => 'required|min:3',
             'email' => 'required|email|unique:users,email',
             'nidn' => 'required|unique:dosens,nidn',
+            'nuptk' => 'nullable|string|max:20|unique:dosens,nuptk',
             'program_studi_id' => 'required|exists:program_studis,id',
             'roles' => 'nullable|array',
             'roles.*' => 'string|max:50',
@@ -88,7 +90,7 @@ class DosenController extends Controller
             'email' => $request->email,
             'role' => 'dosen',
             'roles' => $roles,
-            'password' => $request->nidn,
+            'password' => 'polsa123',
             'harus_ganti_password' => true,
         ]);
 
@@ -96,10 +98,11 @@ class DosenController extends Controller
             'user_id' => $user->id,
             'program_studi_id' => $request->program_studi_id,
             'nidn' => $request->nidn,
+            'nuptk' => $request->nuptk ?: null,
             'jabatan' => $jabatan,
         ]);
 
-        return redirect()->route('dosen.index')->with('success', 'Dosen berhasil ditambahkan. Password default menggunakan NIDN.');
+        return redirect()->route('dosen.index')->with('success', 'Dosen berhasil ditambahkan. Password default: polsa123.');
     }
 
     /**
@@ -153,6 +156,7 @@ class DosenController extends Controller
             'name' => 'required|min:3',
             'email' => 'required|email|unique:users,email,'.$dosen->user_id,
             'nidn' => 'required|unique:dosens,nidn,'.$dosen->id,
+            'nuptk' => 'nullable|string|max:20|unique:dosens,nuptk,'.$dosen->id,
             'program_studi_id' => 'required|exists:program_studis,id',
             'roles' => 'nullable|array',
             'roles.*' => 'string|max:50',
@@ -190,6 +194,7 @@ class DosenController extends Controller
         $dosen->update([
             'program_studi_id' => $request->program_studi_id,
             'nidn' => $request->nidn,
+            'nuptk' => $request->nuptk ?: null,
             'jabatan' => $jabatan,
         ]);
 
@@ -228,10 +233,10 @@ class DosenController extends Controller
 
     public function downloadTemplate(CsvImportService $csvService)
     {
-        $headers = ['nama', 'nidn', 'email', 'kode_prodi', 'jabatan'];
+        $headers = ['nama', 'nidn', 'nuptk', 'email', 'kode_prodi', 'jabatan'];
         $samples = [
-            ['Bambang Sudarsono, M.Kom', '0612345678', 'bambang@polsa.ac.id', '14', 'Dosen'],
-            ['Dr. Siti Aminah, M.T.', '0623456789', 'siti@polsa.ac.id', '11', 'Dosen'],
+            ['Bambang Sudarsono, M.Kom', '0612345678', '1234567890123456', 'bambang@polsa.ac.id', '14', 'Dosen'],
+            ['Dr. Siti Aminah, M.T.', '0623456789', '', 'siti@polsa.ac.id', '11', 'Dosen'],
         ];
 
         return $csvService->downloadTemplate('template_import_dosen.csv', $headers, $samples);
@@ -249,6 +254,11 @@ class DosenController extends Controller
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
         }
 
+        $missing = array_diff(['nama', 'nidn', 'email', 'kode_prodi'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
+        }
+
         $imported = 0;
         $skipped = [];
         $programStudis = ProgramStudi::all()->keyBy(fn ($p) => strtoupper(trim($p->kode_prodi)));
@@ -257,6 +267,7 @@ class DosenController extends Controller
             $rowNum = $row['_row_number'] ?? '?';
             $nama = trim($row['nama'] ?? '');
             $nidn = trim($row['nidn'] ?? '');
+            $nuptk = trim($row['nuptk'] ?? '');
             $email = trim($row['email'] ?? '');
             $kodeProdi = strtoupper(trim($row['kode_prodi'] ?? ''));
             $jabatan = trim($row['jabatan'] ?? '') ?: 'Dosen';
@@ -279,6 +290,12 @@ class DosenController extends Controller
                 continue;
             }
 
+            if ($nuptk !== '' && Dosen::where('nuptk', $nuptk)->exists()) {
+                $skipped[] = "Baris {$rowNum}: NUPTK {$nuptk} sudah terdaftar.";
+
+                continue;
+            }
+
             if (User::where('email', $email)->exists()) {
                 $skipped[] = "Baris {$rowNum}: Email {$email} sudah digunakan akun lain.";
 
@@ -295,22 +312,31 @@ class DosenController extends Controller
                 }
             }
 
-            $user = User::create([
-                'name' => $nama,
-                'email' => $email,
-                'password' => $nidn,
-                'role' => 'dosen',
-                'roles' => ['dosen'],
-                'harus_ganti_password' => true,
-                'email_verified_at' => now(),
-            ]);
+            try {
+                DB::transaction(function () use ($nama, $email, $prodi, $nuptk, $nidn, $jabatan) {
+                    $user = User::create([
+                        'name' => $nama,
+                        'email' => $email,
+                        'password' => 'polsa123',
+                        'role' => 'dosen',
+                        'roles' => ['dosen'],
+                        'harus_ganti_password' => true,
+                        'email_verified_at' => now(),
+                    ]);
 
-            Dosen::create([
-                'user_id' => $user->id,
-                'program_studi_id' => $prodi->id,
-                'nidn' => $nidn,
-                'jabatan' => $jabatan,
-            ]);
+                    Dosen::create([
+                        'user_id' => $user->id,
+                        'program_studi_id' => $prodi->id,
+                        'nidn' => $nidn,
+                        'nuptk' => $nuptk ?: null,
+                        'jabatan' => $jabatan,
+                    ]);
+                });
+            } catch (\Throwable $e) {
+                $skipped[] = "Baris {$rowNum}: Gagal disimpan ({$e->getMessage()}).";
+
+                continue;
+            }
 
             $imported++;
         }

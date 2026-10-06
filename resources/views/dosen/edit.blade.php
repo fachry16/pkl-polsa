@@ -67,6 +67,24 @@
 
         <div class="form-group">
             <label class="form-label">
+                NUPTK <span style="color: #94a3b8; font-weight: 400; font-size: 0.78rem;">(opsional)</span>
+            </label>
+
+            <input type="text"
+                   name="nuptk"
+                   value="{{ old('nuptk', $dosen->nuptk) }}"
+                   maxlength="20"
+                   class="form-input">
+
+            @error('nuptk')
+                <p class="form-error">
+                    {{ $message }}
+                </p>
+            @enderror
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
                 Program Studi
             </label>
 

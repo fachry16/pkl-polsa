@@ -36,6 +36,11 @@ class BahanKajianController extends Controller
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
         }
 
+        $missing = array_diff(['kode_bk', 'nama_bk'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
+        }
+
         $imported = 0;
         $skipped = [];
         $existing = $kurikulum->bahanKajians()->pluck('kode_bk')->map(fn ($k) => strtoupper(trim($k)))->all();

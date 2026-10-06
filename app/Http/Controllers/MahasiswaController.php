@@ -13,6 +13,7 @@ use App\Services\PenilaianService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class MahasiswaController extends Controller
 {
@@ -403,6 +404,11 @@ class MahasiswaController extends Controller
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
         }
 
+        $missing = array_diff(['nim', 'nama', 'kode_prodi', 'angkatan'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
+        }
+
         $imported = 0;
         $skipped = [];
         $programStudis = ProgramStudi::all()->keyBy(fn ($p) => strtoupper(trim($p->kode_prodi)));
@@ -417,7 +423,8 @@ class MahasiswaController extends Controller
             $semester = (int) (trim($row['semester'] ?? '1') ?: 1);
             $status = trim($row['status'] ?? '') ?: 'Aktif';
             $jenisKelasRaw = trim($row['jenis_kelas'] ?? '');
-            $jenisKelas = (preg_match('/karyawan|sore|malam|B/i', $jenisKelasRaw)) ? 'Karyawan' : 'Reguler';
+            $jenisKelas = (preg_match('/karyawan|sore|malam/i', $jenisKelasRaw) || strcasecmp($jenisKelasRaw, 'B') === 0)
+                ? 'Karyawan' : 'Reguler';
 
             if ($nim === '' || $nama === '' || $kodeProdi === '' || $angkatan === '') {
                 $skipped[] = "Baris {$rowNum}: Data tidak lengkap (nim, nama, kode_prodi, dan angkatan wajib diisi).";
@@ -427,6 +434,12 @@ class MahasiswaController extends Controller
 
             if (! preg_match('/^\d{4}$/', $angkatan)) {
                 $skipped[] = "Baris {$rowNum}: Tahun angkatan ({$angkatan}) harus 4 digit angka.";
+
+                continue;
+            }
+
+            if (! in_array($status, ['Aktif', 'Cuti', 'Lulus', 'DO'], true)) {
+                $skipped[] = "Baris {$rowNum}: Status '{$status}' tidak valid (harus salah satu dari: Aktif, Cuti, Lulus, DO).";
 
                 continue;
             }
@@ -457,34 +470,40 @@ class MahasiswaController extends Controller
                 }
             }
 
-            $user = User::create([
-                'name' => $nama,
-                'email' => $nim,
-                'password' => $nim,
-                'role' => 'mahasiswa',
-                'roles' => ['mahasiswa'],
-                'harus_ganti_password' => true,
-                'email_verified_at' => now(),
-            ]);
+            try {
+                DB::transaction(function () use (&$imported, &$skipped, $nama, $nim, $prodi, $angkatan, $status, $jenisKelas, $semester, $activeTa) {
+                    $user = User::create([
+                        'name' => $nama,
+                        'email' => $nim,
+                        'password' => $nim,
+                        'role' => 'mahasiswa',
+                        'roles' => ['mahasiswa'],
+                        'harus_ganti_password' => true,
+                        'email_verified_at' => now(),
+                    ]);
 
-            $mahasiswa = Mahasiswa::create([
-                'user_id' => $user->id,
-                'nim' => $nim,
-                'nama' => $nama,
-                'program_studi_id' => $prodi->id,
-                'angkatan' => (int) $angkatan,
-                'status' => $status,
-                'jenis_kelas' => $jenisKelas,
-            ]);
+                    $mahasiswa = Mahasiswa::create([
+                        'user_id' => $user->id,
+                        'nim' => $nim,
+                        'nama' => $nama,
+                        'program_studi_id' => $prodi->id,
+                        'angkatan' => (int) $angkatan,
+                        'status' => $status,
+                        'jenis_kelas' => $jenisKelas,
+                    ]);
 
-            if ($activeTa) {
-                $mahasiswa->semesterMahasiswas()->create([
-                    'tahun_akademik_id' => $activeTa->id,
-                    'semester' => $semester,
-                ]);
+                    if ($activeTa) {
+                        $mahasiswa->semesterMahasiswas()->create([
+                            'tahun_akademik_id' => $activeTa->id,
+                            'semester' => $semester,
+                        ]);
+                    }
+
+                    $imported++;
+                });
+            } catch (\Throwable $e) {
+                $skipped[] = "Baris {$rowNum}: Gagal disimpan ({$e->getMessage()}).";
             }
-
-            $imported++;
         }
 
         $msg = "Berhasil mengimpor {$imported} data mahasiswa.";

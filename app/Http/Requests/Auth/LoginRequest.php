@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Dosen;
+use App\Models\Mahasiswa;
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -68,24 +71,24 @@ class LoginRequest extends FormRequest
         }
 
         // 1. Cocokkan langsung users.email (contoh: NIM polos mahasiswa 202401001)
-        if (\App\Models\User::where('email', $input)->exists()) {
+        if (User::where('email', $input)->exists()) {
             return $input;
         }
 
         // 2. Cocokkan dengan domain kampus @polsa.ac.id (contoh: admin, direktur, budi.santoso)
         $campusEmail = $input.'@polsa.ac.id';
-        if (\App\Models\User::where('email', $campusEmail)->exists()) {
+        if (User::where('email', $campusEmail)->exists()) {
             return $campusEmail;
         }
 
         // 3. Cocokkan NIDN dosen
-        $dosenUser = \App\Models\Dosen::where('nidn', $input)->with('user')->first()?->user;
+        $dosenUser = Dosen::where('nidn', $input)->with('user')->first()?->user;
         if ($dosenUser && $dosenUser->email) {
             return $dosenUser->email;
         }
 
         // 4. Cocokkan NIM mahasiswa jika terdaftar di tabel mahasiswas
-        $mhsUser = \App\Models\Mahasiswa::where('nim', $input)->with('user')->first()?->user;
+        $mhsUser = Mahasiswa::where('nim', $input)->with('user')->first()?->user;
         if ($mhsUser && $mhsUser->email) {
             return $mhsUser->email;
         }

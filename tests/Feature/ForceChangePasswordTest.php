@@ -64,8 +64,8 @@ class ForceChangePasswordTest extends TestCase
         [$user] = $this->createDosenUser('1234567890', true);
 
         $response = $this->actingAs($user)->post(route('password.ganti-wajib.update'), [
-            'password' => '1234567890',
-            'password_confirmation' => '1234567890',
+            'password' => 'polsa123',
+            'password_confirmation' => 'polsa123',
         ]);
 
         $response->assertSessionHasErrors(['password']);
@@ -125,7 +125,7 @@ class ForceChangePasswordTest extends TestCase
 
         $dosenUser->refresh();
         $this->assertTrue($dosenUser->harus_ganti_password);
-        $this->assertTrue(Hash::check('1234567890', $dosenUser->password));
+        $this->assertTrue(Hash::check('polsa123', $dosenUser->password));
     }
 
     public function test_admin_cannot_reset_another_admin_password(): void
