@@ -245,7 +245,7 @@ class DosenController extends Controller
     public function import(Request $request, CsvImportService $csvService)
     {
         $request->validate([
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:5120|mimes:csv,txt',
         ]);
 
         $rows = $csvService->parseCsv($request->file('file')->getRealPath());

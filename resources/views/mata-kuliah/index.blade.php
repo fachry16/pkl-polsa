@@ -46,6 +46,14 @@
     </div>
 @endif
 
+<form method="GET" action="{{ url()->current() }}" style="display: flex; gap: 0.5rem; align-items: center; max-width: 420px; margin-bottom: 1rem;">
+    <input type="search" name="cari" value="{{ request('cari') }}" class="form-input filter-select" placeholder="Cari kode / nama MK" style="flex: 1;" aria-label="Cari mata kuliah">
+    <button type="submit" class="btn btn-primary btn-sm">Cari</button>
+    @if(request('cari'))
+        <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
+    @endif
+</form>
+
 <div class="table-container">
 
     <table class="data-table">
@@ -137,7 +145,7 @@
                 <td colspan="10"
                     class="text-center">
 
-                    Data mata kuliah belum tersedia.
+                    {{ request('cari') ? 'Tidak ada mata kuliah yang cocok dengan pencarian.' : 'Data mata kuliah belum tersedia.' }}
 
                 </td>
 

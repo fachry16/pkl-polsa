@@ -300,11 +300,11 @@ class PolsaObeSeeder extends Seeder
         // Bahan Kajian (BK) TRPL
         $bk1 = BahanKajian::firstOrCreate(
             ['kurikulum_id' => $kurikulumTrpl->id, 'kode_bk' => 'BK-WEB'],
-            ['nama_bk' => 'Rekayasa Perangkat Lunak & Arsitektur Web', 'referensi' => 'Buku Acuan RPL & Standar IEEE']
+            ['nama_bk' => 'Rekayasa Perangkat Lunak & Arsitektur Web', 'deskripsi' => 'Pengembangan perangkat lunak berbasis web: frontend, backend, dan arsitektur modern.', 'referensi' => 'Buku Acuan RPL & Standar IEEE']
         );
         $bk2 = BahanKajian::firstOrCreate(
             ['kurikulum_id' => $kurikulumTrpl->id, 'kode_bk' => 'BK-DB'],
-            ['nama_bk' => 'Sistem Basis Data & Manajerial Informasi', 'referensi' => 'Database System Concepts (Silberschatz)']
+            ['nama_bk' => 'Sistem Basis Data & Manajerial Informasi', 'deskripsi' => 'Perancangan basis data, normalisasi, query SQL, dan manajemen data.', 'referensi' => 'Database System Concepts (Silberschatz)']
         );
 
         // CPMK TRPL

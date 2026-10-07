@@ -61,6 +61,10 @@
 
 @if($mataKuliahId)
 
+<div x-data="{ q: '' }">
+
+<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / deskripsi CPL" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari CPL">
+
 <form method="POST"
       action="{{ route('kurikulum.cpl-bk-mk.store', $kurikulum->id) }}">
 
@@ -104,7 +108,7 @@
 
                 @foreach($cpls as $cpl)
 
-                    <tr>
+                    <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
 
                         <td class="font-medium">
 
@@ -159,6 +163,8 @@
     @endif
 
 </form>
+
+</div>
 
 @endif
 <div class="mt-4">

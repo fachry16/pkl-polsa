@@ -60,7 +60,7 @@
         </div>
         <div>
             <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Bahan Kajian</div>
-            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">Materi & referensi</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">Materi & deskripsi</div>
         </div>
     </a>
 

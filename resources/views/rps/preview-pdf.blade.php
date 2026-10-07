@@ -362,7 +362,7 @@
                     <tr>
                         <td class="rps-td text-center">{{ $bk->kode_bk }}</td>
                         <td class="rps-td">{{ $bk->nama_bk }}</td>
-                        <td class="rps-td">{{ $bk->referensi ?? '-' }}</td>
+                        <td class="rps-td">{{ $bk->deskripsi ?? '-' }}</td>
                     </tr>
                     @endforeach
                 </tbody>

@@ -27,6 +27,10 @@
 
 <x-alert type="success" :message="session('success')" />
 
+<div x-data="{ q: '' }">
+
+<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari CPL / MK / CPMK" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari data">
+
 <div class="table-container">
 
     <table class="data-table">
@@ -57,7 +61,7 @@
 
             @forelse($items as $index => $item)
 
-            <tr>
+            <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
 
                 <td>
                     {{ $index + 1 }}
@@ -171,9 +175,11 @@
     <a href="{{ route('kurikulum.detail', $kurikulum->id) }}"
        class="btn btn-secondary">
 
-        Kembali
+            Kembali
 
-    </a>
+        </a>
+    </div>
+
 </div>
 
 @endsection

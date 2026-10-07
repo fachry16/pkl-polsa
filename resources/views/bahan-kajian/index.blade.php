@@ -23,6 +23,7 @@
         :columns="[
             ['name' => 'kode_bk', 'desc' => 'Kode Bahan Kajian unik.'],
             ['name' => 'nama_bk', 'desc' => 'Nama Bahan Kajian.'],
+            ['name' => 'deskripsi', 'desc' => 'Deskripsi bahan kajian.'],
             ['name' => 'referensi', 'desc' => 'Referensi terkait (opsional).'],
         ]"
     />
@@ -43,6 +44,14 @@
     </div>
 @endif
 
+<form method="GET" action="{{ url()->current() }}" style="display: flex; gap: 0.5rem; align-items: center; max-width: 420px; margin-bottom: 1rem;">
+    <input type="search" name="cari" value="{{ request('cari') }}" class="form-input filter-select" placeholder="Cari kode / nama / deskripsi" style="flex: 1;" aria-label="Cari bahan kajian">
+    <button type="submit" class="btn btn-primary btn-sm">Cari</button>
+    @if(request('cari'))
+        <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
+    @endif
+</form>
+
 <div class="table-container">
 
     <table class="data-table">
@@ -53,6 +62,7 @@
                 <th>No</th>
                 <th>Kode BK</th>
                 <th>Nama BK</th>
+                <th>Deskripsi</th>
                 <th>Referensi</th>
                 <th>Aksi</th>
             </tr>
@@ -75,6 +85,10 @@
 
                 <td>
                     {{ $bahanKajian->nama_bk }}
+                </td>
+
+                <td>
+                    {{ $bahanKajian->deskripsi ?? '-' }}
                 </td>
 
                 <td>
@@ -110,10 +124,10 @@
 
             <tr>
 
-                <td colspan="5"
+                <td colspan="6"
                     class="text-center">
 
-                    Data bahan kajian belum tersedia.
+                    {{ request('cari') ? 'Tidak ada bahan kajian yang cocok dengan pencarian.' : 'Data bahan kajian belum tersedia.' }}
 
                 </td>
 

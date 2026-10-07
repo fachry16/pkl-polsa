@@ -786,7 +786,7 @@
                 <tr>
                     <td class="text-center">{{ $bk->kode_bk }}</td>
                     <td>{{ $bk->nama_bk }}</td>
-                    <td>{{ $bk->referensi ?? '-' }}</td>
+                    <td>{{ $bk->deskripsi ?? '-' }}</td>
                 </tr>
                 @endforeach
             </tbody>

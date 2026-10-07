@@ -395,7 +395,7 @@ class MahasiswaController extends Controller
     public function import(Request $request, CsvImportService $csvService)
     {
         $request->validate([
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:5120|mimes:csv,txt',
         ]);
 
         $rows = $csvService->parseCsv($request->file('file')->getRealPath());
@@ -471,7 +471,7 @@ class MahasiswaController extends Controller
             }
 
             try {
-                DB::transaction(function () use (&$imported, &$skipped, $nama, $nim, $prodi, $angkatan, $status, $jenisKelas, $semester, $activeTa) {
+                DB::transaction(function () use ($nama, $nim, $prodi, $angkatan, $status, $jenisKelas, $semester, $activeTa) {
                     $user = User::create([
                         'name' => $nama,
                         'email' => $nim,
@@ -498,9 +498,8 @@ class MahasiswaController extends Controller
                             'semester' => $semester,
                         ]);
                     }
-
-                    $imported++;
                 });
+                $imported++;
             } catch (\Throwable $e) {
                 $skipped[] = "Baris {$rowNum}: Gagal disimpan ({$e->getMessage()}).";
             }

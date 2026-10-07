@@ -27,7 +27,7 @@ class MataKuliahController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
         $request->validate([
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:5120|mimes:csv,txt',
         ]);
 
         $rows = $csvService->parseCsv($request->file('file')->getRealPath());
@@ -84,15 +84,22 @@ class MataKuliahController extends Controller
                 continue;
             }
 
-            MataKuliah::create([
-                'kurikulum_id' => $kurikulum->id,
-                'kode' => $kode,
-                'nama' => $nama,
-                'sks_teori' => (int) $sksTeori,
-                'sks_praktikum' => (int) $sksPraktikum,
-                'semester' => (int) $semester,
-                'jenis' => $jenis,
-            ]);
+            try {
+                MataKuliah::create([
+                    'kurikulum_id' => $kurikulum->id,
+                    'kode' => $kode,
+                    'nama' => $nama,
+                    'sks_teori' => (int) $sksTeori,
+                    'sks_praktikum' => (int) $sksPraktikum,
+                    'semester' => (int) $semester,
+                    'jenis' => $jenis,
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
+                $skipped[] = "Baris {$rowNum}: gagal disimpan (".substr($e->getMessage(), 0, 120).').';
+
+                continue;
+            }
             $existing[] = $kode;
             $imported++;
         }
@@ -109,9 +116,14 @@ class MataKuliahController extends Controller
     {
         $this->authorizeKurikulumRead($kurikulum);
 
+        $q = trim((string) request('cari'));
         $mataKuliahs = $kurikulum->mataKuliahs()
+            ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w
+                ->where('kode', 'like', "%{$q}%")
+                ->orWhere('nama', 'like', "%{$q}%")))
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('mata-kuliah.index', compact('kurikulum', 'mataKuliahs'));
     }

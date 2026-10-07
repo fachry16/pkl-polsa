@@ -54,6 +54,18 @@
     <div class="form-group">
 
         <label class="form-label">
+            Deskripsi
+        </label>
+
+        <textarea name="deskripsi"
+                  rows="4"
+                  class="form-textarea w-full">{{ old('deskripsi', $bahanKajian->deskripsi) }}</textarea>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">
             Referensi
         </label>
 

@@ -4,6 +4,8 @@
     Matriks BK - MK
 </h1>
 
+<div x-data="{ q: '' }">
+<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / nama MK" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari mata kuliah">
 <form method="POST" action="{{ route('kurikulum.bk-mk.update', $kurikulum->id) }}">
     @csrf
     @method('PUT')
@@ -25,7 +27,7 @@
             </thead>
             <tbody>
                 @foreach($mataKuliahs as $matakuliah)
-                <tr>
+                <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
                     <td>{{ $matakuliah->kode }}</td>
                     <td>{{ $matakuliah->nama }}</td>
                     @foreach($bahanKajians as $bahanKajian)
@@ -44,5 +46,6 @@
 </form>
 <div class="mt-4">
     <a href="{{ route('kurikulum.detail', $kurikulum->id) }}" class="btn btn-secondary">Kembali</a>
+</div>
 </div>
 @endsection

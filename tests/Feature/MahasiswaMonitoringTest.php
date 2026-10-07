@@ -202,7 +202,7 @@ class MahasiswaMonitoringTest extends TestCase
             ->assertDontSee('Mahasiswa Dua')
             ->assertSee('Monitoring Mahasiswa')
             ->assertDontSee('Tambah Mahasiswa')
-            ->assertDontSee('Import Data Excel / CSV')
+            ->assertDontSee('Import Data CSV')
             ->assertDontSee('Edit')
             ->assertDontSee('Hapus');
     }
@@ -215,7 +215,7 @@ class MahasiswaMonitoringTest extends TestCase
             ->assertSee('Mahasiswa Satu')
             ->assertSee('Mahasiswa Dua')
             ->assertSee('Tambah Mahasiswa')
-            ->assertSee('Import Data Excel / CSV')
+            ->assertSee('Import Data CSV')
             ->assertSee('Edit')
             ->assertSee('Hapus');
     }

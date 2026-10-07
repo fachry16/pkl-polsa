@@ -10,6 +10,7 @@ class BahanKajian extends Model
         'kurikulum_id',
         'kode_bk',
         'nama_bk',
+        'deskripsi',
         'referensi',
     ];
 
