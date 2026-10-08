@@ -121,9 +121,9 @@ class MataKuliahController extends Controller
             ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w
                 ->where('kode', 'like', "%{$q}%")
                 ->orWhere('nama', 'like', "%{$q}%")))
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->orderBy('semester')
+            ->orderBy('kode')
+            ->get();
 
         return view('mata-kuliah.index', compact('kurikulum', 'mataKuliahs'));
     }
