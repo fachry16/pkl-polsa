@@ -14,159 +14,140 @@
 
 <x-alert type="success" :message="session('success')" />
 
-{{-- Pilih Mata Kuliah --}}
-<form method="GET"
-      action="{{ route('kurikulum.cpl-bk-mk.index', $kurikulum->id) }}"
-      class="card mb-5">
-
-    <div class="form-group">
-
-        <label class="form-label">
-            Pilih Mata Kuliah
-        </label>
-
-        <div class="flex gap-3 mt-2">
-
-            <select name="mata_kuliah_id"
-                    class="form-select">
-
-                <option value="">
-                    -- Pilih Mata Kuliah --
-                </option>
-
-                @foreach($mataKuliahs as $mk)
-
-                    <option value="{{ $mk->id }}"
-                        {{ $mataKuliahId == $mk->id ? 'selected' : '' }}>
-
-                        {{ $mk->kode }}
-                        -
-                        {{ $mk->nama }}
-
-                    </option>
-
-                @endforeach
-
-            </select>
-
-            <button class="btn btn-primary">
-                Tampilkan
-            </button>
-
-        </div>
-
-    </div>
-
-</form>
-
-@if($mataKuliahId)
-
 <div x-data="{ q: '' }">
 
-<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / deskripsi CPL" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari CPL">
+<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / nama MK" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari mata kuliah">
 
-<form method="POST"
-      action="{{ route('kurikulum.cpl-bk-mk.store', $kurikulum->id) }}">
+<div class="table-container">
 
-    @csrf
+    <table class="data-table">
 
-    <input type="hidden"
-           name="mata_kuliah_id"
-           value="{{ $mataKuliahId }}">
+        <thead>
 
-    <div class="table-container">
+            <tr>
 
-        <table class="data-table">
+                <th>
+                    Kode MK
+                </th>
 
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Kode CPL
-                    </th>
-
-                    @foreach($bahanKajians as $bk)
-
-                        <th>
-
-                            <div>{{ $bk->kode_bk }}</div>
-
-                            @if($bk->nama_bk)
-                            <div class="table-sub">{{ $bk->nama_bk }}</div>
-                            @endif
-
-                        </th>
-
-                    @endforeach
-
-                </tr>
-
-            </thead>
-
-            <tbody>
+                <th>
+                    Nama MK
+                </th>
 
                 @foreach($cpls as $cpl)
 
-                    <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
+                    <th class="text-center">
 
-                        <td class="font-medium">
+                        <div>{{ $cpl->kode_cpl }}</div>
 
-                            <div>{{ $cpl->kode_cpl }}</div>
+                        @if($cpl->deskripsi)
+                        <div class="table-sub">{{ $cpl->deskripsi }}</div>
+                        @endif
 
-                            @if($cpl->deskripsi)
-                            <div class="table-sub">{{ $cpl->deskripsi }}</div>
+                    </th>
+
+                @endforeach
+
+                <th class="text-center">
+                    Jumlah BK
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @forelse($mataKuliahs as $mk)
+
+                <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
+
+                    <td class="font-medium">
+                        {{ $mk->kode }}
+                    </td>
+
+                    <td>
+                        {{ $mk->nama }}
+                    </td>
+
+                    @foreach($cpls as $cpl)
+
+                        <td class="text-center">
+
+                            @if($mk->cpls->contains('id', $cpl->id))
+
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981;" aria-hidden="true">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+
+                                <span class="sr-only">Terpenuhi</span>
+
+                            @else
+
+                                <span class="sr-only">Belum terpenuhi</span>
+
                             @endif
 
                         </td>
 
-                        @foreach($bahanKajians as $bk)
+                    @endforeach
 
-                            @php
+                    <td class="text-center">
+                        {{ $mk->bahanKajians->count() }}
+                    </td>
 
-                                $key = $cpl->id . '-' . $bk->id;
+                </tr>
 
-                            @endphp
+            @empty
 
-                            <td class="text-center">
+                <tr class="empty-row">
+                    <td colspan="{{ 3 + $cpls->count() }}">
+                        Belum ada mata kuliah.
+                    </td>
+                </tr>
 
-                                <input type="checkbox"
-                                       name="mapping[{{ $key }}]"
-                                       value="1"
+            @endforelse
 
-                                       {{ isset($checked[$key]) ? 'checked' : '' }}
-                                       {{ (auth()->user()->isAdmin() || auth()->user()->isKaprodi()) ? '' : 'disabled' }}>
+        </tbody>
 
-                            </td>
+        <tfoot>
 
-                        @endforeach
+            <tr>
 
-                    </tr>
+                <th colspan="2" scope="row">
+                    Jumlah BK per CPL
+                </th>
 
+                @foreach($cpls as $cpl)
+                    <td class="text-center">{{ $cpl->jumlahBk }}</td>
                 @endforeach
 
-            </tbody>
+                <td class="text-center">—</td>
 
-        </table>
+            </tr>
 
-    </div>
+            <tr>
 
-    @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
-    <div class="flex gap-2 mt-5">
+                <th colspan="2" scope="row">
+                    Jumlah MK per CPL
+                </th>
 
-        <button class="btn btn-success">
+                @foreach($cpls as $cpl)
+                    <td class="text-center">{{ $cpl->jumlahMk }}</td>
+                @endforeach
 
-            Simpan
+                <td class="text-center">—</td>
 
-        </button>
-    </div>
-    @endif
+            </tr>
 
-</form>
+        </tfoot>
+
+    </table>
 
 </div>
 
-@endif
+</div>
+
 <div class="mt-4">
     <a href="{{ route('kurikulum.detail', $kurikulum->id) }}" class="btn btn-secondary">Kembali</a>
 </div>
