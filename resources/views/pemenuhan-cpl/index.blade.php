@@ -12,107 +12,104 @@
     {{ $kurikulum->programStudi->nama_prodi }}
 </p>
 
-<x-alert type="success" :message="session('success')" />
-
 <div x-data="{ q: '' }">
 
 <input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / deskripsi CPL" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari CPL">
 
-<form method="POST"
-      action="{{ route('kurikulum.pemenuhan-cpl.store', $kurikulum->id) }}">
+<div class="table-container">
 
-    @csrf
+    <table class="data-table">
 
-    <div class="table-container">
+        <thead>
 
-        <table class="data-table">
+            <tr>
 
-            <thead>
+                <th>
+                    Kode CPL
+                </th>
 
-                <tr>
+                @for($semester = 1; $semester <= 8; $semester++)
 
-                    <th>
-                        Kode CPL
+                    <th class="text-center">
+                        Smt {{ $semester }}
                     </th>
+
+                @endfor
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @forelse($cpls as $cpl)
+
+                <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
+
+                    <td class="font-medium">
+
+                        <div>{{ $cpl->kode_cpl }}</div>
+
+                        @if($cpl->deskripsi)
+                        <div class="table-sub">{{ $cpl->deskripsi }}</div>
+                        @endif
+
+                    </td>
 
                     @for($semester = 1; $semester <= 8; $semester++)
 
-                        <th class="text-center">
-                            Smt {{ $semester }}
-                        </th>
+                        <td>
+
+                            @php $kodes = $matrix[$cpl->id][$semester] ?? []; @endphp
+
+                            @if($kodes)
+
+                                <div class="flex flex-wrap gap-2">
+
+                                    @foreach($kodes as $kode)
+                                        <span class="cpmk-chip">{{ $kode }}</span>
+                                    @endforeach
+
+                                </div>
+
+                            @else
+
+                                <span style="color: #cbd5e1;">—</span>
+
+                            @endif
+
+                        </td>
 
                     @endfor
 
                 </tr>
 
-            </thead>
+            @empty
 
-            <tbody>
+                <tr class="empty-row">
+                    <td colspan="9">
+                        Belum ada CPL.
+                    </td>
+                </tr>
 
-                @foreach($cpls as $cpl)
+            @endforelse
 
-                    <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
+        </tbody>
 
-                        <td class="font-medium">
+    </table>
 
-                            <div>{{ $cpl->kode_cpl }}</div>
+</div>
 
-                            @if($cpl->deskripsi)
-                            <div class="table-sub">{{ $cpl->deskripsi }}</div>
-                            @endif
+</div>
 
-                        </td>
-
-                        @for($semester = 1; $semester <= 8; $semester++)
-
-                            @php
-                                $key = $cpl->id . '-' . $semester;
-                            @endphp
-
-                            <td class="text-center">
-
-                                <input type="checkbox"
-                                       name="mapping[{{ $key }}]"
-                                       value="1"
-                                       {{ isset($checked[$key]) ? 'checked' : '' }}
-                                       {{ (auth()->user()->isAdmin() || auth()->user()->isKaprodi()) ? '' : 'disabled' }}>
-
-                            </td>
-
-                        @endfor
-
-                    </tr>
-
-                @endforeach
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
-    <div class="flex gap-2 mt-5">
-
-        <button class="btn btn-success">
-
-            Simpan
-
-        </button>
-
-    </div>
-    @endif
-
-</form>
 <div class="mt-5">
     <a href="{{ route('kurikulum.detail', $kurikulum->id) }}"
-           class="btn btn-secondary">
+       class="btn btn-secondary">
 
             Kembali
 
-        </a>
+    </a>
 
 </div>
 
-</div>
 @endsection
