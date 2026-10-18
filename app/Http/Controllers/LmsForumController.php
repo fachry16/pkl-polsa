@@ -7,6 +7,7 @@ use App\Models\Pengampu;
 use App\Notifications\ForumDiskusiBaru;
 use App\Rules\LmsFileMime;
 use App\Services\GoogleDriveService;
+use App\Services\PerpusNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,6 +49,7 @@ class LmsForumController extends Controller
 
         $forum = LmsForumDiskusi::create($data);
 
+        $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
         $sender = Auth::user();
         if ($pengampu->dosen?->user && $pengampu->dosen->user->id !== $sender->id) {
             $pengampu->dosen->user->notify(new ForumDiskusiBaru($pengampu, $forum, $sender->name));
@@ -55,6 +57,18 @@ class LmsForumController extends Controller
         foreach ($pengampu->mahasiswas as $mhs) {
             if ($mhs->user && $mhs->user->id !== $sender->id) {
                 $mhs->user->notify(new ForumDiskusiBaru($pengampu, $forum, $sender->name));
+                PerpusNotificationDispatcher::dispatch(
+                    $mhs->user,
+                    'forum_baru',
+                    "Diskusi Baru: {$forum->judul}",
+                    "{$sender->name} mengirim topik diskusi di mata kuliah {$mkNama}.",
+                    [
+                        'pengampu_id' => $pengampu->id,
+                        'forum_id' => $forum->id,
+                        'mata_kuliah' => $mkNama,
+                        'pengirim' => $sender->name,
+                    ]
+                );
             }
         }
 

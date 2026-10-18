@@ -3,23 +3,36 @@
     $recentNotifications = auth()->user()->notifications->take(10);
 @endphp
 
-<div class="notif-wrap" x-data="{ open: false }">
+<div class="notif-wrap" x-data="{ 
+    open: false,
+    unreadCount: {{ (int) $unreadCount }},
+    fetchCount() {
+        fetch('{{ route('notifications.unread-count') }}', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (data && typeof data.count === 'number') {
+                    this.unreadCount = data.count;
+                }
+            })
+            .catch(() => {});
+    }
+}" x-init="setInterval(() => fetchCount(), 30000)">
     <button type="button" class="notif-bell" @click="open = !open" aria-label="Notifikasi">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        @if($unreadCount > 0)
-            <span class="notif-badge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
-        @endif
+        <template x-if="unreadCount > 0">
+            <span class="notif-badge" x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
+        </template>
     </button>
 
     <div class="notif-dropdown" x-show="open" @click.outside="open = false" x-transition style="display: none;">
         <div class="notif-header">
             <span style="font-weight: 600; font-size: 0.85rem;">Notifikasi</span>
-            @if($unreadCount > 0)
+            <template x-if="unreadCount > 0">
                 <form action="{{ route('notifications.read-all') }}" method="POST" style="margin: 0;">
                     @csrf
                     <button type="submit" class="notif-read-all">Tandai dibaca</button>
                 </form>
-            @endif
+            </template>
         </div>
 
         <div class="notif-list">

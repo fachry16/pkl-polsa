@@ -20,6 +20,7 @@ use App\Rules\LmsFileMime;
 use App\Services\AssessmentCalculationService;
 use App\Services\GoogleDriveService;
 use App\Services\PenilaianService;
+use App\Services\PerpusNotificationDispatcher;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Closure;
 use Illuminate\Http\Request;
@@ -282,6 +283,20 @@ class LmsTugasController extends Controller
 
         if ($submission->nilai !== null && $submission->mahasiswa?->user) {
             $submission->mahasiswa->user->notify(new NilaiDiberikan($pengampu, $submission));
+            $tugasJudul = $submission->lmsTugas?->judul ?? 'Tugas';
+            $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
+            PerpusNotificationDispatcher::dispatch(
+                $submission->mahasiswa->user,
+                'nilai_diberikan',
+                "Nilai Tugas: {$tugasJudul}",
+                "Nilai tugas {$tugasJudul} telah diberikan: {$submission->nilai}",
+                [
+                    'pengampu_id' => $pengampu->id,
+                    'submission_id' => $submission->id,
+                    'mata_kuliah' => $mkNama,
+                    'nilai' => $submission->nilai,
+                ]
+            );
         }
 
         return back()->with('toast_success', 'Nilai berhasil disimpan.');
@@ -796,10 +811,26 @@ class LmsTugasController extends Controller
 
     private function notifyTugasPublikasi(Pengampu $pengampu, LmsTugas $tugas): void
     {
+        $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
+        $deadlineStr = $tugas->deadline ? $tugas->deadline->format('d/m/Y H:i') : '-';
+
         // Notifikasi tugas baru hanya ditujukan kepada mahasiswa di kelas terkait
         foreach ($pengampu->mahasiswas as $mahasiswa) {
             if ($mahasiswa->user) {
                 $mahasiswa->user->notify(new TugasBaru($pengampu, $tugas, 'mahasiswa'));
+                PerpusNotificationDispatcher::dispatch(
+                    $mahasiswa->user,
+                    'tugas_baru',
+                    "Tugas Baru: {$tugas->judul}",
+                    "Tugas baru untuk mata kuliah {$mkNama}. Deadline: {$deadlineStr}",
+                    [
+                        'pengampu_id' => $pengampu->id,
+                        'tugas_id' => $tugas->id,
+                        'mata_kuliah' => $mkNama,
+                        'kelas' => $pengampu->kelas,
+                        'deadline' => $tugas->deadline?->toIso8601String(),
+                    ]
+                );
             }
         }
     }
