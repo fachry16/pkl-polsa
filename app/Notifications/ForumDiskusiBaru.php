@@ -5,9 +5,10 @@ namespace App\Notifications;
 use App\Models\LmsForumDiskusi;
 use App\Models\Pengampu;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class ForumDiskusiBaru extends Notification
+class ForumDiskusiBaru extends Notification implements ShouldQueue
 {
     use Queueable;
 

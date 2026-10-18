@@ -41,7 +41,7 @@
                 <label class="form-label">Upload File</label>
                 <input type="file" name="file" class="form-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.mp4,.jpg,.png">
                 @if($materi->file_path)
-                    <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #64748b;">File saat ini: <x-file-link :file="$materi->file_path" :href="route('lms.file', ['materi', $materi->id])" /></div>
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #64748b;">File saat ini: <x-file-link :file="$materi->file_path" :nama="$materi->file_name" :href="route('lms.file', ['materi', $materi->id])" /></div>
                 @endif
                 @error('file') <div class="form-error">{{ $message }}</div> @enderror
             </div>

@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LmsAbsensi;
 use App\Models\LmsNilaiMahasiswa;
-use App\Models\LmsSesiAbsensi;
-use App\Models\LmsSubmission;
 use App\Models\Mahasiswa;
 use App\Models\ProgramStudi;
 use App\Models\SemesterMahasiswa;
@@ -118,37 +115,27 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * Aktivitas perkuliahan: rekap presensi per MK + jumlah tugas yang dikumpulkan.
+     * Identitas mahasiswa (self-service): data diri + KHS + transkrip informatif.
      */
-    public function aktivitas(Mahasiswa $mahasiswa)
+    public function identitas()
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+        abort_unless($mahasiswa, 404);
+
+        $khs = $this->dataKhsMahasiswa($mahasiswa);
+        $transkrip = $this->dataTranskripMahasiswa($mahasiswa);
+
+        return view('mahasiswa.identitas', $khs + $transkrip);
+    }
+
+    /**
+     * Status mahasiswa: status utama dari data mahasiswa.
+     */
+    public function status(Mahasiswa $mahasiswa)
     {
         $this->prodiGuard($mahasiswa);
 
-        $penilaian = app(PenilaianService::class);
-
-        $rows = [];
-
-        foreach ($this->pengampusTerurut($mahasiswa) as $p) {
-            $sesiIds = LmsSesiAbsensi::where('pengampu_id', $p->id)->pluck('id');
-            $absensis = LmsAbsensi::whereIn('sesi_id', $sesiIds)
-                ->where('mahasiswa_id', $mahasiswa->id)
-                ->get();
-
-            $rows[] = [
-                'pengampu' => $p,
-                'pertemuan' => $sesiIds->count(),
-                'hadir' => $absensis->where('status', 'hadir')->count(),
-                'sakit' => $absensis->where('status', 'sakit')->count(),
-                'izin' => $absensis->where('status', 'izin')->count(),
-                'alpa' => $absensis->where('status', 'alpa')->count(),
-                'persen_absensi' => $penilaian->hitungAbsensi($p, $mahasiswa),
-                'tugas_dikumpulkan' => LmsSubmission::where('mahasiswa_id', $mahasiswa->id)
-                    ->whereHas('lmsTugas', fn ($q) => $q->where('pengampu_id', $p->id))
-                    ->count(),
-            ];
-        }
-
-        return view('mahasiswa.aktivitas', compact('mahasiswa', 'rows'));
+        return view('mahasiswa.status', compact('mahasiswa'));
     }
 
     /**
@@ -276,7 +263,7 @@ class MahasiswaController extends Controller
                 'required',
                 'unique:mahasiswas,nim',
                 function ($attribute, $value, $fail) {
-                    if (User::where('email', $this->emailUntukNim($value))->exists()) {
+                    if (User::where('email', $value)->exists()) {
                         $fail('NIM ini sudah dipakai untuk akun login lain.');
                     }
                 },
@@ -292,7 +279,7 @@ class MahasiswaController extends Controller
 
         $user = User::create([
             'name' => $request->nama,
-            'email' => $this->emailUntukNim($request->nim),
+            'email' => $request->nim,
             'password' => $request->nim,
             'role' => 'mahasiswa',
             'harus_ganti_password' => true,
@@ -364,7 +351,7 @@ class MahasiswaController extends Controller
         if ($mahasiswa->user) {
             $mahasiswa->user->update([
                 'name' => $request->nama,
-                'email' => $this->emailUntukNim($request->nim),
+                'email' => $request->nim,
             ]);
         }
 
@@ -393,17 +380,12 @@ class MahasiswaController extends Controller
         return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil dihapus.');
     }
 
-    private function emailUntukNim(string $nim): string
-    {
-        return $nim.'@polsa.ac.id';
-    }
-
     public function downloadTemplate(CsvImportService $csvService)
     {
         $headers = ['nim', 'nama', 'kode_prodi', 'angkatan', 'semester', 'status', 'jenis_kelas'];
         $samples = [
-            ['32240001', 'Ahmad Fauzi', 'TRPL', '2024', '1', 'Aktif', 'Reguler'],
-            ['32240002', 'Budi Santoso', 'TI', '2024', '1', 'Aktif', 'Karyawan'],
+            ['32240001', 'Ahmad Fauzi', '14', '2024', '1', 'Aktif', 'Reguler'],
+            ['32240002', 'Budi Santoso', '11', '2024', '1', 'Aktif', 'Karyawan'],
         ];
 
         return $csvService->downloadTemplate('template_import_mahasiswa.csv', $headers, $samples);
@@ -459,9 +441,8 @@ class MahasiswaController extends Controller
                 continue;
             }
 
-            $emailMhs = $this->emailUntukNim($nim);
-            if (User::where('email', $emailMhs)->exists()) {
-                $skipped[] = "Baris {$rowNum}: Akun email login {$emailMhs} sudah terdaftar.";
+            if (User::where('email', $nim)->exists()) {
+                $skipped[] = "Baris {$rowNum}: NIM {$nim} sudah dipakai untuk akun login lain.";
 
                 continue;
             }
@@ -478,7 +459,7 @@ class MahasiswaController extends Controller
 
             $user = User::create([
                 'name' => $nama,
-                'email' => $emailMhs,
+                'email' => $nim,
                 'password' => $nim,
                 'role' => 'mahasiswa',
                 'roles' => ['mahasiswa'],

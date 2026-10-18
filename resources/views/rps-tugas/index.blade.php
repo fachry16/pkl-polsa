@@ -47,7 +47,7 @@
                     @if($item->deskripsi)
                         <div style="font-size: 0.8rem; color: #475569; margin-top: 0.2rem;">{{ $item->deskripsi }}</div>
                     @endif
-                    <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-top: 0.25rem; display: inline-block;">
+                    <span style="background: #FFF8E0; color: #B8860B; border: 1px solid #FFE88F; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-top: 0.25rem; display: inline-block;">
                         {{ $item->kategori_komponen ?? 'tugas' }}
                     </span>
                 </td>
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (fileNotice) {
             if (item.file_soal) {
                 fileNotice.style.display = 'block';
-                fileNotice.innerText = '📎 File Lampiran Soal terlampir dari RPS';
+                fileNotice.innerText = 'File Lampiran Soal terlampir dari RPS';
             } else {
                 fileNotice.style.display = 'none';
             }
@@ -208,14 +208,14 @@ document.addEventListener('DOMContentLoaded', function () {
         <div style="font-size: 0.75rem; color: #16a34a; margin-top: 0.4rem; font-weight: 600;">
             Deadline: <span id="preview-deadline"></span> &middot; Bobot Nilai: <span id="preview-bobot"></span>
         </div>
-        <div id="preview-file-soal-notice" style="display: none; font-size: 0.75rem; color: #0284c7; margin-top: 0.3rem; font-weight: 600;">
+        <div id="preview-file-soal-notice" style="display: none; font-size: 0.75rem; color: #A16207; margin-top: 0.3rem; font-weight: 600;">
         </div>
     </div>
 
     <form id="upload-form" method="POST" style="padding: 0 1.5rem 1.25rem 1.5rem;">
         @csrf
         <div style="font-size: 0.78rem; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
-            💡 <strong>Catatan:</strong> Setelah dikonfirmasi, tugas akan masuk ke daftar tugas LMS dosen dengan status <em>Draf</em>. Dosen dapat menekan tombol <strong>"Tugaskan"</strong> pada kelas LMS masing-masing untuk mempublikasikannya kepada mahasiswa.
+            <strong>Catatan:</strong> Setelah dikonfirmasi, tugas akan masuk ke daftar tugas LMS dosen dengan status <em>Draf</em>. Dosen dapat menekan tombol <strong>"Tugaskan"</strong> pada kelas LMS masing-masing untuk mempublikasikannya kepada mahasiswa.
         </div>
 
         <div class="btn-group" style="justify-content: flex-end;">

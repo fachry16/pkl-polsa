@@ -47,4 +47,13 @@ class Assessment extends Model
             default => ucfirst($this->status),
         };
     }
+
+    public function isNilaiTerkunci(): bool
+    {
+        $approval = $this->approval;
+
+        return $approval
+            && $approval->status === AssessmentApproval::STATUS_DISETUJUI
+            && $approval->buka_kunci_at === null;
+    }
 }

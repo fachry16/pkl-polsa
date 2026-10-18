@@ -32,7 +32,7 @@
             <tr>
                 <td>{{ $roles->firstItem() + $index }}</td>
                 <td style="font-weight: 600; color: #0f172a;">{{ $role->nama }}</td>
-                <td><code style="font-size: 0.8rem; background: #f1f5f9; padding: 0.2rem 0.45rem; border-radius: 4px; color: #4338ca;">{{ $role->kode }}</code></td>
+                <td><code style="font-size: 0.8rem; background: #f1f5f9; padding: 0.2rem 0.45rem; border-radius: 4px; color: #A16207;">{{ $role->kode }}</code></td>
                 <td style="color: #64748b;">{{ $role->deskripsi ?? '-' }}</td>
                 <td style="text-align: right;">
                     <div class="btn-group" style="justify-content: flex-end;">

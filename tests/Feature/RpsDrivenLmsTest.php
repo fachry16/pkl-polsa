@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Dosen;
 use App\Models\Kurikulum;
+use App\Models\LmsMateri;
 use App\Models\LmsTugas;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
@@ -14,6 +15,8 @@ use App\Models\RpsTugas;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class RpsDrivenLmsTest extends TestCase
@@ -23,7 +26,7 @@ class RpsDrivenLmsTest extends TestCase
     public function test_dosen_dapat_melihat_pilihan_rps_dan_menilai_upload_lms(): void
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',
@@ -320,5 +323,163 @@ class RpsDrivenLmsTest extends TestCase
         $this->assertEquals('Tugas 3: Unit Testing (Revisi)', $lmsTugasRefresh->judul);
         $this->assertEquals(95, $lmsTugasRefresh->bobot_nilai);
         $this->assertStringContainsString('Buat unit test & integration test lengkap', $lmsTugasRefresh->instruksi);
+    }
+
+    public function test_upload_materi_rps_membuat_lms_materi_di_semua_kelas(): void
+    {
+        $prodi = ProgramStudi::create([
+            'kode_prodi' => 'TRPL4',
+            'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak 4',
+            'jenjang' => 'D4',
+            'akreditasi' => 'Baik',
+        ]);
+
+        $userDosen = User::create([
+            'name' => 'Dosen RPL 4',
+            'email' => 'dosenrpl4@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'dosen',
+        ]);
+
+        $dosen = Dosen::create([
+            'user_id' => $userDosen->id,
+            'program_studi_id' => $prodi->id,
+            'nidn' => '99887769',
+            'jabatan' => 'Dosen',
+        ]);
+
+        $kurikulum = Kurikulum::create([
+            'program_studi_id' => $prodi->id,
+            'nama_kurikulum' => 'Kurikulum 2024',
+            'tahun_berlaku' => 2024,
+            'beban_studi' => '144 SKS',
+            'deskripsi' => 'Deskripsi Kurikulum TRPL',
+            'status' => 'Aktif',
+        ]);
+
+        $ta = TahunAkademik::create(['tahun' => 2026, 'semester' => 'Ganjil', 'is_active' => true]);
+
+        $mk = MataKuliah::create([
+            'kurikulum_id' => $kurikulum->id,
+            'kode' => 'RPL205',
+            'nama' => 'Arsitektur Perangkat Lunak',
+            'sks_teori' => 3,
+            'sks_praktikum' => 0,
+            'semester' => 3,
+            'jenis' => 'Wajib',
+        ]);
+
+        $rps = Rps::create([
+            'mata_kuliah_id' => $mk->id,
+            'dosen_pengembang_id' => $dosen->id,
+            'dosen_pengampu' => 'Dosen RPL 4',
+            'semester' => 3,
+            'deskripsi' => 'RPS Arsitektur PL',
+            'status' => 'Disetujui',
+        ]);
+
+        $pertemuan = RpsPertemuan::create([
+            'rps_id' => $rps->id,
+            'minggu' => 1,
+            'sub_cpmk' => 'Konsep Arsitektur',
+            'materi' => 'Pengantar Arsitektur Perangkat Lunak',
+            'metode' => 'Diskusi',
+            'pengalaman_belajar' => 'Studi kasus',
+            'indikator' => 'Ketepatan',
+            'bobot' => 10,
+        ]);
+
+        $pengampuA = Pengampu::create([
+            'dosen_id' => $dosen->id,
+            'mata_kuliah_id' => $mk->id,
+            'tahun_akademik_id' => $ta->id,
+            'kelas' => 'A',
+            'semester_akademik' => 'Ganjil 2026/2027',
+        ]);
+
+        $pengampuB = Pengampu::create([
+            'dosen_id' => $dosen->id,
+            'mata_kuliah_id' => $mk->id,
+            'tahun_akademik_id' => $ta->id,
+            'kelas' => 'B',
+            'semester_akademik' => 'Ganjil 2026/2027',
+        ]);
+
+        Storage::fake('public');
+        $file = UploadedFile::fake()->create('modul.pdf', 100, 'application/pdf');
+
+        $response = $this->actingAs($userDosen)
+            ->post(route('rps.pertemuan.upload-materi', [$rps->id, $pertemuan->id]), [
+                'file' => $file,
+            ]);
+
+        $response->assertRedirect(route('rps.pertemuan.index', $rps->id));
+
+        foreach ([$pengampuA, $pengampuB] as $pengampu) {
+            $this->assertDatabaseHas('lms_materis', [
+                'pengampu_id' => $pengampu->id,
+                'rps_pertemuan_id' => $pertemuan->id,
+                'judul' => 'Pengantar Arsitektur Perangkat Lunak',
+            ]);
+        }
+
+        $this->assertSame(2, LmsMateri::where('rps_pertemuan_id', $pertemuan->id)->count());
+
+        // Upload ulang seharusnya idempoten, tidak menggandakan materi
+        $this->actingAs($userDosen)
+            ->post(route('rps.pertemuan.upload-materi', [$rps->id, $pertemuan->id]), [
+                'file' => UploadedFile::fake()->create('modul-v2.pdf', 100, 'application/pdf'),
+            ]);
+
+        $this->assertSame(2, LmsMateri::where('rps_pertemuan_id', $pertemuan->id)->count());
+
+        // Hapus pertemuan menghapus materi terkait
+        $this->actingAs($userDosen)
+            ->delete(route('rps.pertemuan.destroy', [$rps->id, $pertemuan->id]));
+
+        $this->assertSame(0, LmsMateri::where('rps_pertemuan_id', $pertemuan->id)->count());
+    }
+
+    public function test_unduh_materi_rps_melewati_kontroler_tidak_403(): void
+    {
+        $prodi = ProgramStudi::create(['kode_prodi' => 'TRPL5', 'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak 5', 'jenjang' => 'D4', 'akreditasi' => 'Baik']);
+        $userDosen = User::create(['name' => 'Dosen RPL 5', 'email' => 'dosenrpl5@test.dev', 'password' => bcrypt('password'), 'role' => 'dosen']);
+        $dosen = Dosen::create(['user_id' => $userDosen->id, 'program_studi_id' => $prodi->id, 'nidn' => '99887770', 'jabatan' => 'Dosen']);
+        $kurikulum = Kurikulum::create(['program_studi_id' => $prodi->id, 'nama_kurikulum' => 'Kurikulum 2024', 'tahun_berlaku' => 2024, 'beban_studi' => '144 SKS', 'deskripsi' => 'D', 'status' => 'Aktif']);
+        $ta = TahunAkademik::create(['tahun' => 2026, 'semester' => 'Ganjil', 'is_active' => true]);
+        $mk = MataKuliah::create(['kurikulum_id' => $kurikulum->id, 'kode' => 'RPL206', 'nama' => 'Basis Data', 'sks_teori' => 3, 'sks_praktikum' => 0, 'semester' => 2, 'jenis' => 'Wajib']);
+        $rps = Rps::create(['mata_kuliah_id' => $mk->id, 'dosen_pengembang_id' => $dosen->id, 'dosen_pengampu' => 'Dosen RPL 5', 'semester' => 2, 'deskripsi' => 'RPS', 'status' => 'Disetujui']);
+
+        Pengampu::create([
+            'dosen_id' => $dosen->id,
+            'mata_kuliah_id' => $mk->id,
+            'tahun_akademik_id' => $ta->id,
+            'kelas' => 'A',
+            'semester_akademik' => 'Ganjil 2026/2027',
+        ]);
+
+        Storage::fake('public');
+        $file = UploadedFile::fake()->create('modul.pdf', 100, 'application/pdf');
+
+        $pertemuan = RpsPertemuan::create([
+            'rps_id' => $rps->id,
+            'minggu' => 1,
+            'sub_cpmk' => 'ERD',
+            'materi' => 'Konsep Basis Data',
+            'metode' => 'Diskusi',
+            'pengalaman_belajar' => 'Studi kasus',
+            'indikator' => 'Ketepatan',
+            'bobot' => 10,
+        ]);
+
+        $this->actingAs($userDosen)
+            ->post(route('rps.pertemuan.upload-materi', [$rps->id, $pertemuan->id]), ['file' => $file])
+            ->assertRedirect();
+
+        $response = $this->actingAs($userDosen)
+            ->get(route('rps.pertemuan.file', [$rps->id, $pertemuan->id]));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
     }
 }

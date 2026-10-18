@@ -39,8 +39,8 @@
 
         <div style="margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             @php
-                $warna = $assessment->status === 'final' ? '#059669' : ($assessment->status === 'dinilai' ? '#2563eb' : '#94a3b8');
-                $bg = $assessment->status === 'final' ? '#d1fae5' : ($assessment->status === 'dinilai' ? '#dbeafe' : '#f1f5f9');
+                $warna = $assessment->status === 'final' ? '#059669' : ($assessment->status === 'dinilai' ? '#A16207' : '#94a3b8');
+                $bg = $assessment->status === 'final' ? '#d1fae5' : ($assessment->status === 'dinilai' ? '#FFF3C4' : '#f1f5f9');
             @endphp
             <span style="background: {{ $bg }}; color: {{ $warna }}; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;">
                 {{ $assessment->status_label }}
@@ -82,7 +82,7 @@
     </div>
 
     @if($readonly)
-    <div style="background: #eff6ff; color: #1d4ed8; border-bottom: 1px solid #bfdbfe; padding: 0.75rem 1.25rem; font-size: 0.85rem;">
+    <div style="background: #FFF8E0; color: #B8860B; border-bottom: 1px solid #FFE88F; padding: 0.75rem 1.25rem; font-size: 0.85rem;">
         {{ $isFinal ? 'Assessment telah difinalkan, nilai tidak dapat diubah.' : 'Anda hanya dapat melihat nilai di kelas ini.' }}
     </div>
     @endif
@@ -98,7 +98,7 @@
                 <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Progres Pengisian</div>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 160px; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ collect($summary['rows'])->filter(fn ($r) => $r['dinilai'])->count() / max(1, collect($summary['rows'])->count()) * 100 }}%; background: #4f46e5; border-radius: 999px;"></div>
+                        <div style="height: 100%; width: {{ collect($summary['rows'])->filter(fn ($r) => $r['dinilai'])->count() / max(1, collect($summary['rows'])->count()) * 100 }}%; background: #FEC200; border-radius: 999px;"></div>
                     </div>
                     <span style="font-size: 0.85rem; font-weight: 700; color: #1e293b;">
                         {{ collect($summary['rows'])->filter(fn ($r) => $r['dinilai'])->count() }}/{{ count($summary['rows']) }} mahasiswa dinilai
@@ -162,11 +162,11 @@
                             <td>
                                 <template x-if="mkCapaian({{ $row['mahasiswa']->id }}) > 0">
                                     <div>
-                                        <div style="font-weight: 700; color: #2563eb;">
+                                        <div style="font-weight: 700; color: #A16207;">
                                             <span x-text="mkCapaian({{ $row['mahasiswa']->id }}) + '%'">—</span>
                                         </div>
                                         <div style="height: 6px; width: 80px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                                            <div style="height: 100%; width: 0%; background: #2563eb; border-radius: 999px;"
+                                            <div style="height: 100%; width: 0%; background: #FEC200; border-radius: 999px;"
                                                  :style="'width: ' + Math.min(100, mkCapaian({{ $row['mahasiswa']->id }})) + '%'"></div>
                                         </div>
                                     </div>

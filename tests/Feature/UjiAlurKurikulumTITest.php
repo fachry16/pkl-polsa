@@ -33,7 +33,7 @@ class UjiAlurKurikulumTITest extends TestCase
 
     public function test_alur_kurikulum_ti_diisi_ulang_hingga_penilaian_disetujui_kaprodi(): void
     {
-        $prodi = ProgramStudi::where('kode_prodi', 'TI')->firstOrFail();
+        $prodi = ProgramStudi::where('kode_prodi', '11')->firstOrFail();
         $kaprodi = Dosen::where('program_studi_id', $prodi->id)->where('jabatan', 'Kaprodi')->firstOrFail();
         $tahun = TahunAkademik::where('is_active', true)->firstOrFail();
 
@@ -340,7 +340,7 @@ class UjiAlurKurikulumTITest extends TestCase
         $rps = Rps::where('mata_kuliah_id', $mataKuliah->id)->firstOrFail();
         $this->assertSame('Draft', $rps->status);
 
-        // 3. Pertemuan 1-16 — topik persis seeder
+        // 3. Pertemuan 1-14 — topik persis seeder
         $topikPertemuan = [
             1 => 'Pengenalan Arsitektur Laravel 12 & Konsep MVC Modern',
             2 => 'Database Migration, Seeder & Eloquent Model',
@@ -355,9 +355,7 @@ class UjiAlurKurikulumTITest extends TestCase
             11 => 'Form Request Validation & Custom Validation Rules',
             12 => 'Eloquent Relationship Lanjut: One-to-Many & Many-to-Many',
             13 => 'Pengujian Otomatis (Unit & Feature Testing dengan PHPUnit)',
-            14 => 'Optimasi Performa Query & Caching Strategi',
-            15 => 'Persiapan Capstone Project & Code Review',
-            16 => 'Ujian Akhir Semester (UAS) - Presentasi & Demo Web Fullstack',
+            14 => 'Persiapan Capstone Project, Code Review & Ujian Akhir Semester (UAS) - Presentasi & Demo Web Fullstack',
         ];
         foreach ($topikPertemuan as $minggu => $topik) {
             $this->actingAs($aktor)
@@ -376,7 +374,7 @@ class UjiAlurKurikulumTITest extends TestCase
                 ])
                 ->assertSessionHasNoErrors();
         }
-        $this->assertCount(16, RpsPertemuan::where('rps_id', $rps->id)->get());
+        $this->assertCount(Rps::JUMLAH_PERTEMUAN, RpsPertemuan::where('rps_id', $rps->id)->get());
 
         // 4. Tugas — persis seeder (auto-sync ke LMS setelah pengampu ada)
         $tugasSeeder = [

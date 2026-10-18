@@ -36,7 +36,7 @@ class LmsAbsensiKeaktifanTest extends TestCase
         parent::setUp();
 
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',
@@ -155,13 +155,38 @@ class LmsAbsensiKeaktifanTest extends TestCase
         ]);
     }
 
-    public function test_dosen_dapat_menyimpan_komponen_absensi_dan_keaktifan_di_rekap_nilai()
+    public function test_rekap_nilai_presensi_terisi_otomatis_dari_data_kehadiran()
     {
+        $pertemuan2 = RpsPertemuan::create([
+            'rps_id' => RpsPertemuan::first()->rps_id,
+            'minggu' => 2,
+            'sub_cpmk' => 'Sub CPMK 2',
+            'materi' => 'Materi Pertemuan 2',
+            'metode' => 'Ceramah',
+            'pengalaman_belajar' => 'Diskusi',
+            'indikator' => 'Paham',
+            'bobot' => '10',
+        ]);
+
+        $sesi1 = LmsSesiAbsensi::create([
+            'pengampu_id' => $this->pengampu->id,
+            'rps_pertemuan_id' => RpsPertemuan::first()->id,
+            'tanggal_aktual' => now()->toDateString(),
+        ]);
+
+        $sesi2 = LmsSesiAbsensi::create([
+            'pengampu_id' => $this->pengampu->id,
+            'rps_pertemuan_id' => $pertemuan2->id,
+            'tanggal_aktual' => now()->addDay()->toDateString(),
+        ]);
+
+        LmsAbsensi::create(['sesi_id' => $sesi1->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'hadir']);
+        LmsAbsensi::create(['sesi_id' => $sesi2->id, 'mahasiswa_id' => $this->mahasiswa->id, 'status' => 'sakit']);
+
         $response = $this->actingAs($this->dosenUser)
             ->post(route('lms.tugas.komponen', $this->pengampu->id), [
                 'nilai' => [
                     $this->mahasiswa->id => [
-                        'absensi' => 90,
                         'keaktifan' => 95,
                     ],
                 ],
@@ -173,7 +198,7 @@ class LmsAbsensiKeaktifanTest extends TestCase
             'pengampu_id' => $this->pengampu->id,
             'mahasiswa_id' => $this->mahasiswa->id,
             'komponen' => 'absensi',
-            'nilai' => 90,
+            'nilai' => 75,
         ]);
 
         $this->assertDatabaseHas('lms_nilai_mahasiswas', [
@@ -181,6 +206,24 @@ class LmsAbsensiKeaktifanTest extends TestCase
             'mahasiswa_id' => $this->mahasiswa->id,
             'komponen' => 'keaktifan',
             'nilai' => 95,
+        ]);
+    }
+
+    public function test_presensi_rekap_kosong_saat_belum_ada_sesi_kehadiran()
+    {
+        $this->actingAs($this->dosenUser)
+            ->post(route('lms.tugas.komponen', $this->pengampu->id), [
+                'nilai' => [
+                    $this->mahasiswa->id => [
+                        'keaktifan' => 90,
+                    ],
+                ],
+            ]);
+
+        $this->assertDatabaseMissing('lms_nilai_mahasiswas', [
+            'pengampu_id' => $this->pengampu->id,
+            'mahasiswa_id' => $this->mahasiswa->id,
+            'komponen' => 'absensi',
         ]);
     }
 

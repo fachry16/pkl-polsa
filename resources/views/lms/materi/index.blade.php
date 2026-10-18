@@ -16,7 +16,7 @@
     <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
             <h3 style="font-size: 0.95rem; font-weight: 700; margin: 0; color: #1e293b;">Manajemen Materi LMS</h3>
-            <span style="font-size: 0.7rem; background: #eef2ff; color: #4f46e5; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600;">Berbasis RPS</span>
+            <span style="font-size: 0.7rem; background: #FFF3C4; color: #A16207; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600;">Berbasis RPS</span>
         </div>
 
         <p style="font-size: 0.82rem; color: #475569; line-height: 1.6; margin-bottom: 1.25rem;">
@@ -36,7 +36,7 @@
         </a>
 
         <div style="font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 8px; margin-top: 1.25rem; line-height: 1.5; display: flex; align-items: flex-start; gap: 0.4rem;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A0D40" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
             <span><strong>Panduan:</strong> Materi pembelajaran terhubung langsung dengan minggu pertemuan RPS mata kuliah.</span>
         </div>
     </div>
@@ -46,7 +46,7 @@
         @forelse($materis as $materi)
             <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
                 <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                    <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #FFF3C4; color: #A16207; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                     </div>
                     <div style="flex: 1; min-width: 0;">
@@ -54,7 +54,7 @@
                             <span style="font-weight: 600; font-size: 0.9rem; color: #0f172a;">{{ $materi->judul }}</span>
                             <span style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">{{ $materi->created_at->format('d M Y, H:i') }}</span>
                             @if($materi->rps_pertemuan_id)
-                                <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Minggu {{ $materi->rpsPertemuan->minggu ?? '?' }}</span>
+                                <span style="background: #FFF3C4; color: #A16207; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 600;">Minggu {{ $materi->rpsPertemuan->minggu ?? '?' }}</span>
                             @endif
                         </div>
                         @if($materi->deskripsi)
@@ -62,7 +62,7 @@
                         @endif
                         <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; align-items: center;">
                             @if($materi->file_path)
-                                <x-file-link :file="$materi->file_path" :href="route('lms.file', ['materi', $materi->id])" />
+                                <x-file-link :file="$materi->file_path" :nama="$materi->file_name" :href="route('lms.file', ['materi', $materi->id])" />
                             @endif
                             <div style="margin-left: auto; display: flex; align-items: center; gap: 0.5rem;">
                                 @if($materi->canBeModified())

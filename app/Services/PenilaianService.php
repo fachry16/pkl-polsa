@@ -98,15 +98,13 @@ class PenilaianService
         foreach (self::KOMPONEN as $komponen) {
             if ($komponen === 'tugas') {
                 $nilai = $this->hitungTugas($pengampu, $mahasiswa);
+            } elseif ($komponen === 'absensi') {
+                $nilai = $this->hitungAbsensi($pengampu, $mahasiswa);
             } else {
                 $nilai = LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
                     ->where('mahasiswa_id', $mahasiswa->id)
                     ->where('komponen', $komponen)
                     ->value('nilai');
-
-                if ($komponen === 'absensi' && $nilai === null) {
-                    $nilai = $this->hitungAbsensi($pengampu, $mahasiswa);
-                }
             }
 
             if ($nilai !== null) {
@@ -138,19 +136,7 @@ class PenilaianService
     public function simpanNilaiMahasiswa(Pengampu $pengampu, Mahasiswa $mahasiswa): void
     {
         $this->updateKomponen($pengampu, $mahasiswa, 'tugas', $this->hitungTugas($pengampu, $mahasiswa));
-
-        $storedAbsensi = LmsNilaiMahasiswa::where('pengampu_id', $pengampu->id)
-            ->where('mahasiswa_id', $mahasiswa->id)
-            ->where('komponen', 'absensi')
-            ->value('nilai');
-
-        if ($storedAbsensi === null) {
-            $calcAbsensi = $this->hitungAbsensi($pengampu, $mahasiswa);
-            if ($calcAbsensi !== null) {
-                $this->updateKomponen($pengampu, $mahasiswa, 'absensi', $calcAbsensi);
-            }
-        }
-
+        $this->updateKomponen($pengampu, $mahasiswa, 'absensi', $this->hitungAbsensi($pengampu, $mahasiswa));
         $this->updateKomponen($pengampu, $mahasiswa, 'akhir', $this->hitungNilaiAkhir($pengampu, $mahasiswa));
     }
 

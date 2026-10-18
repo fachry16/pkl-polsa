@@ -21,7 +21,7 @@ class KrsKelasOtomatisTest extends TestCase
     private function buatData(): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',
@@ -116,8 +116,8 @@ class KrsKelasOtomatisTest extends TestCase
             ->assertRedirect();
 
         $krs = Krs::latest()->first();
-        $this->assertSame('TI 3', $krs->kelas);
-        $this->assertSame('TI 3', $krs->pengampu->kelas);
+        $this->assertSame('11 3', $krs->kelas);
+        $this->assertSame('11 3', $krs->pengampu->kelas);
     }
 
     public function test_split_classes_memecah_base_menjadi_ab_berdasarkan_digit_kelima_nim(): void
@@ -142,18 +142,18 @@ class KrsKelasOtomatisTest extends TestCase
 
         Artisan::call('krs:split-classes');
 
-        $this->assertSame('TI 3A', Krs::findOrFail($krs->id)->kelas);
+        $this->assertSame('11 3A', Krs::findOrFail($krs->id)->kelas);
 
-        $krsA = Krs::where('kelas', 'TI 3A')->firstOrFail();
-        $krsB = Krs::where('kelas', 'TI 3B')->firstOrFail();
+        $krsA = Krs::where('kelas', '11 3A')->firstOrFail();
+        $krsB = Krs::where('kelas', '11 3B')->firstOrFail();
 
         $this->assertTrue($krsA->mahasiswas->contains('nim', '32241001'));
         $this->assertFalse($krsA->mahasiswas->contains('nim', '32242001'));
         $this->assertTrue($krsB->mahasiswas->contains('nim', '32242001'));
         $this->assertFalse($krsB->mahasiswas->contains('nim', '32241001'));
 
-        $this->assertSame('TI 3A', $krsA->pengampu->kelas);
-        $this->assertSame('TI 3B', $krsB->pengampu->kelas);
+        $this->assertSame('11 3A', $krsA->pengampu->kelas);
+        $this->assertSame('11 3B', $krsB->pengampu->kelas);
     }
 
     public function test_klasifikasi_a_b_tidak_terpengaruh_huruf_nama_prodi(): void

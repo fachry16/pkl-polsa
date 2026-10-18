@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LmsPengumuman;
 use App\Models\Pengampu;
 use App\Notifications\PengumumanBaru;
+use App\Services\PerpusNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,7 +26,9 @@ class LmsPengumumanController extends Controller
     private function authorizeWrite(Pengampu $pengampu): void
     {
         $user = Auth::user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+        if ($user->isAdmin()) {
+            return;
+        }
 
         $dosen = $user->dosen;
 
@@ -59,9 +62,21 @@ class LmsPengumumanController extends Controller
             'published_at' => now(),
         ]);
 
+        $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
         foreach ($pengampu->mahasiswas as $mahasiswa) {
             if ($mahasiswa->user) {
                 $mahasiswa->user->notify(new PengumumanBaru($pengampu, $pengumuman));
+                PerpusNotificationDispatcher::dispatch(
+                    $mahasiswa->user,
+                    'pengumuman_baru',
+                    "Pengumuman: {$pengumuman->judul}",
+                    "Pengumuman baru untuk mata kuliah {$mkNama}.",
+                    [
+                        'pengampu_id' => $pengampu->id,
+                        'pengumuman_id' => $pengumuman->id,
+                        'mata_kuliah' => $mkNama,
+                    ]
+                );
             }
         }
 

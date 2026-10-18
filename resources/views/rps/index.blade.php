@@ -108,7 +108,7 @@
             </form>
             @else
             <button class="btn btn-primary" disabled
-                    title="Lengkapi seluruh pertemuan (minggu 1-16), tugas & latihan, dan penilaian terlebih dahulu">
+                    title="Lengkapi seluruh pertemuan (minggu 1-{{ \App\Models\Rps::JUMLAH_PERTEMUAN }}), tugas & latihan, dan penilaian terlebih dahulu">
                 {{ $rps->status == 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Kaprodi' }}
             </button>
             @endif

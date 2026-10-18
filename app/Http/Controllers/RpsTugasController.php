@@ -11,6 +11,8 @@ use App\Notifications\DrafTugasRpsBaru;
 use App\Rules\LmsFileMime;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class RpsTugasController extends Controller
 {
@@ -80,9 +82,9 @@ class RpsTugasController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($rps->mataKuliah->kode ?? 'MK').' - RPS';
+            $hierarchy = $driveService->buildRpsHierarchy($rps, 'Tugas_RPS', [$request->nama_tugas]);
             $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
-            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->nama_tugas], $customName);
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', $hierarchy, $customName);
         }
 
         $tugas = RpsTugas::create($data);
@@ -144,9 +146,9 @@ class RpsTugasController extends Controller
             if ($tugas->file_soal) {
                 $driveService->deleteFile($tugas->file_soal);
             }
-            $mkLabel = ($rps->mataKuliah->kode ?? 'MK').' - RPS';
+            $hierarchy = $driveService->buildRpsHierarchy($rps, 'Tugas_RPS', [$request->nama_tugas ?: $tugas->nama_tugas]);
             $customName = 'Soal_'.$request->file('file')->getClientOriginalName();
-            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', [$mkLabel, 'Tugas', $request->nama_tugas ?: $tugas->nama_tugas], $customName);
+            $data['file_soal'] = $driveService->storeFile($request->file('file'), 'lms/tugas', $hierarchy, $customName);
         }
 
         $oldTitle = $tugas->getOriginal('nama_tugas');
@@ -205,6 +207,7 @@ class RpsTugasController extends Controller
         $synced = $this->syncToPengampu($rps, $tugas);
 
         if ($synced === 0) {
+
             return redirect()
                 ->route('rps.tugas.index', $rps->id)
                 ->with('success', 'Tugas RPS sudah pernah diunggah ke seluruh kelas LMS.');
@@ -213,6 +216,34 @@ class RpsTugasController extends Controller
         return redirect()
             ->route('rps.tugas.index', $rps->id)
             ->with('success', "Rancangan tugas berhasil diunggah ke {$synced} kelas LMS sebagai Draf. Silakan klik \"Tugaskan\" pada kelas LMS untuk mengaktifkan tugas.");
+    }
+
+    public function file(Rps $rps, RpsTugas $tugas)
+    {
+        $this->authorizeRpsModel($rps);
+
+        abort_unless($tugas->file_soal, 404);
+
+        if (str_starts_with($tugas->file_soal, 'gdrive/')) {
+            $parts = explode('/', $tugas->file_soal);
+            $driveFileId = $parts[1] ?? null;
+            $fileName = $parts[2] ?? basename($tugas->file_soal);
+
+            abort_unless($driveFileId, 404);
+
+            return app(GoogleDriveService::class)->streamFileResponse($driveFileId, $fileName);
+        }
+
+        $disk = Storage::disk('public');
+        abort_unless(is_file($disk->path($tugas->file_soal)), 404);
+
+        return response()->file($disk->path($tugas->file_soal), [
+            'Content-Type' => $disk->mimeType($tugas->file_soal),
+            'Content-Disposition' => HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_INLINE,
+                basename($tugas->file_soal)
+            ),
+        ]);
     }
 
     protected function pengampuKelas(Rps $rps)

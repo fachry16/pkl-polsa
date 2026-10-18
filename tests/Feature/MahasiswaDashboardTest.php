@@ -27,7 +27,7 @@ class MahasiswaDashboardTest extends TestCase
         ]);
 
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TRPL',
+            'kode_prodi' => '14',
             'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak',
             'jenjang' => 'D4',
             'akreditasi' => 'Baik',
@@ -119,7 +119,7 @@ class MahasiswaDashboardTest extends TestCase
     public function test_mahasiswa_karyawan_melihat_badge_kelas_karyawan_di_header(): void
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',

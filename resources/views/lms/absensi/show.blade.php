@@ -22,10 +22,6 @@
     @endif
 </div>
 
-@if(Auth::user()->isAdmin())
-    <x-alert type="info" :message="'Mode pratinjau (read-only): Admin tidak dapat mengubah data presensi.'" />
-@endif
-
 <div class="card">
     <div style="padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; font-weight: 600;">
         {{ $sesi->rpsPertemuan->materi }}

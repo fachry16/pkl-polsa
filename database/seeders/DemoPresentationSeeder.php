@@ -47,11 +47,11 @@ class DemoPresentationSeeder extends Seeder
 
         // 1. Program Studi POLSA
         $prodiTrpl = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'TRPL'],
+            ['kode_prodi' => '14'],
             ['nama_prodi' => 'Teknik Rekayasa Perangkat Lunak', 'jenjang' => 'D4', 'akreditasi' => 'Unggul']
         );
         $prodiTi = ProgramStudi::firstOrCreate(
-            ['kode_prodi' => 'TI'],
+            ['kode_prodi' => '11'],
             ['nama_prodi' => 'Teknik Informatika', 'jenjang' => 'D3', 'akreditasi' => 'Baik Sekali']
         );
 
@@ -61,7 +61,7 @@ class DemoPresentationSeeder extends Seeder
         Role::firstOrCreate(['kode' => 'mahasiswa'], ['nama' => 'Mahasiswa', 'is_system' => true]);
         Role::firstOrCreate(['kode' => 'direktur'], ['nama' => 'Direktur', 'is_system' => true]);
 
-        // 3. User Accounts (Password: 'password')
+        // 3. User Accounts (Password: 'password', mahasiswa: password = NIM)
         $passwordHash = Hash::make('password');
 
         // Admin User
@@ -134,8 +134,8 @@ class DemoPresentationSeeder extends Seeder
 
         // Mahasiswa 1: Ahmad Rizky (Sem 3 - TRPL)
         $userMhs1 = User::firstOrCreate(
-            ['email' => 'ahmad.rizky@polsa.ac.id'],
-            ['name' => 'Ahmad Rizky', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202401001'],
+            ['name' => 'Ahmad Rizky', 'password' => '202401001', 'role' => 'mahasiswa']
         );
         $mhs1 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs1->id],
@@ -151,8 +151,8 @@ class DemoPresentationSeeder extends Seeder
 
         // Mahasiswa 2: Dewi Lestari (Sem 3 - TRPL)
         $userMhs2 = User::firstOrCreate(
-            ['email' => 'dewi.lestari@polsa.ac.id'],
-            ['name' => 'Dewi Lestari', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202401002'],
+            ['name' => 'Dewi Lestari', 'password' => '202401002', 'role' => 'mahasiswa']
         );
         $mhs2 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs2->id],
@@ -168,8 +168,8 @@ class DemoPresentationSeeder extends Seeder
 
         // Mahasiswa 3: Budi Pratama (Sem 1 - TI)
         $userMhs3 = User::firstOrCreate(
-            ['email' => 'budi.pratama@polsa.ac.id'],
-            ['name' => 'Budi Pratama', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202501005'],
+            ['name' => 'Budi Pratama', 'password' => '202501005', 'role' => 'mahasiswa']
         );
         $mhs3 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs3->id],
@@ -185,8 +185,8 @@ class DemoPresentationSeeder extends Seeder
 
         // Mahasiswa 4: Citra Ananda (Sem 5 - TRPL)
         $userMhs4 = User::firstOrCreate(
-            ['email' => 'citra.ananda@polsa.ac.id'],
-            ['name' => 'Citra Ananda', 'password' => $passwordHash, 'role' => 'mahasiswa']
+            ['email' => '202301010'],
+            ['name' => 'Citra Ananda', 'password' => '202301010', 'role' => 'mahasiswa']
         );
         $mhs4 = Mahasiswa::firstOrCreate(
             ['user_id' => $userMhs4->id],
@@ -364,7 +364,7 @@ class DemoPresentationSeeder extends Seeder
             ]
         );
 
-        // RPS Pertemuan (16 Minggu)
+        // RPS Pertemuan (14 Minggu)
         $topikPertemuan = [
             1 => 'Pengenalan Arsitektur Laravel 12 & Konsep MVC Modern',
             2 => 'Database Migration, Seeder & Eloquent Model',
@@ -379,9 +379,7 @@ class DemoPresentationSeeder extends Seeder
             11 => 'Form Request Validation & Custom Validation Rules',
             12 => 'Eloquent Relationship Lanjut: One-to-Many & Many-to-Many',
             13 => 'Pengujian Otomatis (Unit & Feature Testing dengan PHPUnit)',
-            14 => 'Optimasi Performa Query & Caching Strategi',
-            15 => 'Persiapan Capstone Project & Code Review',
-            16 => 'Ujian Akhir Semester (UAS) - Presentasi & Demo Web Fullstack',
+            14 => 'Persiapan Capstone Project, Code Review & Ujian Akhir Semester (UAS) - Presentasi & Demo Web Fullstack',
         ];
 
         $rpsPertemuanObjects = [];

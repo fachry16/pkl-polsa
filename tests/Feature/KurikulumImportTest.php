@@ -14,7 +14,7 @@ class KurikulumImportTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function buatProdi(string $kode = 'TI'): ProgramStudi
+    private function buatProdi(string $kode = '11'): ProgramStudi
     {
         return ProgramStudi::create([
             'kode_prodi' => $kode,

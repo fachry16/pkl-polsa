@@ -55,7 +55,7 @@ class CrudSmokeTest extends TestCase
         parent::setUp();
 
         $this->prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',
@@ -166,18 +166,18 @@ class CrudSmokeTest extends TestCase
         $this->get(route('program-studi.create'))->assertOk();
 
         $this->post(route('program-studi.store'), [
-            'kode_prodi' => 'TK',
+            'kode_prodi' => '16',
             'nama_prodi' => 'Teknik Komputer',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',
         ])->assertRedirect();
-        $this->assertDatabaseHas('program_studis', ['kode_prodi' => 'TK']);
+        $this->assertDatabaseHas('program_studis', ['kode_prodi' => '16']);
 
-        $ps = ProgramStudi::where('kode_prodi', 'TK')->first();
+        $ps = ProgramStudi::where('kode_prodi', '16')->first();
         $this->get(route('program-studi.edit', $ps))->assertOk();
 
         $this->put(route('program-studi.update', $ps), [
-            'kode_prodi' => 'TK',
+            'kode_prodi' => '16',
             'nama_prodi' => 'Teknik Komputer Updated',
             'jenjang' => 'D3',
             'akreditasi' => 'Baik',

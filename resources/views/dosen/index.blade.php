@@ -28,7 +28,7 @@
             {{-- Modal Header --}}
             <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #f8fafc;">
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: #FFF3C4; color: #A16207; display: flex; align-items: center; justify-content: center;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                     </div>
                     <div>
@@ -66,7 +66,7 @@
                             <li><code>nama</code>: Nama dosen lengkap beserta gelar akademik.</li>
                             <li><code>nidn</code>: Nomor Induk Dosen unik (juga sebagai password login awal).</li>
                             <li><code>email</code>: Alamat email unik untuk akun login.</li>
-                            <li><code>kode_prodi</code>: Kode prodi pengampu (contoh: <strong>TRPL</strong>, <strong>TI</strong>, <strong>AK</strong>, <strong>AB</strong>, <strong>BD</strong>).</li>
+                            <li><code>kode_prodi</code>: Kode prodi pengampu (contoh: <strong>11</strong>, <strong>12</strong>, <strong>13</strong>, <strong>14</strong>, <strong>15</strong>).</li>
                             <li><code>jabatan</code>: Opsional (default: <em>Dosen</em>).</li>
                         </ul>
                     </div>
@@ -201,7 +201,7 @@
                             @elseif($r === 'direktur' || str_starts_with($r, 'direktur'))
                                 <span class="badge badge-disetujui">{{ $roleName }}</span>
                             @elseif($r === 'kaprodi' || str_starts_with($r, 'kaprodi'))
-                                <span class="badge badge-diajukan" style="background: #e0e7ff; color: #4338ca;">{{ $roleName }}</span>
+                                <span class="badge badge-diajukan" style="background: #FFF3C4; color: #A16207;">{{ $roleName }}</span>
                             @else
                                 <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">{{ $roleName }}</span>
                             @endif

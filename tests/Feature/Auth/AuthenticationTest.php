@@ -46,6 +46,24 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('dashboard', absolute: false));
     }
 
+    public function test_mahasiswa_can_authenticate_using_nim(): void
+    {
+        $user = User::factory()->create([
+            'email' => '32240001',
+            'password' => '32240001',
+            'role' => 'mahasiswa',
+            'roles' => ['mahasiswa'],
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => '32240001',
+            'password' => '32240001',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();

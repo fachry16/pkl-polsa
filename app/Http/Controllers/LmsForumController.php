@@ -7,6 +7,7 @@ use App\Models\Pengampu;
 use App\Notifications\ForumDiskusiBaru;
 use App\Rules\LmsFileMime;
 use App\Services\GoogleDriveService;
+use App\Services\PerpusNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,20 +37,19 @@ class LmsForumController extends Controller
 
     public function store(Request $request, Pengampu $pengampu)
     {
-        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
-
         $this->authorizePengampu($pengampu);
 
         $data = $this->validated($request, $pengampu->id);
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '03_Forum');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', $hierarchy);
         }
 
         $forum = LmsForumDiskusi::create($data);
 
+        $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
         $sender = Auth::user();
         if ($pengampu->dosen?->user && $pengampu->dosen->user->id !== $sender->id) {
             $pengampu->dosen->user->notify(new ForumDiskusiBaru($pengampu, $forum, $sender->name));
@@ -57,6 +57,18 @@ class LmsForumController extends Controller
         foreach ($pengampu->mahasiswas as $mhs) {
             if ($mhs->user && $mhs->user->id !== $sender->id) {
                 $mhs->user->notify(new ForumDiskusiBaru($pengampu, $forum, $sender->name));
+                PerpusNotificationDispatcher::dispatch(
+                    $mhs->user,
+                    'forum_baru',
+                    "Diskusi Baru: {$forum->judul}",
+                    "{$sender->name} mengirim topik diskusi di mata kuliah {$mkNama}.",
+                    [
+                        'pengampu_id' => $pengampu->id,
+                        'forum_id' => $forum->id,
+                        'mata_kuliah' => $mkNama,
+                        'pengirim' => $sender->name,
+                    ]
+                );
             }
         }
 
@@ -78,13 +90,13 @@ class LmsForumController extends Controller
 
         $data = $this->validated($request, $pengampu->id);
         $driveService = app(GoogleDriveService::class);
-        $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
 
         if ($request->hasFile('file')) {
             if ($diskusi->file_path) {
                 $driveService->deleteFile($diskusi->file_path);
             }
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', [$mkLabel, 'Forum']);
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '03_Forum');
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/forum', $hierarchy);
         } elseif ($request->boolean('remove_file') && $diskusi->file_path) {
             $driveService->deleteFile($diskusi->file_path);
             $data['file_path'] = null;
@@ -97,16 +109,16 @@ class LmsForumController extends Controller
 
     public function destroy(Pengampu $pengampu, LmsForumDiskusi $diskusi)
     {
-        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
-
         $this->authorizePengampu($pengampu);
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
 
-        if ($diskusi->user?->isMahasiswa()) {
-            abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan mahasiswa telah berakhir.');
-        } else {
-            abort_unless(Auth::id() === $diskusi->user_id, 403);
-            abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
+        if (! Auth::user()->isAdmin()) {
+            if ($diskusi->user?->isMahasiswa()) {
+                abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan mahasiswa telah berakhir.');
+            } else {
+                abort_unless(Auth::id() === $diskusi->user_id, 403);
+                abort_unless($diskusi->isWithinTimeLimit(30), 403, 'Batas waktu 30 menit untuk menghapus pesan telah berakhir.');
+            }
         }
 
         $driveService = app(GoogleDriveService::class);
@@ -171,11 +183,13 @@ class LmsForumController extends Controller
 
     private function authorizePost(Pengampu $pengampu, LmsForumDiskusi $diskusi): void
     {
-        abort_if(Auth::user()->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
-
         $this->authorizePengampu($pengampu);
 
         abort_if($diskusi->pengampu_id !== $pengampu->id, 404);
+
+        if (Auth::user()->isAdmin()) {
+            return;
+        }
 
         abort_unless(Auth::id() === $diskusi->user_id, 403);
 

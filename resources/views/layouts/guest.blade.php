@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <link rel="icon" type="image/png" href="{{ asset('images/eduva/eduva-logo.png') }}">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body>

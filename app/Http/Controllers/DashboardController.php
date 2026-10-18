@@ -370,9 +370,9 @@ class DashboardController extends Controller
                 'mahasiswa' => User::where('role', 'mahasiswa')->orWhere('roles', 'like', '%"mahasiswa"%')->count(),
             ];
 
-            // Progres 16 Pertemuan LMS & Presensi
+            // Progres Pertemuan LMS & Presensi
             $totalSesiDibuka = LmsSesiAbsensi::whereIn('pengampu_id', $pengampuIds)->count();
-            $targetSesi = $pengampuIds->count() * 16;
+            $targetSesi = $pengampuIds->count() * Rps::JUMLAH_PERTEMUAN;
             $totalAbsensi = LmsAbsensi::whereHas('sesi', fn ($q) => $q->whereIn('pengampu_id', $pengampuIds))->count();
             $totalHadir = LmsAbsensi::whereHas('sesi', fn ($q) => $q->whereIn('pengampu_id', $pengampuIds))->where('status', 'hadir')->count();
 

@@ -33,7 +33,7 @@ class AssessmentObeTest extends TestCase
         ]);
     }
 
-    private function buatProdi(string $kode = 'TI', string $nama = 'Teknik Informatika'): ProgramStudi
+    private function buatProdi(string $kode = '11', string $nama = 'Teknik Informatika'): ProgramStudi
     {
         return ProgramStudi::create([
             'kode_prodi' => $kode,
@@ -451,6 +451,25 @@ class AssessmentObeTest extends TestCase
         $this->actingAs($d['dosenUser'])
             ->get(route('assessment.export'))
             ->assertOk();
+    }
+
+    public function test_rekap_dan_export_discope_per_kelas_dengan_pengampu_id(): void
+    {
+        $d = $this->buatDataDasar();
+        $this->buatAssessmentMk2($d);
+        $this->buatAssessmentMk3($d);
+
+        $this->actingAs($d['dosenUser'])
+            ->get(route('assessment.rekap', ['pengampu_id' => $d['pengampu2']->id]))
+            ->assertOk()
+            ->assertSee('MK02 (max 100)')
+            ->assertDontSee('MK03 (max 100)');
+
+        $this->actingAs($d['dosenUser'])
+            ->get(route('assessment.export', ['pengampu_id' => $d['pengampu2']->id, 'format' => 'print']))
+            ->assertOk()
+            ->assertSee('MK02 (max 100)')
+            ->assertDontSee('MK03 (max 100)');
     }
 
     public function test_filter_menampilkan_kurikulum_dan_mata_kuliah_yang_ada(): void

@@ -8,6 +8,7 @@ use App\Models\RpsPertemuan;
 use App\Notifications\MateriBaru;
 use App\Rules\LmsFileMime;
 use App\Services\GoogleDriveService;
+use App\Services\PerpusNotificationDispatcher;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,9 @@ class LmsMateriController extends Controller
     private function authorizeWrite(Pengampu $pengampu): void
     {
         $user = Auth::user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
+        if ($user->isAdmin()) {
+            return;
+        }
 
         $dosen = $user->dosen;
 
@@ -68,19 +71,32 @@ class LmsMateriController extends Controller
 
         if ($request->hasFile('file')) {
             $driveService = app(GoogleDriveService::class);
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '01_Materi');
             $pertemuan = $request->rps_pertemuan_id ? RpsPertemuan::find($request->rps_pertemuan_id) : null;
             $minggu = $pertemuan ? ($pertemuan->minggu ?? $pertemuan->minggu_ke) : null;
             $customName = ($minggu ? "Pertemuan_{$minggu}_" : '').$request->file('file')->getClientOriginalName();
 
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', [$mkLabel, 'Materi'], $customName);
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', $hierarchy, $customName);
         }
 
         $materi = LmsMateri::create($data);
 
+        $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
         foreach ($pengampu->mahasiswas as $mahasiswa) {
             if ($mahasiswa->user) {
                 $mahasiswa->user->notify(new MateriBaru($pengampu, $materi));
+                PerpusNotificationDispatcher::dispatch(
+                    $mahasiswa->user,
+                    'materi_baru',
+                    "Materi Baru: {$materi->judul}",
+                    "Materi baru telah diunggah untuk mata kuliah {$mkNama}.",
+                    [
+                        'pengampu_id' => $pengampu->id,
+                        'materi_id' => $materi->id,
+                        'mata_kuliah' => $mkNama,
+                        'kelas' => $pengampu->kelas,
+                    ]
+                );
             }
         }
 
@@ -144,12 +160,12 @@ class LmsMateriController extends Controller
                 $driveService->deleteFile($materi->file_path);
             }
 
-            $mkLabel = ($pengampu->mataKuliah->kode ?? 'MK').' - '.($pengampu->kelas ?? 'Kelas');
+            $hierarchy = $driveService->buildLmsHierarchy($pengampu, '01_Materi');
             $pertemuan = $request->rps_pertemuan_id ? RpsPertemuan::find($request->rps_pertemuan_id) : null;
             $minggu = $pertemuan ? ($pertemuan->minggu ?? $pertemuan->minggu_ke) : null;
             $customName = ($minggu ? "Pertemuan_{$minggu}_" : '').$request->file('file')->getClientOriginalName();
 
-            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', [$mkLabel, 'Materi'], $customName);
+            $data['file_path'] = $driveService->storeFile($request->file('file'), 'lms/materi', $hierarchy, $customName);
         }
 
         $materi->update($data);

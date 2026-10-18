@@ -12,15 +12,15 @@ class LmsTopikKomentarController extends Controller
     public function store(Request $request, Pengampu $pengampu)
     {
         $user = Auth::user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
 
         $dosen = $user->dosen;
         $mahasiswa = $user->mahasiswa;
 
+        $isAdmin = $user->isAdmin();
         $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
         $isMhs = $mahasiswa && $pengampu->mahasiswas()->where('mahasiswa_id', $mahasiswa->id)->exists();
 
-        abort_unless($isDosen || $isMhs, 403);
+        abort_unless($isAdmin || $isDosen || $isMhs, 403);
 
         $validated = $request->validate([
             'tipe_topik' => 'required|in:tugas,materi',
@@ -36,7 +36,7 @@ class LmsTopikKomentarController extends Controller
         if ($isPrivate) {
             if ($isMhs) {
                 $targetMahasiswaId = $mahasiswa->id;
-            } elseif ($isDosen) {
+            } elseif ($isDosen || $isAdmin) {
                 $targetMahasiswaId = $validated['mahasiswa_id'] ?? null;
             }
         }
@@ -56,12 +56,12 @@ class LmsTopikKomentarController extends Controller
     public function update(Request $request, Pengampu $pengampu, LmsTopikKomentar $komentar)
     {
         $user = Auth::user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
 
         $dosen = $user->dosen;
+        $isAdmin = $user->isAdmin();
         $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
 
-        if ($isDosen) {
+        if ($isDosen || $isAdmin) {
             $validated = $request->validate([
                 'pesan' => 'required|string|max:5000',
             ]);
@@ -84,12 +84,12 @@ class LmsTopikKomentarController extends Controller
     public function destroy(Pengampu $pengampu, LmsTopikKomentar $komentar)
     {
         $user = Auth::user();
-        abort_if($user->isAdmin(), 403, 'Admin hanya memiliki akses melihat (read-only) pada kelas LMS.');
 
         $dosen = $user->dosen;
+        $isAdmin = $user->isAdmin();
         $isDosen = $dosen && $pengampu->dosen_id === $dosen->id;
 
-        if ($isDosen) {
+        if ($isDosen || $isAdmin) {
             $komentar->delete();
 
             return back()->with('toast_success', 'Komentar berhasil dihapus.');

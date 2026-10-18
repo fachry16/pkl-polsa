@@ -59,7 +59,7 @@ Alur produksi: **TA → Dosen → Kurikulum/MK → RPS → Mahasiswa → KRS →
 
 ### 2.4 Mahasiswa
 - Sidebar → **Mahasiswa** → tambah 3–4 mahasiswa (NIM, nama, prodi TRPL, angkatan).
-- Akun login otomatis: `{nim}@polsa.ac.id`, password = NIM. Jika belum terbuat, jalankan `php artisan mahasiswa:buat-akun`.
+- Akun login otomatis: username = NIM, password = NIM. Jika belum terbuat, jalankan `php artisan mahasiswa:buat-akun`.
 
 ### 2.5 KRS → Kelas LMS (otomatis)
 - Sidebar → **KRS** → tambah KRS (prodi TRPL, MK `Pemrograman Web`, dosen, TA aktif, kelas `A`).
@@ -91,7 +91,7 @@ Logout admin → login dosen (email/NIDN).
 
 ## Fase 4 — Cek Sisi Mahasiswa (`/mahasiswa/kelas-saya`)
 
-Logout dosen → login mahasiswa (email `{nim}@polsa.ac.id`, password NIM).
+Logout dosen → login mahasiswa (username NIM, password NIM).
 
 1. Sidebar → **Kelas LMS Saya** → kelas yang diikuti muncul (grid + info semester).
 2. Buka kelas → tab **Beranda** → **Materi** (klik tandai selesai) → **Tugas** (kumpul file + catatan; tugas deadline lampau tampil **Terkunci**) → **Forum** (post + balas + edit) → **Pengumuman**.

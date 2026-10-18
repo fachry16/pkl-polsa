@@ -26,7 +26,7 @@ class LmsFileController extends Controller
         if (str_starts_with($file['path'], 'gdrive/')) {
             $parts = explode('/', $file['path']);
             $driveFileId = $parts[1] ?? null;
-            $fileName = $parts[2] ?? basename($file['path']);
+            $fileName = $file['file_name'] ?? ($parts[2] ?? basename($file['path']));
 
             abort_if(! $driveFileId, 404);
 
@@ -43,7 +43,7 @@ class LmsFileController extends Controller
             'Content-Type' => $disk->mimeType($file['path']),
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 HeaderUtils::DISPOSITION_INLINE,
-                basename($file['path'])
+                $file['file_name'] ?? basename($file['path'])
             ),
         ]);
     }
@@ -51,7 +51,12 @@ class LmsFileController extends Controller
     private function resolveFile(string $model, int $id): ?array
     {
         return match ($model) {
-            'materi' => $this->fromModel(LmsMateri::find($id), 'file_path'),
+            'materi' => $this->fromModel(
+                LmsMateri::with('rpsPertemuan')->find($id),
+                'file_path',
+                null,
+                'file_materi_nama'
+            ),
             'tugas' => $this->fromModel(LmsTugas::find($id), 'file_lampiran'),
             'forum' => $this->fromModel(LmsForumDiskusi::find($id), 'file_path'),
             'submission' => $this->fromModel(
@@ -63,16 +68,27 @@ class LmsFileController extends Controller
         };
     }
 
-    private function fromModel(?object $model, string $pathColumn, ?string $userIdColumn = null): ?array
-    {
+    private function fromModel(
+        ?object $model,
+        string $pathColumn,
+        ?string $userIdColumn = null,
+        ?string $nameColumn = null
+    ): ?array {
         if (! $model) {
             return null;
+        }
+
+        $fileName = null;
+
+        if ($nameColumn && method_exists($model, 'rpsPertemuan')) {
+            $fileName = $model->{$nameColumn} ?? $model->rpsPertemuan?->{$nameColumn};
         }
 
         return [
             'pengampu_id' => $model->pengampu_id ?? $model->lmsTugas?->pengampu_id,
             'path' => $model->{$pathColumn} ?? null,
             'user_id' => $userIdColumn ? $model->{$userIdColumn} : null,
+            'file_name' => $fileName,
         ];
     }
 

@@ -119,6 +119,14 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Anda tidak dapat menghapus akun yang sedang digunakan.');
+        }
+
+        if ($user->isAdmin() && User::where('role', 'admin')->count() === 1) {
+            return back()->with('error', 'Tidak dapat menghapus admin terakhir sistem.');
+        }
+
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');

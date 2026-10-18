@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dosen;
+use App\Models\LmsMateri;
+use App\Models\LmsSubmission;
+use App\Models\LmsTugas;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use App\Models\Pengampu;
 use App\Models\TahunAkademik;
+use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 
 class PengampuController extends Controller
@@ -129,6 +133,36 @@ class PengampuController extends Controller
      */
     public function destroy(Pengampu $pengampu)
     {
+        $driveService = app(GoogleDriveService::class);
+
+        foreach ($pengampu->lmsTugas as $tugas) {
+            foreach ($tugas->submissions as $sub) {
+                if ($sub->file_jawaban && ! LmsSubmission::where('file_jawaban', $sub->file_jawaban)->where('id', '!=', $sub->id)->exists()) {
+                    $driveService->deleteFile($sub->file_jawaban);
+                }
+            }
+            if ($tugas->file_lampiran && ! LmsTugas::where('file_lampiran', $tugas->file_lampiran)->where('id', '!=', $tugas->id)->exists()) {
+                $driveService->deleteFile($tugas->file_lampiran);
+            }
+        }
+
+        foreach ($pengampu->lmsMateris as $materi) {
+            if ($materi->file_path && ! LmsMateri::where('file_path', $materi->file_path)->where('id', '!=', $materi->id)->exists()) {
+                $driveService->deleteFile($materi->file_path);
+            }
+        }
+
+        foreach ($pengampu->lmsForumDiskusis as $diskusi) {
+            foreach ($diskusi->replies as $reply) {
+                if ($reply->file_path) {
+                    $driveService->deleteFile($reply->file_path);
+                }
+            }
+            if ($diskusi->file_path) {
+                $driveService->deleteFile($diskusi->file_path);
+            }
+        }
+
         $pengampu->delete();
 
         return back()->with(

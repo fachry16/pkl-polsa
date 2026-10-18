@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\Pengampu;
+use App\Models\Rps;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -45,6 +48,77 @@ class GoogleDriveService
         $name = preg_replace('/[^\w\.\-\s]/u', '', $name);
 
         return trim($name) ?: 'file_'.time().'.pdf';
+    }
+
+    public function buildLmsHierarchy(Pengampu $pengampu, string $kategori, array $subpaths = []): array
+    {
+        $tahun = $pengampu->tahunAkademik;
+        $tahunLabel = $tahun
+            ? trim(str_replace(['/', ' '], ['-', '_'], $tahun->tahun.'_'.($tahun->semester ?? '')))
+            : 'Tahun_Akademik';
+        $tahunLabel = trim($tahunLabel, '_-');
+
+        $mk = $pengampu->mataKuliah;
+        $prodi = $mk?->kurikulum?->programStudi;
+        $singkatan = [
+            '11' => 'TI',
+            '12' => 'AB',
+            '13' => 'BD',
+            '14' => 'TRPL',
+            '15' => 'AK',
+        ][$prodi?->kode_prodi] ?? ($prodi?->kode_prodi ?: 'Umum');
+
+        $prodiLabel = $prodi
+            ? trim(($prodi->jenjang ? $prodi->jenjang.'_' : '').$singkatan)
+            : 'Umum';
+
+        $mkKode = $mk?->kode ?? 'MK';
+        $mkNama = Str::slug($mk?->nama ?? 'Mata_Kuliah', '_');
+        $kelas = Str::slug($pengampu->kelas ?? 'Kelas', '_');
+        $kelasLabel = "{$mkKode}_{$mkNama}_{$kelas}";
+
+        $hierarchy = ['Arsip_LMS', $tahunLabel, $prodiLabel, $kelasLabel, $kategori];
+
+        foreach ($subpaths as $sub) {
+            $sub = trim((string) $sub);
+            if ($sub !== '') {
+                $hierarchy[] = $sub;
+            }
+        }
+
+        return $hierarchy;
+    }
+
+    public function buildRpsHierarchy(Rps $rps, string $kategori = 'Materi_Mingguan', array $subpaths = []): array
+    {
+        $mk = $rps->mataKuliah;
+        $prodi = $mk?->kurikulum?->programStudi;
+        $singkatan = [
+            '11' => 'TI',
+            '12' => 'AB',
+            '13' => 'BD',
+            '14' => 'TRPL',
+            '15' => 'AK',
+        ][$prodi?->kode_prodi] ?? ($prodi?->kode_prodi ?: 'Umum');
+
+        $prodiLabel = $prodi
+            ? trim(($prodi->jenjang ? $prodi->jenjang.'_' : '').$singkatan)
+            : 'Umum';
+
+        $mkKode = $mk?->kode ?? 'MK';
+        $mkNama = Str::slug($mk?->nama ?? 'Mata_Kuliah', '_');
+        $mkLabel = "{$mkKode}_{$mkNama}";
+
+        $hierarchy = ['Master_Kurikulum_RPS', $prodiLabel, $mkLabel, $kategori];
+
+        foreach ($subpaths as $sub) {
+            $sub = trim((string) $sub);
+            if ($sub !== '') {
+                $hierarchy[] = $sub;
+            }
+        }
+
+        return $hierarchy;
     }
 
     public function getConfigPath(): string
@@ -381,11 +455,14 @@ class GoogleDriveService
     public function testConnection(): array
     {
         try {
-            $jsonPath = storage_path('app/google-drive/service-account.json');
-            if (! File::exists($jsonPath)) {
+            $config = $this->getDriveConfig();
+            $hasOAuth = ! empty($config['oauth_refresh_token'] ?? env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+            $hasServiceAccount = File::exists(storage_path('app/google-drive/service-account.json'));
+
+            if (! $hasOAuth && ! $hasServiceAccount) {
                 return [
                     'success' => false,
-                    'message' => 'File kredensial service-account.json belum diunggah.',
+                    'message' => 'Koneksi Google Drive belum dikonfigurasi. Hubungkan akun Google Kampus (OAuth 2.0) atau unggah kredensial service account.',
                 ];
             }
 
@@ -401,7 +478,7 @@ class GoogleDriveService
             if (! $accessToken) {
                 return [
                     'success' => false,
-                    'message' => 'Gagal mendapatkan Access Token OAuth2 dari Google. Pastikan file JSON kredensial valid.',
+                    'message' => 'Gagal mendapatkan Access Token dari Google. Pastikan akun Google terhubung atau file kredensial valid.',
                 ];
             }
 
@@ -414,7 +491,7 @@ class GoogleDriveService
 
                 return [
                     'success' => false,
-                    'message' => "Folder ID tidak dapat diakses ({$response->status()}): {$err}. Pastikan Email Service Account telah ditambahkan sebagai Editor di folder GDrive.",
+                    'message' => "Folder ID tidak dapat diakses ({$response->status()}): {$err}. Pastikan akun yang digunakan memiliki akses Editor ke folder GDrive.",
                 ];
             }
 

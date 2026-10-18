@@ -29,7 +29,7 @@ class LmsPengajuanNilaiTest extends TestCase
     private function buatKelas(): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',
@@ -244,9 +244,10 @@ class LmsPengajuanNilaiTest extends TestCase
         $this->assertNull($approval->catatan_revisi);
     }
 
-    public function test_admin_tidak_bisa_mengajukan_nilai(): void
+    public function test_admin_dapat_mengajukan_nilai(): void
     {
         $data = $this->buatKelas();
+        $this->isiNilaiAkhir($data['pengampu'], $data['mahasiswa']);
 
         $admin = User::create([
             'name' => 'Admin',
@@ -257,7 +258,11 @@ class LmsPengajuanNilaiTest extends TestCase
 
         $this->actingAs($admin)
             ->patch(route('lms.nilai.ajukan', $data['pengampu']->id))
-            ->assertForbidden();
+            ->assertSessionHas('toast_success');
+
+        $approval = $data['pengampu']->assessment?->approval->refresh();
+        $this->assertNotNull($approval);
+        $this->assertEquals('menunggu', $approval->status);
     }
 
     public function test_halaman_pengajuan_kaprodi(): void
@@ -292,5 +297,114 @@ class LmsPengajuanNilaiTest extends TestCase
             ->get(route('monitoring.lms'))
             ->assertOk()
             ->assertDontSee('Pengajuan Nilai');
+    }
+
+    private function setujuiApproval(AssessmentApproval $approval, User $kaprodi): void
+    {
+        $approval->update([
+            'status' => 'disetujui',
+            'disetujui_oleh' => $kaprodi->id,
+            'disetujui_at' => now(),
+        ]);
+    }
+
+    private function buatAdmin(): User
+    {
+        return User::create([
+            'name' => 'Admin',
+            'email' => 'admin@test.dev',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+    }
+
+    public function test_dosen_tidak_bisa_simpan_komponen_saat_nilai_terkunci(): void
+    {
+        $data = $this->buatKelas();
+        $this->isiNilaiAkhir($data['pengampu'], $data['mahasiswa']);
+        $approval = $this->buatApproval($data['pengampu'], 'menunggu');
+        $this->setujuiApproval($approval, $data['userKaprodi']);
+
+        $this->actingAs($data['userDosen'])
+            ->post(route('lms.tugas.komponen', $data['pengampu']->id), ['nilai' => []])
+            ->assertForbidden();
+    }
+
+    public function test_dosen_tidak_bisa_hitung_ulang_saat_nilai_terkunci(): void
+    {
+        $data = $this->buatKelas();
+        $this->isiNilaiAkhir($data['pengampu'], $data['mahasiswa']);
+        $approval = $this->buatApproval($data['pengampu'], 'menunggu');
+        $this->setujuiApproval($approval, $data['userKaprodi']);
+
+        $this->actingAs($data['userDosen'])
+            ->get(route('lms.tugas.sync', $data['pengampu']->id))
+            ->assertForbidden();
+    }
+
+    public function test_dosen_tidak_bisa_mengajukan_ulang_saat_nilai_terkunci(): void
+    {
+        $data = $this->buatKelas();
+        $this->isiNilaiAkhir($data['pengampu'], $data['mahasiswa']);
+        $approval = $this->buatApproval($data['pengampu'], 'menunggu');
+        $this->setujuiApproval($approval, $data['userKaprodi']);
+
+        $this->actingAs($data['userDosen'])
+            ->patch(route('lms.nilai.ajukan', $data['pengampu']->id))
+            ->assertSessionHas('toast_error');
+
+        $this->assertEquals('disetujui', $approval->fresh()->status);
+    }
+
+    public function test_admin_buka_kunci_lalu_dosen_bisa_mengedit(): void
+    {
+        $data = $this->buatKelas();
+        $this->isiNilaiAkhir($data['pengampu'], $data['mahasiswa']);
+        $approval = $this->buatApproval($data['pengampu'], 'menunggu');
+        $this->setujuiApproval($approval, $data['userKaprodi']);
+
+        $this->actingAs($this->buatAdmin())
+            ->patch(route('lms.nilai.kunci', $data['pengampu']->id))
+            ->assertSessionHas('toast_success');
+
+        $approval->refresh();
+        $this->assertNotNull($approval->buka_kunci_at);
+
+        $this->actingAs($data['userDosen'])
+            ->post(route('lms.tugas.komponen', $data['pengampu']->id), [
+                'nilai' => [$data['mahasiswa']->id => ['uts' => 80]],
+            ])
+            ->assertSessionHas('toast_success');
+    }
+
+    public function test_admin_kunci_kembali_lalu_dosen_ditolak_edit(): void
+    {
+        $data = $this->buatKelas();
+        $this->isiNilaiAkhir($data['pengampu'], $data['mahasiswa']);
+        $approval = $this->buatApproval($data['pengampu'], 'menunggu');
+        $this->setujuiApproval($approval, $data['userKaprodi']);
+
+        $admin = $this->buatAdmin();
+
+        $this->actingAs($admin)->patch(route('lms.nilai.kunci', $data['pengampu']->id))->assertSessionHas('toast_success');
+        $this->actingAs($admin)->patch(route('lms.nilai.kunci', $data['pengampu']->id))->assertSessionHas('toast_success');
+
+        $this->assertNull($approval->fresh()->buka_kunci_at);
+
+        $this->actingAs($data['userDosen'])
+            ->post(route('lms.tugas.komponen', $data['pengampu']->id), ['nilai' => []])
+            ->assertForbidden();
+    }
+
+    public function test_non_admin_tidak_bisa_toggle_kunci(): void
+    {
+        $data = $this->buatKelas();
+        $this->isiNilaiAkhir($data['pengampu'], $data['mahasiswa']);
+        $approval = $this->buatApproval($data['pengampu'], 'menunggu');
+        $this->setujuiApproval($approval, $data['userKaprodi']);
+
+        $this->actingAs($data['userDosen'])
+            ->patch(route('lms.nilai.kunci', $data['pengampu']->id))
+            ->assertForbidden();
     }
 }

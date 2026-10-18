@@ -87,7 +87,7 @@
                                     <td style="text-align: right;">{{ number_format($tahun['total_sks'], 2) }}</td>
                                     <td style="text-align: right;">{{ number_format($tahun['total_nilai'], 2) }}</td>
                                     <td style="text-align: right;">
-                                        <span style="display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.72rem; font-weight: 700;">
+                                        <span style="display: inline-block; background: #FFF8E0; color: #B8860B; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.72rem; font-weight: 700;">
                                             {{ number_format($tahun['ips'], 2) }}
                                         </span>
                                     </td>

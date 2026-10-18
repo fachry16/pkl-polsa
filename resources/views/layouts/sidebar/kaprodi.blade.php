@@ -2,12 +2,7 @@
     @include('layouts.partials.sidebar-toggle')
     <div class="sidebar-header">
         <div class="sidebar-logo">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 4L26 10V18L16 24L6 18V10L16 4Z" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
-                <path d="M16 24L26 18V22L16 28L6 22V18L16 24Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
-                <path d="M16 14L21 11V15L16 18L11 15V11L16 14Z" fill="#4f46e5" opacity="0.3"/>
-            </svg>
-            <span class="sidebar-brand">EDUVA | POLSA</span>
+            <img class="sidebar-logo-img" src="{{ asset('images/eduva/eduva.png') }}" alt="Eduva">
             @include('layouts.partials.notification-bell')
         </div>
     </div>

@@ -88,56 +88,64 @@
 
                     @if($rps->status == 'Diajukan')
 
-                        <div class="btn-group">
+                        @if(auth()->user()->isDirektur())
 
-                            <x-confirm
-                                action="{{ route('rps.setujui', $rps) }}"
-                                method="PATCH"
-                                title="Setujui RPS"
-                                message="Setujui RPS ini?"
-                                sub-message="RPS yang disetujui akan langsung berlaku dan tidak bisa diedit."
-                                buttonText="Setujui"
-                                buttonClass="btn btn-success btn-sm"
-                                confirmText="Ya, Setujui"
-                                confirmClass="btn-success"
-                            />
+                            <span class="text-xs" style="color:#94a3b8;">Menunggu persetujuan Kaprodi</span>
 
-                            <button class="btn btn-warning btn-sm"
-                                    onclick="toggleRevisi({{ $rps->id }})">
-                                Minta Revisi
-                            </button>
+                        @else
 
-                        </div>
+                            <div class="btn-group">
 
-                        <form id="revisi-form-{{ $rps->id }}"
-                              action="{{ route('rps.revisi', $rps) }}"
-                              method="POST"
-                              class="hidden mt-2">
+                                <x-confirm
+                                    action="{{ route('rps.setujui', $rps) }}"
+                                    method="PATCH"
+                                    title="Setujui RPS"
+                                    message="Setujui RPS ini?"
+                                    sub-message="RPS yang disetujui akan langsung berlaku dan tidak bisa diedit."
+                                    buttonText="Setujui"
+                                    buttonClass="btn btn-success btn-sm"
+                                    confirmText="Ya, Setujui"
+                                    confirmClass="btn-success"
+                                />
 
-                            @csrf
-                            @method('PATCH')
-
-                            <textarea name="catatan_revisi"
-                                      class="form-textarea w-full"
-                                      rows="3"
-                                      placeholder="Catatan revisi..."
-                                      required></textarea>
-
-                            <div class="btn-group mt-1">
-
-                                <button class="btn btn-warning btn-sm">
-                                    Kirim Revisi
-                                </button>
-
-                                <button type="button"
-                                        class="btn btn-secondary btn-sm"
+                                <button class="btn btn-warning btn-sm"
                                         onclick="toggleRevisi({{ $rps->id }})">
-                                    Batal
+                                    Minta Revisi
                                 </button>
 
                             </div>
 
-                        </form>
+                            <form id="revisi-form-{{ $rps->id }}"
+                                  action="{{ route('rps.revisi', $rps) }}"
+                                  method="POST"
+                                  class="hidden mt-2">
+
+                                @csrf
+                                @method('PATCH')
+
+                                <textarea name="catatan_revisi"
+                                          class="form-textarea w-full"
+                                          rows="3"
+                                          placeholder="Catatan revisi..."
+                                          required></textarea>
+
+                                <div class="btn-group mt-1">
+
+                                    <button class="btn btn-warning btn-sm">
+                                        Kirim Revisi
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-secondary btn-sm"
+                                            onclick="toggleRevisi({{ $rps->id }})">
+                                        Batal
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        @endif
 
                     @elseif($rps->status == 'Revisi')
 

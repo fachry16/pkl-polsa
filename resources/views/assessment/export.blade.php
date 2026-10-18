@@ -13,7 +13,7 @@
     th { background: #f1f5f9; text-align: center; }
     td.nilai { text-align: right; }
     .stick { text-align: left; white-space: nowrap; }
-    .mk-head { background: #eef2ff; }
+    .mk-head { background: #FFF3C4; }
     .cpl-head { background: #ecfdf5; }
     .strong { font-weight: 800; }
     .green { color: #059669; }

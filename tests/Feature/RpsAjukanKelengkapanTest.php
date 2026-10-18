@@ -23,7 +23,7 @@ class RpsAjukanKelengkapanTest extends TestCase
     private function buatRps(int $jumlahPertemuan, bool $denganTugas, bool $denganPenilaian): array
     {
         $prodi = ProgramStudi::create([
-            'kode_prodi' => 'TI',
+            'kode_prodi' => '11',
             'nama_prodi' => 'Teknik Informatika',
             'jenjang' => 'S1',
             'akreditasi' => 'Baik',
@@ -115,9 +115,9 @@ class RpsAjukanKelengkapanTest extends TestCase
         return compact('userDosen', 'rps');
     }
 
-    public function test_ajukan_ditolak_saat_pertemuan_belum_16(): void
+    public function test_ajukan_ditolak_saat_pertemuan_belum_14(): void
     {
-        $data = $this->buatRps(15, true, true);
+        $data = $this->buatRps(Rps::JUMLAH_PERTEMUAN - 1, true, true);
 
         $this->actingAs($data['userDosen'])
             ->patch(route('rps.ajukan', $data['rps']->id))
