@@ -67,6 +67,7 @@ class LmsForumController extends Controller
                         'forum_id' => $forum->id,
                         'mata_kuliah' => $mkNama,
                         'pengirim' => $sender->name,
+                        'url' => route('mahasiswa.lms.show', $pengampu->id).'?tab=forum',
                     ]
                 );
             }

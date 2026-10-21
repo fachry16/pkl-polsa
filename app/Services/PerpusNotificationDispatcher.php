@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Jobs\SendPerpusNotificationJob;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class PerpusNotificationDispatcher
 {
@@ -40,6 +42,20 @@ class PerpusNotificationDispatcher
             'timestamp' => now()->toIso8601String(),
         ];
 
-        SendPerpusNotificationJob::dispatch($payload);
+        // Dengan QUEUE_CONNECTION=sync, dispatch mengeksekusi job secara inline
+        // sehingga kegagalan webhook (perpus mati/timeout) akan melempar
+        // exception ke request dosen dan menghentikan loop notifikasi
+        // mahasiswa berikutnya. Kegagalan webhook tidak boleh menggagalkan
+        // aksi utama LMS, jadi cukup dicatat sebagai warning. Pada queue async
+        // dispatch hanya enqueue, sehingga retry ($tries/$backoff) tetap jalan.
+        try {
+            SendPerpusNotificationJob::dispatch($payload);
+        } catch (Throwable $e) {
+            Log::warning('Webhook notifikasi ke Perpus gagal dikirim, diabaikan.', [
+                'nim' => $nim,
+                'type' => $type,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

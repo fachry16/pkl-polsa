@@ -95,6 +95,7 @@ class LmsMateriController extends Controller
                         'materi_id' => $materi->id,
                         'mata_kuliah' => $mkNama,
                         'kelas' => $pengampu->kelas,
+                        'url' => route('mahasiswa.lms.show', $pengampu->id).'?tab=tugas_kelas',
                     ]
                 );
             }

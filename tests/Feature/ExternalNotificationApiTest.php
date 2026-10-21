@@ -7,14 +7,16 @@ use App\Models\Mahasiswa;
 use App\Models\ProgramStudi;
 use App\Models\User;
 use App\Services\PerpusNotificationDispatcher;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class ExternalNotificationApiTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -48,7 +50,7 @@ class ExternalNotificationApiTest extends TestCase
 
     public function test_api_returns_notifications_list_for_valid_nim(): void
     {
-        $prodi = ProgramStudi::first() ?? ProgramStudi::create(['nama' => 'Teknik Informatika', 'kode' => 'TI']);
+        $prodi = ProgramStudi::first() ?? ProgramStudi::create(['nama_prodi' => 'Teknik Informatika', 'kode_prodi' => 'TI', 'jenjang' => 'S1']);
         $user = User::factory()->create(['role' => 'mahasiswa']);
         $mahasiswa = Mahasiswa::create([
             'user_id' => $user->id,
@@ -76,7 +78,7 @@ class ExternalNotificationApiTest extends TestCase
 
     public function test_unread_count_endpoint(): void
     {
-        $prodi = ProgramStudi::first() ?? ProgramStudi::create(['nama' => 'Teknik Informatika', 'kode' => 'TI']);
+        $prodi = ProgramStudi::first() ?? ProgramStudi::create(['nama_prodi' => 'Teknik Informatika', 'kode_prodi' => 'TI', 'jenjang' => 'S1']);
         $user = User::factory()->create(['role' => 'mahasiswa']);
         Mahasiswa::create([
             'user_id' => $user->id,
@@ -106,7 +108,7 @@ class ExternalNotificationApiTest extends TestCase
         Config::set('services.perpus.webhook_url', 'https://perpus.test/api/webhook');
         Config::set('services.perpus.webhook_secret', 'secret-signature');
 
-        $prodi = ProgramStudi::first() ?? ProgramStudi::create(['nama' => 'Teknik Informatika', 'kode' => 'TI']);
+        $prodi = ProgramStudi::first() ?? ProgramStudi::create(['nama_prodi' => 'Teknik Informatika', 'kode_prodi' => 'TI', 'jenjang' => 'S1']);
         $user = User::factory()->create(['role' => 'mahasiswa', 'name' => 'Budi Santoso']);
         Mahasiswa::create([
             'user_id' => $user->id,
@@ -129,6 +131,35 @@ class ExternalNotificationApiTest extends TestCase
             return $job->payload['nim'] === 'TESTDISPATCH123'
                 && $job->payload['type'] === 'tugas_baru';
         });
+    }
+
+    public function test_webhook_connection_failure_does_not_throw_on_sync_queue(): void
+    {
+        Config::set('services.perpus.webhook_url', 'https://perpus.test/api/webhook');
+        Config::set('services.perpus.webhook_secret', 'secret-signature');
+        Config::set('queue.default', 'sync');
+
+        Http::fake(fn () => throw new ConnectionException('Operation timed out after 5005 milliseconds'));
+
+        $prodi = ProgramStudi::first() ?? ProgramStudi::create(['nama_prodi' => 'Teknik Informatika', 'kode_prodi' => 'TI', 'jenjang' => 'S1']);
+        $user = User::factory()->create(['role' => 'mahasiswa']);
+        Mahasiswa::create([
+            'user_id' => $user->id,
+            'program_studi_id' => $prodi->id,
+            'nim' => 'TESTTIMEOUT124',
+            'nama' => 'Test Webhook Timeout',
+            'angkatan' => 2024,
+            'status' => 'Aktif',
+        ]);
+
+        PerpusNotificationDispatcher::dispatch(
+            $user,
+            'pengumuman_baru',
+            'Pengumuman Baru: Test',
+            'Isi pengumuman'
+        );
+
+        $this->assertTrue(true, 'Dispatcher tidak boleh melempar exception saat webhook gagal.');
     }
 
     public function test_web_unread_count_endpoint_requires_auth(): void
