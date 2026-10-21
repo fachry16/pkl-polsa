@@ -295,6 +295,7 @@ class LmsTugasController extends Controller
                     'submission_id' => $submission->id,
                     'mata_kuliah' => $mkNama,
                     'nilai' => $submission->nilai,
+                    'url' => route('mahasiswa.lms.show', $pengampu->id),
                 ]
             );
         }
@@ -829,6 +830,7 @@ class LmsTugasController extends Controller
                         'mata_kuliah' => $mkNama,
                         'kelas' => $pengampu->kelas,
                         'deadline' => $tugas->deadline?->toIso8601String(),
+                        'url' => route('mahasiswa.lms.show', $pengampu->id).'?tab=tugas_kelas',
                     ]
                 );
             }

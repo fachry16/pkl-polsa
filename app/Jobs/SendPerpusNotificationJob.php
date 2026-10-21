@@ -32,7 +32,7 @@ class SendPerpusNotificationJob implements ShouldQueue
         }
 
         $secret = (string) config('services.perpus.webhook_secret');
-        $request = Http::timeout(5);
+        $request = Http::connectTimeout(2)->timeout(15);
 
         if ($secret !== '') {
             $signature = hash_hmac('sha256', json_encode($this->payload, JSON_THROW_ON_ERROR), $secret);

@@ -8,6 +8,7 @@ use App\Notifications\PengumumanBaru;
 use App\Services\PerpusNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LmsPengumumanController extends Controller
 {
@@ -63,6 +64,9 @@ class LmsPengumumanController extends Controller
         ]);
 
         $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
+        
+Log::info(route('mahasiswa.lms.show', $pengampu->id));
+
         foreach ($pengampu->mahasiswas as $mahasiswa) {
             if ($mahasiswa->user) {
                 $mahasiswa->user->notify(new PengumumanBaru($pengampu, $pengumuman));
@@ -75,6 +79,7 @@ class LmsPengumumanController extends Controller
                         'pengampu_id' => $pengampu->id,
                         'pengumuman_id' => $pengumuman->id,
                         'mata_kuliah' => $mkNama,
+                        'url' => route('mahasiswa.lms.show', $pengampu->id).'?tab=forum',
                     ]
                 );
             }
