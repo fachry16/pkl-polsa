@@ -61,6 +61,7 @@
                                 <template x-for="id in sel({{ $mataKuliah->id }})" :key="'chip'+id">
                                     <span class="cpmk-chip">
                                         <span x-text="kodeOf(id).kode_bk"></span>
+                                        <span class="cpmk-chip-sub" x-text="kodeOf(id).nama_bk"></span>
                                         <button type="button"
                                                 class="cpmk-info-btn"
                                                 title="Lihat detail BK"
@@ -172,6 +173,7 @@
                                     <polyline points="20 6 9 17 4 12"/>
                                 </svg>
                                 <span x-text="b.kode_bk"></span>
+                                <span class="cpmk-chip-sub" x-text="b.nama_bk"></span>
                             </label>
                             <button type="button"
                                     class="cpmk-info-btn"

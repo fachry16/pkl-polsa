@@ -38,6 +38,10 @@
                         <div class="table-sub">{{ $pl->nama_pl }}</div>
                         @endif
 
+                        <br>
+
+                        <small>{{ $pl->nama_pl }}</small>
+
                     </th>
 
                     @endforeach

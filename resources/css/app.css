@@ -1353,6 +1353,15 @@ table.data-table td .table-sub {
     border-color: #FFE88F;
 }
 
+.cpmk-chip-sub {
+    margin-left: 0.35rem;
+    max-width: 14rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+    color: #94a3b8;
+}
+
 .cpmk-chip:has(input:checked) {
     background: #FFF3C4;
     color: #A16207;
