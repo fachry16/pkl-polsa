@@ -36,4 +36,11 @@ class NotificationController extends Controller
 
         return back()->with('toast_success', 'Semua notifikasi telah dibaca.');
     }
+
+    public function unreadCount()
+    {
+        return response()->json([
+            'count' => auth()->user()->unreadNotifications()->count(),
+        ]);
+    }
 }

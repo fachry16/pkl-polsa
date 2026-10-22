@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\LmsPengumuman;
 use App\Models\Pengampu;
 use App\Notifications\PengumumanBaru;
+use App\Services\PerpusNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LmsPengumumanController extends Controller
 {
@@ -61,9 +63,25 @@ class LmsPengumumanController extends Controller
             'published_at' => now(),
         ]);
 
+        $mkNama = $pengampu->mataKuliah?->nama ?? 'Mata Kuliah';
+        
+Log::info(route('mahasiswa.lms.show', $pengampu->id));
+
         foreach ($pengampu->mahasiswas as $mahasiswa) {
             if ($mahasiswa->user) {
                 $mahasiswa->user->notify(new PengumumanBaru($pengampu, $pengumuman));
+                PerpusNotificationDispatcher::dispatch(
+                    $mahasiswa->user,
+                    'pengumuman_baru',
+                    "Pengumuman: {$pengumuman->judul}",
+                    "Pengumuman baru untuk mata kuliah {$mkNama}.",
+                    [
+                        'pengampu_id' => $pengampu->id,
+                        'pengumuman_id' => $pengumuman->id,
+                        'mata_kuliah' => $mkNama,
+                        'url' => route('mahasiswa.lms.show', $pengampu->id).'?tab=forum',
+                    ]
+                );
             }
         }
 

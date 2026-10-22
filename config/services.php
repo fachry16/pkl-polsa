@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'eduva_api' => [
+        'key' => env('EDUVA_EXTERNAL_API_KEY'),
+    ],
+
+    'perpus' => [
+        'webhook_url' => env('PERPUS_NOTIFICATION_WEBHOOK_URL'),
+        'webhook_secret' => env('PERPUS_NOTIFICATION_WEBHOOK_SECRET'),
+    ],
+
 ];

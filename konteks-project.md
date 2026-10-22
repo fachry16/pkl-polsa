@@ -448,4 +448,14 @@ tahun_akademiks
 
 ---
 
-*Diperbarui: 11 Agustus 2026. Bersumber dari kondisi terkini kode (`routes/web.php`, controllers, models, migrations).*
+## 13. Integrasi Notifikasi ke Perpustakaan (Perpus Polsa) — Okt 2026
+
+- `PerpusNotificationDispatcher::dispatch($user, $type, $title, $body, $metadata)` membangun payload (`nim`, `user_name`, `type`, `title`, `body`, `metadata`, `timestamp`) lalu mengirim `App\Jobs\SendPerpusNotificationJob`.
+- Call site: pengumuman (`LmsPengumumanController`), materi (`LmsMateriController`), forum (`LmsForumController`), tugas (`LmsTugasController`), nilai (`LmsTugasController`).
+- Job `POST` ke `PERPUS_NOTIFICATION_WEBHOOK_URL` (default `http://127.0.0.1:8000/api/webhook/eduva-notification`) dengan header `X-Eduva-Signature` (HMAC-SHA256 `json_encode(payload)`) + `X-Eduva-Secret` (harus sama dengan `EDUVA_WEBHOOK_SECRET` perpus).
+- **Resiliensi (19 Okt 2026)**: `Http::connectTimeout(2)->timeout(15)`. Kegagalan webhook ditangkap `Throwable` di dispatcher dan hanya dicatat `Log::warning` — tidak boleh menghasilkan 500 atau menghentikan loop notifikasi mahasiswa berikutnya. Dengan `QUEUE_CONNECTION=sync` job berjalan inline; bila nanti memakai queue async, `$tries=3`/`$backoff=5` tetap berlaku.
+- Penerima (perpus) melakukan fast-ack: FCM dikirim via `app()->terminating()` setelah response di-flush, dan `FIREBASE_HTTP_CLIENT_TIMEOUT=10` mencegah request Google menggantung.
+
+---
+
+*Diperbarui: 19 Oktober 2026. Bersumber dari kondisi terkini kode (`routes/web.php`, controllers, models, migrations).*
