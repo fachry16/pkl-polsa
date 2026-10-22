@@ -80,6 +80,8 @@
 
                     <th>
                         Kode CPL
+                        <br>
+                        <small>Deskripsi</small>
                     </th>
 
                     @foreach($bahanKajians as $bk)
@@ -87,6 +89,8 @@
                         <th>
 
                             {{ $bk->kode_bk }}
+                            <br>
+                            <small>{{ $bk->nama_bk }}</small>
 
                         </th>
 
@@ -105,6 +109,10 @@
                         <td class="font-medium">
 
                             {{ $cpl->kode_cpl }}
+
+                            <br>
+
+                            <small>{{ $cpl->deskripsi }}</small>
 
                         </td>
 

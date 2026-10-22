@@ -14,7 +14,7 @@
                     <th>Kode MK</th>
                     <th>Nama MK</th>
                     @foreach($bahanKajians as $bahanKajian)
-                    <th>{{ $bahanKajian->kode_bk }}</th>
+                    <th>{{ $bahanKajian->kode_bk }}<br><small>{{ $bahanKajian->nama_bk }}</small></th>
                     @endforeach
                 </tr>
             </thead>

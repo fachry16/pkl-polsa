@@ -30,6 +30,10 @@
 
                         {{ $pl->kode_pl }}
 
+                        <br>
+
+                        <small>{{ $pl->nama_pl }}</small>
+
                     </th>
 
                     @endforeach

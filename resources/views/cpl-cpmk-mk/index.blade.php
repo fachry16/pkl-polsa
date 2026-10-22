@@ -29,10 +29,14 @@
 
                     <th>
                         Kode CPL
+                        <br>
+                        <small>Deskripsi CPL</small>
                     </th>
 
                     <th>
                         Kode CPMK
+                        <br>
+                        <small>Deskripsi CPMK</small>
                     </th>
 
                     <th>
@@ -57,10 +61,14 @@
 
                             <td class="font-medium">
                                 {{ $cpl->kode_cpl }}
+                                <br>
+                                <small>{{ $cpl->deskripsi }}</small>
                             </td>
 
                             <td>
                                 {{ $cpmk->kode_cpmk }}
+                                <br>
+                                <small>{{ $cpmk->deskripsi }}</small>
                             </td>
 
                             <td>
