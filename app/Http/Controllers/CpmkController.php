@@ -27,13 +27,18 @@ class CpmkController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
         $request->validate([
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:5120|mimes:csv,txt',
         ]);
 
         $rows = $csvService->parseCsv($request->file('file')->getRealPath());
 
         if (empty($rows)) {
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
+        }
+
+        $missing = array_diff(['kode_cpmk', 'deskripsi'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
         }
 
         $imported = 0;
@@ -57,11 +62,18 @@ class CpmkController extends Controller
                 continue;
             }
 
-            Cpmk::create([
-                'kurikulum_id' => $kurikulum->id,
-                'kode_cpmk' => $kode,
-                'deskripsi' => $deskripsi,
-            ]);
+            try {
+                Cpmk::create([
+                    'kurikulum_id' => $kurikulum->id,
+                    'kode_cpmk' => $kode,
+                    'deskripsi' => $deskripsi,
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
+                $skipped[] = "Baris {$rowNum}: gagal disimpan (".substr($e->getMessage(), 0, 120).').';
+
+                continue;
+            }
             $existing[] = $kode;
             $imported++;
         }
@@ -77,7 +89,14 @@ class CpmkController extends Controller
     public function index(Kurikulum $kurikulum)
     {
         $this->authorizeKurikulumRead($kurikulum);
-        $cpmks = $kurikulum->cpmks()->latest()->paginate(10);
+        $q = trim((string) request('cari'));
+        $cpmks = $kurikulum->cpmks()
+            ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w
+                ->where('kode_cpmk', 'like', "%{$q}%")
+                ->orWhere('deskripsi', 'like', "%{$q}%")))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('cpmk.index', compact('kurikulum', 'cpmks'));
     }

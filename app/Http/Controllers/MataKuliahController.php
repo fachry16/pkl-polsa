@@ -27,13 +27,18 @@ class MataKuliahController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
         $request->validate([
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:5120|mimes:csv,txt',
         ]);
 
         $rows = $csvService->parseCsv($request->file('file')->getRealPath());
 
         if (empty($rows)) {
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
+        }
+
+        $missing = array_diff(['kode', 'nama', 'sks_teori', 'sks_praktikum', 'semester', 'jenis'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
         }
 
         $imported = 0;
@@ -79,15 +84,22 @@ class MataKuliahController extends Controller
                 continue;
             }
 
-            MataKuliah::create([
-                'kurikulum_id' => $kurikulum->id,
-                'kode' => $kode,
-                'nama' => $nama,
-                'sks_teori' => (int) $sksTeori,
-                'sks_praktikum' => (int) $sksPraktikum,
-                'semester' => (int) $semester,
-                'jenis' => $jenis,
-            ]);
+            try {
+                MataKuliah::create([
+                    'kurikulum_id' => $kurikulum->id,
+                    'kode' => $kode,
+                    'nama' => $nama,
+                    'sks_teori' => (int) $sksTeori,
+                    'sks_praktikum' => (int) $sksPraktikum,
+                    'semester' => (int) $semester,
+                    'jenis' => $jenis,
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
+                $skipped[] = "Baris {$rowNum}: gagal disimpan (".substr($e->getMessage(), 0, 120).').';
+
+                continue;
+            }
             $existing[] = $kode;
             $imported++;
         }
@@ -104,9 +116,14 @@ class MataKuliahController extends Controller
     {
         $this->authorizeKurikulumRead($kurikulum);
 
+        $q = trim((string) request('cari'));
         $mataKuliahs = $kurikulum->mataKuliahs()
-            ->latest()
-            ->paginate(10);
+            ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w
+                ->where('kode', 'like', "%{$q}%")
+                ->orWhere('nama', 'like', "%{$q}%")))
+            ->orderBy('semester')
+            ->orderBy('kode')
+            ->get();
 
         return view('mata-kuliah.index', compact('kurikulum', 'mataKuliahs'));
     }

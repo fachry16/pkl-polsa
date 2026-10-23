@@ -6,7 +6,7 @@
     Data Kurikulum
 </h1>
 
-@if(auth()->user()->role !== 'dosen')
+@if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
 <div class="mb-5">
     <a href="{{ route('kurikulum.create') }}"
        class="btn btn-primary">
@@ -107,7 +107,7 @@
 
                     <div class="flex flex-wrap gap-2">
 
-                        @if(auth()->user()->role !== 'dosen')
+                        @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                         @if($kurikulum->status != 'Aktif')
 
                         <x-confirm
@@ -129,7 +129,7 @@
                             Kelola Struktur
                         </a>
 
-                        @if(auth()->user()->role !== 'dosen')
+                        @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                         <a href="{{ route('kurikulum.edit', $kurikulum->id) }}"
                            class="btn btn-warning btn-sm">
 

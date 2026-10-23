@@ -42,6 +42,14 @@
     </div>
 @endif
 
+<form method="GET" action="{{ url()->current() }}" style="display: flex; gap: 0.5rem; align-items: center; max-width: 420px; margin-bottom: 1rem;">
+    <input type="search" name="cari" value="{{ request('cari') }}" class="form-input filter-select" placeholder="Cari kode / deskripsi" style="flex: 1;" aria-label="Cari CPMK">
+    <button type="submit" class="btn btn-primary btn-sm">Cari</button>
+    @if(request('cari'))
+        <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
+    @endif
+</form>
+
 <div class="table-container">
 
     <table class="data-table">
@@ -106,7 +114,7 @@
                 <td colspan="5"
                     class="text-center">
 
-                    Data CPMK belum tersedia.
+                    {{ request('cari') ? 'Tidak ada CPMK yang cocok dengan pencarian.' : 'Data CPMK belum tersedia.' }}
 
                 </td>
 

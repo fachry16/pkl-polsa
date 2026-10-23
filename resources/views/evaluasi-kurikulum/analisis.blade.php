@@ -27,26 +27,26 @@
     <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" for="filter-ta">Tahun Akademik</label>
-            <select name="tahun_akademik_id" id="filter-ta" class="form-select" onchange="this.form.submit()">
-                <option value="">Semua</option>
-                @foreach($drop['tahunAkademiks'] as $ta)
-                    <option value="{{ $ta->id }}" {{ ($filters['tahun_akademik_id'] ?? null) == $ta->id ? 'selected' : '' }}>
-                        {{ $ta->tahun }} — {{ ucfirst($ta->semester) }}
-                    </option>
-                @endforeach
-            </select>
+            <x-searchable-select
+                id="filter-ta"
+                name="tahun_akademik_id"
+                :options="$drop['tahunAkademiks']->map(fn ($ta) => ['value' => $ta->id, 'label' => $ta->tahun.' - '.ucfirst($ta->semester)])"
+                :value="$filters['tahun_akademik_id'] ?? null"
+                placeholder="Semua tahun akademik"
+                allow-empty
+                auto-submit />
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" for="filter-mk">Mata Kuliah</label>
-            <select name="mata_kuliah_id" id="filter-mk" class="form-select" onchange="this.form.submit()">
-                <option value="">Semua</option>
-                @foreach($drop['mataKuliahs'] as $mk)
-                    <option value="{{ $mk->id }}" {{ ($filters['mata_kuliah_id'] ?? null) == $mk->id ? 'selected' : '' }}>
-                        {{ $mk->kode }} — {{ $mk->nama }}
-                    </option>
-                @endforeach
-            </select>
+            <x-searchable-select
+                id="filter-mk"
+                name="mata_kuliah_id"
+                :options="$drop['mataKuliahs']->map(fn ($mk) => ['value' => $mk->id, 'label' => $mk->kode.' - '.$mk->nama])"
+                :value="$filters['mata_kuliah_id'] ?? null"
+                placeholder="Semua mata kuliah"
+                allow-empty
+                auto-submit />
         </div>
 
         <button type="submit" class="btn btn-primary" style="margin-bottom: 0;">Terapkan Filter</button>

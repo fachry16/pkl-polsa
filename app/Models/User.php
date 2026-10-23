@@ -216,8 +216,8 @@ class User extends Authenticatable
 
     public function defaultPassword(): string
     {
-        if ($this->dosen && $this->dosen->nidn) {
-            return (string) $this->dosen->nidn;
+        if ($this->isDosen() || $this->isDirektur()) {
+            return 'polsa123';
         }
 
         if ($this->mahasiswa && $this->mahasiswa->nim) {

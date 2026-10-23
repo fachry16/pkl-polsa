@@ -29,6 +29,10 @@
 
     <x-alert type="success" :message="session('success')" />
 
+    <div x-data="{ q: '' }">
+
+    <input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / nama MK / CPMK" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari data">
+
     <form method="POST"
           action="{{ route('kurikulum.mk-cpmk.update', $kurikulum->id) }}">
         @csrf
@@ -48,7 +52,7 @@
                 </thead>
                 <tbody>
                     @foreach($mataKuliahs as $mataKuliah)
-                    <tr>
+                    <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
                         <td class="font-medium">{{ $mataKuliah->kode }}</td>
                         <td>{{ $mataKuliah->nama }}</td>
                         <td>
@@ -109,6 +113,8 @@
         <button type="submit" class="btn btn-primary mt-5">Simpan Matriks</button>
         @endif
     </form>
+
+    </div>
 
     <div class="mt-4">
         <a href="{{ route('kurikulum.detail', $kurikulum->id) }}"

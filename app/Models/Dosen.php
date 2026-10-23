@@ -10,6 +10,7 @@ class Dosen extends Model
         'user_id',
         'program_studi_id',
         'nidn',
+        'nuptk',
         'jabatan',
     ];
 

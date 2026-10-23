@@ -27,15 +27,14 @@
             </div>
             @if($pertemuans->isNotEmpty())
                 <div class="form-group">
-                    <label class="form-label">RPS Pertemuan</label>
-                    <select name="rps_pertemuan_id" class="form-input">
-                        <option value="">-- Pilih Pertemuan (opsional) --</option>
-                        @foreach($pertemuans as $pertemuan)
-                            <option value="{{ $pertemuan->id }}" @selected(old('rps_pertemuan_id', $tugas->rps_pertemuan_id) == $pertemuan->id)>
-                                Minggu {{ $pertemuan->minggu }} - {{ Str::limit($pertemuan->sub_cpmk, 60) }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="form-label" for="lms-tugas-pertemuan">RPS Pertemuan</label>
+                    <x-searchable-select
+                        id="lms-tugas-pertemuan"
+                        name="rps_pertemuan_id"
+                        :options="$pertemuans->map(fn ($pertemuan) => ['value' => $pertemuan->id, 'label' => 'Minggu '.$pertemuan->minggu.' - '.\Illuminate\Support\Str::limit($pertemuan->sub_cpmk, 80)])"
+                        :value="old('rps_pertemuan_id', $tugas->rps_pertemuan_id)"
+                        placeholder="Pilih pertemuan (opsional)"
+                        input-class="form-input" />
                 </div>
             @endif
             <div class="form-group">

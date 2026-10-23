@@ -55,18 +55,15 @@
 
     <div class="form-group">
 
-        <label class="form-label">Sub-CPMK</label>
+        <label class="form-label" for="rps-tugas-subcpmk">Sub-CPMK</label>
 
-        <select name="sub_cpmk"
-                class="form-select w-full">
-            <option value="">— Pilih CPMK —</option>
-            @foreach($cpmks as $cpmk)
-                <option value="{{ $cpmk->kode_cpmk }}"
-                        {{ old('sub_cpmk', $tugas->sub_cpmk) === $cpmk->kode_cpmk ? 'selected' : '' }}>
-                    {{ $cpmk->kode_cpmk }} — {{ $cpmk->deskripsi }}
-                </option>
-            @endforeach
-        </select>
+        <x-searchable-select
+            id="rps-tugas-subcpmk"
+            name="sub_cpmk"
+            :options="$cpmks->map(fn ($cpmk) => ['value' => $cpmk->kode_cpmk, 'label' => $cpmk->kode_cpmk.($cpmk->deskripsi ? ' - '.\Illuminate\Support\Str::limit($cpmk->deskripsi, 80) : '')])"
+            :value="old('sub_cpmk', $tugas->sub_cpmk)"
+            placeholder="Ketik kode atau deskripsi CPMK"
+            input-class="form-select w-full" />
 
     </div>
 

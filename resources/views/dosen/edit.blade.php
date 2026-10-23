@@ -67,28 +67,33 @@
 
         <div class="form-group">
             <label class="form-label">
+                NUPTK <span style="color: #94a3b8; font-weight: 400; font-size: 0.78rem;">(opsional)</span>
+            </label>
+
+            <input type="text"
+                   name="nuptk"
+                   value="{{ old('nuptk', $dosen->nuptk) }}"
+                   maxlength="20"
+                   class="form-input">
+
+            @error('nuptk')
+                <p class="form-error">
+                    {{ $message }}
+                </p>
+            @enderror
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="dosen-prodi-search">
                 Program Studi
             </label>
 
-            <select name="program_studi_id"
-                    class="form-select">
-
-                <option value="">
-                    -- Pilih Program Studi --
-                </option>
-
-                @foreach($programStudis as $prodi)
-
-                    <option value="{{ $prodi->id }}"
-                        {{ old('program_studi_id', $dosen->program_studi_id) == $prodi->id ? 'selected' : '' }}>
-
-                        {{ $prodi->nama_prodi }}
-
-                    </option>
-
-                @endforeach
-
-            </select>
+            <x-searchable-select
+                id="dosen-prodi-search"
+                name="program_studi_id"
+                :options="$programStudis->map(fn ($prodi) => ['value' => $prodi->id, 'label' => $prodi->nama_prodi])"
+                :value="old('program_studi_id', $dosen->program_studi_id)"
+                placeholder="Ketik nama program studi" />
 
             @error('program_studi_id')
                 <p class="form-error">

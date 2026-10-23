@@ -21,22 +21,20 @@ class PemenuhanCplsController extends Controller
             ->orderBy('kode_cpl')
             ->get();
 
-        $checked = DB::table('pemenuhan_cpls')
-            ->where('kurikulum_id', $kurikulum->id)
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [
-                    $item->cpl_id.'-'.$item->semester => true,
-                ];
-            })
-            ->toArray();
+        $matrix = [];
+
+        foreach ($kurikulum->mataKuliahs()->orderBy('kode')->with('cpls')->get() as $mk) {
+            foreach ($mk->cpls as $cpl) {
+                $matrix[$cpl->id][$mk->semester][] = $mk->kode;
+            }
+        }
 
         return view(
             'pemenuhan-cpl.index',
             compact(
                 'kurikulum',
                 'cpls',
-                'checked'
+                'matrix'
             )
         );
     }

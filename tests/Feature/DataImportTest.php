@@ -44,7 +44,7 @@ class DataImportTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
-        $this->assertStringContainsString('nama,nidn,email,kode_prodi,jabatan', $response->streamedContent());
+        $this->assertStringContainsString('nama,nidn,nuptk,email,kode_prodi,jabatan', $response->streamedContent());
     }
 
     public function test_admin_dapat_download_template_import_mahasiswa(): void

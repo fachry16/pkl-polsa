@@ -127,12 +127,13 @@ class KurikulumImportTest extends TestCase
 
         $this->actingAs($this->buatKaprodi($prodi))
             ->post(route('kurikulum.bahan-kajian.import', $kurikulum->id), [
-                'file' => $this->fileCsv("kode_bk,nama_bk,referensi\nBK01,Algoritma,Ref A\nBK02,Rekayasa Perangkat Lunak,Ref B"),
+                'file' => $this->fileCsv("kode_bk,nama_bk,deskripsi,referensi\nBK01,Algoritma,Struktur data dan algoritma,Ref A\nBK02,Rekayasa Perangkat Lunak,Siklus pengembangan,Ref B"),
             ])
             ->assertRedirect()
             ->assertSessionHas('success');
 
         $this->assertSame(2, $kurikulum->bahanKajians()->count());
+        $this->assertDatabaseHas('bahan_kajians', ['kurikulum_id' => $kurikulum->id, 'kode_bk' => 'BK01', 'referensi' => 'Ref A']);
     }
 
     public function test_import_mata_kuliah_berhasil_dan_validasi_nilai()

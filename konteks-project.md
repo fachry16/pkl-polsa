@@ -167,7 +167,7 @@ tests/        # Unit + Feature (saat ini masih template Breeze)
 - Relasi: `belongsToMany(Cpl)`, `belongsToMany(MataKuliah)`
 
 ### 4.11 BahanKajian (`bahan_kajians`) — BK
-- `kurikulum_id` (FK), `kode_bk`, `nama_bk`, `referensi`
+- `kurikulum_id` (FK), `kode_bk`, `nama_bk`, `deskripsi`
 - Relasi: `belongsToMany(Cpl)`, `belongsToMany(MataKuliah)`
 
 ### 4.12 Rps (`rps`) — Rencana Pembelajaran Semester

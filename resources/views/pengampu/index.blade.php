@@ -19,39 +19,42 @@
 
 <form method="GET" class="filter-card">
     <div class="filter-group">
-        <label class="filter-label">Dosen</label>
-        <select name="dosen_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($dosens as $d)
-                <option value="{{ $d->id }}" {{ request('dosen_id') == $d->id ? 'selected' : '' }}>
-                    {{ $d->user->name }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="pengampu-filter-dosen">Dosen</label>
+        <x-searchable-select
+            id="pengampu-filter-dosen"
+            name="dosen_id"
+            :options="$dosens->map(fn ($d) => ['value' => $d->id, 'label' => $d->user->name, 'search' => $d->nidn])"
+            :value="request('dosen_id')"
+            placeholder="Semua dosen"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
 
     <div class="filter-group">
-        <label class="filter-label">Mata Kuliah</label>
-        <select name="mata_kuliah_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($mataKuliahs as $mk)
-                <option value="{{ $mk->id }}" {{ request('mata_kuliah_id') == $mk->id ? 'selected' : '' }}>
-                    {{ $mk->kode }} - {{ $mk->nama }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="pengampu-filter-mk">Mata Kuliah</label>
+        <x-searchable-select
+            id="pengampu-filter-mk"
+            name="mata_kuliah_id"
+            :options="$mataKuliahs->map(fn ($mk) => ['value' => $mk->id, 'label' => $mk->kode.' - '.$mk->nama])"
+            :value="request('mata_kuliah_id')"
+            placeholder="Semua mata kuliah"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
 
     <div class="filter-group">
-        <label class="filter-label">Tahun Akademik</label>
-        <select name="tahun_akademik_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($tahunAkademiks as $ta)
-                <option value="{{ $ta->id }}" {{ request('tahun_akademik_id') == $ta->id ? 'selected' : '' }}>
-                    {{ $ta->tahun }} {{ $ta->semester }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="pengampu-filter-ta">Tahun Akademik</label>
+        <x-searchable-select
+            id="pengampu-filter-ta"
+            name="tahun_akademik_id"
+            :options="$tahunAkademiks->map(fn ($ta) => ['value' => $ta->id, 'label' => $ta->tahun.' '.$ta->semester])"
+            :value="request('tahun_akademik_id')"
+            placeholder="Semua tahun akademik"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
 
     <div class="filter-group">

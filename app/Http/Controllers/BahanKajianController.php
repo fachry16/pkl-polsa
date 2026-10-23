@@ -14,10 +14,10 @@ class BahanKajianController extends Controller
 
     public function downloadTemplate(CsvImportService $csvService)
     {
-        $headers = ['kode_bk', 'nama_bk', 'referensi'];
+        $headers = ['kode_bk', 'nama_bk', 'deskripsi', 'referensi'];
         $samples = [
-            ['BK01', 'Algoritma dan Pemrograman', 'Tanenbaum, A.S. (2015). Structured Computer Organization.'],
-            ['BK02', 'Rekayasa Perangkat Lunak', 'Sommerville, I. (2016). Software Engineering.'],
+            ['BK01', 'Algoritma dan Pemrograman', 'Struktur data, algoritma rekursif, dan kompleksitas.', 'Tanenbaum, A.S. (2015). Structured Computer Organization.'],
+            ['BK02', 'Rekayasa Perangkat Lunak', 'Siklus pengembangan, pengujian, dan pemeliharaan perangkat lunak.', 'Sommerville, I. (2016). Software Engineering.'],
         ];
 
         return $csvService->downloadTemplate('template_import_bahan_kajian.csv', $headers, $samples);
@@ -27,13 +27,18 @@ class BahanKajianController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
         $request->validate([
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:5120|mimes:csv,txt',
         ]);
 
         $rows = $csvService->parseCsv($request->file('file')->getRealPath());
 
         if (empty($rows)) {
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
+        }
+
+        $missing = array_diff(['kode_bk', 'nama_bk'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
         }
 
         $imported = 0;
@@ -44,6 +49,7 @@ class BahanKajianController extends Controller
             $rowNum = $row['_row_number'] ?? '?';
             $kode = strtoupper(trim($row['kode_bk'] ?? ''));
             $nama = trim($row['nama_bk'] ?? '');
+            $deskripsi = trim($row['deskripsi'] ?? '');
             $referensi = trim($row['referensi'] ?? '');
 
             if ($kode === '' || $nama === '') {
@@ -58,12 +64,20 @@ class BahanKajianController extends Controller
                 continue;
             }
 
-            BahanKajian::create([
-                'kurikulum_id' => $kurikulum->id,
-                'kode_bk' => $kode,
-                'nama_bk' => $nama,
-                'referensi' => $referensi,
-            ]);
+            try {
+                BahanKajian::create([
+                    'kurikulum_id' => $kurikulum->id,
+                    'kode_bk' => $kode,
+                    'nama_bk' => $nama,
+                    'deskripsi' => $deskripsi,
+                    'referensi' => $referensi,
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
+                $skipped[] = "Baris {$rowNum}: gagal disimpan (".substr($e->getMessage(), 0, 120).').';
+
+                continue;
+            }
             $existing[] = $kode;
             $imported++;
         }
@@ -82,7 +96,15 @@ class BahanKajianController extends Controller
     public function index(Kurikulum $kurikulum)
     {
         $this->authorizeKurikulumRead($kurikulum);
-        $bahanKajians = $kurikulum->bahanKajians()->latest()->paginate(10);
+        $q = trim((string) request('cari'));
+        $bahanKajians = $kurikulum->bahanKajians()
+            ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w
+                ->where('kode_bk', 'like', "%{$q}%")
+                ->orWhere('nama_bk', 'like', "%{$q}%")
+                ->orWhere('deskripsi', 'like', "%{$q}%")))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('bahan-kajian.index', compact('kurikulum', 'bahanKajians'));
     }
@@ -111,6 +133,7 @@ class BahanKajianController extends Controller
             'kurikulum_id' => $kurikulum->id,
             'kode_bk' => strtoupper($request->kode_bk),
             'nama_bk' => $request->nama_bk,
+            'deskripsi' => $request->deskripsi,
             'referensi' => $request->referensi,
         ]);
 
@@ -145,6 +168,7 @@ class BahanKajianController extends Controller
         $bahanKajian->update([
             'kode_bk' => strtoupper($request->kode_bk),
             'nama_bk' => $request->nama_bk,
+            'deskripsi' => $request->deskripsi,
             'referensi' => $request->referensi,
         ]);
 

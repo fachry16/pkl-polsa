@@ -27,13 +27,18 @@ class ProfilLulusanController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
         $request->validate([
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:5120|mimes:csv,txt',
         ]);
 
         $rows = $csvService->parseCsv($request->file('file')->getRealPath());
 
         if (empty($rows)) {
             return back()->with('error', 'File CSV kosong atau format baris tidak dapat dibaca.');
+        }
+
+        $missing = array_diff(['kode_pl', 'nama_pl'], array_keys($rows[0]));
+        if ($missing) {
+            return back()->with('error', 'Header file tidak sesuai. Kolom wajib tidak ditemukan: '.implode(', ', $missing).'. Gunakan template resmi.');
         }
 
         $imported = 0;
@@ -58,12 +63,19 @@ class ProfilLulusanController extends Controller
                 continue;
             }
 
-            ProfilLulusan::create([
-                'kurikulum_id' => $kurikulum->id,
-                'kode_pl' => $kode,
-                'nama_pl' => $nama,
-                'profesi' => $profesi,
-            ]);
+            try {
+                ProfilLulusan::create([
+                    'kurikulum_id' => $kurikulum->id,
+                    'kode_pl' => $kode,
+                    'nama_pl' => $nama,
+                    'profesi' => $profesi,
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
+                $skipped[] = "Baris {$rowNum}: gagal disimpan (".substr($e->getMessage(), 0, 120).').';
+
+                continue;
+            }
             $existing[] = $kode;
             $imported++;
         }
@@ -82,7 +94,15 @@ class ProfilLulusanController extends Controller
     public function index(Kurikulum $kurikulum)
     {
         $this->authorizeKurikulumRead($kurikulum);
-        $profilLulusans = $kurikulum->profilLulusans()->latest()->paginate(10);
+        $q = trim((string) request('cari'));
+        $profilLulusans = $kurikulum->profilLulusans()
+            ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w
+                ->where('kode_pl', 'like', "%{$q}%")
+                ->orWhere('nama_pl', 'like', "%{$q}%")
+                ->orWhere('profesi', 'like', "%{$q}%")))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view(
             'profil-lulusan.index',

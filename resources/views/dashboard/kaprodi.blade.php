@@ -30,6 +30,9 @@
             <a href="{{ route('program-studi.kurikulum', $kaprodiProdi->id) }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
                 Kurikulum Prodi
             </a>
+            <a href="{{ route('kurikulum.create') }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                + Tambah Kurikulum
+            </a>
             <a href="{{ route('rps.pengajuan') }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
                 Review RPS ({{ $kaprodiRpsStats['diajukan'] }})
             </a>

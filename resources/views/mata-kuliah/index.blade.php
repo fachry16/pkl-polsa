@@ -46,110 +46,138 @@
     </div>
 @endif
 
+<form method="GET" action="{{ url()->current() }}" style="display: flex; gap: 0.5rem; align-items: center; max-width: 420px; margin-bottom: 1rem;">
+    <input type="search" name="cari" value="{{ request('cari') }}" class="form-input filter-select" placeholder="Cari kode / nama MK" style="flex: 1;" aria-label="Cari mata kuliah">
+    <button type="submit" class="btn btn-primary btn-sm">Cari</button>
+    @if(request('cari'))
+        <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
+    @endif
+</form>
+
+@if($mataKuliahs->isEmpty())
+
 <div class="table-container">
 
     <table class="data-table">
 
-        <thead>
-
-            <tr>
-                <th>No</th>
-                <th>Kode MK</th>
-                <th>Nama MK</th>
-                <th>Semester</th>
-                <th>Teori</th>
-                <th>Praktik</th>
-                <th>Total</th>
-                <th>Jenis</th>
-                <th>Aksi</th>
-            </tr>
-
-        </thead>
-
         <tbody>
 
-            @forelse($mataKuliahs as $index => $mataKuliah)
-
             <tr>
 
-                <td>
-                    {{ $mataKuliahs->firstItem() + $index }}
-                </td>
-
-                <td>
-                    {{ $mataKuliah->kode }}
-                </td>
-
-                <td>
-                    {{ $mataKuliah->nama }}
-                </td>
-
-                <td>
-                    {{ $mataKuliah->semester }}
-                </td>
-
-                <td class="text-center">
-                    {{ $mataKuliah->sks_teori }}
-                </td>
-
-                <td class="text-center">
-                    {{ $mataKuliah->sks_praktikum }}
-                </td>
-
-                <td class="text-center">
-                    {{ $mataKuliah->sks_teori + $mataKuliah->sks_praktikum }}
-                </td>
-
-                <td>
-                    {{ $mataKuliah->jenis }}
-                </td>
-
-                <td>
-
-                    <div class="flex gap-2">
-                        @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
-                        <a href="{{ route('kurikulum.mata-kuliah.edit', [$kurikulum->id, $mataKuliah->id]) }}"
-                           class="btn btn-warning btn-sm">
-
-                            Edit
-
-                        </a>
-
-                        <x-confirm
-                            action="{{ route('kurikulum.mata-kuliah.destroy', [$kurikulum->id, $mataKuliah->id]) }}"
-                            method="DELETE"
-                            message="Yakin ingin menghapus mata kuliah ini?"
-                            buttonText="Hapus"
-                            confirmText="Ya, Hapus"
-                        />
-                        @endif
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-            @empty
-
-            <tr>
-
-                <td colspan="10"
+                <td colspan="8"
                     class="text-center">
 
-                    Data mata kuliah belum tersedia.
+                    {{ request('cari') ? 'Tidak ada mata kuliah yang cocok dengan pencarian.' : 'Data mata kuliah belum tersedia.' }}
 
                 </td>
 
             </tr>
-
-            @endforelse
 
         </tbody>
 
     </table>
 
 </div>
+
+@else
+
+    @foreach($mataKuliahs->groupBy('semester')->sortKeys() as $semester => $items)
+
+    <h2 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 1.5rem 0 0.6rem;">
+        Semester {{ $semester }}
+    </h2>
+
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>No</th>
+                    <th>Kode MK</th>
+                    <th>Nama MK</th>
+                    <th>Teori</th>
+                    <th>Praktik</th>
+                    <th>Total</th>
+                    <th>Jenis</th>
+                    <th>Aksi</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach($items as $mataKuliah)
+
+                <tr>
+
+                    <td>
+                        {{ $loop->index + 1 }}
+                    </td>
+
+                    <td>
+                        {{ $mataKuliah->kode }}
+                    </td>
+
+                    <td>
+                        {{ $mataKuliah->nama }}
+                    </td>
+
+                    <td class="text-center">
+                        {{ $mataKuliah->sks_teori }}
+                    </td>
+
+                    <td class="text-center">
+                        {{ $mataKuliah->sks_praktikum }}
+                    </td>
+
+                    <td class="text-center">
+                        {{ $mataKuliah->sks_teori + $mataKuliah->sks_praktikum }}
+                    </td>
+
+                    <td>
+                        {{ $mataKuliah->jenis }}
+                    </td>
+
+                    <td>
+
+                        <div class="flex gap-2">
+                            @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
+                            <a href="{{ route('kurikulum.mata-kuliah.edit', [$kurikulum->id, $mataKuliah->id]) }}"
+                               class="btn btn-warning btn-sm">
+
+                                Edit
+
+                            </a>
+
+                            <x-confirm
+                                action="{{ route('kurikulum.mata-kuliah.destroy', [$kurikulum->id, $mataKuliah->id]) }}"
+                                method="DELETE"
+                                message="Yakin ingin menghapus mata kuliah ini?"
+                                buttonText="Hapus"
+                                confirmText="Ya, Hapus"
+                            />
+                            @endif
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                @endforeach
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    @endforeach
+
+@endif
+
 <div class="mt-4">
     <a href="{{ route('kurikulum.detail', $kurikulum->id) }}"
        class="btn btn-secondary">
@@ -157,11 +185,6 @@
         Kembali
 
     </a>
-</div>
-<div class="mt-5">
-
-    {{ $mataKuliahs->links() }}
-
 </div>
 
 @endsection

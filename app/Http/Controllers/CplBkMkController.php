@@ -11,26 +11,18 @@ class CplBkMkController extends Controller
 {
     use AuthorizesKurikulum;
 
-    public function index(Request $request, Kurikulum $kurikulum)
+    public function index(Kurikulum $kurikulum)
     {
         $this->authorizeKurikulumRead($kurikulum);
-        $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get();
-        $mataKuliahId = $request->mata_kuliah_id;
-        $bahanKajians = $kurikulum->bahanKajians()->orderBy('kode_bk')->get();
+        $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get()->load('cpls', 'bahanKajians');
         $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
-        $checked = [];
 
-        if ($mataKuliahId) {
-            $checked = DB::table('cpl_bahan_kajian_mata_kuliah')
-                ->where('mata_kuliah_id', $mataKuliahId)
-                ->get()
-                ->mapWithKeys(function ($item) {
-                    return [$item->cpl_id.'-'.$item->bahan_kajian_id => true];
-                })
-                ->toArray();
+        foreach ($cpls as $cpl) {
+            $cpl->jumlahBk = $cpl->bahanKajians()->distinct()->count('bahan_kajians.id');
+            $cpl->jumlahMk = $cpl->mataKuliahs()->distinct()->count('mata_kuliahs.id');
         }
 
-        return view('cpl-bk-mk.index', compact('kurikulum', 'mataKuliahs', 'mataKuliahId', 'bahanKajians', 'cpls', 'checked'));
+        return view('cpl-bk-mk.index', compact('kurikulum', 'mataKuliahs', 'cpls'));
     }
 
     public function store(Request $request, Kurikulum $kurikulum)

@@ -44,6 +44,14 @@
     </div>
 @endif
 
+<form method="GET" action="{{ url()->current() }}" style="display: flex; gap: 0.5rem; align-items: center; max-width: 420px; margin-bottom: 1rem;">
+    <input type="search" name="cari" value="{{ request('cari') }}" class="form-input filter-select" placeholder="Cari kode / nama / profesi" style="flex: 1;" aria-label="Cari profil lulusan">
+    <button type="submit" class="btn btn-primary btn-sm">Cari</button>
+    @if(request('cari'))
+        <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">Reset</a>
+    @endif
+</form>
+
 <table class="detail-table">
 
     <thead>
@@ -59,7 +67,7 @@
 
     <tbody>
 
-        @foreach($profilLulusans as $pl)
+        @forelse($profilLulusans as $pl)
 
         <tr>
 
@@ -100,7 +108,17 @@
 
             </tr>
 
-        @endforeach
+        @empty
+
+        <tr>
+
+            <td colspan="4" class="text-center">
+                {{ request('cari') ? 'Tidak ada profil lulusan yang cocok dengan pencarian.' : 'Profil lulusan belum tersedia.' }}
+            </td>
+
+        </tr>
+
+        @endforelse
 
     </tbody>
 

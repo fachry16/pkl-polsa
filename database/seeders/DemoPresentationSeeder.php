@@ -61,8 +61,9 @@ class DemoPresentationSeeder extends Seeder
         Role::firstOrCreate(['kode' => 'mahasiswa'], ['nama' => 'Mahasiswa', 'is_system' => true]);
         Role::firstOrCreate(['kode' => 'direktur'], ['nama' => 'Direktur', 'is_system' => true]);
 
-        // 3. User Accounts (Password: 'password', mahasiswa: password = NIM)
+        // 3. User Accounts (Admin: 'password', dosen/direktur: 'polsa123', mahasiswa: NIM)
         $passwordHash = Hash::make('password');
+        $staffPasswordHash = Hash::make('polsa123');
 
         // Admin User
         $userAdmin = User::firstOrCreate(
@@ -73,13 +74,13 @@ class DemoPresentationSeeder extends Seeder
         // Direktur User
         $userDirektur = User::firstOrCreate(
             ['email' => 'direktur@polsa.ac.id'],
-            ['name' => 'Dr. Ir. Direktur POLSA, M.T.', 'password' => $passwordHash, 'role' => 'direktur']
+            ['name' => 'Dr. Ir. Direktur POLSA, M.T.', 'password' => $staffPasswordHash, 'role' => 'direktur', 'harus_ganti_password' => true]
         );
 
         // Kaprodi User (Dosen + Role Kaprodi)
         $userKaprodi = User::firstOrCreate(
             ['email' => 'kaprodi.trpl@polsa.ac.id'],
-            ['name' => 'Dr. Eng. Kaprodi TRPL, M.Kom', 'password' => $passwordHash, 'role' => 'dosen']
+            ['name' => 'Dr. Eng. Kaprodi TRPL, M.Kom', 'password' => $staffPasswordHash, 'role' => 'dosen', 'harus_ganti_password' => true]
         );
         $dosenKaprodi = Dosen::firstOrCreate(
             ['user_id' => $userKaprodi->id],
@@ -93,7 +94,7 @@ class DemoPresentationSeeder extends Seeder
         // Dosen 1: Budi Santoso, M.Kom
         $userDosen1 = User::firstOrCreate(
             ['email' => 'budi.santoso@polsa.ac.id'],
-            ['name' => 'Budi Santoso, M.Kom', 'password' => $passwordHash, 'role' => 'dosen']
+            ['name' => 'Budi Santoso, M.Kom', 'password' => $staffPasswordHash, 'role' => 'dosen', 'harus_ganti_password' => true]
         );
         $dosen1 = Dosen::firstOrCreate(
             ['user_id' => $userDosen1->id],
@@ -107,7 +108,7 @@ class DemoPresentationSeeder extends Seeder
         // Dosen 2: Siti Rahma, M.T.
         $userDosen2 = User::firstOrCreate(
             ['email' => 'siti.rahma@polsa.ac.id'],
-            ['name' => 'Siti Rahma, M.T.', 'password' => $passwordHash, 'role' => 'dosen']
+            ['name' => 'Siti Rahma, M.T.', 'password' => $staffPasswordHash, 'role' => 'dosen', 'harus_ganti_password' => true]
         );
         $dosen2 = Dosen::firstOrCreate(
             ['user_id' => $userDosen2->id],
@@ -121,7 +122,7 @@ class DemoPresentationSeeder extends Seeder
         // Dosen 3: Hendra Wijaya, M.Eng
         $userDosen3 = User::firstOrCreate(
             ['email' => 'hendra.wijaya@polsa.ac.id'],
-            ['name' => 'Hendra Wijaya, M.Eng', 'password' => $passwordHash, 'role' => 'dosen']
+            ['name' => 'Hendra Wijaya, M.Eng', 'password' => $staffPasswordHash, 'role' => 'dosen', 'harus_ganti_password' => true]
         );
         $dosen3 = Dosen::firstOrCreate(
             ['user_id' => $userDosen3->id],
@@ -266,11 +267,11 @@ class DemoPresentationSeeder extends Seeder
         // Bahan Kajian (BK)
         $bk1 = BahanKajian::firstOrCreate(
             ['kurikulum_id' => $kurikulumTrpl->id, 'kode_bk' => 'BK-WEB'],
-            ['nama_bk' => 'Rekayasa Perangkat Lunak & Arsitektur Web', 'referensi' => 'Buku Acuan RPL & Standar IEEE']
+            ['nama_bk' => 'Rekayasa Perangkat Lunak & Arsitektur Web', 'deskripsi' => 'Pengembangan perangkat lunak berbasis web: frontend, backend, dan arsitektur modern.', 'referensi' => 'Buku Acuan RPL & Standar IEEE']
         );
         $bk2 = BahanKajian::firstOrCreate(
             ['kurikulum_id' => $kurikulumTrpl->id, 'kode_bk' => 'BK-DB'],
-            ['nama_bk' => 'Sistem Basis Data & Manajerial Informasi', 'referensi' => 'Database System Concepts (Silberschatz)']
+            ['nama_bk' => 'Sistem Basis Data & Manajerial Informasi', 'deskripsi' => 'Perancangan basis data, normalisasi, query SQL, dan manajemen data.', 'referensi' => 'Database System Concepts (Silberschatz)']
         );
 
         // CPMK

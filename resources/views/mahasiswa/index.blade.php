@@ -14,7 +14,7 @@
         </a>
         <button type="button" @click="showImportModal = true" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.4rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Import Data Excel / CSV
+            Import Data CSV
         </button>
     </div>
 
@@ -34,7 +34,7 @@
                     </div>
                     <div>
                         <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #1e293b;">Import Data Master Mahasiswa</h3>
-                        <p style="margin: 0; font-size: 0.75rem; color: #64748b;">Upload file CSV/Excel sesuai format template baku.</p>
+                        <p style="margin: 0; font-size: 0.75rem; color: #64748b;">Upload file CSV sesuai format template baku.</p>
                     </div>
                 </div>
                 <button type="button" @click="showImportModal = false" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer; padding: 0.25rem; border-radius: 6px;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">&times;</button>
@@ -122,15 +122,16 @@
 <form method="GET" class="filter-card">
     @if(auth()->user()->isAdmin())
     <div class="filter-group">
-        <label class="filter-label">Program Studi</label>
-        <select name="program_studi_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($programStudis as $prodi)
-                <option value="{{ $prodi->id }}" {{ request('program_studi_id') == $prodi->id ? 'selected' : '' }}>
-                    {{ $prodi->nama_prodi }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="mahasiswa-filter-prodi">Program Studi</label>
+        <x-searchable-select
+            id="mahasiswa-filter-prodi"
+            name="program_studi_id"
+            :options="$programStudis->map(fn ($prodi) => ['value' => $prodi->id, 'label' => $prodi->nama_prodi])"
+            :value="request('program_studi_id')"
+            placeholder="Semua program studi"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
     @endif
 
@@ -166,15 +167,16 @@
     </div>
 
     <div class="filter-group">
-        <label class="filter-label">Tahun Akademik</label>
-        <select name="tahun_akademik_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($tahunAkademiks as $ta)
-                <option value="{{ $ta->id }}" {{ request('tahun_akademik_id') == $ta->id ? 'selected' : '' }}>
-                    {{ $ta->tahun }} {{ $ta->semester }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="mahasiswa-filter-ta">Tahun Akademik</label>
+        <x-searchable-select
+            id="mahasiswa-filter-ta"
+            name="tahun_akademik_id"
+            :options="$tahunAkademiks->map(fn ($ta) => ['value' => $ta->id, 'label' => $ta->tahun.' '.$ta->semester])"
+            :value="request('tahun_akademik_id')"
+            placeholder="Semua tahun akademik"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
 
     <div class="filter-actions">

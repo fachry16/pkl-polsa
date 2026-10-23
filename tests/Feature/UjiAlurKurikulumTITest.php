@@ -118,6 +118,7 @@ class UjiAlurKurikulumTITest extends TestCase
             ->post(route('kurikulum.bahan-kajian.store', $kurikulum->id), [
                 'kode_bk' => 'BK-WEB',
                 'nama_bk' => 'Rekayasa Perangkat Lunak & Arsitektur Web',
+                'deskripsi' => 'Pengembangan perangkat lunak berbasis web: frontend, backend, dan arsitektur modern.',
                 'referensi' => 'Buku Acuan RPL & Standar IEEE',
             ])
             ->assertSessionHasNoErrors();
@@ -125,6 +126,7 @@ class UjiAlurKurikulumTITest extends TestCase
             ->post(route('kurikulum.bahan-kajian.store', $kurikulum->id), [
                 'kode_bk' => 'BK-DB',
                 'nama_bk' => 'Sistem Basis Data & Manajerial Informasi',
+                'deskripsi' => 'Perancangan basis data, normalisasi, query SQL, dan manajemen data.',
                 'referensi' => 'Database System Concepts (Silberschatz)',
             ])
             ->assertSessionHasNoErrors();

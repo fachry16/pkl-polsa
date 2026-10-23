@@ -1,6 +1,31 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
+
+@php
+    $programStudiOptions = $programStudis->map(fn ($prodi) => [
+        'value' => $prodi->id,
+        'label' => $prodi->kode_prodi.' - '.$prodi->nama_prodi,
+    ]);
+
+    $tahunAkademikOptions = $tahunAkademiks->map(fn ($ta) => [
+        'value' => $ta->id,
+        'label' => $ta->tahun.' '.$ta->semester,
+    ]);
+
+    $mataKuliahOptions = $mataKuliahs->map(fn ($mk) => [
+        'value' => $mk->id,
+        'label' => $mk->kode.' - '.$mk->nama,
+    ]);
+
+    $dosenOptions = $dosens->map(fn ($d) => [
+        'value' => $d->id,
+        'label' => $d->user->name,
+        'search' => $d->nidn,
+    ]);
+
+    $activeTahunAkademikId = $tahunAkademiks->firstWhere('is_active', true)?->id;
+@endphp
 
 <div class="flex-header">
     <h1 class="page-header" style="margin: 0;">Tambah KRS</h1>
@@ -13,60 +38,56 @@
     @csrf
 
     <div class="form-group">
-        <label class="form-label">Program Studi</label>
-        <select name="program_studi_id" class="form-select" required>
-            <option value="">Pilih Program Studi</option>
-            @foreach($programStudis as $prodi)
-                <option value="{{ $prodi->id }}" {{ old('program_studi_id') == $prodi->id ? 'selected' : '' }}>
-                    {{ $prodi->kode_prodi }} - {{ $prodi->nama_prodi }}
-                </option>
-            @endforeach
-        </select>
+        <label class="form-label" for="program-studi-search">Program Studi</label>
+        <x-searchable-select
+            id="program-studi-search"
+            name="program_studi_id"
+            :options="$programStudiOptions"
+            :value="old('program_studi_id')"
+            placeholder="Ketik kode atau nama program studi"
+            required />
         @error('program_studi_id')
             <div class="form-error">{{ $message }}</div>
         @enderror
     </div>
 
     <div class="form-group">
-        <label class="form-label">Tahun Akademik</label>
-        <select name="tahun_akademik_id" class="form-select" required>
-            <option value="">Pilih Tahun Akademik</option>
-            @foreach($tahunAkademiks as $ta)
-                <option value="{{ $ta->id }}" {{ old('tahun_akademik_id') == $ta->id ? 'selected' : '' }}>
-                    {{ $ta->tahun }} {{ $ta->semester }}
-                </option>
-            @endforeach
-        </select>
+        <label class="form-label" for="tahun-akademik-search">Tahun Akademik</label>
+        <x-searchable-select
+            id="tahun-akademik-search"
+            name="tahun_akademik_id"
+            :options="$tahunAkademikOptions"
+            :value="old('tahun_akademik_id', $activeTahunAkademikId)"
+            placeholder="Ketik tahun akademik"
+            required />
         @error('tahun_akademik_id')
             <div class="form-error">{{ $message }}</div>
         @enderror
     </div>
 
     <div class="form-group">
-        <label class="form-label">Mata Kuliah</label>
-        <select name="mata_kuliah_id" class="form-select" required>
-            <option value="">Pilih Mata Kuliah</option>
-            @foreach($mataKuliahs as $mk)
-                <option value="{{ $mk->id }}" {{ old('mata_kuliah_id') == $mk->id ? 'selected' : '' }}>
-                    {{ $mk->kode }} - {{ $mk->nama }}
-                </option>
-            @endforeach
-        </select>
+        <label class="form-label" for="mata-kuliah-search">Mata Kuliah</label>
+        <x-searchable-select
+            id="mata-kuliah-search"
+            name="mata_kuliah_id"
+            :options="$mataKuliahOptions"
+            :value="old('mata_kuliah_id')"
+            placeholder="Ketik kode atau nama mata kuliah"
+            required />
         @error('mata_kuliah_id')
             <div class="form-error">{{ $message }}</div>
         @enderror
     </div>
 
     <div class="form-group">
-        <label class="form-label">Dosen Pengampu</label>
-        <select name="dosen_id" class="form-select" required>
-            <option value="">Pilih Dosen</option>
-            @foreach($dosens as $d)
-                <option value="{{ $d->id }}" {{ old('dosen_id') == $d->id ? 'selected' : '' }}>
-                    {{ $d->user->name }}
-                </option>
-            @endforeach
-        </select>
+        <label class="form-label" for="dosen-search">Dosen Pengampu</label>
+        <x-searchable-select
+            id="dosen-search"
+            name="dosen_id"
+            :options="$dosenOptions"
+            :value="old('dosen_id')"
+            placeholder="Ketik nama atau NIDN dosen"
+            required />
         @error('dosen_id')
             <div class="form-error">{{ $message }}</div>
         @enderror

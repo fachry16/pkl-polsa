@@ -14,6 +14,10 @@
 
 <x-alert type="success" :message="session('success')" />
 
+<div x-data="{ q: '' }">
+
+<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / deskripsi CPL atau CPMK" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari data">
+
 <form method="POST"
       action="{{ route('kurikulum.cpl-cpmk-mk.store', $kurikulum->id) }}">
 
@@ -53,7 +57,7 @@
 
                     @foreach($cpmks as $cpmk)
 
-                        <tr>
+                        <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
 
                             <td class="font-medium">
 
@@ -128,9 +132,11 @@
     @endif
 
 </form>
+
+</div>
 <div class="mt-5">
     <a href="{{ route('kurikulum.detail', $kurikulum->id) }}"
-           class="btn btn-secondary">
+       class="btn btn-secondary">
 
             Kembali
 

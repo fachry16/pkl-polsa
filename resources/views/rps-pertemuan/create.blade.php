@@ -26,18 +26,15 @@
 
     <div class="form-group">
 
-        <label class="form-label">CPMK Induk</label>
+        <label class="form-label" for="rps-pertemuan-cpmk">CPMK Induk</label>
 
-        <select name="cpmk_induk"
-                class="form-select w-full">
-            <option value="">— Pilih CPMK —</option>
-            @foreach($cpmks as $cpmk)
-                <option value="{{ $cpmk->kode_cpmk }}"
-                        {{ old('cpmk_induk') === $cpmk->kode_cpmk ? 'selected' : '' }}>
-                    {{ $cpmk->kode_cpmk }} — {{ $cpmk->deskripsi }}
-                </option>
-            @endforeach
-        </select>
+        <x-searchable-select
+            id="rps-pertemuan-cpmk"
+            name="cpmk_induk"
+            :options="$cpmks->map(fn ($cpmk) => ['value' => $cpmk->kode_cpmk, 'label' => $cpmk->kode_cpmk.($cpmk->deskripsi ? ' - '.\Illuminate\Support\Str::limit($cpmk->deskripsi, 80) : '')])"
+            :value="old('cpmk_induk')"
+            placeholder="Ketik kode atau deskripsi CPMK"
+            input-class="form-select w-full" />
 
     </div>
 
