@@ -14,60 +14,40 @@
 
     <div class="form-group">
 
-        <label class="form-label">Dosen</label>
+        <label class="form-label" for="pengampu-dosen-search">Dosen</label>
 
-        <select name="dosen_id"
-                class="form-select">
-
-            @foreach($dosens as $dosen)
-
-                <option value="{{ $dosen->id }}">
-                    {{ $dosen->user->name }}
-                </option>
-
-            @endforeach
-
-        </select>
+        <x-searchable-select
+            id="pengampu-dosen-search"
+            name="dosen_id"
+            :options="$dosens->map(fn ($d) => ['value' => $d->id, 'label' => $d->user->name, 'search' => $d->nidn])"
+            :value="old('dosen_id')"
+            placeholder="Ketik nama atau NIDN dosen" />
 
     </div>
 
     <div class="form-group">
 
-        <label class="form-label">Mata Kuliah</label>
+        <label class="form-label" for="pengampu-mk-search">Mata Kuliah</label>
 
-        <select name="mata_kuliah_id"
-                class="form-select">
-
-            @foreach($mataKuliahs as $mk)
-
-                <option value="{{ $mk->id }}">
-                    {{ $mk->kode }}
-                    -
-                    {{ $mk->nama }}
-                </option>
-
-            @endforeach
-
-        </select>
+        <x-searchable-select
+            id="pengampu-mk-search"
+            name="mata_kuliah_id"
+            :options="$mataKuliahs->map(fn ($mk) => ['value' => $mk->id, 'label' => $mk->kode.' - '.$mk->nama])"
+            :value="old('mata_kuliah_id')"
+            placeholder="Ketik kode atau nama mata kuliah" />
 
     </div>
 
     <div class="form-group">
 
-        <label class="form-label">Tahun Akademik</label>
+        <label class="form-label" for="pengampu-ta-search">Tahun Akademik</label>
 
-        <select name="tahun_akademik_id"
-                class="form-select">
-
-            @foreach($tahunAkademiks as $ta)
-
-                <option value="{{ $ta->id }}">
-                    {{ $ta->tahun }}
-                </option>
-
-            @endforeach
-
-        </select>
+        <x-searchable-select
+            id="pengampu-ta-search"
+            name="tahun_akademik_id"
+            :options="$tahunAkademiks->map(fn ($ta) => ['value' => $ta->id, 'label' => $ta->tahun.' '.$ta->semester])"
+            :value="old('tahun_akademik_id')"
+            placeholder="Ketik tahun akademik" />
 
     </div>
 

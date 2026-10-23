@@ -68,29 +68,16 @@
 
         <div class="form-group">
 
-            <label class="form-label">
+            <label class="form-label" for="dosen-prodi-search">
                 Program Studi
             </label>
 
-            <select name="program_studi_id"
-                    class="form-select">
-
-                <option value="">
-                    -- Pilih Program Studi --
-                </option>
-
-                @foreach($programStudis as $prodi)
-
-                    <option value="{{ $prodi->id }}"
-                        {{ old('program_studi_id') == $prodi->id ? 'selected' : '' }}>
-
-                        {{ $prodi->nama_prodi }}
-
-                    </option>
-
-                @endforeach
-
-            </select>
+            <x-searchable-select
+                id="dosen-prodi-search"
+                name="program_studi_id"
+                :options="$programStudis->map(fn ($prodi) => ['value' => $prodi->id, 'label' => $prodi->nama_prodi])"
+                :value="old('program_studi_id')"
+                placeholder="Ketik nama program studi" />
 
             @error('program_studi_id')
                 <p class="form-error">{{ $message }}</p>

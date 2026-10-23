@@ -14,6 +14,28 @@
 
     <div class="form-group">
 
+        <label class="form-label">Kode Mata Kuliah</label>
+
+        <input type="text"
+               class="form-input w-full"
+               value="{{ $mataKuliah->kode }}"
+               readonly>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="form-label">Nama Mata Kuliah</label>
+
+        <input type="text"
+               class="form-input w-full"
+               value="{{ $mataKuliah->nama }}"
+               readonly>
+
+    </div>
+
+    <div class="form-group">
+
         <label class="form-label">Kode RPS</label>
 
         <input type="text"

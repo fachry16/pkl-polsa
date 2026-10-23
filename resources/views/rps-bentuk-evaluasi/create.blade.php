@@ -32,18 +32,15 @@
 
     <div class="form-group">
 
-        <label class="form-label">Sub-CPMK</label>
+        <label class="form-label" for="rps-bentuk-subcpmk">Sub-CPMK</label>
 
-        <select name="sub_cpmk"
-                class="form-select w-full">
-            <option value="">— Pilih Sub CPMK —</option>
-            @foreach($subCpmks as $subCpmk)
-                <option value="{{ $subCpmk }}"
-                        {{ old('sub_cpmk') === $subCpmk ? 'selected' : '' }}>
-                    {{ $subCpmk }}
-                </option>
-            @endforeach
-        </select>
+        <x-searchable-select
+            id="rps-bentuk-subcpmk"
+            name="sub_cpmk"
+            :options="collect($subCpmks)->map(fn ($s) => ['value' => $s, 'label' => $s])"
+            :value="old('sub_cpmk')"
+            placeholder="Ketik sub-CPMK"
+            input-class="form-select w-full" />
 
     </div>
 

@@ -13,15 +13,16 @@
 
 <form method="GET" class="filter-card">
     <div class="filter-group">
-        <label class="filter-label">Program Studi</label>
-        <select name="program_studi_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($programStudis as $prodi)
-                <option value="{{ $prodi->id }}" {{ request('program_studi_id') == $prodi->id ? 'selected' : '' }}>
-                    {{ $prodi->nama_prodi }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="monitoring-prodi">Program Studi</label>
+        <x-searchable-select
+            id="monitoring-prodi"
+            name="program_studi_id"
+            :options="$programStudis->map(fn ($prodi) => ['value' => $prodi->id, 'label' => $prodi->nama_prodi])"
+            :value="request('program_studi_id')"
+            placeholder="Semua program studi"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
 
     <div class="filter-group">

@@ -16,32 +16,16 @@
 
     <div class="form-group">
 
-        <label class="form-label">
+        <label class="form-label" for="mbp-cpl">
             CPL
         </label>
 
-        <select name="cpl_id"
-                class="form-select">
-
-            <option value="">
-                -- Pilih CPL --
-            </option>
-
-            @foreach($cpls as $cpl)
-
-            <option value="{{ $cpl->id }}"
-                {{ old('cpl_id') == $cpl->id ? 'selected' : '' }}>
-
-                {{ $cpl->kode_cpl }}
-                @if($cpl->deskripsi)
-                    — {{ \Illuminate\Support\Str::limit($cpl->deskripsi, 60) }}
-                @endif
-
-            </option>
-
-            @endforeach
-
-        </select>
+        <x-searchable-select
+            id="mbp-cpl"
+            name="cpl_id"
+            :options="$cpls->map(fn ($cpl) => ['value' => $cpl->id, 'label' => $cpl->kode_cpl.($cpl->deskripsi ? ' - '.\Illuminate\Support\Str::limit($cpl->deskripsi, 70) : '')])"
+            :value="old('cpl_id')"
+            placeholder="Ketik kode atau deskripsi CPL" />
 
         @error('cpl_id')
         <p class="form-error">{{ $message }}</p>
@@ -51,31 +35,16 @@
 
     <div class="form-group">
 
-        <label class="form-label">
+        <label class="form-label" for="mbp-mk">
             Mata Kuliah
         </label>
 
-        <select name="mata_kuliah_id"
-                class="form-select">
-
-            <option value="">
-                -- Pilih Mata Kuliah --
-            </option>
-
-            @foreach($mataKuliahs as $mk)
-
-            <option value="{{ $mk->id }}"
-                {{ old('mata_kuliah_id') == $mk->id ? 'selected' : '' }}>
-
-                {{ $mk->kode }}
-                -
-                {{ $mk->nama }}
-
-            </option>
-
-            @endforeach
-
-        </select>
+        <x-searchable-select
+            id="mbp-mk"
+            name="mata_kuliah_id"
+            :options="$mataKuliahs->map(fn ($mk) => ['value' => $mk->id, 'label' => $mk->kode.' - '.$mk->nama])"
+            :value="old('mata_kuliah_id')"
+            placeholder="Ketik kode atau nama mata kuliah" />
 
         @error('mata_kuliah_id')
         <p class="form-error">{{ $message }}</p>
@@ -85,32 +54,16 @@
 
     <div class="form-group">
 
-        <label class="form-label">
+        <label class="form-label" for="mbp-cpmk">
             CPMK
         </label>
 
-        <select name="cpmk_id"
-                class="form-select">
-
-            <option value="">
-                -- Pilih CPMK --
-            </option>
-
-            @foreach($cpmks as $cpmk)
-
-            <option value="{{ $cpmk->id }}"
-                {{ old('cpmk_id') == $cpmk->id ? 'selected' : '' }}>
-
-                {{ $cpmk->kode_cpmk }}
-                @if($cpmk->deskripsi)
-                    — {{ \Illuminate\Support\Str::limit($cpmk->deskripsi, 60) }}
-                @endif
-
-            </option>
-
-            @endforeach
-
-        </select>
+        <x-searchable-select
+            id="mbp-cpmk"
+            name="cpmk_id"
+            :options="$cpmks->map(fn ($cpmk) => ['value' => $cpmk->id, 'label' => $cpmk->kode_cpmk.($cpmk->deskripsi ? ' - '.\Illuminate\Support\Str::limit($cpmk->deskripsi, 70) : '')])"
+            :value="old('cpmk_id')"
+            placeholder="Ketik kode atau deskripsi CPMK" />
 
         @error('cpmk_id')
         <p class="form-error">{{ $message }}</p>

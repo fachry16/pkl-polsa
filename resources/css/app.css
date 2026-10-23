@@ -1222,6 +1222,87 @@ table.data-table td .table-sub {
     margin-top: 0.25rem;
 }
 
+/* ---------- SEARCHABLE SELECT ---------- */
+.search-select {
+    position: relative;
+}
+
+.search-select .search-select-input {
+    padding-right: 2rem;
+}
+
+.search-select-clear {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #475569;
+    cursor: pointer;
+}
+
+.search-select-clear:hover {
+    background: #cbd5e1;
+    color: #0f172a;
+}
+
+.search-select-menu {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    max-height: 15rem;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.search-select-option {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.search-select-option:hover,
+.search-select-option.is-active {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.search-select-empty {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.filter-group .search-select {
+    width: 120px;
+}
+
+@media (max-width: 768px) {
+    .filter-group .search-select {
+        width: 100%;
+    }
+}
+
 /* ---------- BUTTONS ---------- */
 .btn {
     display: inline-flex;

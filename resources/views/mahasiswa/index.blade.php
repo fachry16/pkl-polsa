@@ -122,15 +122,16 @@
 <form method="GET" class="filter-card">
     @if(auth()->user()->isAdmin())
     <div class="filter-group">
-        <label class="filter-label">Program Studi</label>
-        <select name="program_studi_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($programStudis as $prodi)
-                <option value="{{ $prodi->id }}" {{ request('program_studi_id') == $prodi->id ? 'selected' : '' }}>
-                    {{ $prodi->nama_prodi }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="mahasiswa-filter-prodi">Program Studi</label>
+        <x-searchable-select
+            id="mahasiswa-filter-prodi"
+            name="program_studi_id"
+            :options="$programStudis->map(fn ($prodi) => ['value' => $prodi->id, 'label' => $prodi->nama_prodi])"
+            :value="request('program_studi_id')"
+            placeholder="Semua program studi"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
     @endif
 
@@ -166,15 +167,16 @@
     </div>
 
     <div class="filter-group">
-        <label class="filter-label">Tahun Akademik</label>
-        <select name="tahun_akademik_id" class="form-select filter-select">
-            <option value="">Semua</option>
-            @foreach($tahunAkademiks as $ta)
-                <option value="{{ $ta->id }}" {{ request('tahun_akademik_id') == $ta->id ? 'selected' : '' }}>
-                    {{ $ta->tahun }} {{ $ta->semester }}
-                </option>
-            @endforeach
-        </select>
+        <label class="filter-label" for="mahasiswa-filter-ta">Tahun Akademik</label>
+        <x-searchable-select
+            id="mahasiswa-filter-ta"
+            name="tahun_akademik_id"
+            :options="$tahunAkademiks->map(fn ($ta) => ['value' => $ta->id, 'label' => $ta->tahun.' '.$ta->semester])"
+            :value="request('tahun_akademik_id')"
+            placeholder="Semua tahun akademik"
+            input-class="form-select filter-select search-select-input"
+            allow-empty
+            auto-submit />
     </div>
 
     <div class="filter-actions">

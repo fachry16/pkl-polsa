@@ -41,29 +41,16 @@
 
         <div class="form-group">
 
-            <label class="form-label">
+            <label class="form-label" for="mahasiswa-prodi-search">
                 Program Studi
             </label>
 
-            <select name="program_studi_id"
-                    class="form-select">
-
-                <option value="">
-                    -- Pilih Program Studi --
-                </option>
-
-                @foreach($programStudis as $prodi)
-
-                    <option value="{{ $prodi->id }}"
-                        {{ old('program_studi_id', $mahasiswa->program_studi_id) == $prodi->id ? 'selected' : '' }}>
-
-                        {{ $prodi->nama_prodi }}
-
-                    </option>
-
-                @endforeach
-
-            </select>
+            <x-searchable-select
+                id="mahasiswa-prodi-search"
+                name="program_studi_id"
+                :options="$programStudis->map(fn ($prodi) => ['value' => $prodi->id, 'label' => $prodi->nama_prodi])"
+                :value="old('program_studi_id', $mahasiswa->program_studi_id)"
+                placeholder="Ketik nama program studi" />
 
         </div>
 
@@ -112,35 +99,16 @@
 
         <div class="form-group">
 
-            <label class="form-label">
+            <label class="form-label" for="mahasiswa-ta-search">
                 Tahun Akademik
             </label>
 
-            <select name="tahun_akademik_id"
-                    class="form-select">
-
-                <option value="">
-                    -- Pilih Tahun Akademik --
-                </option>
-
-                @foreach($tahunAkademiks as $tahun)
-
-                    <option value="{{ $tahun->id }}"
-                        {{ old('tahun_akademik_id', $semesterAktif?->tahun_akademik_id) == $tahun->id ? 'selected' : '' }}>
-
-                        {{ $tahun->tahun }}
-                        -
-                        {{ $tahun->semester }}
-
-                        @if($tahun->is_active)
-                            (Aktif)
-                        @endif
-
-                    </option>
-
-                @endforeach
-
-            </select>
+            <x-searchable-select
+                id="mahasiswa-ta-search"
+                name="tahun_akademik_id"
+                :options="$tahunAkademiks->map(fn ($tahun) => ['value' => $tahun->id, 'label' => $tahun->tahun.' - '.$tahun->semester.($tahun->is_active ? ' (Aktif)' : '')])"
+                :value="old('tahun_akademik_id', $semesterAktif?->tahun_akademik_id)"
+                placeholder="Ketik tahun akademik" />
 
         </div>
 
