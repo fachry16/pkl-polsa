@@ -80,7 +80,7 @@
     @csrf
 @endif
 <div class="table-container" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-    <table class="data-table">
+    <table class="data-table data-table-stack">
         <thead>
             <tr>
                 <th>No</th>

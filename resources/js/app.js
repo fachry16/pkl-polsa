@@ -94,6 +94,18 @@ window.searchableSelect = function (items, initial, settings = {}) {
     };
 };
 
+document.querySelectorAll('table.data-table-stack').forEach((table) => {
+    const headers = [...table.querySelectorAll('thead th')].map((th) => th.textContent.trim());
+
+    table.querySelectorAll('tbody tr').forEach((row) => {
+        [...row.children].forEach((cell, index) => {
+            if (!cell.dataset.label && headers[index]) {
+                cell.dataset.label = headers[index];
+            }
+        });
+    });
+});
+
 window.Alpine = Alpine;
 
 Alpine.start();

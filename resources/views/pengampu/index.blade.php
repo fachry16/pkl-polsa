@@ -74,52 +74,55 @@
 
 <div class="table-container mt-5">
 
-    <table class="data-table">
+        <table class="data-table data-table-stack">
 
-        <thead>
-
-            <tr>
-
-                <th>Dosen</th>
-                <th>Mata Kuliah</th>
-                <th>Tahun Akademik</th>
-                <th>Semester</th>
-                <th>Kelas</th>
-                <th>Aksi</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            @forelse($pengampus as $pengampu)
+            <thead>
 
                 <tr>
 
-                    <td>
-                        {{ $pengampu->dosen->user->name }}
-                    </td>
+                    <th>No</th>
+                    <th>Dosen</th>
+                    <th>Mata Kuliah</th>
+                    <th>Tahun Akademik</th>
+                    <th>Semester</th>
+                    <th>Kelas</th>
+                    <th>Aksi</th>
 
-                    <td>
-                        {{ $pengampu->mataKuliah->kode }}
-                        -
-                        {{ $pengampu->mataKuliah->nama }}
-                    </td>
+                </tr>
 
-                    <td>
-                        {{ $pengampu->tahunAkademik->tahun }}
-                    </td>
+            </thead>
 
-                    <td>
-                        {{ $pengampu->semester_akademik }}
-                    </td>
+        <tbody>
 
-                    <td>
-                        {{ $pengampu->kelas }}
-                    </td>
+            @forelse($pengampus as $index => $pengampu)
 
-                    <td>
+                <tr>
+
+                    <td data-label="No">{{ $pengampus->firstItem() + $index }}</td>
+
+                    <td data-label="Dosen">
+                    {{ $pengampu->dosen->user->name }}
+                </td>
+
+                <td data-label="Mata Kuliah">
+                    {{ $pengampu->mataKuliah->kode }}
+                    -
+                    {{ $pengampu->mataKuliah->nama }}
+                </td>
+
+                <td data-label="Tahun Akademik">
+                    {{ $pengampu->tahunAkademik->tahun }}
+                </td>
+
+                <td data-label="Semester">
+                    {{ $pengampu->semester_akademik }}
+                </td>
+
+                <td data-label="Kelas">
+                    {{ $pengampu->kelas }}
+                </td>
+
+                <td data-label="Aksi">
                         <a href="{{ route('pengampu.lihat-kelas', $pengampu->id) }}"
                            class="btn btn-primary btn-sm"
                            style="margin-right: 0.25rem;">
@@ -142,11 +145,11 @@
 
             @empty
 
-                <tr>
-                    <td colspan="6" class="text-center">
-                        Data pengampu belum tersedia.
-                    </td>
-                </tr>
+            <tr>
+                <td colspan="7" data-label="Informasi" class="text-center">
+                    Data pengampu belum tersedia.
+                </td>
+            </tr>
 
             @endforelse
 

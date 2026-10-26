@@ -42,47 +42,47 @@
 </form>
 
 <div class="table-container">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Program Studi</th>
-                <th>Nama Kurikulum</th>
-                <th>Tahun Berlaku</th>
-                <th>Beban Studi</th>
-                <th>Deskripsi</th>
-                <th>Status</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($kurikulums as $index => $kurikulum)
+        <table class="data-table data-table-stack">
+            <thead>
                 <tr>
-                    <td>{{ $kurikulums->firstItem() + $index }}</td>
-                    <td style="font-weight: 600; color: #0f172a;">{{ $kurikulum->programStudi->nama_prodi ?? '-' }}</td>
-                    <td>{{ $kurikulum->nama_kurikulum }}</td>
-                    <td>{{ $kurikulum->tahun_berlaku }}</td>
-                    <td>{{ $kurikulum->beban_studi ?? '-' }}</td>
-                    <td style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $kurikulum->deskripsi ?? '-' }}</td>
-                    <td>
-                        @if($kurikulum->status == 'Aktif')
-                            <span class="badge badge-disetujui">Aktif</span>
-                        @elseif($kurikulum->status == 'Draft')
-                            <span class="badge badge-draft">Draft</span>
-                        @else
-                            <span class="badge badge-diajukan">Arsip</span>
-                        @endif
-                    </td>
-                    <td>
-                        <a href="{{ route('kurikulum.detail', $kurikulum->id) }}" class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">Lihat</a>
-                    </td>
+                    <th>No</th>
+                    <th>Program Studi</th>
+                    <th>Nama Kurikulum</th>
+                    <th>Tahun Berlaku</th>
+                    <th>Beban Studi</th>
+                    <th>Deskripsi</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="8" class="text-center" style="padding: 1.5rem; color: #6b7280;">
-                        Data kurikulum belum tersedia.
-                    </td>
-                </tr>
+            </thead>
+            <tbody>
+                @forelse($kurikulums as $index => $kurikulum)
+                    <tr>
+                        <td data-label="No">{{ $kurikulums->firstItem() + $index }}</td>
+                        <td data-label="Program Studi" style="font-weight: 600; color: #0f172a;">{{ $kurikulum->programStudi->nama_prodi ?? '-' }}</td>
+                        <td data-label="Nama Kurikulum">{{ $kurikulum->nama_kurikulum }}</td>
+                        <td data-label="Tahun Berlaku">{{ $kurikulum->tahun_berlaku }}</td>
+                        <td data-label="Beban Studi">{{ $kurikulum->beban_studi ?? '-' }}</td>
+                        <td data-label="Deskripsi">{{ $kurikulum->deskripsi ?? '-' }}</td>
+                        <td data-label="Status">
+                            @if($kurikulum->status == 'Aktif')
+                                <span class="badge badge-disetujui">Aktif</span>
+                            @elseif($kurikulum->status == 'Draft')
+                                <span class="badge badge-draft">Draft</span>
+                            @else
+                                <span class="badge badge-diajukan">Arsip</span>
+                            @endif
+                        </td>
+                        <td data-label="Aksi">
+                            <a href="{{ route('kurikulum.detail', $kurikulum->id) }}" class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">Lihat</a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" data-label="Informasi" class="text-center" style="padding: 1.5rem; color: #6b7280;">
+                            Data kurikulum belum tersedia.
+                        </td>
+                    </tr>
             @endforelse
         </tbody>
     </table>

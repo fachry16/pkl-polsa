@@ -495,7 +495,7 @@
         <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem;">
             <h3 style="font-size: 0.95rem; font-weight: 700; margin: 0 0 1rem; color: #1e293b;">Nilai &amp; Catatan Tugas Saya</h3>
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table data-table-stack">
                     <thead>
                         <tr>
                             <th>Judul Tugas</th>

@@ -58,13 +58,14 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <tbody>
 
             <tr>
 
                 <td colspan="8"
+                    data-label="Informasi"
                     class="text-center">
 
                     {{ request('cari') ? 'Tidak ada mata kuliah yang cocok dengan pencarian.' : 'Data mata kuliah belum tersedia.' }}
@@ -89,7 +90,7 @@
 
     <div class="table-container">
 
-        <table class="data-table">
+        <table class="data-table data-table-stack">
 
             <thead>
 
@@ -112,35 +113,35 @@
 
                 <tr>
 
-                    <td>
+                    <td data-label="No">
                         {{ $loop->index + 1 }}
                     </td>
 
-                    <td>
+                    <td data-label="Kode MK">
                         {{ $mataKuliah->kode }}
                     </td>
 
-                    <td>
+                    <td data-label="Nama MK">
                         {{ $mataKuliah->nama }}
                     </td>
 
-                    <td class="text-center">
+                    <td data-label="Teori" class="text-center">
                         {{ $mataKuliah->sks_teori }}
                     </td>
 
-                    <td class="text-center">
+                    <td data-label="Praktik" class="text-center">
                         {{ $mataKuliah->sks_praktikum }}
                     </td>
 
-                    <td class="text-center">
+                    <td data-label="Total" class="text-center">
                         {{ $mataKuliah->sks_teori + $mataKuliah->sks_praktikum }}
                     </td>
 
-                    <td>
+                    <td data-label="Jenis">
                         {{ $mataKuliah->jenis }}
                     </td>
 
-                    <td>
+                    <td data-label="Aksi">
 
                         <div class="flex gap-2">
                             @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())

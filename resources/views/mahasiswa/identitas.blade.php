@@ -87,7 +87,7 @@
                             {{ $semester }}
                         </div>
                         <div class="table-container" style="margin: 0; border-radius: 0; border-left: none; border-right: none; border-bottom: none;">
-                            <table class="data-table">
+                            <table class="data-table data-table-stack">
                                 <thead>
                                     <tr>
                                         <th>Mata Kuliah</th>
@@ -101,13 +101,13 @@
                                 <tbody>
                                     @foreach($rows as $row)
                                         <tr>
-                                            <td>
+                                            <td data-label="Mata Kuliah">
                                                 <div style="font-weight: 600; color: #1e293b;">{{ $row['pengampu']->mataKuliah?->nama ?? '-' }}</div>
                                                 <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 0.1rem;">{{ $row['pengampu']->mataKuliah?->kode ?? '-' }}</div>
                                             </td>
-                                            <td>{{ $row['pengampu']->nama_dosen }}</td>
-                                            <td>{{ $row['pengampu']->nama_kelas }}</td>
-                                            <td>
+                                            <td data-label="Dosen">{{ $row['pengampu']->nama_dosen }}</td>
+                                            <td data-label="Kelas">{{ $row['pengampu']->nama_kelas }}</td>
+                                            <td data-label="Nilai Komponen">
                                                 @forelse($row['komponen'] as $komponen => $nilai)
                                                     <span style="display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; border-radius: 999px; padding: 0.12rem 0.55rem; font-size: 0.68rem; font-weight: 600; margin: 0.1rem 0.15rem 0.1rem 0;">
                                                         {{ ucfirst($komponen) }}: {{ number_format($nilai, 2) }}
@@ -116,10 +116,10 @@
                                                     <span style="font-size: 0.75rem; color: #94a3b8;">Belum dinilai</span>
                                                 @endforelse
                                             </td>
-                                            <td style="font-weight: 600;">
+                                            <td data-label="Nilai Akhir" style="font-weight: 600;">
                                                 {{ $row['akhir'] !== null ? number_format($row['akhir'], 2) : '-' }}
                                             </td>
-                                            <td>
+                                            <td data-label="Huruf">
                                                 @if($row['huruf'])
                                                     @php
                                                         $colorMatch = match($row['huruf']) {
@@ -172,7 +172,7 @@
                             </div>
                         </div>
                         <div class="table-container" style="margin: 0; border-radius: 0; border-left: none; border-right: none; border-bottom: none;">
-                            <table class="data-table">
+                            <table class="data-table data-table-stack">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -188,12 +188,12 @@
                                 <tbody>
                                     @foreach($rowsSem as $index => $mk)
                                         <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td style="color: #64748b;">{{ $mk['mata_kuliah']->kode ?? '-' }}</td>
-                                            <td style="font-weight: 600; color: #1e293b;">{{ $mk['mata_kuliah']->nama ?? '-' }}</td>
-                                            <td style="text-align:center;">{{ $mk['sks'] }}</td>
-                                            <td style="text-align:right;">{{ number_format($mk['nilai'], 2) }}</td>
-                                            <td style="text-align:center;">
+                                            <td data-label="No">{{ $index + 1 }}</td>
+                                            <td data-label="Kode" style="color: #64748b;">{{ $mk['mata_kuliah']->kode ?? '-' }}</td>
+                                            <td data-label="Mata Kuliah" style="font-weight: 600; color: #1e293b;">{{ $mk['mata_kuliah']->nama ?? '-' }}</td>
+                                            <td data-label="SKS" style="text-align:center;">{{ $mk['sks'] }}</td>
+                                            <td data-label="Nilai" style="text-align:right;">{{ number_format($mk['nilai'], 2) }}</td>
+                                            <td data-label="Huruf" style="text-align:center;">
                                                 @php
                                                     $colorMatch = match($mk['huruf'] ?? '') {
                                                         'A', 'B+' => ['bg' => '#ecfdf5', 'fg' => '#059669', 'bd' => '#a7f3d0'],
@@ -205,8 +205,8 @@
                                                     {{ $mk['huruf'] ?? '-' }}
                                                 </span>
                                             </td>
-                                            <td style="text-align:right;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['bobot_mutu'], 2) : '-' }}</td>
-                                            <td style="text-align:right; font-weight: 600;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['sks'] * $mk['bobot_mutu'], 2) : '-' }}</td>
+                                            <td data-label="Bobot Mutu" style="text-align:right;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['bobot_mutu'], 2) : '-' }}</td>
+                                            <td data-label="SKS × Mutu" style="text-align:right; font-weight: 600;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['sks'] * $mk['bobot_mutu'], 2) : '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

@@ -18,7 +18,7 @@
 
     <div class="table-container">
 
-        <table class="data-table">
+        <table class="data-table data-table-stack">
 
             <thead>
 

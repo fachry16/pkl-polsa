@@ -50,7 +50,7 @@
             </h3>
         </div>
 
-        <table class="data-table">
+        <table class="data-table data-table-stack">
 
             <thead>
                 <tr>
@@ -71,14 +71,14 @@
                 @forelse($pengampu->mahasiswas as $mahasiswa)
 
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $mahasiswa->nim }}</td>
-                        <td>{{ $mahasiswa->nama }}</td>
-                        <td>{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</td>
-                        <td>{{ $mahasiswa->angkatan }}</td>
-                        <td>{{ $mahasiswa->status }}</td>
+                        <td data-label="No">{{ $loop->iteration }}</td>
+                        <td data-label="NIM">{{ $mahasiswa->nim }}</td>
+                        <td data-label="Nama">{{ $mahasiswa->nama }}</td>
+                        <td data-label="Prodi">{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</td>
+                        <td data-label="Angkatan">{{ $mahasiswa->angkatan }}</td>
+                        <td data-label="Status">{{ $mahasiswa->status }}</td>
                         @if(auth()->user()->isAdmin())
-                        <td>
+                        <td data-label="Aksi">
                             <x-confirm
                                 action="{{ route('pengampu.kelas.mahasiswa.destroy', [$pengampu->id, $mahasiswa->id]) }}"
                                 method="DELETE"
@@ -95,7 +95,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="{{ auth()->user()->isAdmin() ? 7 : 6 }}" class="text-center">
+                        <td colspan="{{ auth()->user()->isAdmin() ? 7 : 6 }}" data-label="Informasi" class="text-center">
                             Belum ada mahasiswa di kelas ini.
                         </td>
                     </tr>

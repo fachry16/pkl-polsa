@@ -33,7 +33,7 @@
         <form action="{{ route('lms.absensi.store', [$pengampu->id, $sesi->id]) }}" method="POST">
             @csrf
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table data-table-stack">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -52,18 +52,18 @@
                                 $status = $absensis->get($mahasiswa->id)?->status ?? 'hadir';
                                 $total[$status]++;
                             @endphp
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $mahasiswa->nim }}</td>
-                                <td>{{ $mahasiswa->nama }}</td>
-                                @foreach(['hadir', 'sakit', 'izin', 'alpa'] as $opsi)
-                                    <td style="text-align: center;">
-                                        <input type="radio" name="status[{{ $mahasiswa->id }}]" value="{{ $opsi }}"
-                                               {{ $status === $opsi ? 'checked' : '' }}
-                                               {{ $editable ? '' : 'disabled' }}>
-                                    </td>
-                                @endforeach
-                            </tr>
+                    <tr>
+                        <td data-label="No">{{ $loop->iteration }}</td>
+                        <td data-label="NIM">{{ $mahasiswa->nim }}</td>
+                        <td data-label="Nama">{{ $mahasiswa->nama }}</td>
+                        @foreach(['hadir', 'sakit', 'izin', 'alpa'] as $opsi)
+                            <td data-label="{{ ucfirst($opsi) }}" style="text-align: center;">
+                                <input type="radio" name="status[{{ $mahasiswa->id }}]" value="{{ $opsi }}"
+                                       {{ $status === $opsi ? 'checked' : '' }}
+                                       {{ $editable ? '' : 'disabled' }}>
+                            </td>
+                        @endforeach
+                    </tr>
                         @endforeach
                     </tbody>
                     <tfoot>

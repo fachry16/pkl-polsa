@@ -13,7 +13,7 @@
 
 <div class="card">
 
-    <table class="detail-table">
+    <table class="detail-table" style="width:100%;">
 
         <tr>
             <td class="font-semibold">Kode RPS</td>

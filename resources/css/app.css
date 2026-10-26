@@ -2588,6 +2588,25 @@ table.rps-korelasi-table {
     flex-wrap: wrap;
 }
 
+/* ---------- CONTENT SAFETY ---------- */
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+.card,
+.table-container,
+.page-content-wrapper {
+    min-width: 0;
+}
+
+.data-table td,
+.data-table th,
+.card {
+    overflow-wrap: break-word;
+}
+
 /* ---------- RESPONSIVE (MOBILE & TABLET) ---------- */
 @media (max-width: 1024px) {
     .main-content {
@@ -2636,6 +2655,47 @@ table.rps-korelasi-table {
     .campus-header-card {
         padding: 0.5rem 0.65rem !important;
         gap: 0.5rem !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .campus-header-left {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+
+    .campus-header-left > div:last-child {
+        min-width: 0;
+    }
+
+    .campus-title-link {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .campus-subtitle {
+        display: none !important;
+    }
+
+    .global-campus-sticky-header div[style*="max-width: 180px"] {
+        display: none !important;
+    }
+
+    .btn,
+    .btn-sm,
+    .btn-xs {
+        min-height: 44px;
+    }
+
+    .form-input,
+    .form-select {
+        min-height: 44px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 0.35rem;
     }
 
     .sidebar {
@@ -2810,6 +2870,7 @@ table.rps-korelasi-table {
     table.data-table-stack {
         display: block !important;
         width: 100% !important;
+        min-width: 0 !important;
         border: none !important;
         background: transparent !important;
     }
@@ -2851,19 +2912,25 @@ table.rps-korelasi-table {
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 0.45rem 0 !important;
+        gap: 0.75rem !important;
+        padding: 0.5rem 0 !important;
         border-bottom: 1px dashed #f1f5f9 !important;
         font-size: 0.82rem !important;
         text-align: right !important;
-        min-height: 2rem !important;
+        min-height: 2.25rem !important;
+        overflow-wrap: anywhere;
     }
 
-    table.data-table-stack tbody tr td:last-child {
+    table.data-table-stack tbody tr td[data-label="Aksi"] {
         border-bottom: none !important;
         padding-top: 0.65rem !important;
         margin-top: 0.35rem !important;
         border-top: 1px solid #f1f5f9 !important;
         justify-content: stretch !important;
+    }
+
+    table.data-table-stack {
+        min-width: 0 !important;
     }
 
     table.data-table-stack tbody tr td::before {
@@ -2879,8 +2946,7 @@ table.rps-korelasi-table {
     }
 
     /* Penyesuaian Kolom Aksi / Tombol di Bawah Kartu */
-    table.data-table-stack tbody tr td[data-label="Aksi"]::before,
-    table.data-table-stack tbody tr td:last-child::before {
+    table.data-table-stack tbody tr td[data-label="Aksi"]::before {
         display: none !important;
     }
 
@@ -2890,6 +2956,7 @@ table.rps-korelasi-table {
         width: 100% !important;
         gap: 0.4rem !important;
         flex-wrap: wrap !important;
+        justify-content: stretch !important;
     }
 
     table.data-table-stack tbody tr td .btn-group .btn,
@@ -2898,7 +2965,7 @@ table.rps-korelasi-table {
     table.data-table-stack tbody tr td .aksi-cell form,
     table.data-table-stack tbody tr td[data-label="Aksi"] .btn,
     table.data-table-stack tbody tr td[data-label="Aksi"] form {
-        flex: 1 1 auto !important;
+        flex: 1 1 120px !important;
         text-align: center !important;
         justify-content: center !important;
         min-height: 44px !important;
@@ -2914,8 +2981,16 @@ table.rps-korelasi-table {
     }
 
     .filter-group {
-        flex: 1 1 calc(50% - 0.3rem) !important;
-        min-width: 130px !important;
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    .filter-group .form-input,
+    .filter-group .form-select,
+    .filter-group .search-select,
+    .filter-group .search-select-input {
+        width: 100% !important;
     }
 
     .filter-select {
@@ -2947,8 +3022,11 @@ table.rps-korelasi-table {
 
     .modal-content {
         width: 95% !important;
+        max-width: 95% !important;
         margin: 1rem auto !important;
         padding: 1rem !important;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
     }
 }
 

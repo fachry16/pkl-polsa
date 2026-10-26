@@ -151,7 +151,7 @@
     </div>
 
     <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <table class="data-table data-table-stack" style="width: 100%; font-size: 0.85rem;">
             <thead>
                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; text-align: left;">
                     <th style="padding: 0.75rem 1rem;">Program Studi</th>
@@ -167,21 +167,21 @@
             <tbody>
                 @foreach($prodiRecaps as $recap)
                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 0.75rem 1rem;">
+                        <td data-label="Program Studi" style="padding: 0.75rem 1rem;">
                             <div style="font-weight: 600; color: #0f172a;">{{ $recap->nama_prodi }}</div>
                             <div style="font-size: 0.72rem; color: #64748b;">Kode: {{ $recap->kode_prodi }}</div>
                         </td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center;">
+                        <td data-label="Jenjang" style="padding: 0.75rem 0.75rem; text-align: center;">
                             <span style="background: #FFF3C4; color: #A16207; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">
                                 {{ $recap->jenjang }}
                             </span>
                         </td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #334155;">{{ $recap->dosen_count }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #B8860B;">{{ $recap->mhs_count }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $recap->kelas_a }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $recap->kelas_b }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 700; color: #A16207;">{{ $recap->total_kelas }}</td>
-                        <td style="padding: 0.75rem 1rem;">
+                        <td data-label="Dosen" style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #334155;">{{ $recap->dosen_count }}</td>
+                        <td data-label="Mahasiswa" style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #B8860B;">{{ $recap->mhs_count }}</td>
+                        <td data-label="Kelas A (Reg)" style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $recap->kelas_a }}</td>
+                        <td data-label="Kelas B (Kar)" style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $recap->kelas_b }}</td>
+                        <td data-label="Total Rombel" style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 700; color: #A16207;">{{ $recap->total_kelas }}</td>
+                        <td data-label="Kesiapan RPS" style="padding: 0.75rem 1rem;">
                             <div style="display: flex; align-items: center; gap: 0.6rem;">
                                 <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
                                     <div style="width: {{ $recap->rps_persen }}%; height: 100%; background: #10b981; border-radius: 999px;"></div>
@@ -213,7 +213,7 @@
     </div>
 
     <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <table class="data-table data-table-stack" style="width: 100%; font-size: 0.85rem;">
             <thead>
                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; text-align: left;">
                     <th style="padding: 0.75rem 1rem;">No</th>
@@ -228,13 +228,13 @@
             <tbody>
                 @forelse($direkturKurikulums as $i => $k)
                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
-                        <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $k->programStudi->nama_prodi ?? '-' }}</td>
-                        <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $k->nama_kurikulum }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $k->tahun_berlaku }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #A16207;">{{ $k->beban_studi ?? '-' }}</td>
-                        <td style="padding: 0.75rem 0.75rem; color: #64748b; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $k->deskripsi ?? '-' }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center;">
+                        <td data-label="No" style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
+                        <td data-label="Program Studi" style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $k->programStudi->nama_prodi ?? '-' }}</td>
+                        <td data-label="Nama Kurikulum" style="padding: 0.75rem 0.75rem; color: #334155;">{{ $k->nama_kurikulum }}</td>
+                        <td data-label="Tahun Berlaku" style="padding: 0.75rem 0.75rem; text-align: center; color: #475569;">{{ $k->tahun_berlaku }}</td>
+                        <td data-label="Beban Studi (SKS)" style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #A16207;">{{ $k->beban_studi ?? '-' }}</td>
+                        <td data-label="Deskripsi" style="padding: 0.75rem 0.75rem; color: #64748b;">{{ $k->deskripsi ?? '-' }}</td>
+                        <td data-label="Status" style="padding: 0.75rem 0.75rem; text-align: center;">
                             @if(($k->status ?? '') === 'Aktif' || ($k->status ?? '') === 'aktif')
                                 <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
                             @elseif(($k->status ?? '') === 'Draft' || ($k->status ?? '') === 'draft')
@@ -246,7 +246,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data kurikulum.</td>
+                        <td colspan="7" data-label="Informasi" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data kurikulum.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -270,7 +270,7 @@
     </div>
 
     <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <table class="data-table data-table-stack" style="width: 100%; font-size: 0.85rem;">
             <thead>
                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; text-align: left;">
                     <th style="padding: 0.75rem 1rem;">No</th>
@@ -284,12 +284,12 @@
             <tbody>
                 @forelse($direkturTahunAkademiks as $i => $ta)
                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
-                        <td style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $ta->tahun }}</td>
-                        <td style="padding: 0.75rem 0.75rem; color: #334155;">{{ $ta->semester }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #A16207;">{{ $ta->pengampus_count }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #B8860B;">{{ $ta->semesterMahasiswas_count }}</td>
-                        <td style="padding: 0.75rem 0.75rem; text-align: center;">
+                        <td data-label="No" style="padding: 0.75rem 1rem; color: #64748b;">{{ $i + 1 }}</td>
+                        <td data-label="Tahun" style="padding: 0.75rem 0.75rem; font-weight: 600; color: #0f172a;">{{ $ta->tahun }}</td>
+                        <td data-label="Semester" style="padding: 0.75rem 0.75rem; color: #334155;">{{ $ta->semester }}</td>
+                        <td data-label="Total Kelas" style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #A16207;">{{ $ta->pengampus_count }}</td>
+                        <td data-label="Total Mahasiswa" style="padding: 0.75rem 0.75rem; text-align: center; font-weight: 600; color: #B8860B;">{{ $ta->semesterMahasiswas_count }}</td>
+                        <td data-label="Status" style="padding: 0.75rem 0.75rem; text-align: center;">
                             @if($ta->is_active)
                                 <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.7rem; font-weight: 600;">Aktif</span>
                             @else
@@ -299,7 +299,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data tahun akademik.</td>
+                        <td colspan="6" data-label="Informasi" style="padding: 1.5rem; text-align: center; color: #6b7280;">Belum ada data tahun akademik.</td>
                     </tr>
                 @endforelse
             </tbody>

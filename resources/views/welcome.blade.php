@@ -17,7 +17,7 @@
                 position: fixed;
                 top: 0; left: 0; right: 0;
                 z-index: 50;
-                background: rgba(255,255,255,0.9);
+                background: rgba(255,255,255,0.95);
                 backdrop-filter: blur(8px);
                 border-bottom: 1px solid #f1f5f9;
                 display: flex;
@@ -26,6 +26,7 @@
                 padding: 0 2rem;
                 height: 60px;
                 transition: box-shadow 0.15s;
+                gap: 1rem;
             }
 
             .landing-nav.scrolled { box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
@@ -37,6 +38,7 @@
                 font-weight: 700;
                 font-size: 1rem;
                 color: #A16207;
+                flex-shrink: 0;
             }
 
             .landing-nav .logo img {
@@ -46,15 +48,22 @@
                 object-fit: contain;
             }
 
-            .landing-nav .nav-links { display: flex; gap: 0.25rem; }
+            .landing-nav .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                margin-left: auto;
+                flex-wrap: nowrap;
+            }
 
             .landing-nav .nav-links a {
                 font-size: 0.85rem;
-                color: #94a3b8;
+                color: #475569;
                 font-weight: 500;
-                padding: 0.4rem 0.85rem;
+                padding: 0.4rem 0.7rem;
                 border-radius: 6px;
                 transition: all 0.15s;
+                white-space: nowrap;
             }
 
             .landing-nav .nav-links a:hover {
@@ -63,11 +72,11 @@
             }
 
             .landing-nav .nav-login {
-                margin-left: 1rem;
+                margin-left: 0.5rem;
                 background: #FEC200;
                 color: #0A0D40 !important;
                 font-weight: 600 !important;
-                padding: 0.4rem 1.1rem !important;
+                padding: 0.4rem 1rem !important;
             }
 
             .landing-nav .nav-login:hover {
@@ -76,16 +85,40 @@
             }
 
             .landing-nav .nav-login-outline {
-                margin-left: 1rem;
+                margin-left: 0.5rem;
                 background: transparent;
                 color: #A16207 !important;
                 font-weight: 600 !important;
-                padding: 0.4rem 1.1rem !important;
+                padding: 0.4rem 1rem !important;
                 border: 1.5px solid #D9A500;
             }
 
             .landing-nav .nav-login-outline:hover {
                 background: #FFF3C4 !important;
+            }
+
+            .landing-nav .nav-toggle {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: transparent;
+                border: none;
+                color: #A16207;
+                padding: 0.4rem;
+                border-radius: 8px;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+                z-index: 80;
+                pointer-events: auto;
+            }
+
+            .landing-nav .nav-toggle:hover {
+                background: #FFF3C4;
+            }
+
+            .landing-nav .nav-mobile {
+                display: none;
             }
 
             .landing-hero {
@@ -246,10 +279,12 @@
             }
 
             @media (max-width: 768px) {
-                .kampus-card { flex-direction: column; }
-                .kampus-img { width: 100%; padding: 1.5rem; }
-                .kampus-img img { max-height: 220px; object-fit: contain; }
+                .kampus-card { flex-direction: column; border-radius: 12px; }
+                .kampus-img { width: 100%; padding: 1rem; }
+                .kampus-img img { max-height: 200px; width: 100%; object-fit: contain; }
                 .kampus-body { padding: 1rem 1rem 1.25rem; }
+                .kampus-body h3 { font-size: 1.25rem; }
+                .kampus-body p { font-size: 0.9rem; }
             }
 
             .vm-grid {
@@ -418,18 +453,99 @@
                 font-size: 0.8rem;
             }
 
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
                 .landing-nav { padding: 0 1rem; }
-                .landing-nav .nav-links a { font-size: 0.78rem; padding: 0.35rem 0.55rem; }
-                .landing-hero { padding: 4rem 1.25rem 2rem; }
-                .landing-hero .hero-inner { flex-direction: column; gap: 1.5rem; }
-                .landing-hero .hero-text h1 { font-size: 2rem; }
-                .landing-hero .hero-text p { font-size: 0.9rem; }
-                .landing-hero .hero-image .hero-img { max-width: 180px; }
-                .landing-section { padding: 2.5rem 1.25rem; }
-                .landing-section h2 { font-size: 1.35rem; }
-                .prodi-grid { grid-template-columns: 1fr; }
-                .visi-misi-box { padding: 1.25rem; }
+                .landing-nav .nav-links a { font-size: 0.8rem; padding: 0.35rem 0.55rem; }
+                .landing-nav .nav-login,
+                .landing-nav .nav-login-outline { padding: 0.35rem 0.8rem !important; font-size: 0.8rem; }
+            }
+
+            @media (max-width: 768px) {
+            .landing-nav { padding: 0 0.8rem; height: 56px; gap: 0.4rem; }
+            .landing-nav .logo { font-size: 0.9rem; gap: 0.4rem; min-width: 0; }
+            .landing-nav .logo img { height: 18px; max-width: 110px; }
+            .landing-nav .nav-links { display: none; }
+            .landing-nav .nav-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                min-width: 44px;
+                position: relative;
+                z-index: 70;
+            }
+            .landing-nav .nav-mobile {
+                display: none;
+                position: absolute;
+                top: 56px;
+                left: 0;
+                right: 0;
+                background: #fff;
+                border-bottom: 1px solid #f1f5f9;
+                box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1);
+                z-index: 50;
+            }
+            .landing-nav .nav-mobile.active {
+                display: block;
+            }
+                .landing-nav .nav-mobile.active {
+                    transform: translateY(0);
+                    opacity: 1;
+                    pointer-events: auto;
+                    visibility: visible;
+                }
+                .landing-nav .nav-mobile-inner {
+                    display: flex;
+                    flex-direction: column;
+                    padding: 0.4rem 0.9rem 0.8rem;
+                    gap: 0.2rem;
+                }
+                .landing-nav .nav-mobile-inner a {
+                    font-size: 0.88rem;
+                    color: #334155;
+                    font-weight: 500;
+                    padding: 0.55rem 0.4rem;
+                    border-radius: 8px;
+                }
+                .landing-nav .nav-mobile-inner a:hover {
+                    background: #FFF3C4;
+                    color: #A16207;
+                }
+                .landing-nav .nav-mobile-auth {
+                    margin-top: 0.4rem;
+                    text-align: center;
+                    background: #FEC200;
+                    color: #0A0D40 !important;
+                    font-weight: 600 !important;
+                    padding: 0.55rem 0.9rem !important;
+                }
+                .landing-hero { padding: 5rem 1rem 2rem; }
+                .landing-hero .hero-inner { flex-direction: column; gap: 1.25rem; }
+                .landing-hero .hero-text h1 { font-size: 1.8rem; }
+                .landing-hero .hero-text .hero-tagline { font-size: 1rem; }
+                .landing-hero .hero-text p { font-size: 0.88rem; }
+                .landing-hero .hero-text .btn { width: 100%; text-align: center; padding: 0.6rem 1.25rem; min-height: 44px; }
+                .landing-hero .hero-image { order: -1; }
+                .landing-hero .hero-image .hero-img { max-width: 150px; }
+                .landing-section { padding: 2.25rem 1rem; }
+                .landing-section h2 { font-size: 1.45rem; }
+                .visi-misi-box { padding: 1rem; }
+                .card-grid { grid-template-columns: 1fr; gap: 0.9rem; }
+                .card { border-radius: 12px; }
+                .card-body { padding: 1rem 1rem 1.25rem; }
+                .vm-grid { grid-template-columns: 1fr; gap: 0.9rem; }
+                .vm-card-head { padding: 0.75rem 1rem; }
+                .vm-card-body { padding: 1rem 1rem 1.25rem; }
+                .vm-split { grid-template-columns: 1fr; gap: 0.9rem; }
+                .vm-block { padding: 0.75rem 1rem; }
+                .landing-footer { padding: 1.25rem 1rem; font-size: 0.78rem; }
+            }
+
+            @media (max-width: 420px) {
+                .landing-nav .logo img { max-width: 96px; }
+                .landing-hero .hero-text h1 { font-size: 1.6rem; }
+                .landing-section h2 { font-size: 1.3rem; }
+            }
             }
         </style>
     </head>
@@ -450,6 +566,28 @@
                         <a href="{{ route('login') }}" class="nav-login">Masuk</a>
                     @endauth
                 @endif
+            </div>
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="nav-mobile" id="navMobile">
+                <div class="nav-mobile-inner">
+                    <a href="#beranda">Beranda</a>
+                    <a href="#profil-kampus">Profil Kampus</a>
+                    <a href="#program-studi">Program Studi</a>
+                    <a href="#visi-misi">Visi Misi Prodi</a>
+                    @if (Route::has('login'))
+                        @auth
+                            <a href="{{ url('/dashboard') }}" class="nav-mobile-auth">Dashboard</a>
+                        @else
+                            <a href="{{ route('login') }}" class="nav-mobile-auth">Masuk</a>
+                        @endauth
+                    @endif
+                </div>
             </div>
         </nav>
 
@@ -666,9 +804,39 @@
 
         <script>
         const nav = document.getElementById('landingNav');
+        const navToggle = document.getElementById('navToggle');
+        const navMobile = document.getElementById('navMobile');
+
         window.addEventListener('scroll', () => {
             nav.classList.toggle('scrolled', window.scrollY > 20);
+            if (navMobile && navMobile.classList.contains('active')) {
+                navMobile.classList.remove('active');
+                if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+            }
         });
+
+        if (navToggle && navMobile) {
+            navToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const isOpen = navMobile.classList.toggle('active');
+                navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            navMobile.querySelectorAll('a').forEach((link) => {
+                link.addEventListener('click', () => {
+                    navMobile.classList.remove('active');
+                    if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!nav.contains(e.target)) {
+                    navMobile.classList.remove('active');
+                    if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {

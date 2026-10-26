@@ -1,6 +1,6 @@
 @if(count($rows) > 0)
     <div class="table-container">
-        <table class="data-table">
+        <table class="data-table data-table-stack">
             <thead>
                 <tr>
                     <th rowspan="2" style="width: 3rem; text-align: center;">No.</th>
@@ -20,8 +20,8 @@
             <tbody>
                 @foreach($rows as $index => $row)
                     <tr>
-                        <td style="text-align: center; color: #64748b;">{{ $index + 1 }}</td>
-                        <td>
+                        <td data-label="No." style="text-align: center; color: #64748b;">{{ $index + 1 }}</td>
+                        <td data-label="Status">
                             @if($row['is_sync'])
                                 <span style="display: inline-flex; align-items: center; gap: 0.3rem; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.7rem; font-weight: 600; white-space: nowrap;">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -33,11 +33,11 @@
                                 </span>
                             @endif
                         </td>
-                        <td style="color: #475569;">{{ $row['kode'] }}</td>
-                        <td style="font-weight: 600; color: #1e293b;">{{ $row['nama'] }}</td>
-                        <td style="text-align: right; color: #475569;">{{ number_format($row['sks'], 2) }}</td>
-                        <td style="text-align: right; color: #475569;">{{ $row['nilai_akhir'] !== null ? number_format($row['nilai_akhir'], 2) : '-' }}</td>
-                        <td style="text-align: center;">
+                        <td data-label="Kode MK" style="color: #475569;">{{ $row['kode'] }}</td>
+                        <td data-label="Nama MK" style="font-weight: 600; color: #1e293b;">{{ $row['nama'] }}</td>
+                        <td data-label="Bobot MK (sks)" style="text-align: right; color: #475569;">{{ number_format($row['sks'], 2) }}</td>
+                        <td data-label="Nilai Angka" style="text-align: right; color: #475569;">{{ $row['nilai_akhir'] !== null ? number_format($row['nilai_akhir'], 2) : '-' }}</td>
+                        <td data-label="Nilai Huruf" style="text-align: center;">
                             @if($row['huruf'])
                                 @php
                                     $c = match ($row['huruf']) {
@@ -52,8 +52,8 @@
                                 <span style="color: #94a3b8;">-</span>
                             @endif
                         </td>
-                        <td style="text-align: right; color: #475569;">{{ $row['indeks'] !== null ? number_format($row['indeks'], 2) : '-' }}</td>
-                        <td style="text-align: right; font-weight: 700; color: #1e293b;">{{ number_format($row['sks_indeks'], 2) }}</td>
+                        <td data-label="Indeks" style="text-align: right; color: #475569;">{{ $row['indeks'] !== null ? number_format($row['indeks'], 2) : '-' }}</td>
+                        <td data-label="sks * N.Indeks" style="text-align: right; font-weight: 700; color: #1e293b;">{{ number_format($row['sks_indeks'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>

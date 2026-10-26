@@ -52,7 +52,7 @@
                     </div>
 
                     <div class="table-container" style="margin: 0; border-radius: 0; border-left: none; border-right: none; border-bottom: none;">
-                        <table class="data-table">
+                        <table class="data-table data-table-stack">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -68,12 +68,12 @@
                             <tbody>
                                 @foreach($rowsSem as $index => $mk)
                                     <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td style="color: #64748b;">{{ $mk['mata_kuliah']->kode ?? '-' }}</td>
-                                        <td style="font-weight: 600; color: #1e293b;">{{ $mk['mata_kuliah']->nama ?? '-' }}</td>
-                                        <td style="text-align:center;">{{ $mk['sks'] }}</td>
-                                        <td style="text-align:right;">{{ number_format($mk['nilai'], 2) }}</td>
-                                        <td style="text-align:center;">
+                                        <td data-label="No">{{ $index + 1 }}</td>
+                                        <td data-label="Kode" style="color: #64748b;">{{ $mk['mata_kuliah']->kode ?? '-' }}</td>
+                                        <td data-label="Mata Kuliah" style="font-weight: 600; color: #1e293b;">{{ $mk['mata_kuliah']->nama ?? '-' }}</td>
+                                        <td data-label="SKS" style="text-align:center;">{{ $mk['sks'] }}</td>
+                                        <td data-label="Nilai" style="text-align:right;">{{ number_format($mk['nilai'], 2) }}</td>
+                                        <td data-label="Huruf" style="text-align:center;">
                                             @php
                                                 $colorMatch = match($mk['huruf'] ?? '') {
                                                     'A', 'B+' => ['bg' => '#ecfdf5', 'fg' => '#059669', 'bd' => '#a7f3d0'],
@@ -85,8 +85,8 @@
                                                 {{ $mk['huruf'] ?? '-' }}
                                             </span>
                                         </td>
-                                        <td style="text-align:right;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['bobot_mutu'], 2) : '-' }}</td>
-                                        <td style="text-align:right; font-weight: 600;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['sks'] * $mk['bobot_mutu'], 2) : '-' }}</td>
+                                        <td data-label="Bobot Mutu" style="text-align:right;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['bobot_mutu'], 2) : '-' }}</td>
+                                        <td data-label="SKS × Mutu" style="text-align:right; font-weight: 600;">{{ $mk['bobot_mutu'] !== null ? number_format($mk['sks'] * $mk['bobot_mutu'], 2) : '-' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
