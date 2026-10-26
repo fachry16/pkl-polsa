@@ -44,10 +44,10 @@
                 <span style="font-weight: 400; color: #6b7280;">({{ $krs->mahasiswas->count() }})</span>
             </h3>
         </div>
-
-        <table class="data-table">
+        <table class="data-table data-table-stack">
 
             <thead>
+
                 <tr>
                     <th>No</th>
                     <th>NIM</th>
@@ -64,19 +64,19 @@
                 @forelse($krs->mahasiswas as $mahasiswa)
 
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $mahasiswa->nim }}</td>
-                        <td>{{ $mahasiswa->nama }}</td>
-                        <td>{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</td>
-                        <td>
+                        <td data-label="No">{{ $loop->iteration }}</td>
+                        <td data-label="NIM">{{ $mahasiswa->nim }}</td>
+                        <td data-label="Nama">{{ $mahasiswa->nama }}</td>
+                        <td data-label="Prodi">{{ $mahasiswa->programStudi->nama_prodi ?? '-' }}</td>
+                        <td data-label="Program">
                             @if(($mahasiswa->jenis_kelas ?? 'Reguler') === 'Karyawan')
                                 <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 700;">Karyawan</span>
                             @else
                                 <span style="background: #FFF8E0; color: #B8860B; border: 1px solid #FFE88F; border-radius: 999px; padding: 0.1rem 0.45rem; font-size: 0.68rem; font-weight: 700;">Reguler</span>
                             @endif
                         </td>
-                        <td>{{ $mahasiswa->angkatan }}</td>
-                        <td>
+                        <td data-label="Angkatan">{{ $mahasiswa->angkatan }}</td>
+                        <td data-label="Aksi">
                             @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
                             <form action="{{ route('krs.mahasiswa.destroy', [$krs->id, $mahasiswa->id]) }}"
                                   method="POST"
@@ -92,7 +92,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="7" class="text-center">
+                        <td colspan="7" class="text-center" data-label="Informasi">
                             Belum ada mahasiswa di kelas ini.
                         </td>
                     </tr>

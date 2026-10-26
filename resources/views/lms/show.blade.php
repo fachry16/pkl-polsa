@@ -561,7 +561,7 @@
         </div>
 
         <div class="table-container" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-            <table class="data-table">
+            <table class="data-table data-table-stack">
                 <thead>
                     <tr>
                         <th style="width: 70px;">Minggu</th>
@@ -621,9 +621,9 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem; color: #94a3b8;">Belum ada materi pertemuan di RPS.</td>
-                        </tr>
+                            <tr>
+                                <td colspan="5" data-label="Informasi" style="text-align: center; padding: 2rem; color: #94a3b8;">Belum ada materi pertemuan di RPS.</td>
+                            </tr>
                     @endforelse
                 </tbody>
             </table>

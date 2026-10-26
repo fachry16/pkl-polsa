@@ -52,7 +52,7 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -71,18 +71,18 @@
 
             <tr>
 
-                <td>
+                <td data-label="No">
                     {{ $cpmks->firstItem() + $index }}
                 </td>
 
-                <td>
+                <td data-label="Kode CPMK">
                     {{ $cpmk->kode_cpmk }}
                 </td>
 
-                <td>
+                <td data-label="Deskripsi">
                     {{ $cpmk->deskripsi }}
                 </td>
-                <td>
+                <td data-label="Aksi">
 
                     <div class="flex gap-2">
                         @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
@@ -112,6 +112,7 @@
             <tr>
 
                 <td colspan="5"
+                    data-label="Informasi"
                     class="text-center">
 
                     {{ request('cari') ? 'Tidak ada CPMK yang cocok dengan pencarian.' : 'Data CPMK belum tersedia.' }}

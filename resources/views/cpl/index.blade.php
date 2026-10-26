@@ -52,7 +52,7 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -71,19 +71,19 @@
 
             <tr>
 
-                <td>
+                <td data-label="No">
                     {{ $cpls->firstItem() + $index }}
                 </td>
 
-                <td>
+                <td data-label="Kode CPL">
                     {{ $cpl->kode_cpl }}
                 </td>
 
-                <td>
+                <td data-label="Deskripsi">
                     {{ $cpl->deskripsi }}
                 </td>
 
-                <td>
+                <td data-label="Aksi">
 
                     <div class="flex gap-2">
                         @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
@@ -113,6 +113,7 @@
             <tr>
 
                 <td colspan="4"
+                    data-label="Informasi"
                     class="text-center">
 
                     {{ request('cari') ? 'Tidak ada CPL yang cocok dengan pencarian.' : 'Data CPL belum tersedia.' }}

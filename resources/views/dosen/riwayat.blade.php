@@ -14,7 +14,7 @@
 
     @php $isSelf = auth()->user()->dosen?->id === $dosen->id; @endphp
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -52,25 +52,25 @@
 
                 <tr>
 
-                    <td>
+                    <td data-label="Tahun Akademik">
                         {{ $item->tahunAkademik->tahun }}
                     </td>
 
-                    <td>
+                    <td data-label="Semester">
                         {{ $item->semester_akademik }}
                     </td>
 
-                    <td>
+                    <td data-label="Mata Kuliah">
                         {{ $item->mataKuliah->kode }}
                         -
                         {{ $item->mataKuliah->nama }}
                     </td>
 
-                    <td>
+                    <td data-label="Kelas">
                         {{ $item->kelas ?? '-' }}
                     </td>
 
-                    <td>
+                    <td data-label="Status RPS">
 
                         @if($rps)
 
@@ -92,7 +92,7 @@
 
                     </td>
 
-                    <td class="aksi-cell">
+                    <td data-label="Aksi" class="aksi-cell">
 
                         @if($rps)
 
@@ -154,6 +154,7 @@
                 <tr>
 
                     <td colspan="6"
+                        data-label="Informasi"
                         class="text-center">
 
                         Belum ada riwayat mengajar.

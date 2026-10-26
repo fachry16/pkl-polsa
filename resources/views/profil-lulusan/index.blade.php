@@ -52,7 +52,7 @@
     @endif
 </form>
 
-<table class="detail-table">
+<table class="data-table data-table-stack" style="width:100%;">
 
     <thead>
 
@@ -71,19 +71,19 @@
 
         <tr>
 
-            <td>
+            <td data-label="Kode">
                 {{ $pl->kode_pl }}
             </td>
 
-            <td>
+            <td data-label="Nama">
                 {{ $pl->nama_pl }}
             </td>
 
-            <td>
+            <td data-label="Profesi">
                 {{ $pl->profesi }}
             </td>
 
-            <td>
+            <td data-label="Aksi">
 
                     <div class="flex gap-2">
                         @if(auth()->user()->isAdmin() || auth()->user()->isKaprodi())
@@ -112,7 +112,7 @@
 
         <tr>
 
-            <td colspan="4" class="text-center">
+            <td colspan="4" data-label="Informasi" class="text-center">
                 {{ request('cari') ? 'Tidak ada profil lulusan yang cocok dengan pencarian.' : 'Profil lulusan belum tersedia.' }}
             </td>
 

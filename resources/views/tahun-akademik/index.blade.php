@@ -33,7 +33,7 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
 
@@ -53,19 +53,19 @@
 
         <tr>
 
-            <td>
+            <td data-label="No">
                 {{ $tahunAkademiks->firstItem() + $index }}
             </td>
 
-            <td>
+            <td data-label="Tahun">
                 {{ $ta->tahun }}
             </td>
 
-            <td>
+            <td data-label="Semester">
                 {{ $ta->semester }}
             </td>
 
-            <td>
+            <td data-label="Status">
 
                 @if($ta->is_active)
 
@@ -83,7 +83,7 @@
 
             </td>
 
-            <td>
+            <td data-label="Aksi">
 
                 <div class="btn-group">
 
@@ -140,6 +140,7 @@
         <tr>
 
             <td colspan="5"
+                data-label="Informasi"
                 class="text-center text-sm" style="padding: 1.5rem; color: #6b7280;">
 
                 Data tahun akademik belum tersedia.

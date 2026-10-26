@@ -145,7 +145,7 @@
             <span style="margin-left: auto; font-size: 0.8rem; color: #64748b;">{{ $assessments->count() }} kelas</span>
         </div>
         <div style="overflow-x: auto;">
-            <table class="data-table" style="min-width: 1000px;">
+            <table class="data-table data-table-stack" style="min-width: 1000px;">
                 <thead>
                     <tr>
                         <th>Mata Kuliah</th>

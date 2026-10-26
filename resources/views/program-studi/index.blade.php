@@ -21,7 +21,7 @@
 <x-alert type="error" :message="session('error')" />
 
     <div class="table-container">
-        <table class="data-table">
+        <table class="data-table data-table-stack">
             <thead>
                 <tr>
                     <th>No</th>
@@ -35,11 +35,11 @@
             <tbody>
                 @forelse($programStudis as $index => $prodi)
                 <tr>
-                    <td>{{ $programStudis->firstItem() + $index }}</td>
-                    <td>{{ $prodi->kode_prodi }}</td>
-                    <td>{{ $prodi->nama_prodi }}</td>
-                    <td>{{ $prodi->jenjang }}</td>
-                    <td>
+                    <td data-label="No">{{ $programStudis->firstItem() + $index }}</td>
+                    <td data-label="Kode Prodi">{{ $prodi->kode_prodi }}</td>
+                    <td data-label="Nama Prodi">{{ $prodi->nama_prodi }}</td>
+                    <td data-label="Jenjang">{{ $prodi->jenjang }}</td>
+                    <td data-label="Akreditasi">
                         @if($prodi->akreditasi == 'Baik')
                             <span class="badge badge-draft">Baik</span>
                         @elseif($prodi->akreditasi == 'Baik Sekali')
@@ -48,7 +48,7 @@
                             <span class="badge badge-disetujui">Unggul</span>
                         @endif
                     </td>
-                    <td>
+                    <td data-label="Aksi">
                         <div class="btn-group">
                             <a href="{{ route('program-studi.kurikulum', $prodi->id) }}" class="btn btn-sm btn-primary">
                                 Cek Kurikulum
@@ -72,7 +72,7 @@
                 </tr>
                 @empty
                 <tr class="empty-row">
-                    <td colspan="6">Data program studi belum tersedia.</td>
+                    <td colspan="6" data-label="Informasi">Data program studi belum tersedia.</td>
                 </tr>
                 @endforelse
             </tbody>

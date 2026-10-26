@@ -10,16 +10,24 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: radial-gradient(circle at top, #FFF8DC, #F8F9FA);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            color: #1e293b;
+            padding: 1rem;
         }
+
+    @media (max-width: 520px) {
+        body { padding: 0.6rem; align-items: flex-start; }
+        .force-card { width: 100%; margin-top: 1rem; border-radius: 12px; }
+        .force-header { padding: 1.25rem 1rem 0.9rem 1rem; }
+        .force-body { padding: 0 1rem 1.25rem 1rem; }
+        .force-input { min-height: 44px; font-size: 0.9rem; }
+        .force-submit { min-height: 44px; width: 100%; }
+    }
 
         .auth-container {
             width: 100%;

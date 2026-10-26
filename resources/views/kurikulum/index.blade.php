@@ -27,7 +27,7 @@
 
 <div class="table-container">
 
-    <table class="data-table">
+    <table class="data-table data-table-stack">
 
         <thead>
             <tr>
@@ -49,26 +49,26 @@
 
             <tr>
 
-                <td>
+                <td data-label="No">
                     {{ $kurikulums->firstItem() + $index }}
                 </td>
 
-                <td>
+                <td data-label="Program Studi">
                     {{ $kurikulum->programStudi->nama_prodi }}
                 </td>
 
-                <td>
+                <td data-label="Nama Kurikulum">
                     {{ $kurikulum->nama_kurikulum }}
                 </td>
 
-                <td>
+                <td data-label="Tahun Berlaku">
                     {{ $kurikulum->tahun_berlaku }}
                 </td>
-                <td>{{ $kurikulum->beban_studi }}</td>
+                <td data-label="Beban Studi">{{ $kurikulum->beban_studi }}</td>
 
-                <td>{{ $kurikulum->deskripsi }}</td>
+                <td data-label="Deskripsi">{{ $kurikulum->deskripsi }}</td>
 
-                <td>
+                <td data-label="Status">
 
                     @if($kurikulum->status == 'Aktif')
 
@@ -89,7 +89,7 @@
 
                 </td>
 
-                <td>
+                <td data-label="Lampiran">
 
                     @if($kurikulum->lampiran)
 
@@ -103,7 +103,7 @@
 
                 </td>
 
-                <td>
+                <td data-label="Aksi">
 
                     <div class="flex flex-wrap gap-2">
 
@@ -157,7 +157,8 @@
             @empty
 
             <tr>
-                <td colspan="7"
+                <td colspan="9"
+                    data-label="Informasi"
                     class="text-center">
 
                     Data kurikulum belum tersedia.

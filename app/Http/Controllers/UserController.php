@@ -9,11 +9,18 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate(10);
+        $cari = trim((string) $request->query('cari'));
 
-        return view('users.index', compact('users'));
+        $users = User::when($cari, function ($query) use ($cari) {
+            $query->where(function ($q) use ($cari) {
+                $q->where('name', 'like', "%{$cari}%")
+                    ->orWhere('email', 'like', "%{$cari}%");
+            });
+        })->latest()->paginate(10)->withQueryString();
+
+        return view('users.index', compact('users', 'cari'));
     }
 
     public function create()

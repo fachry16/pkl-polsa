@@ -107,7 +107,7 @@
         <span style="margin-left: auto; font-size: 0.8rem; color: #64748b;">Threshold: {{ $threshold }}%</span>
     </div>
     <div style="overflow-x: auto;">
-        <table class="data-table" style="min-width: 600px;">
+        <table class="data-table data-table-stack" style="min-width: 600px;">
             <thead>
                 <tr>
                     <th style="width: 120px;">Kode CPL</th>
@@ -174,7 +174,7 @@
         <p style="font-size: 0.8rem; color: #64748b; margin: 0.3rem 0 0 0;">Rata-rata capaian per mata kuliah terhadap CPL yang dihubungkan melalui CPMK.</p>
     </div>
     <div style="overflow-x: auto;">
-        <table class="data-table" style="min-width: 700px;">
+        <table class="data-table data-table-stack" style="min-width: 700px;">
             <thead>
                 <tr>
                     <th style="min-width: 180px;">Mata Kuliah</th>
@@ -238,7 +238,7 @@
         <span style="margin-left: auto; font-size: 0.8rem; color: #64748b;">Capaian &lt; {{ $threshold }}% — diurutkan dari terendah</span>
     </div>
     <div style="overflow-x: auto;">
-        <table class="data-table" style="min-width: 800px;">
+        <table class="data-table data-table-stack" style="min-width: 800px;">
             <thead>
                 <tr>
                     <th>Mata Kuliah</th>

@@ -17,6 +17,14 @@
 
 <x-alert type="success" :message="session('success')" />
 
+<form method="GET" action="{{ route('users.index') }}" style="display: flex; gap: 0.5rem; align-items: center; max-width: 420px; margin-bottom: 1rem; flex-wrap: wrap;">
+    <input type="search" name="cari" value="{{ $cari }}" class="form-input filter-select" placeholder="Cari nama / email" style="flex: 1;" aria-label="Cari user">
+    <button type="submit" class="btn btn-primary btn-sm">Cari</button>
+    @if($cari)
+        <a href="{{ route('users.index') }}" class="btn btn-secondary btn-sm">Reset</a>
+    @endif
+</form>
+
 <div class="table-container">
 
     <table class="data-table data-table-stack">
@@ -53,7 +61,7 @@
                 </td>
 
                 <td data-label="Role">
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: flex-end;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: flex-start;">
                         @php
                             $roleMap = \App\Models\Role::all()->pluck('nama', 'kode');
                         @endphp
@@ -79,7 +87,7 @@
                         <span class="badge badge-draft" style="background: #f1f5f9; color: #475569;">Admin</span>
                     @elseif($user->harus_ganti_password)
                         <span class="badge badge-diajukan">Wajib Ganti</span>
-                        <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.2rem;">
+                        <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.2rem; word-break: break-all;">
                             Default: <code>{{ $user->defaultPassword() }}</code>
                         </div>
                     @else
@@ -129,6 +137,7 @@
             <tr>
 
                 <td colspan="6"
+                    data-label="Informasi"
                     class="text-center text-sm" style="padding: 1.5rem; color: #6b7280;">
 
                     Data user belum tersedia.

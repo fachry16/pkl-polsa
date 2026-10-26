@@ -65,7 +65,7 @@
             <span style="font-weight: 400; color: #64748b; font-size: 0.85rem;">({{ $mahasiswas->count() }} mahasiswa)</span>
         </h3>
     </div>
-    <table class="data-table">
+    <table class="data-table data-table-stack">
         <thead>
             <tr>
                 <th>No</th>

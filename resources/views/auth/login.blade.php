@@ -160,11 +160,32 @@
         margin-top: 0.2rem;
     }
 
+    @media (max-width: 860px) {
+        .login-card { max-width: 760px; }
+        .login-form-wrap { flex: 0 0 340px; }
+    }
+
     @media (max-width: 768px) {
-        body { padding: 1rem; }
-        .login-card { flex-direction: column; max-width: 420px; border-radius: 12px; }
-        .login-brand { padding: 2rem 1.5rem; min-height: 200px; }
-        .login-form-wrap { flex: 1; padding: 1.75rem 1.25rem; }
+        body { padding: 0.6rem; align-items: flex-start; overflow-x: hidden; }
+        .login-card { flex-direction: column; max-width: 420px; width: 100%; border-radius: 12px; margin-top: 1rem; }
+        .login-brand { padding: 1.5rem 1rem; min-height: 140px; }
+        .login-brand .brand-img { width: 64px; }
+        .login-brand p { font-size: 0.78rem; max-width: 280px; }
+        .login-form-wrap { flex: 1 1 auto; padding: 1.35rem 1.1rem; width: 100%; }
+        .login-form-wrap .form-input { min-height: 44px; font-size: 0.9rem; }
+        .login-form-wrap button[type="submit"] { min-height: 44px; width: 100%; }
+        .login-form-wrap > div[style*="justify-content: space-between"] { flex-direction: column; align-items: stretch; gap: 0.8rem; }
+        .login-form-wrap > div[style*="justify-content: space-between"] a { text-align: center; }
+    }
+
+    @media (max-width: 420px) {
+        body { padding: 0.5rem; }
+        .login-card { border-radius: 10px; }
+        .login-brand { padding: 1.25rem 0.9rem; }
+        .login-brand p { display: none; }
+        .login-form-wrap { padding: 1.2rem 1rem; }
+        .login-form-wrap .form-header { margin-bottom: 1rem; }
+        .login-form-wrap .form-header h1 { font-size: 1.3rem; }
     }
     </style>
 </head>
@@ -209,7 +230,7 @@
                     </label>
                 </div>
 
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
                     @if (Route::has('password.request'))
                         <a style="font-size: 0.85rem; color: #A16207; font-weight: 500; text-decoration: none;" href="{{ route('password.request') }}">
                             Lupa password?
