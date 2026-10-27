@@ -22,11 +22,23 @@
 
     @media (max-width: 520px) {
         body { padding: 0.6rem; align-items: flex-start; }
-        .force-card { width: 100%; margin-top: 1rem; border-radius: 12px; }
-        .force-header { padding: 1.25rem 1rem 0.9rem 1rem; }
-        .force-body { padding: 0 1rem 1.25rem 1rem; }
-        .force-input { min-height: 44px; font-size: 0.9rem; }
-        .force-submit { min-height: 44px; width: 100%; }
+        .auth-container { width: 100%; margin-top: 0.75rem; border-radius: 12px; }
+        .auth-header { padding: 1.25rem 1rem 0.9rem 1rem; }
+        .auth-title { font-size: 1.1rem; }
+        .auth-desc { font-size: 0.78rem; }
+        .user-pill {
+            margin: 0 1rem 1rem 1rem;
+            padding: 0.6rem 0.75rem;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+        .user-pill > div { min-width: 0; }
+        .user-pill > div > div:last-child { word-break: break-word; }
+        .auth-body { padding: 0 1rem 1.25rem 1rem; }
+        .form-input { min-height: 44px; font-size: 0.9rem; }
+        .btn-submit { min-height: 44px; width: 100%; font-size: 0.88rem; }
+        .auth-footer { padding: 0.85rem 1rem; }
     }
 
         .auth-container {
@@ -78,6 +90,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.75rem;
         }
 
         .auth-body {
