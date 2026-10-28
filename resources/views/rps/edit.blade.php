@@ -80,6 +80,16 @@
 
     <div class="form-group">
 
+        <label class="form-label">Sub CPMK</label>
+
+        <textarea name="sub_cpmk"
+                  rows="4"
+                  class="form-textarea w-full">{{ old('sub_cpmk', $rps->sub_cpmk) }}</textarea>
+
+    </div>
+
+    <div class="form-group">
+
         <label class="form-label">Rumpun MK (RMK)</label>
 
         <input type="text"
