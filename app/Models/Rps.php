@@ -14,6 +14,7 @@ class Rps extends Model
         'semester',
         'dosen_pengampu',
         'deskripsi_mata_kuliah',
+        'sub_cpmk',
         'status',
         'disetujui_oleh',
         'tanggal_disetujui',
