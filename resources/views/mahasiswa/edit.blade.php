@@ -3,7 +3,7 @@
 @section('content')
 
 <h1 class="page-header">
-    Tambah Mahasiswa
+    Edit Mahasiswa
 </h1>
 
 <div class="card">
@@ -40,18 +40,26 @@
         </div>
 
         <div class="form-group">
-
-            <label class="form-label" for="mahasiswa-prodi-search">
+            <label class="form-label" for="program_studi_id">
                 Program Studi
             </label>
 
-            <x-searchable-select
-                id="mahasiswa-prodi-search"
-                name="program_studi_id"
-                :options="$programStudis->map(fn ($prodi) => ['value' => $prodi->id, 'label' => $prodi->nama_prodi])"
-                :value="old('program_studi_id', $mahasiswa->program_studi_id)"
-                placeholder="Ketik nama program studi" />
+            <select name="program_studi_id"
+                    id="program_studi_id"
+                    class="form-select"
+                    required>
+                <option value="">Pilih Program Studi</option>
+                @foreach($programStudis as $prodi)
+                    <option value="{{ $prodi->id }}"
+                        {{ old('program_studi_id', $mahasiswa->program_studi_id) == $prodi->id ? 'selected' : '' }}>
+                        {{ $prodi->nama_prodi }}{{ $prodi->jenjang ? ' ('.$prodi->jenjang.')' : '' }}
+                    </option>
+                @endforeach
+            </select>
 
+            @error('program_studi_id')
+                <p class="form-error">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="form-group">
