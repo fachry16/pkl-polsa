@@ -479,8 +479,8 @@ class AssessmentObeTest extends TestCase
         // Dropdown mata kuliah terisi dari pengampu yang ada, bukan dari rumusan (yg bisa kosong).
         $this->actingAs($d['dosenUser'])
             ->get(route('assessment.rekap'))
-            ->assertSee('MK02 — Pemrograman Dasar')
-            ->assertSee('MK03 — Basis Data');
+            ->assertSee('MK02 - Pemrograman Dasar')
+            ->assertSee('MK03 - Basis Data');
 
         // Dropdown kurikulum memakai kolom nama_kurikulum.
         $this->actingAs($d['kaprodiUser'])

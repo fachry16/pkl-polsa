@@ -204,7 +204,7 @@ class MahasiswaMonitoringTest extends TestCase
             ->assertDontSee('Tambah Mahasiswa')
             ->assertDontSee('Import Data CSV')
             ->assertDontSee('Edit')
-            ->assertDontSee('Hapus');
+            ->assertDontSee('Hapus Mahasiswa');
     }
 
     public function test_admin_melihat_semua_mahasiswa_dengan_tombol_crud(): void

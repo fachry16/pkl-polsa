@@ -225,8 +225,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     )->name('pengampu.kelas.mahasiswa.destroy');
 
     Route::patch('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
-    Route::resource('users', UserController::class);
-    Route::resource('roles', RoleController::class);
+    Route::resource('users', UserController::class)->except(['show']);
+    Route::resource('roles', RoleController::class)->except(['show']);
 });
 
 /* KRS — Admin, Kaprodi */

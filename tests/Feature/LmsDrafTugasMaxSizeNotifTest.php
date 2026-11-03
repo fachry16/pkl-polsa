@@ -252,6 +252,7 @@ class LmsDrafTugasMaxSizeNotifTest extends TestCase
     public function test_mahasiswa_upload_jawaban_melebihi_batas_upload_mb_ditolak(): void
     {
         $this->mock(GoogleDriveService::class, function ($mock) {
+            $mock->shouldReceive('buildLmsHierarchy')->andReturn([]);
             $mock->shouldReceive('storeFile')->andReturn('lms/submissions/jawaban_pas.pdf');
         });
 
