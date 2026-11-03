@@ -25,7 +25,7 @@
             id="mbp-cpl"
             name="cpl_id"
             :options="$cpls->map(fn ($cpl) => ['value' => $cpl->id, 'label' => $cpl->kode_cpl.($cpl->deskripsi ? ' - '.\Illuminate\Support\Str::limit($cpl->deskripsi, 70) : '')])"
-            :value="old('cpl_id', $metodeBobotPenilaian->cpl_id)"
+            :value="old('cpl_id', $item->cpl_id)"
             placeholder="Ketik kode atau deskripsi CPL" />
 
         @error('cpl_id')
@@ -44,7 +44,7 @@
             id="mbp-mk"
             name="mata_kuliah_id"
             :options="$mataKuliahs->map(fn ($mk) => ['value' => $mk->id, 'label' => $mk->kode.' - '.$mk->nama])"
-            :value="old('mata_kuliah_id', $metodeBobotPenilaian->mata_kuliah_id)"
+            :value="old('mata_kuliah_id', $item->mata_kuliah_id)"
             placeholder="Ketik kode atau nama mata kuliah" />
 
         @error('mata_kuliah_id')
@@ -63,7 +63,7 @@
             id="mbp-cpmk"
             name="cpmk_id"
             :options="$cpmks->map(fn ($cpmk) => ['value' => $cpmk->id, 'label' => $cpmk->kode_cpmk.($cpmk->deskripsi ? ' - '.\Illuminate\Support\Str::limit($cpmk->deskripsi, 70) : '')])"
-            :value="old('cpmk_id', $metodeBobotPenilaian->cpmk_id)"
+            :value="old('cpmk_id', $item->cpmk_id)"
             placeholder="Ketik kode atau deskripsi CPMK" />
 
         @error('cpmk_id')

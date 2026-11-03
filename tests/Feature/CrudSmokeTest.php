@@ -12,6 +12,7 @@ use App\Models\LmsPengumuman;
 use App\Models\LmsTugas;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
+use App\Models\MetodeBobotPenilaian;
 use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\Role;
@@ -478,13 +479,32 @@ class CrudSmokeTest extends TestCase
     public function test_metode_bobot_penilaian_crud(): void
     {
         $this->actingAs($this->kaprodi);
+
+        $cpl = Cpl::create([
+            'kurikulum_id' => $this->kurikulum->id,
+            'kode_cpl' => 'CPL-MBP',
+            'deskripsi' => 'CPL Metode Bobot',
+        ]);
+        $cpmk = Cpmk::create([
+            'kurikulum_id' => $this->kurikulum->id,
+            'kode_cpmk' => 'CPMK-MBP',
+            'deskripsi' => 'CPMK Metode Bobot',
+            'cpl_id' => $cpl->id,
+        ]);
+
         $this->get(route('kurikulum.metode-bobot-penilaian.index', $this->kurikulum))->assertOk();
         $this->get(route('kurikulum.metode-bobot-penilaian.create', $this->kurikulum))->assertOk();
 
         $this->post(route('kurikulum.metode-bobot-penilaian.store', $this->kurikulum), [
-            'komponen' => 'Tugas',
-            'bobot' => 30,
+            'cpl_id' => $cpl->id,
+            'mata_kuliah_id' => $this->mataKuliah->id,
+            'cpmk_id' => $cpmk->id,
+            'partisipasi' => 100,
         ])->assertRedirect();
+
+        $item = MetodeBobotPenilaian::where('kurikulum_id', $this->kurikulum->id)->firstOrFail();
+
+        $this->get(route('kurikulum.metode-bobot-penilaian.edit', [$this->kurikulum, $item]))->assertOk();
     }
 
     public function test_rumusan_nilai_akhir_mk_crud(): void
