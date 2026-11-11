@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesKurikulum;
+use App\Http\Controllers\Concerns\BuildsPemetaanCplCpmkMk;
 use App\Models\Kurikulum;
 use App\Models\MetodeBobotPenilaian;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 class MetodeBobotPenilaianController extends Controller
 {
     use AuthorizesKurikulum;
+    use BuildsPemetaanCplCpmkMk;
 
     public function index(Kurikulum $kurikulum)
     {
@@ -27,44 +29,23 @@ class MetodeBobotPenilaianController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
-        $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get();
-        $cpmks = $kurikulum->cpmks()->orderBy('kode_cpmk')->get();
+        $data = $this->pemetaanViewData($kurikulum);
+        $initial = ['mk' => '', 'cpmk' => '', 'cpl' => ''];
 
-        return view('metode-bobot-penilaian.create', compact('kurikulum', 'cpls', 'mataKuliahs', 'cpmks'));
+        return view('metode-bobot-penilaian.create', compact('kurikulum', 'data', 'initial'));
     }
 
     public function store(Request $request, Kurikulum $kurikulum)
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $request->validate([
-            'cpl_id' => 'required|exists:cpls,id',
-            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
-            'cpmk_id' => 'required|exists:cpmks,id',
-        ]);
+        $ids = $this->validatedPemetaanIds($request, $kurikulum);
+        $this->validasiRelasiPemetaan($kurikulum, $ids);
 
-        $komponen = [
-            'partisipasi',
-            'kuis',
-            'tugas_teori_individu',
-            'unjuk_kerja_presentasi',
-            'tes_tulis_uts',
-            'tes_tulis_uas',
-            'tugas_teori_kelompok',
-            'tugas_praktikum',
-            'responsi',
-        ];
-
-        $data = [
-            'kurikulum_id' => $kurikulum->id,
-            'cpl_id' => $request->cpl_id,
-            'mata_kuliah_id' => $request->mata_kuliah_id,
-            'cpmk_id' => $request->cpmk_id,
-        ];
+        $data = ['kurikulum_id' => $kurikulum->id, ...$ids];
 
         $total = 0;
-        foreach ($komponen as $item) {
+        foreach (array_keys(MetodeBobotPenilaian::KOMPONEN) as $item) {
             $nilai = (float) ($request->input($item, 0));
             $data[$item] = $nilai;
             $total += $nilai;
@@ -82,44 +63,28 @@ class MetodeBobotPenilaianController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
-        $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get();
-        $cpmks = $kurikulum->cpmks()->orderBy('kode_cpmk')->get();
+        $data = $this->pemetaanViewData($kurikulum);
         $item = $metodeBobotPenilaian;
+        $initial = [
+            'mk' => (string) old('mata_kuliah_id', $item->mata_kuliah_id),
+            'cpmk' => (string) old('cpmk_id', $item->cpmk_id),
+            'cpl' => (string) old('cpl_id', $item->cpl_id),
+        ];
 
-        return view('metode-bobot-penilaian.edit', compact('kurikulum', 'item', 'cpls', 'mataKuliahs', 'cpmks'));
+        return view('metode-bobot-penilaian.edit', compact('kurikulum', 'item', 'data', 'initial'));
     }
 
     public function update(Request $request, Kurikulum $kurikulum, MetodeBobotPenilaian $metodeBobotPenilaian)
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $request->validate([
-            'cpl_id' => 'required|exists:cpls,id',
-            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
-            'cpmk_id' => 'required|exists:cpmks,id',
-        ]);
+        $ids = $this->validatedPemetaanIds($request, $kurikulum);
+        $this->validasiRelasiPemetaan($kurikulum, $ids);
 
-        $komponen = [
-            'partisipasi',
-            'kuis',
-            'tugas_teori_individu',
-            'unjuk_kerja_presentasi',
-            'tes_tulis_uts',
-            'tes_tulis_uas',
-            'tugas_teori_kelompok',
-            'tugas_praktikum',
-            'responsi',
-        ];
-
-        $data = [
-            'cpl_id' => $request->cpl_id,
-            'mata_kuliah_id' => $request->mata_kuliah_id,
-            'cpmk_id' => $request->cpmk_id,
-        ];
+        $data = $ids;
 
         $total = 0;
-        foreach ($komponen as $item) {
+        foreach (array_keys(MetodeBobotPenilaian::KOMPONEN) as $item) {
             $nilai = (float) ($request->input($item, 0));
             $data[$item] = $nilai;
             $total += $nilai;

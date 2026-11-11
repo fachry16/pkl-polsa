@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\BahanKajian;
 use App\Models\Cpl;
+use App\Models\Cpmk;
 use App\Models\Kurikulum;
 use App\Models\MataKuliah;
 use App\Models\ProgramStudi;
@@ -45,8 +46,23 @@ class PetaPemetaanCplTest extends TestCase
             'nama' => 'Pemrograman Dasar',
             'sks_teori' => 2,
             'sks_praktikum' => 1,
-            'semester' => 3,
+            'semester' => 1,
             'jenis' => 'Wajib',
+        ]);
+
+        $cpmk = Cpmk::create([
+            'kurikulum_id' => $kurikulum->id,
+            'kode_cpmk' => 'CPMK01',
+            'deskripsi' => 'Menerapkan algoritma pemrograman',
+        ]);
+
+        $mk->cpmks()->attach($cpmk->id);
+
+        DB::table('cpl_cpmk_semesters')->insert([
+            'kurikulum_id' => $kurikulum->id,
+            'cpl_id' => $cpl->id,
+            'cpmk_id' => $cpmk->id,
+            'semester' => 3,
         ]);
 
         $bk = BahanKajian::create([
@@ -63,7 +79,7 @@ class PetaPemetaanCplTest extends TestCase
 
         $admin = User::factory()->create(['role' => 'admin']);
 
-        return compact('kurikulum', 'cpl', 'mk', 'admin');
+        return compact('kurikulum', 'cpl', 'mk', 'bk', 'admin');
     }
 
     public function test_pemenuhan_cpl_menampilkan_kode_mk_per_semester_tanpa_checkbox()
@@ -76,18 +92,25 @@ class PetaPemetaanCplTest extends TestCase
             ->assertSee($cpl->kode_cpl)
             ->assertSee($mk->kode)
             ->assertSee('Smt 3')
-            ->assertDontSee('name="mapping');
+            ->assertDontSee('name="mapping')
+            ->assertViewHas('matrix', function ($matrix) use ($cpl, $mk) {
+                return ($matrix[$cpl->id][3] ?? []) === [$mk->kode]
+                    && ! isset($matrix[$cpl->id][1]);
+            });
     }
 
     public function test_cpl_bk_mk_menampilkan_matriks_tanpa_filter_mata_kuliah()
     {
-        ['kurikulum' => $kurikulum, 'cpl' => $cpl, 'mk' => $mk, 'admin' => $admin] = $this->buatData();
+        ['kurikulum' => $kurikulum, 'cpl' => $cpl, 'bk' => $bk, 'admin' => $admin] = $this->buatData();
 
         $this->actingAs($admin)
             ->get(route('kurikulum.cpl-bk-mk.index', $kurikulum->id))
             ->assertOk()
             ->assertSee($cpl->kode_cpl)
-            ->assertSee($mk->kode)
+            ->assertSee($bk->kode_bk)
+            ->assertSee($bk->nama_bk)
+            ->assertSee('Kode BK')
+            ->assertSee('Bahan Kajian')
             ->assertSee('Jumlah BK per CPL')
             ->assertSee('Jumlah MK per CPL')
             ->assertDontSee('Pilih Mata Kuliah');

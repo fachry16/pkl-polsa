@@ -37,15 +37,42 @@
             placeholder="Ketik kode atau deskripsi CPMK"
             input-class="form-select w-full" />
 
+        @if($cpmks->isEmpty())
+            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                Belum ada CPMK. <a href="{{ route('kurikulum.mk-cpmk.index', $rps->mataKuliah->kurikulum_id) }}" style="text-decoration: underline;">Kelola CPMK</a>.
+            </div>
+        @endif
+
     </div>
 
     <div class="form-group">
 
-        <label class="form-label">Sub CPMK</label>
+        <label class="form-label" for="rps-pertemuan-sub-cpmk">Sub CPMK</label>
 
-        <textarea name="sub_cpmk"
-                  class="form-textarea w-full"
-                  rows="4">{{ old('sub_cpmk', $pertemuan->sub_cpmk) }}</textarea>
+        @php
+            $selectedSubCpmk = old('sub_cpmk', $pertemuan->sub_cpmk);
+            $opsiSubCpmk = $subCpmks;
+            if ($selectedSubCpmk && ! in_array($selectedSubCpmk, $opsiSubCpmk, true)) {
+                array_unshift($opsiSubCpmk, $selectedSubCpmk);
+            }
+        @endphp
+
+        <select id="rps-pertemuan-sub-cpmk" name="sub_cpmk" class="form-select w-full" required>
+            <option value="">-- Pilih Sub-CPMK --</option>
+            @foreach($opsiSubCpmk as $opsi)
+                <option value="{{ $opsi }}" @selected($selectedSubCpmk === $opsi)>{{ $opsi }}</option>
+            @endforeach
+        </select>
+
+        @if(empty($subCpmks))
+            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                Belum ada Sub-CPMK. <a href="{{ route('rps.sub-cpmk.index', $rps) }}" style="text-decoration: underline;">Tambah Sub-CPMK</a>.
+            </div>
+        @endif
+
+        @error('sub_cpmk')
+            <span class="form-error">{{ $message }}</span>
+        @enderror
 
     </div>
 

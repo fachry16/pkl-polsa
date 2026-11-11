@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesKurikulum;
+use App\Http\Controllers\Concerns\BuildsRumusanNilaiAkhir;
 use App\Models\Kurikulum;
 use App\Models\RumusanNilaiAkhirMk;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 class RumusanNilaiAkhirMkController extends Controller
 {
     use AuthorizesKurikulum;
+    use BuildsRumusanNilaiAkhir;
 
     public function index(Kurikulum $kurikulum)
     {
@@ -27,33 +29,25 @@ class RumusanNilaiAkhirMkController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
-        $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get();
-        $cpmks = $kurikulum->cpmks()->orderBy('kode_cpmk')->get();
-
-        return view('rumusan-nilai-akhir-mk.create', compact('kurikulum', 'cpls', 'mataKuliahs', 'cpmks'));
+        return view(
+            'rumusan-nilai-akhir-mk.create',
+            $this->rumusanFormViewData($kurikulum) + compact('kurikulum')
+        );
     }
 
     public function store(Request $request, Kurikulum $kurikulum)
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $request->validate([
-            'cpl_id' => 'required|exists:cpls,id',
-            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
-            'cpmk_id' => 'required|exists:cpmks,id',
-        ]);
-
-        $skorMaks = (float) ($request->skor_maks ?? 0);
-        $total = (float) ($request->total ?? 0);
+        $validated = $this->validatedRumusanIds($request, $kurikulum);
+        $this->validasiRelasiRumusan($kurikulum, $validated);
+        $metode = $this->metodeUntukRumusan($kurikulum, $validated);
 
         RumusanNilaiAkhirMk::create([
             'kurikulum_id' => $kurikulum->id,
-            'cpl_id' => $request->cpl_id,
-            'mata_kuliah_id' => $request->mata_kuliah_id,
-            'cpmk_id' => $request->cpmk_id,
-            'skor_maks' => $skorMaks,
-            'total' => $total,
+            ...$validated,
+            'skor_maks' => $metode->total,
+            'total' => $metode->total,
         ]);
 
         return redirect()
@@ -65,30 +59,26 @@ class RumusanNilaiAkhirMkController extends Controller
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
-        $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get();
-        $cpmks = $kurikulum->cpmks()->orderBy('kode_cpmk')->get();
         $item = $rumusanNilaiAkhirMk;
 
-        return view('rumusan-nilai-akhir-mk.edit', compact('kurikulum', 'item', 'cpls', 'mataKuliahs', 'cpmks'));
+        return view(
+            'rumusan-nilai-akhir-mk.edit',
+            $this->rumusanFormViewData($kurikulum, $item) + compact('kurikulum', 'item')
+        );
     }
 
     public function update(Request $request, Kurikulum $kurikulum, RumusanNilaiAkhirMk $rumusanNilaiAkhirMk)
     {
         $this->authorizeKurikulum($kurikulum);
 
-        $request->validate([
-            'cpl_id' => 'required|exists:cpls,id',
-            'mata_kuliah_id' => 'required|exists:mata_kuliahs,id',
-            'cpmk_id' => 'required|exists:cpmks,id',
-        ]);
+        $validated = $this->validatedRumusanIds($request, $kurikulum);
+        $this->validasiRelasiRumusan($kurikulum, $validated);
+        $metode = $this->metodeUntukRumusan($kurikulum, $validated);
 
         $rumusanNilaiAkhirMk->update([
-            'cpl_id' => $request->cpl_id,
-            'mata_kuliah_id' => $request->mata_kuliah_id,
-            'cpmk_id' => $request->cpmk_id,
-            'skor_maks' => (float) ($request->skor_maks ?? 0),
-            'total' => (float) ($request->total ?? 0),
+            ...$validated,
+            'skor_maks' => $metode->total,
+            'total' => $metode->total,
         ]);
 
         return redirect()

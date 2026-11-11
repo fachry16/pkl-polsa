@@ -20,6 +20,8 @@ use App\Models\Rps;
 use App\Models\RpsBentukEvaluasi;
 use App\Models\RpsPertemuan;
 use App\Models\RpsTugas;
+use App\Models\RumusanNilaiAkhirCpl;
+use App\Models\RumusanNilaiAkhirMk;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -491,6 +493,11 @@ class CrudSmokeTest extends TestCase
             'deskripsi' => 'CPMK Metode Bobot',
             'cpl_id' => $cpl->id,
         ]);
+        $this->mataKuliah->cpmks()->attach($cpmk->id);
+        $cpmk->cpls()->attach($cpl->id, [
+            'kurikulum_id' => $this->kurikulum->id,
+            'semester' => 1,
+        ]);
 
         $this->get(route('kurikulum.metode-bobot-penilaian.index', $this->kurikulum))->assertOk();
         $this->get(route('kurikulum.metode-bobot-penilaian.create', $this->kurikulum))->assertOk();
@@ -524,11 +531,38 @@ class CrudSmokeTest extends TestCase
             'deskripsi' => 'CPMK for Rumusan',
             'cpl_id' => $cpl->id,
         ]);
-
-        $this->post(route('kurikulum.rumusan-nilai-akhir-mk.store', $this->kurikulum), [
+        $this->mataKuliah->cpmks()->attach($cpmk->id);
+        $cpmk->cpls()->attach($cpl->id, [
+            'kurikulum_id' => $this->kurikulum->id,
+            'semester' => 1,
+        ]);
+        MetodeBobotPenilaian::create([
+            'kurikulum_id' => $this->kurikulum->id,
+            'cpl_id' => $cpl->id,
+            'mata_kuliah_id' => $this->mataKuliah->id,
             'cpmk_id' => $cpmk->id,
-            'bobot' => 100,
-        ])->assertRedirect();
+            'kuis' => 100,
+            'total' => 100,
+        ]);
+
+        $payload = [
+            'cpl_id' => $cpl->id,
+            'mata_kuliah_id' => $this->mataKuliah->id,
+            'cpmk_id' => $cpmk->id,
+        ];
+
+        $this->post(route('kurikulum.rumusan-nilai-akhir-mk.store', $this->kurikulum), $payload)
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $item = RumusanNilaiAkhirMk::where('kurikulum_id', $this->kurikulum->id)->firstOrFail();
+
+        $this->assertDatabaseHas('rumusan_nilai_akhir_mks', [
+            'id' => $item->id,
+            'skor_maks' => 100,
+            'total' => 100,
+        ]);
+        $this->get(route('kurikulum.rumusan-nilai-akhir-mk.edit', [$this->kurikulum, $item]))->assertOk();
     }
 
     public function test_rumusan_nilai_akhir_cpl_crud(): void
@@ -542,11 +576,44 @@ class CrudSmokeTest extends TestCase
             'kode_cpl' => 'CPL-RNC',
             'deskripsi' => 'CPL for Rumusan CPL',
         ]);
-
-        $this->post(route('kurikulum.rumusan-nilai-akhir-cpl.store', $this->kurikulum), [
+        $cpmk = Cpmk::create([
+            'kurikulum_id' => $this->kurikulum->id,
+            'kode_cpmk' => 'CPMK-RNC',
+            'deskripsi' => 'CPMK for Rumusan CPL',
             'cpl_id' => $cpl->id,
-            'bobot' => 100,
-        ])->assertRedirect();
+        ]);
+        $this->mataKuliah->cpmks()->attach($cpmk->id);
+        $cpmk->cpls()->attach($cpl->id, [
+            'kurikulum_id' => $this->kurikulum->id,
+            'semester' => 1,
+        ]);
+        MetodeBobotPenilaian::create([
+            'kurikulum_id' => $this->kurikulum->id,
+            'cpl_id' => $cpl->id,
+            'mata_kuliah_id' => $this->mataKuliah->id,
+            'cpmk_id' => $cpmk->id,
+            'kuis' => 100,
+            'total' => 100,
+        ]);
+
+        $payload = [
+            'cpl_id' => $cpl->id,
+            'mata_kuliah_id' => $this->mataKuliah->id,
+            'cpmk_id' => $cpmk->id,
+        ];
+
+        $this->post(route('kurikulum.rumusan-nilai-akhir-cpl.store', $this->kurikulum), $payload)
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $item = RumusanNilaiAkhirCpl::where('kurikulum_id', $this->kurikulum->id)->firstOrFail();
+
+        $this->assertDatabaseHas('rumusan_nilai_akhir_cpls', [
+            'id' => $item->id,
+            'skor_maks' => 100,
+            'total' => 100,
+        ]);
+        $this->get(route('kurikulum.rumusan-nilai-akhir-cpl.edit', [$this->kurikulum, $item]))->assertOk();
     }
 
     // ── RPS ──────────────────────────────────────────────────
@@ -556,12 +623,63 @@ class CrudSmokeTest extends TestCase
         $this->actingAs($this->dosen);
         $this->get(route('mata-kuliah.rps.index', $this->mataKuliah))->assertOk();
         $this->get(route('mata-kuliah.rps.edit', [$this->mataKuliah, $this->rps]))->assertOk();
+        $this->get(route('rps.daftar-pustaka.edit', $this->rps))->assertOk();
+
+        $this->put(route('rps.daftar-pustaka.update', $this->rps), [
+            'daftar_pustaka' => "Buku A\nBuku B",
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('rps', [
+            'id' => $this->rps->id,
+            'daftar_pustaka' => "Buku A\nBuku B",
+        ]);
+
+        $this->get(route('rps.sub-cpmk.index', $this->rps))->assertOk();
+
+        $this->post(route('rps.sub-cpmk.store', $this->rps), [
+            'sub_cpmk' => 'Sub-CPMK 1',
+        ])->assertRedirect();
+
+        $this->post(route('rps.sub-cpmk.store', $this->rps), [
+            'sub_cpmk' => 'Sub-CPMK 2',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('rps', [
+            'id' => $this->rps->id,
+            'sub_cpmk' => "Sub-CPMK 1\nSub-CPMK 2",
+        ]);
+
+        $this->get(route('rps.sub-cpmk.index', $this->rps))
+            ->assertOk()
+            ->assertSee('Sub-CPMK 1')
+            ->assertSee('Sub-CPMK 2');
+
+        $this->put(route('rps.sub-cpmk.update', [$this->rps, 0]), [
+            'sub_cpmk' => 'Sub-CPMK 1 Diperbarui',
+        ])->assertRedirect();
+
+        $this->delete(route('rps.sub-cpmk.destroy', [$this->rps, 1]))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('rps', [
+            'id' => $this->rps->id,
+            'sub_cpmk' => 'Sub-CPMK 1 Diperbarui',
+        ]);
+
+        $this->get(route('rps.pertemuan.create', $this->rps))
+            ->assertOk()
+            ->assertSee('Sub-CPMK 1 Diperbarui');
 
         $this->put(route('mata-kuliah.rps.update', [$this->mataKuliah, $this->rps]), [
             'semester' => 1,
             'dosen_pengampu' => 'Dosen Updated',
             'deskripsi_mata_kuliah' => 'Deskripsi Updated',
         ])->assertRedirect();
+
+        $this->assertDatabaseHas('rps', [
+            'id' => $this->rps->id,
+            'sub_cpmk' => 'Sub-CPMK 1 Diperbarui',
+        ]);
     }
 
     public function test_rps_pertemuan_crud(): void

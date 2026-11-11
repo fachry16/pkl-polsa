@@ -46,10 +46,11 @@ class RpsPertemuanController extends Controller
         $cpmks = $rps->mataKuliah->cpmks()
             ->orderBy('kode_cpmk')
             ->get();
+        $subCpmks = $rps->subCpmkList();
 
         return view(
             'rps-pertemuan.create',
-            compact('rps', 'cpmks')
+            compact('rps', 'cpmks', 'subCpmks')
         );
     }
 
@@ -125,10 +126,11 @@ class RpsPertemuanController extends Controller
         $cpmks = $rps->mataKuliah->cpmks()
             ->orderBy('kode_cpmk')
             ->get();
+        $subCpmks = $rps->subCpmkList();
 
         return view(
             'rps-pertemuan.edit',
-            compact('rps', 'pertemuan', 'cpmks')
+            compact('rps', 'pertemuan', 'cpmks', 'subCpmks')
         );
     }
 
