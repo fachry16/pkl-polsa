@@ -79,16 +79,6 @@
 
     <div class="form-group">
 
-        <label class="form-label">Sub CPMK</label>
-
-        <textarea name="sub_cpmk"
-                  class="form-textarea w-full"
-                  rows="4">{{ old('sub_cpmk') }}</textarea>
-
-    </div>
-
-    <div class="form-group">
-
         <label class="form-label">Rumpun MK (RMK)</label>
 
         <input type="text"

@@ -37,8 +37,10 @@ use App\Http\Controllers\ProgramStudiController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RpsBentukEvaluasiController;
 use App\Http\Controllers\RpsController;
+use App\Http\Controllers\RpsDaftarPustakaController;
 use App\Http\Controllers\RpsPenilaianController;
 use App\Http\Controllers\RpsPertemuanController;
+use App\Http\Controllers\RpsSubCpmkController;
 use App\Http\Controllers\RpsTugasController;
 use App\Http\Controllers\RumusanNilaiAkhirCplController;
 use App\Http\Controllers\RumusanNilaiAkhirMkController;
@@ -756,6 +758,36 @@ Route::middleware(['auth'])->group(function () {
         'rps/{rps}/ekstrak-pdf',
         [RpsController::class, 'ekstrakPdf']
     )->name('rps.ekstrak-pdf');
+
+    Route::get(
+        'rps/{rps}/daftar-pustaka',
+        [RpsDaftarPustakaController::class, 'edit']
+    )->name('rps.daftar-pustaka.edit');
+
+    Route::put(
+        'rps/{rps}/daftar-pustaka',
+        [RpsDaftarPustakaController::class, 'update']
+    )->name('rps.daftar-pustaka.update');
+
+    Route::get(
+        'rps/{rps}/sub-cpmk',
+        [RpsSubCpmkController::class, 'index']
+    )->name('rps.sub-cpmk.index');
+
+    Route::post(
+        'rps/{rps}/sub-cpmk',
+        [RpsSubCpmkController::class, 'store']
+    )->name('rps.sub-cpmk.store');
+
+    Route::put(
+        'rps/{rps}/sub-cpmk/{index}',
+        [RpsSubCpmkController::class, 'update']
+    )->name('rps.sub-cpmk.update');
+
+    Route::delete(
+        'rps/{rps}/sub-cpmk/{index}',
+        [RpsSubCpmkController::class, 'destroy']
+    )->name('rps.sub-cpmk.destroy');
 
     Route::get(
         'rps/{rps}/pertemuan',

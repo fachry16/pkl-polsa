@@ -21,11 +21,25 @@ class PemenuhanCplsController extends Controller
             ->orderBy('kode_cpl')
             ->get();
 
+        $rows = DB::table('cpl_cpmk_semesters as ccs')
+            ->join('cpmk_mata_kuliah as cmk', 'cmk.cpmk_id', '=', 'ccs.cpmk_id')
+            ->join('mata_kuliahs as mk', 'mk.id', '=', 'cmk.mata_kuliah_id')
+            ->where('ccs.kurikulum_id', $kurikulum->id)
+            ->where('mk.kurikulum_id', $kurikulum->id)
+            ->select('ccs.cpl_id', 'ccs.semester', 'mk.kode')
+            ->orderBy('ccs.semester')
+            ->orderBy('mk.kode')
+            ->get();
+
         $matrix = [];
 
-        foreach ($kurikulum->mataKuliahs()->orderBy('kode')->with('cpls')->get() as $mk) {
-            foreach ($mk->cpls as $cpl) {
-                $matrix[$cpl->id][$mk->semester][] = $mk->kode;
+        foreach ($rows as $row) {
+            $matrix[$row->cpl_id][$row->semester][$row->kode] = true;
+        }
+
+        foreach ($matrix as $cplId => $semesters) {
+            foreach ($semesters as $semester => $kodes) {
+                $matrix[$cplId][$semester] = array_keys($kodes);
             }
         }
 

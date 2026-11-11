@@ -794,20 +794,6 @@
     </div>
     @endif
 
-    {{-- SECTION 7: DAFTAR PUSTAKA --}}
-    <div class="section">
-        <div class="section-title">Daftar Pustaka (5 Tahun Terakhir)</div>
-        @if(count($daftarPustaka))
-        <ol class="daftar-pustaka">
-            @foreach($daftarPustaka as $item)
-            <li>{{ $item }}</li>
-            @endforeach
-        </ol>
-        @else
-        <p class="empty-state">Daftar pustaka belum terisi.</p>
-        @endif
-    </div>
-
     {{-- SECTION 8: RENCANA PEMBELAJARAN --}}
     <div class="section page-break">
         <div class="section-title">3. Rencana Pembelajaran</div>
@@ -932,6 +918,20 @@
         </p>
         @else
         <p class="empty-state">Belum ada data penilaian.</p>
+        @endif
+    </div>
+
+    {{-- SECTION 11: DAFTAR PUSTAKA --}}
+    <div class="section">
+        <div class="section-title">Daftar Pustaka (5 Tahun Terakhir)</div>
+        @if(count($daftarPustaka))
+        <ol class="daftar-pustaka">
+            @foreach($daftarPustaka as $item)
+            <li>{{ $item }}</li>
+            @endforeach
+        </ol>
+        @else
+        <p class="empty-state">Daftar pustaka belum terisi.</p>
         @endif
     </div>
 

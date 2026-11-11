@@ -14,9 +14,39 @@
 
 <x-alert type="success" :message="session('success')" />
 
-<div x-data="{ q: '' }">
+<div x-data="{
+    q: '',
+    info: null,
+    open(cpl, el) {
+        if (this.info && this.info.cpl.id === cpl.id) {
+            return this.close();
+        }
+        this.info = { cpl, rect: el.getBoundingClientRect() };
+        this.$nextTick(() => this.position());
+    },
+    close() {
+        this.info = null;
+    },
+    position() {
+        const pop = this.$refs.popover;
+        if (!pop || !this.info) {
+            return;
+        }
+        const rect = this.info.rect;
+        let left = rect.left;
+        let top = rect.bottom + 8;
+        if (left + pop.offsetWidth > window.innerWidth - 8) {
+            left = Math.max(8, window.innerWidth - pop.offsetWidth - 8);
+        }
+        if (top + pop.offsetHeight > window.innerHeight - 8) {
+            top = Math.max(8, rect.top - pop.offsetHeight - 8);
+        }
+        pop.style.left = left + 'px';
+        pop.style.top = top + 'px';
+    }
+}">
 
-<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / nama MK" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari mata kuliah">
+<input type="search" x-model="q" class="form-input filter-select" placeholder="Cari kode / bahan kajian" style="max-width: 420px; margin-bottom: 1rem;" aria-label="Cari bahan kajian">
 
 <div class="table-container">
 
@@ -27,29 +57,37 @@
             <tr>
 
                 <th>
-                    Kode MK
+                    Kode BK
                 </th>
 
                 <th>
-                    Nama MK
+                    Bahan Kajian
                 </th>
 
                 @foreach($cpls as $cpl)
 
                     <th class="text-center">
 
-                        <div>{{ $cpl->kode_cpl }}</div>
+                        <div>
+                            {{ $cpl->kode_cpl }}
 
-                        @if($cpl->deskripsi)
-                        <div class="table-sub">{{ $cpl->deskripsi }}</div>
-                        @endif
+                            @if($cpl->deskripsi)
+                                <button type="button"
+                                        class="cpmk-info-btn"
+                                        @click="open({ id: {{ $cpl->id }}, kode_cpl: {{ Js::from($cpl->kode_cpl) }}, deskripsi: {{ Js::from($cpl->deskripsi) }} }, $event.currentTarget)"
+                                        :aria-expanded="info?.cpl.id === {{ $cpl->id }}"
+                                        title="Lihat deskripsi CPL"
+                                        aria-label="Lihat deskripsi {{ $cpl->kode_cpl }}"
+                                        style="font-size: 0.7rem; font-weight: 700;">!</button>
+                            @endif
+                        </div>
 
                     </th>
 
                 @endforeach
 
                 <th class="text-center">
-                    Jumlah BK
+                    Jumlah MK
                 </th>
 
             </tr>
@@ -58,23 +96,23 @@
 
         <tbody>
 
-            @forelse($mataKuliahs as $mk)
+            @forelse($bahanKajians as $bk)
 
                 <tr x-show="q === '' || $el.innerText.toLowerCase().includes(q.toLowerCase())">
 
                     <td class="font-medium">
-                        {{ $mk->kode }}
+                        {{ $bk->kode_bk }}
                     </td>
 
                     <td>
-                        {{ $mk->nama }}
+                        {{ $bk->nama_bk }}
                     </td>
 
                     @foreach($cpls as $cpl)
 
                         <td class="text-center">
 
-                            @if($mk->cpls->contains('id', $cpl->id))
+                            @if($bk->cpls->contains('id', $cpl->id))
 
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981;" aria-hidden="true">
                                     <polyline points="20 6 9 17 4 12"/>
@@ -93,7 +131,7 @@
                     @endforeach
 
                     <td class="text-center">
-                        {{ $mk->bahanKajians->count() }}
+                        {{ $bk->mataKuliahs->count() }}
                     </td>
 
                 </tr>
@@ -102,7 +140,7 @@
 
                 <tr class="empty-row">
                     <td colspan="{{ 3 + $cpls->count() }}">
-                        Belum ada mata kuliah.
+                        Belum ada bahan kajian.
                     </td>
                 </tr>
 
@@ -145,6 +183,19 @@
     </table>
 
 </div>
+
+<template x-teleport="body">
+    <div x-show="info"
+         x-ref="popover"
+         x-cloak
+         class="cpmk-info-popover"
+         style="position: fixed; display: none;"
+         @click.outside="close()"
+         @keydown.escape.window="close()">
+        <div class="cpmk-info-kode" x-text="info?.cpl.kode_cpl"></div>
+        <div class="cpmk-info-deskripsi" x-text="info?.cpl.deskripsi"></div>
+    </div>
+</template>
 
 </div>
 

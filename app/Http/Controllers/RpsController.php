@@ -25,6 +25,17 @@ class RpsController extends Controller
         $this->authorizeRps($mataKuliah);
         $rps = $mataKuliah->rps;
 
+        $rps?->load([
+            'mataKuliah.kurikulum.programStudi',
+            'mataKuliah.cpls',
+            'mataKuliah.bahanKajians',
+            'mataKuliah.cpmks.cpls',
+            'pertemuans' => fn ($q) => $q->orderBy('minggu'),
+            'tugas' => fn ($q) => $q->orderBy('minggu_topik'),
+            'bentukEvaluasis',
+            'disetujuiOleh',
+        ]);
+
         if ($rps && auth()->check()) {
             auth()->user()->unreadNotifications()
                 ->whereIn('type', [RpsDisetujui::class, RpsDirevisi::class])
@@ -63,7 +74,6 @@ class RpsController extends Controller
             'semester' => 'required|integer',
             'dosen_pengampu' => 'required|string|max:255',
             'deskripsi_mata_kuliah' => 'nullable|string',
-            'sub_cpmk' => 'nullable|string',
             'rumpun_mk' => 'nullable|string|max:255',
             'mk_prasyarat' => 'nullable|string',
             'prasyarat_untuk' => 'nullable|string',
@@ -81,7 +91,6 @@ class RpsController extends Controller
             'semester' => $request->semester,
             'dosen_pengampu' => $request->dosen_pengampu,
             'deskripsi_mata_kuliah' => $request->deskripsi_mata_kuliah,
-            'sub_cpmk' => $request->sub_cpmk,
             'rumpun_mk' => $request->rumpun_mk,
             'mk_prasyarat' => $request->mk_prasyarat,
             'prasyarat_untuk' => $request->prasyarat_untuk,
@@ -121,7 +130,6 @@ class RpsController extends Controller
             'semester' => 'required|integer',
             'dosen_pengampu' => 'required|string|max:255',
             'deskripsi_mata_kuliah' => 'nullable|string',
-            'sub_cpmk' => 'nullable|string',
             'rumpun_mk' => 'nullable|string|max:255',
             'mk_prasyarat' => 'nullable|string',
             'prasyarat_untuk' => 'nullable|string',
@@ -138,7 +146,6 @@ class RpsController extends Controller
             'semester' => $request->semester,
             'dosen_pengampu' => $request->dosen_pengampu,
             'deskripsi_mata_kuliah' => $request->deskripsi_mata_kuliah,
-            'sub_cpmk' => $request->sub_cpmk,
             'rumpun_mk' => $request->rumpun_mk,
             'mk_prasyarat' => $request->mk_prasyarat,
             'prasyarat_untuk' => $request->prasyarat_untuk,

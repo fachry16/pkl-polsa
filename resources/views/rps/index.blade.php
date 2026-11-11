@@ -11,139 +11,100 @@
 
 @if($rps)
 
-<div class="card">
+<p class="page-subtitle">
+    {{ $mataKuliah->kode }} — {{ $mataKuliah->kurikulum->nama_kurikulum ?? '-' }}
+</p>
 
-    <table class="detail-table" style="width:100%;">
+<div class="btn-group mb-4">
 
-        <tr>
-            <td class="font-semibold">Kode RPS</td>
-            <td>{{ $rps->kode_rps }}</td>
-        </tr>
+    <a href="{{ route('rps.pertemuan.index', $rps) }}"
+       class="btn btn-primary">
+        Pertemuan
+    </a>
 
-        <tr>
-            <td class="font-semibold">Semester</td>
-            <td>{{ $rps->semester }}</td>
-        </tr>
+    <a href="{{ route('rps.tugas.index', $rps) }}"
+       class="btn btn-secondary">
+        Tugas &amp; Latihan
+    </a>
 
-        <tr>
-            <td class="font-semibold">Dosen Pengampu</td>
-            <td>{{ $rps->dosen_pengampu }}</td>
-        </tr>
+    <a href="{{ route('rps.bentuk-evaluasi.index', $rps) }}"
+       class="btn btn-success">
+        Rancangan Evaluasi
+    </a>
 
-        <tr>
-            <td class="font-semibold">Deskripsi</td>
-            <td>{{ $rps->deskripsi_mata_kuliah }}</td>
-        </tr>
+    <a href="{{ route('rps.penilaian.index', $rps) }}"
+       class="btn btn-success">
+        Penilaian
+    </a>
 
-        <tr>
-            <td class="font-semibold">Rumpun MK (RMK)</td>
-            <td>{{ $rps->rumpun_mk }}</td>
-        </tr>
+    <a href="{{ route('rps.sub-cpmk.index', $rps) }}"
+       class="btn btn-secondary">
+        Sub-CPMK
+    </a>
 
-        <tr>
-            <td class="font-semibold">MK yang Menjadi Prasyarat</td>
-            <td>{{ $rps->mk_prasyarat }}</td>
-        </tr>
+    <a href="{{ route('rps.daftar-pustaka.edit', $rps) }}"
+       class="btn btn-secondary">
+        Daftar Pustaka
+    </a>
 
-        <tr>
-            <td class="font-semibold">Menjadi Prasyarat untuk MK</td>
-            <td>{{ $rps->prasyarat_untuk }}</td>
-        </tr>
+    @if($rps->status == 'Disetujui')
 
-        <tr>
-            <td class="font-semibold">Integrasi Antar MK</td>
-            <td>{{ $rps->integrasi_antar_mk }}</td>
-        </tr>
+    <a href="{{ route('rps.ekstrak-pdf', $rps) }}"
+       class="btn btn-primary">
+        Ekstrak PDF
+    </a>
 
-        <tr>
-            <td class="font-semibold">Tautan Kelas Daring</td>
-            <td>{{ $rps->tautan_daring }}</td>
-        </tr>
+    @endif
 
-    </table>
+    @if(in_array($rps->status, ['Draft', 'Revisi']))
 
-    <div class="btn-group mt-5">
+        @if($kelengkapan['siap'])
+        <form action="{{ route('rps.ajukan', $rps) }}" method="POST">
 
-        <a href="{{ route('rps.pertemuan.index', $rps) }}"
-           class="btn btn-primary">
-            Pertemuan
-        </a>
+            @csrf
+            @method('PATCH')
 
-        <a href="{{ route('rps.tugas.index', $rps) }}"
-           class="btn btn-secondary">
-            Tugas &amp; Latihan
-        </a>
-
-        <a href="{{ route('rps.bentuk-evaluasi.index', $rps) }}"
-           class="btn btn-success">
-            Rancangan Evaluasi
-        </a>
-
-        <a href="{{ route('rps.penilaian.index', $rps) }}"
-           class="btn btn-success">
-            Penilaian
-        </a>
-
-        @if($rps->status == 'Disetujui')
-
-        <a href="{{ route('rps.ekstrak-pdf', $rps) }}"
-           class="btn btn-primary">
-            Ekstrak PDF
-        </a>
-
-        @endif
-
-        @if(in_array($rps->status, ['Draft', 'Revisi']))
-
-            @if($kelengkapan['siap'])
-            <form action="{{ route('rps.ajukan', $rps) }}" method="POST">
-
-                @csrf
-                @method('PATCH')
-
-                <button class="btn btn-primary">
-                    {{ $rps->status == 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Kaprodi' }}
-                </button>
-
-            </form>
-            @else
-            <button class="btn btn-primary" disabled
-                    title="Lengkapi seluruh pertemuan (minggu 1-{{ \App\Models\Rps::JUMLAH_PERTEMUAN }}), tugas & latihan, dan penilaian terlebih dahulu">
+            <button class="btn btn-primary">
                 {{ $rps->status == 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Kaprodi' }}
             </button>
-            @endif
 
-        @endif
-
-        @if($rps->status != 'Disetujui')
-
-            <a href="{{ route('mata-kuliah.rps.edit', [$mataKuliah, $rps]) }}"
-               class="btn btn-warning">
-                Edit
-            </a>
-
-            <x-confirm
-                action="{{ route('mata-kuliah.rps.destroy', [$mataKuliah, $rps]) }}"
-                method="DELETE"
-                title="Hapus RPS"
-                message="Hapus RPS ini?"
-                sub-message="Semua data pertemuan dan penilaian terkait akan ikut terhapus."
-                buttonText="Hapus"
-                buttonClass="btn btn-danger"
-                confirmText="Ya, Hapus"
-            />
-
+        </form>
         @else
-
-            <a href="{{ route('mata-kuliah.rps.edit', [$mataKuliah, $rps]) }}"
-               class="btn btn-warning">
-                Edit
-            </a>
-
+        <button class="btn btn-primary" disabled
+                title="Lengkapi seluruh pertemuan (minggu 1-{{ \App\Models\Rps::JUMLAH_PERTEMUAN }}), tugas & latihan, dan penilaian terlebih dahulu">
+            {{ $rps->status == 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Kaprodi' }}
+        </button>
         @endif
 
-    </div>
+    @endif
 
+    <a href="{{ route('mata-kuliah.rps.edit', [$mataKuliah, $rps]) }}"
+       class="btn btn-warning">
+        Edit
+    </a>
+
+    @if($rps->status != 'Disetujui')
+
+    <x-confirm
+        action="{{ route('mata-kuliah.rps.destroy', [$mataKuliah, $rps]) }}"
+        method="DELETE"
+        title="Hapus RPS"
+        message="Hapus RPS ini?"
+        sub-message="Semua data pertemuan dan penilaian terkait akan ikut terhapus."
+        buttonText="Hapus"
+        buttonClass="btn btn-danger"
+        confirmText="Ya, Hapus"
+    />
+
+    @endif
+
+</div>
+
+<div class="rps-document">
+
+    @include('rps._cover')
+
+    @include('rps._document')
 </div>
 
 @else

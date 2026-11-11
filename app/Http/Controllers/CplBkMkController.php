@@ -14,7 +14,7 @@ class CplBkMkController extends Controller
     public function index(Kurikulum $kurikulum)
     {
         $this->authorizeKurikulumRead($kurikulum);
-        $mataKuliahs = $kurikulum->mataKuliahs()->orderBy('kode')->get()->load('cpls', 'bahanKajians');
+        $bahanKajians = $kurikulum->bahanKajians()->orderBy('kode_bk')->get()->load('cpls', 'mataKuliahs');
         $cpls = $kurikulum->cpls()->orderBy('kode_cpl')->get();
 
         foreach ($cpls as $cpl) {
@@ -22,7 +22,7 @@ class CplBkMkController extends Controller
             $cpl->jumlahMk = $cpl->mataKuliahs()->distinct()->count('mata_kuliahs.id');
         }
 
-        return view('cpl-bk-mk.index', compact('kurikulum', 'mataKuliahs', 'cpls'));
+        return view('cpl-bk-mk.index', compact('kurikulum', 'bahanKajians', 'cpls'));
     }
 
     public function store(Request $request, Kurikulum $kurikulum)

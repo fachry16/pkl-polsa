@@ -69,6 +69,26 @@ class Rps extends Model
         return $this->belongsTo(User::class, 'disetujui_oleh');
     }
 
+    public function subCpmkList(): array
+    {
+        return collect(explode("\n", (string) $this->sub_cpmk))
+            ->map(fn ($item) => trim($item))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public function setSubCpmkList(array $items): void
+    {
+        $this->update([
+            'sub_cpmk' => collect($items)
+                ->map(fn ($item) => trim((string) $item))
+                ->filter()
+                ->values()
+                ->implode("\n"),
+        ]);
+    }
+
     public function mingguKosong(): array
     {
         $terisi = $this->pertemuans()->pluck('minggu');
