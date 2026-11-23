@@ -8,6 +8,7 @@ use App\Models\LmsMateri;
 use App\Models\LmsTugas;
 use App\Models\MataKuliah;
 use App\Models\Rps;
+use App\Models\RumpunMk;
 use App\Models\User;
 use App\Notifications\RpsDiajukan;
 use App\Notifications\RpsDirevisi;
@@ -15,6 +16,7 @@ use App\Notifications\RpsDisetujui;
 use App\Services\GoogleDriveService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RpsController extends Controller
 {
@@ -34,6 +36,11 @@ class RpsController extends Controller
             'tugas' => fn ($q) => $q->orderBy('minggu_topik'),
             'bentukEvaluasis',
             'disetujuiOleh',
+            'dosenPengampu.user',
+            'dosenPengembang.user',
+            'rumpunMk',
+            'ketuaProdi.user',
+            'koordinatorRmk.user',
         ]);
 
         if ($rps && auth()->check()) {
@@ -58,7 +65,9 @@ class RpsController extends Controller
                 ->with('error', 'RPS sudah tersedia.');
         }
 
-        return view('rps.create', compact('mataKuliah'));
+        $options = $this->formOptions($mataKuliah);
+
+        return view('rps.create', compact('mataKuliah', 'options'));
     }
 
     public function store(Request $request, MataKuliah $mataKuliah)
@@ -69,37 +78,45 @@ class RpsController extends Controller
             return back()->with('error', 'RPS sudah ada.');
         }
 
+        $options = $this->formOptions($mataKuliah);
+
         $request->validate([
             'kode_rps' => 'nullable|string|max:50',
             'semester' => 'required|integer',
-            'dosen_pengampu' => 'required|string|max:255',
+            'dosen_pengampu_id' => [
+                'required',
+                Rule::exists('dosens', 'id')->whereIn('id', $options['pengampuIds']),
+            ],
             'deskripsi_mata_kuliah' => 'nullable|string',
-            'rumpun_mk' => 'nullable|string|max:255',
+            'rumpun_mk_id' => 'nullable|exists:rumpun_mks,id',
             'mk_prasyarat' => 'nullable|string',
             'prasyarat_untuk' => 'nullable|string',
             'integrasi_antar_mk' => 'nullable|string',
             'tautan_daring' => 'nullable|string|max:255',
             'daftar_pustaka' => 'nullable|string',
-            'dosen_pengembang_rps' => 'nullable|string|max:255',
-            'koordinator_rmk' => 'nullable|string|max:255',
-            'ketua_prodi' => 'nullable|string|max:255',
+            'dosen_pengembang_rps_id' => 'nullable|exists:dosens,id',
+            'ketua_prodi_id' => [
+                'nullable',
+                Rule::exists('dosens', 'id')->whereIn('id', $options['kaprodiIds']),
+            ],
+            'koordinator_rmk_id' => 'nullable|exists:dosens,id',
         ]);
 
         Rps::create([
             'mata_kuliah_id' => $mataKuliah->id,
             'kode_rps' => $request->kode_rps,
             'semester' => $request->semester,
-            'dosen_pengampu' => $request->dosen_pengampu,
+            'dosen_pengampu_id' => $request->dosen_pengampu_id,
             'deskripsi_mata_kuliah' => $request->deskripsi_mata_kuliah,
-            'rumpun_mk' => $request->rumpun_mk,
+            'rumpun_mk_id' => $request->rumpun_mk_id,
             'mk_prasyarat' => $request->mk_prasyarat,
             'prasyarat_untuk' => $request->prasyarat_untuk,
             'integrasi_antar_mk' => $request->integrasi_antar_mk,
             'tautan_daring' => $request->tautan_daring,
             'daftar_pustaka' => $request->daftar_pustaka,
-            'dosen_pengembang_rps' => $request->dosen_pengembang_rps,
-            'koordinator_rmk' => $request->koordinator_rmk,
-            'ketua_prodi' => $request->ketua_prodi,
+            'dosen_pengembang_rps_id' => $request->dosen_pengembang_rps_id,
+            'ketua_prodi_id' => $request->ketua_prodi_id,
+            'koordinator_rmk_id' => $request->koordinator_rmk_id,
         ]);
 
         return redirect()
@@ -118,43 +135,53 @@ class RpsController extends Controller
     {
         $this->authorizeRps($mataKuliah);
 
-        return view('rps.edit', compact('mataKuliah', 'rps'));
+        $options = $this->formOptions($mataKuliah);
+
+        return view('rps.edit', compact('mataKuliah', 'rps', 'options'));
     }
 
     public function update(Request $request, MataKuliah $mataKuliah, Rps $rps)
     {
         $this->authorizeRps($mataKuliah);
 
+        $options = $this->formOptions($mataKuliah);
+
         $request->validate([
             'kode_rps' => 'nullable|string|max:50',
             'semester' => 'required|integer',
-            'dosen_pengampu' => 'required|string|max:255',
+            'dosen_pengampu_id' => [
+                'required',
+                Rule::exists('dosens', 'id')->whereIn('id', $options['pengampuIds']),
+            ],
             'deskripsi_mata_kuliah' => 'nullable|string',
-            'rumpun_mk' => 'nullable|string|max:255',
+            'rumpun_mk_id' => 'nullable|exists:rumpun_mks,id',
             'mk_prasyarat' => 'nullable|string',
             'prasyarat_untuk' => 'nullable|string',
             'integrasi_antar_mk' => 'nullable|string',
             'tautan_daring' => 'nullable|string|max:255',
             'daftar_pustaka' => 'nullable|string',
-            'dosen_pengembang_rps' => 'nullable|string|max:255',
-            'koordinator_rmk' => 'nullable|string|max:255',
-            'ketua_prodi' => 'nullable|string|max:255',
+            'dosen_pengembang_rps_id' => 'nullable|exists:dosens,id',
+            'ketua_prodi_id' => [
+                'nullable',
+                Rule::exists('dosens', 'id')->whereIn('id', $options['kaprodiIds']),
+            ],
+            'koordinator_rmk_id' => 'nullable|exists:dosens,id',
         ]);
 
         $rps->update([
             'kode_rps' => $request->kode_rps,
             'semester' => $request->semester,
-            'dosen_pengampu' => $request->dosen_pengampu,
+            'dosen_pengampu_id' => $request->dosen_pengampu_id,
             'deskripsi_mata_kuliah' => $request->deskripsi_mata_kuliah,
-            'rumpun_mk' => $request->rumpun_mk,
+            'rumpun_mk_id' => $request->rumpun_mk_id,
             'mk_prasyarat' => $request->mk_prasyarat,
             'prasyarat_untuk' => $request->prasyarat_untuk,
             'integrasi_antar_mk' => $request->integrasi_antar_mk,
             'tautan_daring' => $request->tautan_daring,
             'daftar_pustaka' => $request->daftar_pustaka,
-            'dosen_pengembang_rps' => $request->dosen_pengembang_rps,
-            'koordinator_rmk' => $request->koordinator_rmk,
-            'ketua_prodi' => $request->ketua_prodi,
+            'dosen_pengembang_rps_id' => $request->dosen_pengembang_rps_id,
+            'ketua_prodi_id' => $request->ketua_prodi_id,
+            'koordinator_rmk_id' => $request->koordinator_rmk_id,
         ]);
 
         return redirect()
@@ -236,7 +263,15 @@ class RpsController extends Controller
                     $q->where('program_studi_id', $user->dosen->program_studi_id);
                 });
             })
-            ->with(['mataKuliah', 'disetujuiOleh'])
+            ->with([
+                'mataKuliah',
+                'disetujuiOleh',
+                'dosenPengampu.user',
+                'dosenPengembang.user',
+                'rumpunMk',
+                'ketuaProdi.user',
+                'koordinatorRmk.user',
+            ])
             ->latest()
             ->get();
 
@@ -313,6 +348,11 @@ class RpsController extends Controller
             'penilaians',
             'tugas' => fn ($q) => $q->orderBy('minggu_topik'),
             'disetujuiOleh',
+            'dosenPengampu.user',
+            'dosenPengembang.user',
+            'rumpunMk',
+            'ketuaProdi.user',
+            'koordinatorRmk.user',
         ]);
 
         $rps->load('mataKuliah.cpmks');
@@ -329,6 +369,37 @@ class RpsController extends Controller
         }
 
         return view('rps.preview-pdf', compact('rps'));
+    }
+
+    private function formOptions(MataKuliah $mataKuliah): array
+    {
+        $pengampuIds = $mataKuliah->pengampus()->pluck('dosen_id')->unique()->all();
+        $namaDosen = fn (Dosen $dosen) => $dosen->user->name ?? '';
+        $prodiId = $mataKuliah->kurikulum?->program_studi_id;
+        $kaprodis = $prodiId
+            ? Dosen::where('jabatan', 'Kaprodi')
+                ->where('program_studi_id', $prodiId)
+                ->with('user')
+                ->get()
+                ->sortBy($namaDosen)
+                ->values()
+            : collect();
+
+        return [
+            'pengampus' => Dosen::whereIn('id', $pengampuIds)
+                ->with('user')
+                ->get()
+                ->sortBy($namaDosen)
+                ->values(),
+            'dosens' => Dosen::with('user')
+                ->get()
+                ->sortBy($namaDosen)
+                ->values(),
+            'kaprodis' => $kaprodis,
+            'rumpunMks' => RumpunMk::orderBy('nama')->get(),
+            'pengampuIds' => $pengampuIds,
+            'kaprodiIds' => $kaprodis->pluck('id')->all(),
+        ];
     }
 
     /**

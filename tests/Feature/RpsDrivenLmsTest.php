@@ -69,8 +69,7 @@ class RpsDrivenLmsTest extends TestCase
 
         $rps = Rps::create([
             'mata_kuliah_id' => $mk->id,
-            'dosen_pengembang_id' => $dosen->id,
-            'dosen_pengampu' => 'Dosen RPL',
+            'dosen_pengampu_id' => $dosen->id,
             'semester' => 3,
             'deskripsi' => 'RPS Desain PL',
             'status' => 'Disetujui',
@@ -164,8 +163,7 @@ class RpsDrivenLmsTest extends TestCase
 
         $rps = Rps::create([
             'mata_kuliah_id' => $mk->id,
-            'dosen_pengembang_id' => $dosen->id,
-            'dosen_pengampu' => 'Dosen RPL 2',
+            'dosen_pengampu_id' => $dosen->id,
             'semester' => 3,
             'deskripsi' => 'RPS Konstruksi PL',
             'status' => 'Disetujui',
@@ -265,8 +263,7 @@ class RpsDrivenLmsTest extends TestCase
 
         $rps = Rps::create([
             'mata_kuliah_id' => $mk->id,
-            'dosen_pengembang_id' => $dosen->id,
-            'dosen_pengampu' => 'Dosen RPL 3',
+            'dosen_pengampu_id' => $dosen->id,
             'semester' => 3,
             'deskripsi' => 'RPS PPL',
             'status' => 'Disetujui',
@@ -371,8 +368,7 @@ class RpsDrivenLmsTest extends TestCase
 
         $rps = Rps::create([
             'mata_kuliah_id' => $mk->id,
-            'dosen_pengembang_id' => $dosen->id,
-            'dosen_pengampu' => 'Dosen RPL 4',
+            'dosen_pengampu_id' => $dosen->id,
             'semester' => 3,
             'deskripsi' => 'RPS Arsitektur PL',
             'status' => 'Disetujui',
@@ -448,7 +444,7 @@ class RpsDrivenLmsTest extends TestCase
         $kurikulum = Kurikulum::create(['program_studi_id' => $prodi->id, 'nama_kurikulum' => 'Kurikulum 2024', 'tahun_berlaku' => 2024, 'beban_studi' => '144 SKS', 'deskripsi' => 'D', 'status' => 'Aktif']);
         $ta = TahunAkademik::create(['tahun' => 2026, 'semester' => 'Ganjil', 'is_active' => true]);
         $mk = MataKuliah::create(['kurikulum_id' => $kurikulum->id, 'kode' => 'RPL206', 'nama' => 'Basis Data', 'sks_teori' => 3, 'sks_praktikum' => 0, 'semester' => 2, 'jenis' => 'Wajib']);
-        $rps = Rps::create(['mata_kuliah_id' => $mk->id, 'dosen_pengembang_id' => $dosen->id, 'dosen_pengampu' => 'Dosen RPL 5', 'semester' => 2, 'deskripsi' => 'RPS', 'status' => 'Disetujui']);
+        $rps = Rps::create(['mata_kuliah_id' => $mk->id, 'dosen_pengampu_id' => $dosen->id, 'semester' => 2, 'deskripsi' => 'RPS', 'status' => 'Disetujui']);
 
         Pengampu::create([
             'dosen_id' => $dosen->id,

@@ -103,7 +103,7 @@ class LmsScopingFileTest extends TestCase
         $rps = Rps::create([
             'mata_kuliah_id' => $matakuliah->id,
             'semester' => 3,
-            'dosen_pengampu' => 'Dosen',
+            'dosen_pengampu_id' => $pengampu->dosen_id,
             'status' => 'Disetujui',
         ]);
 
@@ -148,7 +148,7 @@ class LmsScopingFileTest extends TestCase
         $rpsLain = Rps::create([
             'mata_kuliah_id' => $mkLain->id,
             'semester' => 3,
-            'dosen_pengampu' => 'Dosen',
+            'dosen_pengampu_id' => $data['dosen']->id,
             'status' => 'Disetujui',
         ]);
 

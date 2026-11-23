@@ -61,10 +61,12 @@
 
         <label class="form-label">Dosen Pengampu</label>
 
-        <input type="text"
-               name="dosen_pengampu"
-               class="form-input w-full"
-               value="{{ old('dosen_pengampu', $rps->dosen_pengampu) }}">
+        <select name="dosen_pengampu_id" class="form-select w-full" required>
+            <option value="">Pilih dosen pengampu</option>
+            @foreach ($options['pengampus'] as $dosen)
+                <option value="{{ $dosen->id }}" @selected(old('dosen_pengampu_id', $rps->dosen_pengampu_id) == $dosen->id)>{{ $dosen->user->name }}</option>
+            @endforeach
+        </select>
 
     </div>
 
@@ -82,10 +84,12 @@
 
         <label class="form-label">Rumpun MK (RMK)</label>
 
-        <input type="text"
-               name="rumpun_mk"
-               class="form-input w-full"
-               value="{{ old('rumpun_mk', $rps->rumpun_mk) }}">
+        <select name="rumpun_mk_id" class="form-select w-full">
+            <option value="">Belum ditentukan</option>
+            @foreach ($options['rumpunMks'] as $rumpun)
+                <option value="{{ $rumpun->id }}" @selected(old('rumpun_mk_id', $rps->rumpun_mk_id) == $rumpun->id)>{{ $rumpun->nama }}</option>
+            @endforeach
+        </select>
 
     </div>
 
@@ -145,10 +149,12 @@
 
         <label class="form-label">Dosen Pengembang RPS</label>
 
-        <input type="text"
-               name="dosen_pengembang_rps"
-               class="form-input w-full"
-               value="{{ old('dosen_pengembang_rps', $rps->dosen_pengembang_rps) }}">
+        <select name="dosen_pengembang_rps_id" class="form-select w-full">
+            <option value="">Belum ditentukan</option>
+            @foreach ($options['dosens'] as $dosen)
+                <option value="{{ $dosen->id }}" @selected(old('dosen_pengembang_rps_id', $rps->dosen_pengembang_rps_id) == $dosen->id)>{{ $dosen->user->name }}</option>
+            @endforeach
+        </select>
 
     </div>
 
@@ -156,10 +162,12 @@
 
         <label class="form-label">Koordinator RMK</label>
 
-        <input type="text"
-               name="koordinator_rmk"
-               class="form-input w-full"
-               value="{{ old('koordinator_rmk', $rps->koordinator_rmk) }}">
+        <select name="koordinator_rmk_id" class="form-select w-full">
+            <option value="">Belum ditentukan</option>
+            @foreach ($options['dosens'] as $dosen)
+                <option value="{{ $dosen->id }}" @selected(old('koordinator_rmk_id', $rps->koordinator_rmk_id) == $dosen->id)>{{ $dosen->user->name }}</option>
+            @endforeach
+        </select>
 
     </div>
 
@@ -167,10 +175,12 @@
 
         <label class="form-label">Ketua Program Studi</label>
 
-        <input type="text"
-               name="ketua_prodi"
-               class="form-input w-full"
-               value="{{ old('ketua_prodi', $rps->ketua_prodi) }}">
+        <select name="ketua_prodi_id" class="form-select w-full">
+            <option value="">Belum ditentukan</option>
+            @foreach ($options['kaprodis'] as $dosen)
+                <option value="{{ $dosen->id }}" @selected(old('ketua_prodi_id', $rps->ketua_prodi_id) == $dosen->id)>{{ $dosen->user->name }}</option>
+            @endforeach
+        </select>
 
     </div>
 

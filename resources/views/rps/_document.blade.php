@@ -34,7 +34,7 @@
                 </tr>
                 <tr>
                     <td class="rps-info-label">Rumpun MK (RMK)</td>
-                    <td class="rps-info-value">{{ $rps->rumpun_mk ?? '-' }}</td>
+                    <td class="rps-info-value">{{ $rps->nama_rumpun_mk ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="rps-info-label">Bobot (SKS)</td>
@@ -49,7 +49,7 @@
                 </tr>
                 <tr>
                     <td class="rps-info-label">Dosen Pengampu</td>
-                    <td class="rps-info-value">{{ $rps->dosen_pengampu }}</td>
+                    <td class="rps-info-value">{{ $rps->nama_dosen_pengampu ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="rps-info-label">Tanggal Penyusunan</td>
@@ -106,7 +106,7 @@
                             @else
                             <div class="rps-pengesahan-space"></div>
                             <div class="rps-pengesahan-sign">(Tanda tangan)</div>
-                            <div class="rps-pengesahan-name">{{ $rps->ketua_prodi ?? '-' }}</div>
+                            <div class="rps-pengesahan-name">{{ $rps->nama_ketua_prodi ?? '-' }}</div>
                             @endif
                         </td>
                         <td class="rps-pengesahan-col">
@@ -116,8 +116,8 @@
                                 <div class="rps-approved-check">✓</div>
                             </div>
                             <div class="rps-approved-text">Disetujui</div>
-                            @if($rps->dosen_pengembang_rps)
-                            <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps }}</div>
+                            @if($rps->nama_dosen_pengembang)
+                            <div class="rps-pengesahan-name">{{ $rps->nama_dosen_pengembang }}</div>
                             @endif
                             @if($rps->tanggal_disetujui)
                             <div class="rps-approved-date">{{ $rps->tanggal_disetujui->format('d/m/Y') }}</div>
@@ -125,7 +125,7 @@
                             @else
                             <div class="rps-pengesahan-space"></div>
                             <div class="rps-pengesahan-sign">(Tanda tangan)</div>
-                            <div class="rps-pengesahan-name">{{ $rps->dosen_pengembang_rps ?? '-' }}</div>
+                            <div class="rps-pengesahan-name">{{ $rps->nama_dosen_pengembang ?? '-' }}</div>
                             @endif
                         </td>
                     </tr>

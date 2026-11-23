@@ -30,6 +30,7 @@ use App\Models\RpsBentukEvaluasi;
 use App\Models\RpsPenilaian;
 use App\Models\RpsPertemuan;
 use App\Models\RpsTugas;
+use App\Models\RumpunMk;
 use App\Models\RumusanNilaiAkhirCpl;
 use App\Models\RumusanNilaiAkhirMk;
 use App\Models\SemesterMahasiswa;
@@ -351,17 +352,17 @@ class DemoPresentationSeeder extends Seeder
             [
                 'kode_rps' => 'RPS-TRPL301-2025',
                 'semester' => 3,
-                'dosen_pengampu' => 'Budi Santoso, M.Kom',
+                'dosen_pengampu_id' => $dosen1->id,
                 'deskripsi_mata_kuliah' => 'Mata kuliah ini membahas pengembangan aplikasi web modern fullstack dengan Laravel 12, REST API, Blade Component, Alpine.js, Tailwind CSS, dan integrasi cloud storage.',
                 'status' => 'Disetujui',
                 'disetujui_oleh' => $userKaprodi->id,
                 'tanggal_disetujui' => now()->subDays(5),
                 'catatan_revisi' => 'RPS disetujui. Sesuai dengan standar kurikulum OBE 2024.',
-                'rumpun_mk' => 'Rekayasa Perangkat Lunak',
+                'rumpun_mk_id' => RumpunMk::firstOrCreate(['nama' => 'Rekayasa Perangkat Lunak'])->id,
                 'mk_prasyarat' => 'Pemrograman Web Dasar',
-                'dosen_pengembang_rps' => 'Budi Santoso, M.Kom',
-                'koordinator_rmk' => 'Budi Santoso, M.Kom',
-                'ketua_prodi' => 'Dr. Eng. Kaprodi TRPL, M.Kom',
+                'dosen_pengembang_rps_id' => $dosen1->id,
+                'koordinator_rmk_id' => $dosen1->id,
+                'ketua_prodi_id' => $dosenKaprodi->id,
             ]
         );
 

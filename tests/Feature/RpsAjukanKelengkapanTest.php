@@ -75,7 +75,7 @@ class RpsAjukanKelengkapanTest extends TestCase
         $rps = Rps::create([
             'mata_kuliah_id' => $mk->id,
             'semester' => 3,
-            'dosen_pengampu' => $userDosen->name,
+            'dosen_pengampu_id' => $dosen->id,
             'status' => 'Draft',
         ]);
 

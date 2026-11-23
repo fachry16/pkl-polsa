@@ -47,7 +47,7 @@
                 </td>
 
                 <td>
-                    {{ $rps->dosen_pengampu }}
+                    {{ $rps->nama_dosen_pengampu ?? '-' }}
                 </td>
 
                 <td>

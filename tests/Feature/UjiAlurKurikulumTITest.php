@@ -15,6 +15,7 @@ use App\Models\Pengampu;
 use App\Models\ProgramStudi;
 use App\Models\Rps;
 use App\Models\RpsPertemuan;
+use App\Models\RumpunMk;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -323,18 +324,20 @@ class UjiAlurKurikulumTITest extends TestCase
 
         $this->assertCount(10, $pengampu->mahasiswas()->get());
 
+        $rumpunMk = RumpunMk::firstOrCreate(['nama' => 'Rekayasa Perangkat Lunak']);
+
         // 2. RPS (status awal Draft) — metadata persis seeder
         $this->actingAs($aktor)
             ->post(route('mata-kuliah.rps.store', $mataKuliah->id), [
                 'kode_rps' => 'RPS-TRPL301-2025',
                 'semester' => 3,
-                'dosen_pengampu' => 'Budi Santoso, M.Kom',
+                'dosen_pengampu_id' => $dosen->id,
                 'deskripsi_mata_kuliah' => 'Mata kuliah ini membahas pengembangan aplikasi web modern fullstack dengan Laravel 12, REST API, Blade Component, Alpine.js, Tailwind CSS, dan integrasi cloud storage.',
-                'rumpun_mk' => 'Rekayasa Perangkat Lunak',
+                'rumpun_mk_id' => $rumpunMk->id,
                 'mk_prasyarat' => 'Pemrograman Web Dasar',
-                'dosen_pengembang_rps' => 'Budi Santoso, M.Kom',
-                'koordinator_rmk' => 'Budi Santoso, M.Kom',
-                'ketua_prodi' => 'Dr. Eng. Kaprodi TRPL, M.Kom',
+                'dosen_pengembang_rps_id' => $dosen->id,
+                'koordinator_rmk_id' => $dosen->id,
+                'ketua_prodi_id' => $kaprodiUser->dosen?->id,
             ])
             ->assertSessionHasNoErrors()
             ->assertRedirect();

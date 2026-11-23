@@ -147,7 +147,7 @@ class CrudSmokeTest extends TestCase
         $this->rps = Rps::create([
             'mata_kuliah_id' => $this->mataKuliah->id,
             'semester' => 1,
-            'dosen_pengampu' => 'Dosen Test',
+            'dosen_pengampu_id' => $this->dosenModel->id,
             'status' => 'Draft',
         ]);
 
@@ -672,7 +672,7 @@ class CrudSmokeTest extends TestCase
 
         $this->put(route('mata-kuliah.rps.update', [$this->mataKuliah, $this->rps]), [
             'semester' => 1,
-            'dosen_pengampu' => 'Dosen Updated',
+            'dosen_pengampu_id' => $this->pengampu->dosen_id,
             'deskripsi_mata_kuliah' => 'Deskripsi Updated',
         ])->assertRedirect();
 

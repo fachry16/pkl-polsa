@@ -79,8 +79,7 @@ class LmsAbsensiKeaktifanTest extends TestCase
             'mata_kuliah_id' => $mk->id,
             'kode_rps' => 'RPS-MK101',
             'semester' => 1,
-            'dosen_pengampu' => 'Dosen Test',
-            'dosen_id' => $this->dosen->id,
+            'dosen_pengampu_id' => $this->dosen->id,
             'status' => 'Disetujui',
         ]);
 

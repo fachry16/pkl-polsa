@@ -93,8 +93,7 @@ class AdminFullAccessLmsTest extends TestCase
 
         $rps = Rps::create([
             'mata_kuliah_id' => $mk->id,
-            'dosen_pengembang_id' => $dosen->id,
-            'dosen_pengampu' => 'Dosen Pengampu',
+            'dosen_pengampu_id' => $dosen->id,
             'semester' => 3,
             'deskripsi' => 'RPS APL',
             'status' => 'Disetujui',

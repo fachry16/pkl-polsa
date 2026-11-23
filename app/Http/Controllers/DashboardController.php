@@ -217,7 +217,14 @@ class DashboardController extends Controller
                 // RPS Diajukan Butuh Review / Approval Kaprodi
                 $rpsDiajukanProdi = Rps::whereHas('mataKuliah.kurikulum', fn ($q) => $q->where('program_studi_id', $prodiId))
                     ->where('status', 'Diajukan')
-                    ->with(['mataKuliah'])
+                    ->with([
+                        'mataKuliah',
+                        'dosenPengampu.user',
+                        'dosenPengembang.user',
+                        'rumpunMk',
+                        'ketuaProdi.user',
+                        'koordinatorRmk.user',
+                    ])
                     ->latest()
                     ->get();
 

@@ -186,7 +186,7 @@ class NotificationTest extends TestCase
         $rps = Rps::create([
             'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
             'semester' => 3,
-            'dosen_pengampu' => $data['dosen']->user->name,
+            'dosen_pengampu_id' => $data['pengampu']->dosen_id,
             'status' => 'Draft',
         ]);
 
@@ -262,7 +262,7 @@ class NotificationTest extends TestCase
         $rps = Rps::create([
             'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
             'semester' => 3,
-            'dosen_pengampu' => $data['dosen']->user->name,
+            'dosen_pengampu_id' => $data['pengampu']->dosen_id,
             'status' => 'Diajukan',
         ]);
 
@@ -296,7 +296,7 @@ class NotificationTest extends TestCase
         $rps = Rps::create([
             'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
             'semester' => 3,
-            'dosen_pengampu' => $data['dosen']->user->name,
+            'dosen_pengampu_id' => $data['pengampu']->dosen_id,
             'status' => 'Diajukan',
         ]);
 
@@ -334,7 +334,7 @@ class NotificationTest extends TestCase
         $rps = Rps::create([
             'mata_kuliah_id' => $data['pengampu']->mata_kuliah_id,
             'semester' => 3,
-            'dosen_pengampu' => $data['dosen']->user->name,
+            'dosen_pengampu_id' => $data['pengampu']->dosen_id,
             'status' => 'Diajukan',
         ]);
 

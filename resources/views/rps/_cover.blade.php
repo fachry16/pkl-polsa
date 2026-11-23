@@ -20,7 +20,7 @@
         <div class="rps-cover-by">
             <div class="rps-cover-oleh">oleh</div>
             <div class="rps-cover-penyusun">PENYUSUN</div>
-            <div class="rps-cover-penyusun-name">{{ $rps->dosen_pengembang_rps ?? $rps->dosen_pengampu }}</div>
+            <div class="rps-cover-penyusun-name">{{ $rps->nama_dosen_pengembang ?? $rps->nama_dosen_pengampu ?? '-' }}</div>
         </div>
         <div class="rps-cover-prodi">
             Program Studi {{ $rps->mataKuliah->kurikulum->programStudi->jenjang ?? '' }} {{ $rps->mataKuliah->kurikulum->programStudi->nama_prodi ?? '' }}
@@ -40,7 +40,7 @@
             </div>
             <div class="rps-cover-info-item">
                 <span class="rps-cover-info-label">Dosen Pengampu</span>
-                <span class="rps-cover-info-value">{{ $rps->dosen_pengampu }}</span>
+                <span class="rps-cover-info-value">{{ $rps->nama_dosen_pengampu ?? '-' }}</span>
             </div>
             <div class="rps-cover-info-item">
                 <span class="rps-cover-info-label">Tahun Penyusunan</span>

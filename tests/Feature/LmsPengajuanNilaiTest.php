@@ -115,7 +115,7 @@ class LmsPengajuanNilaiTest extends TestCase
         $rps = Rps::create([
             'mata_kuliah_id' => $matakuliah->id,
             'semester' => 3,
-            'dosen_pengampu' => 'Dosen',
+            'dosen_pengampu_id' => $pengampu->dosen_id,
             'status' => 'Disetujui',
         ]);
 

@@ -12,22 +12,22 @@ class Rps extends Model
         'mata_kuliah_id',
         'kode_rps',
         'semester',
-        'dosen_pengampu',
+        'dosen_pengampu_id',
         'deskripsi_mata_kuliah',
         'sub_cpmk',
         'status',
         'disetujui_oleh',
         'tanggal_disetujui',
         'catatan_revisi',
-        'rumpun_mk',
+        'rumpun_mk_id',
         'mk_prasyarat',
         'prasyarat_untuk',
         'integrasi_antar_mk',
         'tautan_daring',
         'daftar_pustaka',
-        'dosen_pengembang_rps',
-        'koordinator_rmk',
-        'ketua_prodi',
+        'dosen_pengembang_rps_id',
+        'koordinator_rmk_id',
+        'ketua_prodi_id',
     ];
 
     protected $casts = [
@@ -37,6 +37,56 @@ class Rps extends Model
     public function mataKuliah()
     {
         return $this->belongsTo(MataKuliah::class);
+    }
+
+    public function dosenPengampu()
+    {
+        return $this->belongsTo(Dosen::class, 'dosen_pengampu_id');
+    }
+
+    public function dosenPengembang()
+    {
+        return $this->belongsTo(Dosen::class, 'dosen_pengembang_rps_id');
+    }
+
+    public function rumpunMk()
+    {
+        return $this->belongsTo(RumpunMk::class);
+    }
+
+    public function ketuaProdi()
+    {
+        return $this->belongsTo(Dosen::class, 'ketua_prodi_id');
+    }
+
+    public function koordinatorRmk()
+    {
+        return $this->belongsTo(Dosen::class, 'koordinator_rmk_id');
+    }
+
+    public function getNamaDosenPengampuAttribute(): ?string
+    {
+        return $this->dosenPengampu?->user?->name;
+    }
+
+    public function getNamaDosenPengembangAttribute(): ?string
+    {
+        return $this->dosenPengembang?->user?->name;
+    }
+
+    public function getNamaRumpunMkAttribute(): ?string
+    {
+        return $this->rumpunMk?->nama;
+    }
+
+    public function getNamaKetuaProdiAttribute(): ?string
+    {
+        return $this->ketuaProdi?->user?->name;
+    }
+
+    public function getNamaKoordinatorRmkAttribute(): ?string
+    {
+        return $this->koordinatorRmk?->user?->name;
     }
 
     public function pertemuans()
