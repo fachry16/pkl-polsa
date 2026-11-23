@@ -10,6 +10,7 @@ class Rps extends Model
 
     protected $fillable = [
         'mata_kuliah_id',
+        'tahun_akademik_id',
         'kode_rps',
         'semester',
         'dosen_pengampu_id',
@@ -37,6 +38,11 @@ class Rps extends Model
     public function mataKuliah()
     {
         return $this->belongsTo(MataKuliah::class);
+    }
+
+    public function tahunAkademik()
+    {
+        return $this->belongsTo(TahunAkademik::class);
     }
 
     public function dosenPengampu()
